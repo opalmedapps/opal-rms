@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MUHC ORMS Waiting Room Management System</title>
+</head>
+
+<body ng-init="setDate();" ng-app="myApp" ng-controller="main">
+	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
+
+	<table border="0" width="50%" padding="5">
+		<tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in Medivisit.</font></td></tr>
+	</table>
+	<br>
+
+	<form method="post" action="../php/system/processAppointmentFromAddOn.php">
+		<table border="0" width="60%" padding="2">
+
+			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
+            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId" ng-model="pid" id="pid" required></td></tr>
+            <tr><td><b>Site</b></td><td colspan="3"> <select maxlength="40" name="Site" ng-model="site" required>
+                    <option value=""></option>
+                    <option value="RVH">RVH</option>
+                    <option value="MGH">MGH</option>
+                    </select>
+            </td></tr>
+			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
+			<tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" name="RamqExpireDate" ng-model="RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
+			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatLastName" ng-model="last" id="last" required></td></tr>
+			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatFirstName" ng-model="first" id="first" required></td></tr>
+			<tr><td></td></td>
+
+			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
+
+			<tr><td><b>Appointment Code</b></td>
+			<td>
+			    <input type="text" list="AppointCode" name="AppointCode" required>
+			    <datalist id="AppointCode">
+			    <option ng-repeat="appointment in loadedAppointments | filter:search" value="{{appointment}}"></option>
+			    </datalist>
+
+			</td>
+			</tr>
+
+
+			<tr><td><b>Clinic Code</b></td>
+			<td>
+			    <select name="ResourceCode">
+			       <option value="ADD-ON">ADD-ON</option>
+			       <option value="JARZ">JARZ</option>
+			    </select>
+			</td>
+			</tr>
+
+			<tr><td><b>Clinic Name</b></td>
+			<td>
+			    <input type="text" list="ResourceName" name="ResourceName" required>
+			    <datalist id="ResourceName">
+			    <option ng-repeat="resource in loadedResources | filter:search" value="{{resource}}"></option>
+			    </datalist>
+
+			</td>
+			</tr>
+
+			<tr><td><b>Appointment Date/Time</b></td>
+			<td>
+			<input type="date" id="myDate" name="AppointDate" />
+			<input type="time" id="myTime" name="AppointTime" />
+			</td>
+			</tr>
+
+			<tr>
+			<td colspan=5 align="center">
+			<input type="submit" value="Submit"><input type="reset">
+			</td>
+			</tr>
+		</table>
+	</form>
+
+	<hr>
+	<center> Problems and bug reports to Victor Matassa<br> (victor.matassa@mail.mcgill.ca)</center>
+	<center> <a href="../">Main Page</a></center>
+
+</body>
+
+<script src="/node_modules/angular/angular.min.js"></script>
+
+<script>
+var app = angular.module('myApp',[]);
+
+app.config(['$locationProvider',function ($locationProvider)
+{
+	$locationProvider.html5Mode({
+		enabled: true,
+		requireBase: false,
+		rewriteLinks: false
+	});
+}]);
+
+app.controller('main', function($scope,$http,$window,$location)
+{
+	//Ensure that page is refreshed when using back button
+	if(!!$window.performance && $window.performance.navigation.type == 2)
+	{
+		$window.location.reload();
+	}
+
+	var pageParams = $location.search();
+
+	$scope.currentDateTime = new Date();
+
+	//Pre fill the form with the specified patient params from the AddOnOnc_PRE page
+	$scope.first = pageParams.first;
+	$scope.last = pageParams.last;
+	$scope.pid = pageParams.pid;
+	$scope.Ramq = pageParams.ramq;
+	$scope.RamqExpiryDate = pageParams.ramqExp;
+	$scope.speciality = pageParams.speciality;
+
+	$scope.site = '';
+	if($scope.speciality == "Oncology") {$scope.site = "RVH";}
+	if($scope.speciality == "Ortho") {$scope.site = "MGH";}
+
+	$scope.setDate = function()
+	{
+		var date = new Date();
+
+		var day = date.getDate();
+		var month = date.getMonth() + 1;
+		var year = date.getFullYear();
+
+		var hour = date.getHours();
+		var min  = date.getMinutes();
+
+		if (month < 10) month = "0" + month;
+		if (day < 10) day = "0" + day;
+
+		if (hour < 10) hour = "0" + hour;
+		if (min < 10) min = "0" + min;
+
+		var today = year + "-" + month + "-" + day;
+		var now = hour + ":" + min + ":00";
+		var todayANDnow = today + " " + now;
+
+
+		document.getElementById('myDate').value = today;
+		document.getElementById('myTime').value = now;
+	}
+
+	//load list of oncology resources
+	$http({
+		url: "../perl/getClinicResources.pl",
+		method: "GET",
+		params:
+		{
+			speciality: $scope.speciality //"Oncology" or "Ortho"
+		}
+	}).then(function (response)
+	{
+		$scope.loadedResources = response.data.resources;
+		$scope.loadedAppointments = response.data.appointments;
+	});
+
+});
+
+
+
+
+</script>
+
+<html>

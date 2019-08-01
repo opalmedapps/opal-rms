@@ -1,0 +1,21 @@
+# ignore ide and editor swap files
+*.vscode
+*.swp
+
+#ignore test folder
+test/
+
+#ignore config files
+config/
+
+#ignore js dependencies
+node_modules/
+vendor/
+
+#ignore slave modules
+ormsscheduler/
+tools/KioskStatus/
+VirtualWaitingRoom/
+
+#ignore lock files
+smsReceiver.lock

@@ -1,0 +1,46 @@
+#config file to store all needed configs
+
+[path]
+BASE_PATH             =
+BASE_URL              =
+ 
+IMAGE_PATH            =
+IMAGE_URL             =
+LOG_PATH              =
+
+[database]
+ORMS_TYPE             =
+ORMS_HOST             =
+ORMS_PORT             =
+ORMS_DB               =
+ORMS_USERNAME         =
+ORMS_PASSWORD         =
+
+LOG_TYPE              =
+LOG_HOST              =
+LOG_PORT              =
+LOG_DB                =
+LOG_USERNAME          =
+LOG_PASSWORD          =
+
+ARIA_TYPE             =
+ARIA_HOST             =
+ARIA_PORT             =
+ARIA_DB               =
+ARIA_USERNAME         =
+ARIA_PASSWORD         =
+
+OPAL_TYPE             =
+OPAL_HOST             =
+OPAL_PORT             =
+OPAL_DB               =
+OPAL_USERNAME         =
+OPAL_PASSWORD         =
+
+[opal]
+OPAL_CHECKIN_URL      =
+
+[sms]
+SMS_LICENCE_KEY       =
+SMS_GATEWAY_URL       =
+SMS_WEBSERVICE_MUHC   =

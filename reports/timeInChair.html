@@ -1,0 +1,38 @@
+<HTML>
+<title>MUHC Cedars Cancer Centre Oncology Database Reports</title>
+<body>
+<center><h1>MUHC Cedars Cancer Centre Oncology Database Reports <br>Department of Medical Physics</h1></center><center><h2><u>ODC Time In Chair Report</u></h2></center>
+
+<table border="0" width="50%" padding="5">
+<tr><td valign="top"><b>Description</b></td><td> Report to provide the time-in-chair statistics for chemo patients</font>
+</tr></td>
+</table>
+<p>
+<form action="./Scripts/TimeInChair">
+<table border="0" width="50%" padding="2">
+<tr bgcolor=#1D0886 fgcolor=#FFFFFF>
+ 	<th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
+</tr>
+<tr>
+<td><b>From Date: </b></td>
+<td><input type="date" name="sDate" required></td>
+<td><b>To Date: </b></td>
+<td><input type="date" name="eDate" required></td>
+</tr>
+
+<tr>
+<td><b>Period</b></td><td colspan="3"> <input maxlength="40" size="20" name="period">
+</td>
+</tr>
+
+<tr>
+<td colspan=5 align="center">
+<input type="submit" value="Submit"><input type="reset">
+</td>
+</tr>
+</table>
+</form>
+
+<hr>
+<center> Problems and bug reports to John Kildea<br> (jkildea@medphys.mcgill.ca)</center>
+<center> <a href="admin.html">Report Central - Administrative Reports</a></center>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Kiosk Status</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <!-- Custom styles for this template -->
+    <link href="main.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+</head>
+<body ng-app="kioskDisplay" ng-controller="MainController">
+
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="#" ng-click="toggleChart('mainChart')"><label>Kiosk Activity</label></a>
+        <a href="#" ng-click="toggleChart('heartBeatChart')"><label>Kiosk Hourly Heartbeat</label></a>
+        <a href="#" ng-click="toggleChart('checkInChart')"><label>Kiosk Hourly Check-In</label></a>
+        <a href="#" ng-click="toggleChart('unsuccessfulCheckIn')"><label>Kiosk Hourly Unsuccessful Check-In</label></a>
+        <a href="#" ng-click="toggleChart('checkInAttemptsBarChart')"><label>Check-In Attempt Chart</label></a>
+        <a href="#" ng-click="toggleChart('tableOfSummary')"><label>Table of Summary</label></a>
+    </div>
+
+    <div id="main">
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="navbar navbar-default" style="background-color: #94bfea1c; border-left: 0">
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="padding-left: 0px; padding-right: 10px;">
+                        <form class="navbar-form navbar-left" role="search">
+                            <button type="submit" class="btn btn-default" onclick="openNav()">Menu</button>
+                            <button type="submit" class="btn btn-default" ng-click="launchRealTime()">Real Time</button>
+                            <input type="text" name = "datetimes" ng-model="datePrompt" class="form-control" placeholder="datePrompt"
+                                   ng-change="processDate()" style="width: 270px">
+                        </form>
+                        <!--
+                        <form class="navbar-form navbar-right">
+                            <button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>
+                        </form>-->
+                    </div><!-- /.navbar-collapse -->
+                </nav>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div id="heartBeatChart" style="display: none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id='hourly-container' style="display: block; height: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="checkInAttemptsBarChart" style="display: none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="bar-container" style="display: block; height: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="mainChart">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="container" style="display: block; height: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="checkInChart" style="display: none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="hourly-check-in-container" style="display: block; height: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id='unsuccessfulCheckIn' style="display: none">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="hourly-unsuccessful-check-in-container" style="display: block; height: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered" id="tableOfSummary" style="display: none; height: 100%">
+                        <thead class="header_color">
+                        <tr>
+                            <th align="center" ng-repeat="header in tableHeaders">{{ header }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="kiosk in kiosk">
+                            <td><b>{{ kiosk.ID }}</b></td>
+                            <td align="center">{{ kiosk.success }}</td>
+                            <td align="center">{{ kiosk.unsuccess }}</td>
+                            <td align="center">{{ kiosk.heartbeat }}</td>
+                            <td align="center">{{ kiosk.averageHeartBeatInterval | number:2}} min.</td>
+                            <td align="center">{{ kiosk.standardDeviation | number:2}} min.</td>
+                            <td align="center">{{ kiosk.medianInterval | number:2}} min.</td>
+                            <td align="center">{{ kiosk.minimumInterval | number:2}} min.</td>
+                            <td align="center">{{ kiosk.maximumInterval | number:2}} min.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidenav").style.width = "15%";
+            document.getElementById("main").style.marginLeft = "15%";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("main").style.marginLeft= "0";
+        }
+
+        $(function() {
+            $('input[name="datetimes"]').daterangepicker({
+                timePicker: true,
+                startDate: moment().startOf('hour'),
+                endDate: moment().startOf('hour').add(32, 'hour'),
+                locale: {
+                    format: 'M/DD hh:mm A'
+                }
+            });
+        });
+
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <!-- Modules -->
+    <script src="js/app.js"></script>
+    <script src="js/checklist-model.js"></script>
+    <!-- Controllers -->
+    <script src="js/controllers/MainController.js"></script>
+
+    </body>
+</html>

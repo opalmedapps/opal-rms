@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MUHC ORMS Waiting Room Management System - Register Patient for SMS Messages</title>
+</head>
+
+<body ng-app="myApp" ng-controller="main">
+	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Register Patient for SMS Messages</u></h2></center> 
+	 
+	<table border="0" width="50%" padding="5"> 
+	<tr><td valign="top"> Register or unregister a patient to receieve an SMS message when his/her name appears on the TV screens. Patient must already exist in the ORMS or Aria systems</font>
+	</td></tr>
+	</table>
+	<p>
+
+	<form action="../php/registerSMS.php">
+	<input hidden name="Speciality" value="{{speciality}}"></input> 
+	<table border="0" width="50%" padding="2"> 
+
+	<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Register Patient</font></th></tr> 
+	<tr><td><b>MRN</b></td><td colspan="3"> <input 
+		maxlength="40" size="20" name="PatientId"
+		placeholder="1234567"
+		pattern="[0-9]{7}"
+		required
+		></td></tr>
+	<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" required></td></tr>
+	<tr><td><b>Mobile number</b></td><td colspan="3"> <input type="tel"
+		maxlength="40" size="20" name="SMSAlertNum"
+		placeholder="1234567890"
+		pattern="[0-9]{10}"
+		required
+		> 10 digits, no spaces</td></tr>
+	<tr><td></td></tr>
+	<tr><td><b>Language Preference</b></td>
+	<td>
+	    <select name="LanguagePreference"> 
+	       <option value="French" selected>French</option> 
+	       <option value="English">English</option> 
+	    </select> 
+	</td>
+	</tr>
+	<tr><td colspan=2><hr></td></tr>
+
+	<tr>
+	<td colspan=5 align="center">
+	<input type="submit" value="Submit"><input type="reset"> 
+	</td>
+	</tr> 
+	</table> 
+	</form>
+
+	<br>
+
+	<form action="../php/unregisterSMS.php"> 
+	<table border="0" width="50%" padding="2"> 
+
+	<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Unregister Mobile Number</font></th></tr> 
+	<tr><td><b>Mobile number</b></td><td colspan="3"> <input type="tel"
+		maxlength="40" size="20" name="SMSAlertNum"
+		placeholder="1234567890"
+		pattern="[0-9]{10}"
+		required
+		> 10 digits, no spaces</td></tr>
+	<tr><td colspan=2><hr></td></tr>
+
+	<tr>
+	<td colspan=5 align="center">
+	<input type="submit" value="Submit"><input type="reset"> 
+	</td>
+	</tr> 
+	</table> 
+	</form>
+
+	<hr>
+	<center> Problems and bug reports to John Kildea<br> (john.kildea@mcgill.ca)</center> 
+	<center> <a href="../">Main Page</a></center>
+</body>
+
+<script src="../library/angularjs/angular.min.js"></script>
+
+<script>
+var app = angular.module('myApp',[]);
+
+app.config(['$locationProvider',function ($locationProvider)
+{
+	$locationProvider.html5Mode({
+		enabled: true,
+		requireBase: false,
+		rewriteLinks : false	
+	});
+}]);
+
+app.controller('main', function($scope,$location)
+{
+	//get the speciality
+	$scope.speciality = $location.search().speciality;
+});
+
+</script>
+
+
+</html>
+ 

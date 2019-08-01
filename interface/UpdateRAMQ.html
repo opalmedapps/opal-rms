@@ -1,0 +1,35 @@
+<HTML> 
+
+
+<title>MUHC ORMS Waiting Room Management System</title> 
+<body>
+<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Update RAMQ Expiration Date</u></h2></center> 
+ 
+<table border="0" width="50%" padding="5"> 
+<tr><td valign="top"> Update a RAMQ expiration date in the database so that a patient may check-in.<br> Note: this is a temporary solution while awaiting an automated connection with the ADT</font>
+</td></tr>
+</table>
+<p>
+
+<form action="../php/updateRAMQ.php"> 
+<table border="0" width="50%" padding="2"> 
+
+<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr> 
+<tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId"> required</td></tr>
+<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq"> required</td></tr>
+<tr><td><b>RAMQ Expire Date Year (YY)</b></td><td colspan="3"> <input maxlength="40" size="20" name="RamqExpireDateYear"> required</td></tr>
+<tr><td><b>RAMQ Expire Date Month (MM)</b></td><td colspan="3"> <input maxlength="40" size="20" name="RamqExpireDateMonth"> required</td></tr>
+<tr><td></td></td>
+
+<tr>
+<td colspan=5 align="center">
+<input type="submit" value="Submit"><input type="reset"> 
+</td>
+</tr> 
+</table> 
+</form>
+
+<hr>
+<center> Problems and bug reports to John Kildea<br> (john.kildea@mcgill.ca)</center> 
+<center> <a href="../">Main Page</a></center>
+ 

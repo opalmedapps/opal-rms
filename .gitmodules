@@ -1,0 +1,3 @@
+[submodule "VirtualWaitingRoom"]
+	path = VirtualWaitingRoom
+	url = http://jkildea@bitbucket.scs.muhc.mcgill.ca/scm/orms/VirtualWaitingRoom.git

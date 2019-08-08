@@ -72,7 +72,7 @@ sub LoadConfigs::GetDatabaseConnection
 	#connects to WaitRoomManagment db by default
 	if($requestedConnection eq 'ORMS')
 	{
-		$dbh = DBI->connect_cached("DBI:mysql:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
+		$dbh = DBI->connect_cached("DBI:mysql:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'};port=$dbInfo->{'ORMS_PORT'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
 	}
 
 	#connects to variansystem by default
@@ -85,7 +85,7 @@ sub LoadConfigs::GetDatabaseConnection
 	#logging db
 	elsif($requestedConnection eq 'LOGS')
 	{
-		$dbh = DBI->connect_cached("DBI:mysql:database=$dbInfo->{'LOG_DB'};host=$dbInfo->{'LOG_HOST'}",$dbInfo->{'LOG_USERNAME'},$dbInfo->{'LOG_PASSWORD'}) or 0;
+		$dbh = DBI->connect_cached("DBI:mysql:database=$dbInfo->{'LOG_DB'};host=$dbInfo->{'LOG_HOST'};port=$dbInfo->{'LOG_PORT'}",$dbInfo->{'LOG_USERNAME'},$dbInfo->{'LOG_PASSWORD'}) or 0;
 	}
 
 	return $dbh;

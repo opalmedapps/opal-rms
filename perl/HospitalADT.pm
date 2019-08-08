@@ -1,10 +1,11 @@
-#!/usr/bin/perl
+#!/opt/perl5/perl
 
 package HospitalADT;
 
 use strict;
 #use warnings;
-use v5.14;
+use v5.30;
+use lib ".";
 
 ####################################################
 # Package that gets patient data from the hospital ADT and returns information

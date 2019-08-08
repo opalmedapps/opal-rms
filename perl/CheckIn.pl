@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+#!/opt/perl5/perl
 #------------------------------------------------------------------------
 # J.Kildea  
 #------------------------------------------------------------------------
-# PERL-CGI-DBI script to check a patient in 
+# PERL-CGI- script to check a patient in 
 # 
 # Input parameters: 	various	
 #------------------------------------------------------------------------
@@ -10,15 +10,13 @@
 #------------------------------------------------------------------------
 $SIG{__DIE__} = sendToReception;
 use strict;
+use v5.30;
+use lib ".";
 #use warnings;
 #use diagnostics;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 
-# Use the DBI module 
-#------------------------------------------------------------------------
-use DBI;
-use DBD::Sybase;
 use Date::Calc;
 #use Date::Calc qw( Standard_to_Business Today Business_to_Standard );  
 use Date::Calc qw(Day_of_Week_to_Text Day_of_Week Decode_Month Today Now Decode_Date_US Today_and_Now Delta_DHMS Add_Delta_Days Delta_Days Add_Delta_DHMS Day_of_Week_Abbreviation);

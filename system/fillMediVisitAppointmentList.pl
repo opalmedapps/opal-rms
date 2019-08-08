@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/opt/perl5/perl
 
 # fillMediVisitAppointmentList:	Simple perl script to to read in a Medivisit
 # appointment list and insert into the MySQL database
@@ -32,7 +32,8 @@ sub SendEmail {
 # Declarations/initialisations
 #------------------------------------------------------------------------
 use strict;
-use v5.10;
+use v5.30;
+use lib ".";
 use warnings;
 use diagnostics;
 

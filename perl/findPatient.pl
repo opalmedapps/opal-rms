@@ -138,7 +138,8 @@ if(!($query->rows)){ #Patient not already in database
 	#check for response failure
 	if(!$response->is_success()) {
 		print "Response failed\n" if $verbose;
-		return -10; }
+		#return -10; 
+	}
 
 	#parse data
 	my %xml_data = %{$xml -> XMLin($response->content())};
@@ -149,7 +150,7 @@ if(!($query->rows)){ #Patient not already in database
 	#check if body empty
 	if(!ref($mainData)){
 		print "Body of data empty \n" if $verbose;
-		return -1;
+		#return -1;
 	}
 	elsif(ref($mainData) eq 'ARRAY'){ #two patients with same ramq (one is probably very old)
 		my @patients = @{$mainData};
@@ -165,10 +166,10 @@ if(!($query->rows)){ #Patient not already in database
 
 		if(length(@patients) > 1){
 			print "More than one patient associated to that ramq \n" if $verbose;
-			return -2;
+			#return -2;
 		}elsif(length(@patients) eq 0){
 			print "No patients associated to that ramq\n" if $verbose;
-			return -1;
+			#return -1;
 		}elsif(length(@patients) eq 1){
 			my $info = $patients[0]; #grab info from soap xml
 			my $last = $info->{'lastName'};

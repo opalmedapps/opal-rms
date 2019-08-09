@@ -444,6 +444,13 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
   {
     my $message_EN = "MUHC - Cedars Cancer Centre: You are checked in for your appointment(s).";
     my $message_FR = "CUSM - Centre du cancer des Cèdres: Votre(vos) rendez-vous est(sont) enregistré(s)";
+
+    if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
+    {
+	$message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
+	$message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
+    }
+
     my $SMS_message = "$SMS_url?PatientId=$PatientId&message_EN=$message_EN&message_FR=$message_FR";
     my $response = LWP::UserAgent->new()->get($SMS_message);
     my $content = $response->content;
@@ -464,6 +471,13 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
   {
     my $message_EN = "MUHC - Cedars Cancer Centre: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
     my $message_FR = "CUSM - Centre du cancer des Cèdres: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
+
+    if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
+    {
+	$message_EN = "MGH - Orthopedics: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
+	$message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
+    }
+
     my $SMS_message = "$SMS_url?PatientId=$PatientId&message_EN=$message_EN&message_FR=$message_FR";
     my $response = LWP::UserAgent->new()->get($SMS_message);
     my $content = $response->content;

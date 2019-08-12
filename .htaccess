@@ -1,0 +1,2 @@
+#disable access to the config folder
+RedirectMatch 404 ^/config

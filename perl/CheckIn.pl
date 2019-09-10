@@ -11,7 +11,7 @@
 $SIG{__DIE__} = sendToReception;
 use strict;
 use v5.30;
-use lib ".";
+use lib "./system/modules";
 #use warnings;
 #use diagnostics;
 use CGI qw(:standard);

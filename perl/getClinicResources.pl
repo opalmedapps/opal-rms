@@ -9,7 +9,7 @@
 use strict;
 use Time::Piece;
 use v5.30;
-use lib ".";
+use lib "./system/modules";
 
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);

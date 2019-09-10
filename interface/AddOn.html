@@ -154,7 +154,7 @@ app.controller('main', function($scope,$http,$window,$location)
 				//Send to next page with this mrn
 				var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
 				if(send == true){
-					var landingurl = "./AddOnOnc_Post.html?first=&last=&pid="+String($scope.mrn)+"&ramq=&ramqExp=";
+					var landingurl = "./AddOn_Post.html?first=&last=&pid="+String($scope.mrn)+"&ramq=&ramqExp=";
 					$window.location.href = landingurl; //send user to apt add on
 				}
 				else{
@@ -165,7 +165,7 @@ app.controller('main', function($scope,$http,$window,$location)
 				//Send to next page with this ramq
 				var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
 				if(send == true){
-					var landingurl = "./AddOnOnc_Post.html?first=&last=&pid=&ramq="+String($scope.ramq)+ "&ramqExp=";
+					var landingurl = "./AddOn_Post.html?first=&last=&pid=&ramq="+String($scope.ramq)+ "&ramqExp=";
 					$window.location.href = landingurl; //send user to apt add on
 				}
 				else{
@@ -176,7 +176,7 @@ app.controller('main', function($scope,$http,$window,$location)
 		tmp[0].last = tmp[0].last.slice(1,tmp[0].last.length-1)
 		tmp[0].first = tmp[0].first.slice(1,tmp[0].first.length-1)
 		tmp[0].ramq = tmp[0].ramq.slice(1,tmp[0].ramq.length-1)
-		tmp[0].ramqExp = tmp[0].ramqExp.slice(1,tmp[0].ramqExp.length-1)
+		//tmp[0].ramqExp = tmp[0].ramqExp.slice(1,tmp[0].ramqExp.length-1)
 		tmp[0].pid = tmp[0].pid.slice(1,tmp[0].pid.length-1)
 		$scope.patientinfo = tmp;
 	}
@@ -187,7 +187,7 @@ app.controller('main', function($scope,$http,$window,$location)
 
 	$scope.sendToAptAddOn = function(data){
 		//prepare the redirect url with the selected patient's parameters for prefilling
-		var landingurl = "./AddOnOnc_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
+		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
 		$window.location.href = landingurl; //send user to apt add on
 	}	
 });

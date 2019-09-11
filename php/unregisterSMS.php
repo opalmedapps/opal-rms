@@ -45,7 +45,7 @@ if ($conn->query($sqlSMS) === TRUE) {
     echo "Record updated successfully<br>";
 } else {
     echo "Error updating record: " . $conn->error;
-    exit("This record could not be updated. Please mark the patient's form and call John Kildea at 514 475 8943.<br>");
+    exit("This record could not be updated. Please mark the patient's form and call Victor Matassa at 514 715 7890.<br>");
 }
 
 echo "<br>";

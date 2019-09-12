@@ -1,15 +1,16 @@
 <?php
 //==================================================================================== 
-// registerSMS.php - php code to remove patients' cell phone numbers and languagee preferences
+// php code to remove patients' cell phone numbers and languagee preferences
 // into ORMS 
 //==================================================================================== 
-include_once("config_screens.php");
+include_once("classLocation.php");
+include_once(CLASS_PATH ."/Config.php");
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');
 
 // Extract the webpage parameters
-$SMSAlertNum		= $_GET["SMSAlertNum"];
+$SMSAlertNum		= $_GET["SMSAlertNum"] ?? '';
 
 if(empty($SMSAlertNum))
 {
@@ -20,12 +21,12 @@ if(empty($SMSAlertNum))
 // Database - ORMS
 //==================================================================================== 
 // Create MySQL DB connection
-$conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, WAITROOM_DB);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Check connection
-if ($conn->connect_error) {
-    die("<br>Connection failed: " . $conn->connect_error);
-} 
+if (!$dbh) {
+    die("<br>Connection failed");
+}
 
 //==================================================================================== 
 // Remove the input phone number from to the ORMS db 
@@ -41,10 +42,10 @@ $sqlSMS = "
 
 echo "SMS: $sqlSMS<br>";
 
-if ($conn->query($sqlSMS) === TRUE) {
+if ($dbh->query($sqlSMS)) {
     echo "Record updated successfully<br>";
 } else {
-    echo "Error updating record: " . $conn->error;
+    echo "Error updating record: " .print_r($dbh->errorInfo());
     exit("This record could not be updated. Please mark the patient's form and call Victor Matassa at 514 715 7890.<br>");
 }
 

@@ -338,6 +338,9 @@ sub sanitizeAppointment
 
 	#the appointment is only valid if the length of its id is 13 (YYYYA + 8 digits)
 	return "Incorrect appointment ID format" unless(length($app->{'id'}) == 13 or $app->{'id'} eq "InstantAddOn");
+
+	#current supported sites are RVH and MGH
+	return "Site is not supported" unless($app->{'site'} eq "RVH" or $app->{'site'} eq "MGH");
 	
 	#all clear
 	return "Sanitized";

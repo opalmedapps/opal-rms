@@ -1,6 +1,6 @@
 #!/opt/perl5/perl
 
-S#------------------------------------------------------------------------
+#------------------------------------------------------------------------
 # PERL-CGI- script to check a patient in 
 # 
 # Input parameters: 	various	
@@ -26,8 +26,6 @@ use LoadConfigs;
 #------------------------------------------------------------------------
 # Modules needed for SOAP webservices
 #------------------------------------------------------------------------
-use LWP::UserAgent;
-use HTTP::Request::Common;
 use HospitalADT;
 use Data::Dumper;
 
@@ -39,7 +37,7 @@ my $systemPaths = LoadConfigs::GetConfigs("path");
 my $checkin_script 	= "$systemPaths->{'BASE_URL'}/perl/CheckIn.pl"; 
 my @resource_list 	= getResourceList(); #Which resources are in pilot
 my $images 		= $systemPaths->{'IMAGE_URL'};
-my $SMS_url		= "$systemPaths->{'BASE_URL'}/php/sendSMSCheckedIn.php";
+my $SMS_url		= "$systemPaths->{'BASE_PATH'}/php/script/sendSMSCheckedIn.php";
 my $logfile_location 	= "$systemPaths->{'LOG_PATH'}/kiosk"; 
 my $logging = 1; # Log data to a text file
 my $PhotoStatus;
@@ -450,20 +448,20 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 	$message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
     }
 
-    my $SMS_message = "$SMS_url?PatientId=$PatientId&message_EN=$message_EN&message_FR=$message_FR";
-    my $response = LWP::UserAgent->new()->get($SMS_message);
-    my $content = $response->content;
+    my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
+    my $response = `$SMS_message`;
+
     print "SMS_message: $SMS_message<br>" if $verbose;
 
-    if($response->is_success)
+    if($response =~ /Message should have been sent/)
     {
       print "Successful SMS: $response<br>" if $verbose;
-      print CHECKINLOG "SMS success -> SMS_message: $SMS_message --- Response: $content\n";
+      print CHECKINLOG "SMS success -> SMS_message: $SMS_message --- Response: $response\n";
     }
     else
     {
       print "Problematic SMS: $response<br>" if $verbose;
-      print CHECKINLOG "SMS fail -> SMS_message: $SMS_message --- Response: $content\n";
+      print CHECKINLOG "SMS fail -> SMS_message: $SMS_message --- Response: $response\n";
     }
   }
   else
@@ -477,20 +475,20 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 	$message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
     }
 
-    my $SMS_message = "$SMS_url?PatientId=$PatientId&message_EN=$message_EN&message_FR=$message_FR";
-    my $response = LWP::UserAgent->new()->get($SMS_message);
-    my $content = $response->content;
+    my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
+    my $response = `$SMS_message`;
+
     print "SMS_message: $SMS_message<br>" if $verbose;
 
-    if($response->is_success)
+    if($response =~ /Message should have been sent/)
     {
       print "Successful SMS: $response<br>" if $verbose;
-      print CHECKINLOG "SMS success -> SMS_message: $SMS_message --- Response: $content\n";
+      print CHECKINLOG "SMS success -> SMS_message: $SMS_message --- Response: $response\n";
     }
     else
     {
       print "Problematic SMS: $response<br>" if $verbose;
-      print CHECKINLOG "SMS fail -> SMS_message: $SMS_message --- Response: $content\n";
+      print CHECKINLOG "SMS fail -> SMS_message: $SMS_message --- Response: $response\n";
     }
   }
 

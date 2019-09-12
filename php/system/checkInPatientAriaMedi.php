@@ -1,6 +1,6 @@
 <?php
 //==================================================================================== 
-// checkInPatientAriaMedi.php - php code to check a patient into all appointments, 
+// php code to check a patient into all appointments, 
 // regardless of whether in Aria or Medivisit - just needs CheckinVenue and PatientId 
 
 // http://medphys/devDocuments/screens/php/checkInPatientAriaMedi.php?CheckinVenue=?&PatientId='9999996'

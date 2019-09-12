@@ -1,6 +1,6 @@
 <?php
 //==================================================================================== 
-// checkInPatient.php - php code to check a patient into Aria 
+// php code to check a patient into Aria 
 //==================================================================================== 
 include_once("config_screens.php");
 

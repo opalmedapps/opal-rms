@@ -1,26 +1,31 @@
 <?php
 //==================================================================================== 
-// registerSMS.php - php code to insert patients' cell phone numbers and languqge preferences
+// php code to insert patients' cell phone numbers and languqge preferences
 // into ORMS 
 //==================================================================================== 
-include_once("config_screens.php");
+include_once("classLocation.php");
+include_once(CLASS_PATH ."/Config.php");
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');
 
 # SMS Stuff
-$SMS_licencekey = SMS_licencekey;
-$SMS_gatewayURL = SMS_gatewayURL;
-$MUHC_SMS_webservice = MUHC_SMS_webservice;
+$smsSettings = Config::getConfigs("sms");
+
+echo var_dump($smsSettings);
+
+$SMS_licencekey = $smsSettings["SMS_LICENCE_KEY"];
+$SMS_gatewayURL = $smsSettings["SMS_GATEWAY_URL"];
+$MUHC_SMS_webservice = $smsSettings["SMS_WEBSERVICE_MUHC"];
 $SMS_response = "";
 $paidService = 1; # Use paid service for SMS messages
 
 // Extract the webpage parameters
-$PatientId		= $_GET["PatientId"];
-$Ramq 			= $_GET["Ramq"];
-$SMSAlertNum		= $_GET["SMSAlertNum"];
-$LanguagePreference	= $_GET["LanguagePreference"];
-$Speciality		= $_GET["Speciality"];
+$PatientId		= $_GET["PatientId"] ?? '';
+$Ramq 			= $_GET["Ramq"] ?? '';
+$SMSAlertNum		= $_GET["SMSAlertNum"] ?? '';
+$LanguagePreference	= $_GET["LanguagePreference"] ?? '';
+$Speciality		= $_GET["Speciality"] ?? '';
 
 if( empty($PatientId) || empty($Ramq) || empty($SMSAlertNum) || empty($LanguagePreference) )
 {
@@ -36,12 +41,12 @@ $Ramq = strtoupper($Ramq);
 // Database - ORMS
 //==================================================================================== 
 // Create MySQL DB connection
-$conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, WAITROOM_DB);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Check connection
-if ($conn->connect_error) {
-    die("<br>Connection failed: " . $conn->connect_error);
-} 
+if (!$dbh) {
+    die("<br>Connection failed");
+}
 
 //==================================================================================== 
 // If Patient exists in ORMS, update the preferences 
@@ -54,17 +59,16 @@ $sqlPatient= "
 ";
 
 /* Process results */
-$result = $conn->query($sqlPatient);
+$result = $dbh->query($sqlPatient);
 
 $LastName;
-if ($result->num_rows > 0) {
+if ($result->rowCount() > 0) {
     // output data of each row
-    $row = $result->fetch_assoc(); 
+    $row = $result->fetch(); 
   
     $LastName = $row["LastName"];
 } 
 
-$PatientInORMS;
 $PatientInORMS;
 if(!empty($LastName) )
 {
@@ -84,7 +88,7 @@ if($PatientInORMS == FALSE)
 {
   echo "Checking Aria...<br>";
   // Aria DB connection  
-  $link = mssql_connect(ARIA_DB, ARIA_USERNAME, ARIA_PASSWORD);
+  $link = Config::getDatabaseConnection("ARIA");
 
   //echo "Got a link<br>";
 
@@ -107,9 +111,9 @@ if($PatientInORMS == FALSE)
 
   echo "sqlAriaPatient: $sqlAriaPatient<br>";
 
-  $query = mssql_query($sqlAriaPatient);
+  $query = $link->query($sqlAriaPatient);
 
-  while($row = mssql_fetch_array($query,MSSQL_ASSOC))
+  while($row = $query->fetch())
   {
     echo "Row: $row<br>";
 
@@ -181,10 +185,10 @@ echo "SMS: $sqlSMS<br>";
 
 
 
-if ($conn->query($sqlSMS) === TRUE) {
+if ($dbh->query($sqlSMS)) {
     echo "Record updated successfully<br>";
 } else {
-    echo "Error updating record: " . $conn->error;
+    echo "Error updating record: " . print_r($dbh->errorInfo());
     exit("This record could not be updated. Please mark the patient's form and call Victor Matassa at 514 715 7890.<br>");
 }
 

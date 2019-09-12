@@ -66,6 +66,7 @@
 			<input type="hidden" name="AppointId" value="InstantAddOn">
 			<input type="hidden" name="CreationDate" value="{{currentDateTime | date: 'yyyy-MM-dd HH:mm:ss'}}">
 			<input type="hidden" name="ReferringMd" value="">
+			<input type="hidden" name="Site" value="{{site}}">
 
 			<tr>
 			<td colspan=5 align="center">
@@ -114,6 +115,10 @@ app.controller('main', function($scope,$http,$window,$location)
 	$scope.Ramq = pageParams.ramq;
 	$scope.RamqExpiryDate = pageParams.ramqExp;
 	$scope.speciality = pageParams.speciality;
+
+	$scope.site = '';
+	if($scope.speciality == "Oncology") {$scope.site = "RVH";}
+	if($scope.speciality == "Ortho") {$scope.site = "MGH";}
 
 	$scope.setDate = function()
 	{

@@ -1,6 +1,6 @@
 <?php
 //==================================================================================== 
-// checkInPatientMV.php - php code to check a Medivisit patient into Mysql 
+// php code to check a Medivisit patient into Mysql 
 //==================================================================================== 
 include_once("config_screens.php");
 

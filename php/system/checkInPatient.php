@@ -2,9 +2,10 @@
 //==================================================================================== 
 // php code to check a patient into Aria 
 //==================================================================================== 
-include_once("config_screens.php");
+include_once("classLocation.php");
+include_once(CLASS_PATH ."/Config.php");
 
-$link = mssql_connect(ARIA_DB, ARIA_USERNAME, ARIA_PASSWORD);
+$link = Config::getDatabaseConnection("ARIA");
 
 // Extract the webpage parameters
 $CheckinVenue = $_GET["CheckinVenue"];
@@ -31,18 +32,15 @@ exec variansystem.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledAc
 
 echo "SQL: $sql<br>";
 
-$query = mssql_query($sql);
+$query = $link->query($sql);
 
 /* Process results */
-$row = mssql_fetch_array($query);
+$row = $query->fetch();
 #echo "row: $row[1]<br>";
 
 if (!$query) {
     die('Query failed.');
 }
-
-// Free the query result
-mssql_free_result($query);
 
 ?>
 

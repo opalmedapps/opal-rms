@@ -79,6 +79,12 @@ class Config {
 			$dbh = new PDO("mariadb:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
 		}
 
+		#opal db
+		elseif($requestedConnection == 'OPAL')
+		{
+			$dbh = new PDO("mysql:host={$dbInfo['OPAL_HOST']};port={$dbInfo['OPAL_PORT']};dbname={$dbInfo['OPAL_DB']}",$dbInfo['OPAL_USERNAME'],$dbInfo['OPAL_PASSWORD'],$options);
+		}
+
 		return $dbh;
 	}
 }

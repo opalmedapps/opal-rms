@@ -12,8 +12,6 @@ header('Content-Type:text/html; charset=UTF-8');
 # SMS Stuff
 $smsSettings = Config::getConfigs("sms");
 
-echo var_dump($smsSettings);
-
 $SMS_licencekey = $smsSettings["SMS_LICENCE_KEY"];
 $SMS_gatewayURL = $smsSettings["SMS_GATEWAY_URL"];
 $MUHC_SMS_webservice = $smsSettings["SMS_WEBSERVICE_MUHC"];

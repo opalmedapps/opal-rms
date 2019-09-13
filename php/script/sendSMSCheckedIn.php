@@ -95,9 +95,7 @@ else
   $SMS_response = $client->SendSMS($requestParams);
 }
 
-print_r($SMS_response);
 echo "Message should have been sent...";
-
 
 ?>
 

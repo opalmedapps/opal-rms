@@ -2,17 +2,17 @@
 //==================================================================================== 
 // php code to check a patient into all appointments, 
 // regardless of whether in Aria or Medivisit - just needs CheckinVenue and PatientId 
-
-// http://medphys/devDocuments/screens/php/checkInPatientAriaMedi.php?CheckinVenue=?&PatientId='9999996'
 //==================================================================================== 
-include_once("config_screens.php");
+include_once("classLocation.php");
+include_once(CLASS_PATH ."/Config.php");
 
-$link = mssql_connect(ARIA_DB, ARIA_USERNAME, ARIA_PASSWORD);
-$conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, 'WaitRoomManagement');
-$row  = "";
+$link = Config::getDatabaseConnection("ARIA");
+$conn = Config::getDatabaseConnection("ORMS");
 
 // Connection to Opal
-$connOpal = new mysqli(HOST, DB_USERNAME, DB_PASSWORD, OPAL_DB);
+$connOpal = Config::getDatabaseConnection("OPAL");
+
+$baseURL = Config::getConfigs("path")["BASE_URL"];
 
 // Extract the webpage parameters
 $PushNotification = 0; # default of zero
@@ -21,13 +21,6 @@ $PatientId		= $_GET["PatientId"];
 $PushNotification	= $_GET["PushNotification"];
 $verbose		= $_GET["verbose"];
 
-//==================================================================================== 
-// Point to which server
-// 0 = PREPROD (172.26.66.41) / 1 = PROD (172.26.120.179)
-$ServerId = 0; // DEFAULT to PREPROD
-$ServerId = isset($_GET["ServerId"]) ? $_GET["ServerId"] : 0 ;
-//==================================================================================== 
-
 if ($verbose) echo "Verbose Mode<br>";
 
 // Check connections
@@ -35,7 +28,7 @@ if (!$link) {
     die('Something went wrong while connecting to MSSQL');
 }
 
-if ($conn->connect_error) {
+if (!$conn) {
     die("<br>Connection failed: " . $conn->connect_error);
 } 
 
@@ -218,11 +211,11 @@ $sqlAppt = "
 # print the SQL query for debugging
 if ($verbose) echo "Aria SQL:<br> $sqlAppt<p>";
 
-$query = mssql_query($sqlAppt);
+$query = $link->query($sqlAppt);
 
 # Loop over Aria appointments and check them in, one at a time
 if ($verbose) echo "Aria loop...";
-while($row = mssql_fetch_array($query))
+while($row = $query->fetch())
 {
   #$PatientId		= $row["PatientId"];
   $PatientFirstName	= $row["FirstName"];
@@ -239,7 +232,7 @@ while($row = mssql_fetch_array($query))
   if ($verbose) echo "<br> Aria appt: $ApptDescription at $ScheduledStartTime with $AuxiliaryId<br>";
 
   # since a script exists for this, best to call it here rather than rewrite the wheel
-  $Aria_CheckInURL_raw = BASE_URL ."/php/checkInPatient.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$ScheduledActivitySer";
+  $Aria_CheckInURL_raw = "$baseURL/php/system/checkInPatient.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$ScheduledActivitySer";
   $Aria_CheckInURL = str_replace(' ', '%20', $Aria_CheckInURL_raw);
 
   if ($verbose) echo "Aria_CheckInURL: $Aria_CheckInURL<br>";
@@ -282,7 +275,7 @@ if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
 $result = $conn->query($sqlApptMedivisit);
 
 // output data of each row
-while($row = $result->fetch_assoc()) 
+while($row = $result->fetch()) 
 {
   #$MV_PatientId	= $row["PatientId"];
   $MV_PatientFirstName	= $row["FirstName"];
@@ -300,7 +293,7 @@ while($row = $result->fetch_assoc())
   if ($verbose) echo "About to attempt Medivisit checkin<br>";
 
   # since a script exists for this, best to call it here rather than rewrite the wheel
-  $MV_CheckInURL_raw = BASE_URL ."/php/checkInPatientMV.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$MV_AppointmentSerNum";
+  $MV_CheckInURL_raw = "$baseURL/php/system/checkInPatientMV.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$MV_AppointmentSerNum";
   $MV_CheckInURL = str_replace(' ', '%20', $MV_CheckInURL_raw);
 
   if ($verbose) echo "MV_CheckInURL: $MV_CheckInURL<br>";
@@ -311,18 +304,12 @@ while($row = $result->fetch_assoc())
 // Send patientID to James and Yick's OpalCheckin script to synchronize the checkin state with OpalDB and send notifications
 if($PushNotification == 1)
 { 
+	$opalCheckinURL = Config::getConfigs("opal")["OPAL_CHECKIN_URL"];
 
-  // Use PreProd or Prod URL
-  if($ServerId == 0) {
-    $OPAL_CHECKIN_URL = OPAL_CHECKIN_URL;
-  } else {
-    $OPAL_CHECKIN_URL = OPAL_CHECKIN_URL_PRODUCTION;
-  }
+  $opalCheckinURL = "$opalCheckinURL?PatientId=$PatientId";
+  $opalCheckinURL = str_replace(' ', '%20', $opalCheckinURL);
 
-  $OPAL_CHECKIN_URL = "$OPAL_CHECKIN_URL?PatientId=$PatientId";
-  $OPAL_CHECKIN_URL = str_replace(' ', '%20', $OPAL_CHECKIN_URL);
-
-  $response = file_get_contents($OPAL_CHECKIN_URL);
+  $response = file_get_contents($opalCheckinURL);
 
   if(strpos($reponse, 'Error')){
 	$response = array('error' => $response);

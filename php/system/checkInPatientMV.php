@@ -1,11 +1,12 @@
 <?php
 //==================================================================================== 
 // php code to check a Medivisit patient into Mysql 
-//==================================================================================== 
-include_once("config_screens.php");
+//====================================================================================
+include_once("classLocation.php");
+include_once(CLASS_PATH ."/Config.php");
 
 // Create DB connection
-$conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, WAITROOM_DB);
+$conn = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $CheckinVenue = $_GET["CheckinVenue"];
@@ -15,7 +16,7 @@ echo "CheckinVenue: $CheckinVenue<br>";
 echo "AppointmentSerNum: $AppointmentSerNum<br>";
 
 // Check connection
-if ($conn->connect_error) {
+if (!$conn) {
     die("<br>Connection failed: " . $conn->connect_error);
 } 
 
@@ -44,9 +45,9 @@ echo "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>";
 /* Process results */
 $result = $conn->query($sqlMV_checkCheckin);
 
-if ($result->num_rows > 0) {
+if ($result->rowCount() > 0) {
     // output data of each row
-    while($row = $result->fetch_assoc()) {
+    while($row = $result->fetch()) {
 
        	$PatientLocationSerNum	= $row["PatientLocationSerNum"];
     	$PatientLocationRevCount= $row["PatientLocationRevCount"];
@@ -107,8 +108,6 @@ if($PatientLocationSerNum)
       	echo "deleted...<b>";
 }
 
-// Close the MySQL connection
-$conn->close();
 ?>
 
 

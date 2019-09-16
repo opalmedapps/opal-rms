@@ -49,16 +49,15 @@ my $sqlWeightList = "
 	SELECT
 		PatientMeasurement.PatientMeasurementSer,
 		PatientMeasurement.Date,
-		MV.AppointmentSerNum
+		MV.AppointmentSerNum,
+		MV.AppointIdIn
 	FROM
 		PatientMeasurement		
 		INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = PatientMeasurement.PatientSer
-			AND MV.PatientSerNum != 0
 			AND MV.PatientSerNum NOT IN (33651,52641,827,27183,21265,35870,845,44281,44282,44284,44287,44529)
-			AND MV.AppointId NOT LIKE '%Pre%'
-			AND MV.AppointIdIn != 'InstantAddOn'
-			AND MV.Status != 'Deleted'
-			-- AND MV.ScheduledDate < '2019-09-02'
+			-- AND MV.AppointId NOT LIKE '%Pre%'
+			-- AND MV.AppointIdIn != 'InstantAddOn'
+			-- AND MV.Status != 'Deleted'
 	WHERE
 		PatientMeasurement.Date = MV.ScheduledDate
 	-- LIMIT 1
@@ -73,7 +72,7 @@ my @unmatched;
 #for each weight, check whether the patient actually had an appointment that day
 while(my $weight = $queryWeightList->fetchrow_hashref())
 {
-	if($verifiedAppointments->{$weight->{'AppointmentSerNum'}})
+	if($verifiedAppointments->{$weight->{'AppointmentSerNum'}} || $weight->{'AppointIdIn'} eq 'InstantAddOn')
 	{
 		push @matched, $weight->{'PatientMeasurementSer'};
 	}
@@ -91,3 +90,29 @@ write_json("unmatchedWeights.json",\@unmatched);
 
 
 exit;
+
+
+# my $sql = "SELECT PM.* FROM WaitRoomManagement20190909_weights_backup.PatientMeasurement PM WHERE PM.PatientMeasurementSer NOT IN (SELECT PM2.PatientMeasurementSer FROM WaitRoomManagement.PatientMeasurement PM2)";
+
+# my $query = $dbh->prepare($sql) or die("Couldn't prepare statement: ". $dbh->errstr);
+# $query->execute() or die("Couldn't execute statement: ". $query->errstr);
+
+# #for each weight, check whether the patient actually had an appointment that day
+# while(my $weight = $query->fetchrow_hashref())
+# {
+# 	$dbh->do("
+# 		INSERT INTO WaitRoomManagement.PatientMeasurement(PatientMeasurementSer,PatientSer,Date,Time,Height,Weight,BSA,LastUpdated)
+# 		VALUES (?,?,?,?,?,?,?,?)
+# 		",undef,
+# 		$weight->{'PatientMeasurementSer'},
+# 		$weight->{'PatientSer'},
+# 		$weight->{'Date'},
+# 		$weight->{'Time'},
+# 		$weight->{'Height'},
+# 		$weight->{'Weight'},
+# 		$weight->{'BSA'},
+# 		$weight->{'LastUpdated'}
+# 		);
+# }
+
+

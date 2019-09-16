@@ -20,6 +20,7 @@ use Data::Dumper;
 my @perfect = read_json('perfectMatch.json')->@*;
 my @partial = read_json('partialMatch.json')->@*;
 my @potential = read_json('potentialMatch.json')->@*;
+my @existing = read_json('existingMatch.json')->@*;
 my @none = read_json('noMatch.json')->@*;
 
 my @matchedWeights = read_json('matchedWeights.json')->@*;
@@ -28,6 +29,7 @@ my @unmatchedWeights = read_json('unmatchedWeights.json')->@*;
 say scalar @perfect;
 say scalar @partial;
 say scalar @potential;
+say scalar @existing;
 say scalar @none;
 
 say scalar @matchedWeights;

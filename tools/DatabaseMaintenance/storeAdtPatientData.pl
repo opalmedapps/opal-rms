@@ -42,10 +42,12 @@ my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
 #also create a hash that maps orms db a patientSer to an Oacis internal Id
 my $adtData; #hash
 my $ormsToOacis; #hash
+my $oacisIdToOrms; #hash
 
 #read the adt data object from previous runs
 $adtData = read_json('adtData.json');
 $ormsToOacis = read_json('ormsToOacis.json');
+$oacisIdToOrms = read_json("oacisIdToOrms.json");
 
 #-----------------------------------------------------
 #connect to database
@@ -78,9 +80,13 @@ my $queryPatientList = $dbh->prepare($sqlPatientList) or die("Couldn't prepare s
 $queryPatientList->execute() or die("Couldn't execute statement: ". $queryPatientList->errstr);
 
 my @unknownPatients;
+my $count = 0;
 
 while(my $data = $queryPatientList->fetchrow_hashref)
 {
+	$count++;
+	if($count % 100 == 0) {say $count;}
+
 	#skip the information fetching if we already found the patient in previous runs
 	next if($adtData->{$ormsToOacis->{$data->{'PatientSerNum'}}});
 
@@ -102,12 +108,25 @@ while(my $data = $queryPatientList->fetchrow_hashref)
 
 	$adtData->{$patient->{'internalId'}} = $patient;
 	$ormsToOacis->{$data->{'PatientSerNum'}} = $patient->{'internalId'};
+
+	#create a dictionary of oacis appointment/visit IDs to ORMS patient ser
+	for($patient->{'appointments'}->@*)
+	{
+		# if($oacisIdToOrms->{$_->{'encounterId'}})
+		# {
+		# 	say "$_->{'encounterId'} | $oacisIdToOrms->{$_->{'encounterId'}} | $data->{'PatientSerNum'}";
+		# }
+
+		#$oacisIdToOrms->{$_->{'encounterId'}} = $data->{'PatientSerNum'};
+
+		push $oacisIdToOrms->{$_->{'encounterId'}}->@*, $data->{'PatientSerNum'};
+	}
 }
 
 #convert the ADT and db patient data to json objects and store them in a file
 write_json("adtData.json",$adtData);
 write_json("ormsToOacis.json",$ormsToOacis);
-
+write_json("oacisIdToOrms.json",$oacisIdToOrms);
 write_json("unknown.json",\@unknownPatients);
 
 exit;
@@ -189,7 +208,7 @@ sub flmMatch
 		return 0;
 	}
 
-	#gets all MRNs that match
+	#get all MRNs that match
 	my @mrnMatches = grep {$_->{'mrn'} eq $ormsPatient->{'PatientId'} and $_->{'mrnType'} ne "MC_ADT" and $_->{'active'} eq 'true' } $adtPatient->{'mrns'}->@*;
 
 	#if no match if found, it's possible that the 'PatientId' value is empty and the patient only has a MGH mrn
@@ -262,6 +281,10 @@ sub getAppointmentInformationFromAdt
 		#convert Cs to as
 		$_->{'encounterId'} =~ s/C/A/;
 	}
+
+	#remove any duplicates
+	my %seen;
+	@appointments = grep { ! $seen{$_->{'encounterId'}} ++ } @appointments;
 
 	return @appointments;
 }

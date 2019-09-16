@@ -41,6 +41,7 @@ my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
 #read the adt data object
 my $adtData = read_json('adtData.json');
 my $ormsToOacis = read_json('ormsToOacis.json');
+my $oacisIdToOrms = read_json('oacisIdToOrms.json');
 my @unknowns = read_json('unknown.json')->@*;
 my $visitData = read_json('visits.json');
 my $appointmentData = read_json('appointments.json');
@@ -48,6 +49,7 @@ my $encounterData = read_json('encounters.json');
 
 # my $adtData;
 # my $ormsToOacis;
+# my $oacisIdToOrms;
 # my @unknowns;
 # my $visitData;
 # my $appointmentData;
@@ -80,19 +82,18 @@ my $sqlPatientList = "
 		MV.AppointmentSerNum,
 		MV.Resource,
 		MV.ResourceDescription,
-		MV.CreationDate
+		MV.CreationDate,
+		MV.Status
 	FROM 
 		MediVisitAppointmentList MV
-		INNER JOIN Patient ON Patient.PatientSerNum = MV.PatientSerNum
-			AND MV.PatientSerNum != 0
-			AND MV.PatientSerNum NOT IN (33651,52641,827,27183,21265,35870,845,44281,44282,44284,44287,44529)
-			$excludeString
 	WHERE
-		MV.AppointId NOT LIKE '%Pre%'
+		MV.PatientSerNum NOT IN (33651,52641,827,27183,21265,35870,845,44281,44282,44284,44287,44529)
+		AND MV.PatientSerNum NOT IN (19900,31049,33274,35775)
+		$excludeString
+		-- MV.AppointId LIKE '%Pre%'
 		AND MV.AppointIdIn != 'InstantAddOn'
-		AND MV.Status != 'Deleted'
-		-- AND MV.ScheduledDate < '2019-09-02'
-		AND MV.ScheduledDate > '2019-09-11'
+		-- AND MV.Status != 'Deleted'
+		-- AND MV.AppointmentSerNum IN (5227)
 	ORDER BY MV.PatientSerNum
 	-- LIMIT 10
 	";
@@ -103,6 +104,7 @@ $queryAppointmentList->execute() or die("Couldn't execute statement: ". $queryAp
 my @partialMatch;
 my @potentialMatch;
 my @perfectMatch;
+my @existingMatch;
 my @noMatch;
 
 my $countE = 0;
@@ -112,6 +114,10 @@ my $countV = 0;
 #for each appointment, check whether the appointment actually belongs to that patient
 while(my $dbApp = $queryAppointmentList->fetchrow_hashref())
 {
+	#convertPreIEId($dbApp,$adtData,$ormsToOacis,$visitData);
+
+	#next;
+
 	#convert the orms patient serial to an Oacis internal id
 	my $internalId = $ormsToOacis->{$dbApp->{'PatientSerNum'}};
 
@@ -158,6 +164,11 @@ while(my $dbApp = $queryAppointmentList->fetchrow_hashref())
 		push @potentialMatch, $dbApp->{'AppointmentSerNum'};
 		$matchType = "Potential";
 	}
+	elsif(checkIfExists($dbApp,$oacisIdToOrms))
+	{
+		push @existingMatch, $dbApp->{'AppointmentSerNum'};
+		$matchType = 'Existing';
+	}
 	else
 	{
 		push @noMatch, $dbApp->{'AppointmentSerNum'};
@@ -168,13 +179,13 @@ while(my $dbApp = $queryAppointmentList->fetchrow_hashref())
 	#each function repairs one error
 	#convertCurrentIdToEncounterId($dbApp,$mvApp) if($appType eq 'Visit');
 	#convertCurrentIdToEncounterId($dbApp,$mvApp) if($appType eq 'Appointment');
-	#addCreationDateToAppointment($dbApp,$visit,$patient) if($matchType eq 'Potential');
+	#addCreationDateToAppointment($dbApp,$mvApp) if($matchType eq 'Potential' or $matchType eq 'Perfect');
 
 	#checkIfDuplicateAppointment($dbApp) if($matchType eq 'None');
 
-
 	#if the match type is potential, the appointment is real but is probably matched to the wrong patient
 	#using the mrn and the site of the medivisit appointment, find which patient the appointment really belonged to and update the orms db
+	#updatePatientSer($dbApp,$oacisIdToOrms) if($matchType eq "Existing");
 	#linkAppointmentToCorrectPatient($dbApp,$mvApp,$adtData,$ormsToOacis) if($matchType eq "Potential");
 
 	#########################################################
@@ -194,6 +205,7 @@ say $countE;
 say $countA;
 say $countV;
 write_json("noMatch.json",\@noMatch);
+write_json("existingMatch.json",\@existingMatch);
 write_json("partialMatch.json",\@partialMatch);
 write_json("potentialMatch.json",\@potentialMatch);
 write_json("perfectMatch.json",\@perfectMatch);
@@ -226,6 +238,54 @@ sub convertCurrentIdToEncounterId
 	return 1;
 }
 
+sub convertPreIEId
+{
+	my $dbApp = shift;
+	my $adtData = shift;
+	my $ormsToOacis = shift;
+	my $visitData = shift;
+
+	#get the visit ids from the oacis data that have the same datetime as the appointment
+	my @adtApps = grep {  $_->{'encounterStartDt'} eq $dbApp->{'ScheduledDateTime'} }$adtData->{$ormsToOacis->{$dbApp->{'PatientSerNum'}}}->{'appointments'}->@*;
+	my @visitIds = map { $_->{'encounterId'} } @adtApps;
+
+	#for each visit, check if the visit info matches the appointment info
+	#if it does, update the appointment Id
+	foreach my $visitId (@visitIds)
+	{
+		if(potentiallyMatched($dbApp,$visitData->{$visitId}))
+		{
+			my $newAppId = $visitData->{$visitId}->{'encounterId'};
+			$newAppId = $visitData->{$visitId}->{'visitId'} if(!$newAppId);
+
+			#if the add on is complete, delete any other entries that would cause a encounterId conflict
+			if($dbApp->{'Status'} eq 'Completed')
+			{
+				$dbh->do("
+					DELETE FROM MediVisitAppointmentList
+					WHERE AppointId = ?
+					",undef,
+					$newAppId) or die("Can't delete");
+			}
+
+			$dbh->do("
+				UPDATE MediVisitAppointmentList
+				SET
+					AppointId = ?,
+					AppointIdIn = ?
+				WHERE
+					AppointmentSerNum = ?
+				",undef,
+				$newAppId,
+				$newAppId,
+				$dbApp->{'AppointmentSerNum'}
+			); #or die("PreIE update failed: ". $dbh->errstr);
+		}
+	}
+
+	return 1;
+}
+
 sub addCreationDateToAppointment
 {
 	my $dbApp = shift;
@@ -239,7 +299,8 @@ sub addCreationDateToAppointment
 				CreationDate = ?
 			WHERE
 				AppointmentSerNum = ?",undef,
-			$mvApp->{'creationDate'},$dbApp->{'AppointmentSerNum'}) or die("CD update error");
+			$mvApp->{'creationDate'},
+			$dbApp->{'AppointmentSerNum'}) or die("CD update error");
 	}
 
 	return 1;
@@ -274,6 +335,7 @@ sub potentiallyMatched
 	my $mvApp = shift; #hash ref
 
 	#compare the appointment information to what we have in ORMS
+	#return ($dbApp->{'ScheduledDateTime'} eq $mvApp->{'datetime'} and $dbApp->{'ResourceDescription'} eq $mvApp->{'resourceDesc'});
 	return ($dbApp->{'ScheduledDateTime'} eq $mvApp->{'datetime'} and $dbApp->{'Resource'} eq $mvApp->{'resourceCode'});
 }
 
@@ -284,6 +346,49 @@ sub perfectlyMatched
 	my $patient = shift; #hash ref
 
 	return (partiallyMatched($dbApp,$mvApp,$patient) and potentiallyMatched($dbApp,$mvApp));
+}
+
+sub checkIfExists
+{
+	my $dbApp = shift;
+	my $oacisIdToOrms = shift;
+
+	# my @matches = grep { $_ eq $dbApp->{'PatientSerNum'} } $oacisIdToOrms->{$dbApp->{'AppointId'}}->@*;
+
+	# if(scalar @matches > 1)
+	# {
+	# 	"Check here";
+	# 	return 0;
+	# }
+
+	# return 1 if(scalar @matches == 1);
+
+	# return 0;
+
+	return ($oacisIdToOrms->{$dbApp->{'AppointId'}});
+}
+
+sub updatePatientSer
+{
+	my $dbApp = shift;
+	my $oacisIdToOrms = shift;
+
+	if(scalar $oacisIdToOrms->{$dbApp->{'AppointId'}}->@* == 1)
+	{
+		my $correctPatientSer = $oacisIdToOrms->{$dbApp->{'AppointId'}}->[0];
+
+		$dbh->do("
+			UPDATE MediVisitAppointmentList
+			SET
+				PatientSerNum = ?
+			WHERE
+				AppointmentSerNum = ?
+		",undef,
+		$correctPatientSer,
+		$dbApp->{'AppointmentSerNum'}) or die("Error updating patient ser: ". $dbh->errstr);
+	}
+
+	return 1;
 }
 
 sub linkAppointmentToCorrectPatient
@@ -350,10 +455,12 @@ sub createNewPatientInDB
 	my $mvApp = shift;
 	my $adtData = shift;
 
-	if($mvApp->{ssn} =~ /CAMA46571910|LOMA41600914|NORE87531812|CATJ51562914|MCCM960619/)
-	{
+	#if($mvApp->{ssn} =~ /CAMA46571910|LOMA41600914|NORE87531812|CATJ51562914|MCCM960619/)
+	#{
 		say Dumper($mvApp);
-	}
+		say "";
+		say "";
+	#}
 
 	#we don't yet have the patient information in the $adtData so we have to fetch it
 

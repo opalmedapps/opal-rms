@@ -29,7 +29,7 @@ if (!$link) {
 }
 
 if (!$conn) {
-    die("<br>Connection failed: " . $conn->connect_error);
+    die("<br>Connection failed");
 } 
 
 //======================================================================================

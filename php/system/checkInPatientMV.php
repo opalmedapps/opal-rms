@@ -17,7 +17,7 @@ echo "AppointmentSerNum: $AppointmentSerNum<br>";
 
 // Check connection
 if (!$conn) {
-    die("<br>Connection failed: " . $conn->connect_error);
+    die("<br>Connection failed");
 } 
 
 #---------------------------------------------------------------------------------------------

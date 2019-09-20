@@ -85,10 +85,10 @@ else
 {
   $client = new SoapClient($MUHC_SMS_webservice);
 
-  $requestParams = array(
+  $requestParams = [
     'mobile' => $SMSAlertNum,
     'body' => $message
-  );
+  ];
 
   print_r($requestParams);
 

@@ -312,9 +312,9 @@ if($PushNotification == 1)
   $response = file_get_contents($opalCheckinURL);
 
   if(strpos($reponse, 'Error')){
-	$response = array('error' => $response);
+	$response = ['error' => $response];
   } else {
-	$response = array('success' => explode(',',  trim($response)));
+	$response = ['success' => explode(',',  trim($response))];
   }
 
   $response = json_encode($response);

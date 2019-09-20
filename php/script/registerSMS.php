@@ -237,10 +237,10 @@ else
 
   echo "got to here<br>";
 
-  $requestParams = array(
+  $requestParams = [
     'mobile' => $SMSAlertNum,
     'body' => $message
-  );
+  ];
 
   print_r($requestParams);
   echo "<br>";

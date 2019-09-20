@@ -52,10 +52,10 @@ class Config {
 	public static function getDatabaseConnection($requestedConnection)
 	{
 		$dbInfo = self::$configs['database'];
-		$options = array(
+		$options = [
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
 			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-		);
+		];
 
 		#set the inital value of the connection to 0 (failure value)
 		#the requesting script can then determine what to do if the db fails to connect

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<!--Angular libraries -->
+<script src="../../VirtualWaitingRoom/library/jquery/dist/jquery.js"></script>
+<script src="../../VirtualWaitingRoom/library/angularjs/angular.min.js"></script>
+<script src="../../VirtualWaitingRoom/library/checklist-model.js"></script>
+<script src="../../VirtualWaitingRoom/library/angular-ui_0.4.0.js"></script>
+<script src="../../VirtualWaitingRoom/library/ui-bootstrap-tpls_2.5.0.min.js"></script>
+<script src="../../VirtualWaitingRoom/library/ngAudio/app/angular.audio.js"></script>
+<script src="../../VirtualWaitingRoom/library/ui-select/dist/select.min.js"></script>
+<script src="../../VirtualWaitingRoom/library/angularjs/angular-animate.min.js"></script>
+<script src="../../VirtualWaitingRoom/library/angularjs/angular-aria.min.js"></script>
+<!-- Using modified version of angular material that includes ng-hide on tabs -->
+<!-- Modifications are in the MdTab and MdTabItem function -->
+<script src="../../VirtualWaitingRoom/library/angular-material/angular-material.js"></script>
+
+<!--Firebase libraries -->
+<script src="../../VirtualWaitingRoom/library/firebase/firebase.js"></script>
+<script src="../../VirtualWaitingRoom/library/firebase/angularfire.min.js"></script>
+
+<!--Highcharts -->
+<script src="../../VirtualWaitingRoom/library/highcharts/highcharts.js"></script>
+<!--<script src="../../VirtualWaitingRoom/library/highstock.js"></script>-->
+<script src="../../VirtualWaitingRoom/library/highcharts/modules/exporting.js"></script>
+<script src="../../VirtualWaitingRoom/library/highcharts/modules/offline-exporting.js"></script>
+<script src="../../VirtualWaitingRoom/library/highcharts-ng/dist/highcharts-ng.min.js"></script>
+
+
+<!--Crytojs -->
+<script type="text/javascript" src="../../VirtualWaitingRoom/library/crypto-js/crypto-js.js"></script>
+
+<!--CSS -->
+<!--<link rel="stylesheet" href="../../VirtualWaitingRoom/library/bootstrap/css/bootstrap.min.css"> use bootstrap v3 css; the css styling can be done later-->
+<link rel="stylesheet" href="../../VirtualWaitingRoom/css/bootstrap_3.3.6.min.css">
+<link rel="stylesheet" href="../../VirtualWaitingRoom/library/ui-select/dist/select.min.css">
+<link rel="stylesheet" href="../../VirtualWaitingRoom/library/angular-material/angular-material.min.css">
+<link rel="stylesheet" href="../../VirtualWaitingRoom/css/select2.css">    
+<link rel="stylesheet" href="../../VirtualWaitingRoom/css/vwrStyle.css">
+
+<script src="./weightModal.js"></script>
+
+</head>
+
+<body ng-app="vwr">
+
+<!-- Weight Modal -->
+<div ng-controller="weightModalController">
+<div class="modal-header">
+	<h3 class="modal-title">Enter Patient Measurements For {{patient.LastName}}, {{patient.FirstName}} (RV:{{patient.PatientIdRVH}}) {{index}}</h3>
+</div>
+<div class="modal-body">
+	<div class="weight-div">
+	<table class="table table-measurement">
+		<tr>
+			<td class="weight-cell"><b>Weight: </b></td>
+			<td class="weight-cell"><input type="number" class="weight-modal-input weight-input" ng-model="patient.Weight" step="any" min="0" ng-change="recalculateBSA()" /><b> kg</b></td>
+			<td>Height: </td>
+			<td><input type="number" class="weight-modal-input" ng-model="patient.Height" step="any" min="0" ng-change="recalculateBSA()"/> cm</td>
+		</tr>
+		<tr>
+			<td>BSA (Dubois): </td>
+			<td><input type="number" class="weight-modal-input" ng-model="patient.BSA" step="any" disabled /> m<sup>2</sup></td>
+			<td><button class="btn btn-primary" ng-click="updateWeightChart()" ng-disabled="!patient.Weight">Update</button></td>
+			<td></td>
+		</tr>
+	</table>
+	</div>
+
+	<highchart config="historicalChart.config" id="hisChart"></highchart>
+</div>
+
+<div class="modal-footer">
+	<button class="btn btn-warning" ng-click="accept()">Go Back</button>
+</div>
+</div>
+
+</body>

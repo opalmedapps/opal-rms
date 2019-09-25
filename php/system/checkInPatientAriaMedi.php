@@ -3,7 +3,7 @@
 // php code to check a patient into all appointments, 
 // regardless of whether in Aria or Medivisit - just needs CheckinVenue and PatientId 
 //==================================================================================== 
-include_once("classLocation.php");
+include_once("../classLocation.php");
 include_once(CLASS_PATH ."/Config.php");
 
 $link = Config::getDatabaseConnection("ARIA");

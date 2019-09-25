@@ -2,7 +2,7 @@
 //==================================================================================== 
 // php code to check a patient into Aria 
 //==================================================================================== 
-include_once("classLocation.php");
+include_once("../classLocation.php");
 include_once(CLASS_PATH ."/Config.php");
 
 $link = Config::getDatabaseConnection("ARIA");

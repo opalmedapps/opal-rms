@@ -2,34 +2,14 @@
 
 Config::init();
 
-class Config {
+class Config
+{
 
 	private static $configs;
 
 	#class constructor
 	public function init()
 	{
-
-		/* perl code to be refactored
-		#load config depending on the git branch of the repository
-		#get current git branch
-		my $output = `git symbolic-ref -q HEAD 2>&1`;
-		chomp($output);
-
-		my $gitBranch = (split('/',$output))[-1]; #get the last section of the string to get the branch
-
-		#if on preprod or master branch, load configs for live use
-		#otherwise load the default dev configs
-
-		if($gitBranch eq 'preprod' or $gitBranch eq 'master')
-		{
-			require("../config/perlLive.pl");
-		}
-		else
-		{
-			require("configFileDev.pl");
-		}*/
-
 		#load the config file
 		self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/configDev.conf",true);
 	}

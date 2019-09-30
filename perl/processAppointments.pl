@@ -9,7 +9,7 @@
 use strict;
 use warnings;
 use v5.30;
-use lib "./system/modules";
+use lib "/var/www/OnlineRoomManagementSystem/perl/system/modules";
 
 use LoadConfigs;
 use Time::Piece;
@@ -58,6 +58,7 @@ my $appointmentInfo = {
 	ssnExpDate=> undef,
 	status=> undef,
 	system=> undef,
+	type=> undef
 };
 
 #check where the script call came from
@@ -89,13 +90,17 @@ elsif($origin eq 'POST')
 
 	#POST param names different from appointment parameters
 	#%appointmentInfo = map{ $_ => [param($_)] } $cgi->param();
-	#$appointmentInfo->{$_} = $cgi->param($_) for(keys %{$appointmentInfo});
+	#$appointmentInfo->{$_} = $cgi->param($_) for(keys $appointmentInfo->%*);
+
+	#empty fields have a space inserted so that the fields are sent in the post request
+	#remove the space
+	for(values $postParams->%*) {$_ = '' if($_ eq ' ');}
 
 	$appointmentInfo->{'action'} = $postParams->{'Action'};
 	$appointmentInfo->{'code'} = $postParams->{'AppointCode'};
 	$appointmentInfo->{'creationDate'} = $postParams->{'CreationDate'};
 	$appointmentInfo->{'firstName'} = $postParams->{'PatFirstName'};
-	$appointmentInfo->{'id'} = $postParams->{'AppointId'};
+	$appointmentInfo->{'id'} = $postParams->{'AppointId'} || $postParams->{'VisitId'};
 	$appointmentInfo->{'lastName'} = $postParams->{'PatLastName'};
 	$appointmentInfo->{'patientId'} = $postParams->{'PatientId'};
 	$appointmentInfo->{'referringMd'} = $postParams->{'ReferringMd'};
@@ -108,10 +113,11 @@ elsif($origin eq 'POST')
 	$appointmentInfo->{'ssnExpDate'} = $postParams->{'RamqExpireDate'};
 	$appointmentInfo->{'status'} = $postParams->{'Status'};
 	$appointmentInfo->{'system'} = $postParams->{'AppointSys'};
+	$appointmentInfo->{'type'} = ($postParams->{'AppointId'}) ? "Appointment" : "Visit AddOn";
 
 	#if the appointment info is complete, insert it in the database
 	my $result = (isComplete($appointmentInfo)) ? insertInDatabase($appointmentInfo) : "Incomplete web request arguments";
-	logResult($appointmentInfo,$result);
+	logResult($appointmentInfo,$postParams,$result);
 	print $json->encode($result);
 	exit;
 }
@@ -156,7 +162,7 @@ elsif($origin eq "CL")
 
 		if($csvModTime ne $today->ymd)
 		{
-			logResult({file=>$args->{'file'}},"CSV file was not updated today") if($today->wdayname !~ /Sat|Sun/);
+			logResult({},{file=>$args->{'file'}},"CSV file was not updated today") if($today->wdayname !~ /Sat|Sun/);
 			exit;
 		}
 
@@ -177,38 +183,42 @@ elsif($origin eq "CL")
 			$headers->{$value} = $index;
 		}
 
-		while(my $row = $parser->getline($csvFile))
+
+		while(my @row = $parser->getline($csvFile))
 		{
-			my $csvInfo = {
+			my $csvParams = {};
+			$csvParams->{$_} = $row[$headers->{$_}] for (keys $headers->%*);
+
+			my $appointmentInfo = {
 				action=> "ADD",
-				code=> $row->[$headers->{'Activity Code'}],
-				creationDate=> $row->[$headers->{'DH Cré RV'}],
-				firstName=> $row->[$headers->{'First Name'}],
-				id=> $row->[$headers->{'AppIDComb'}],
-				lastName=> $row->[$headers->{'Last name'}],
-				patientId=> $row->[$headers->{'MRN'}],
-				referringMd=> $row->[$headers->{'Md Référant RV'}],
-				resource=> $row->[$headers->{'Resource'}],
-				resourceDesc=> $row->[$headers->{'Resource Des'}],
-				scheduledDate=> $row->[$headers->{'App Date'}],
-				scheduledTime=> $row->[$headers->{'App Time'}],
-				#site=> $row->[$header->{'Site'}],
-				ssn=> $row->[$headers->{'RAMQ'}],
-				ssnExpDate=> $row->[$headers->{'Date Exp RAMQ'}],
+				code=> $csvParams->{'Activity Code'},
+				creationDate=> $csvParams->{'DH Cré RV'},
+				firstName=> $csvParams->{'First Name'},
+				id=> $csvParams->{'AppIDComb'},
+				lastName=> $csvParams->{'Last name'},
+				patientId=> $csvParams->{'MRN'},
+				referringMd=> $csvParams->{'Md Référant RV'},
+				resource=> $csvParams->{'Resource'},
+				resourceDesc=> $csvParams->{'Resource Des'},
+				scheduledDate=> $csvParams->{'App Date'},
+				scheduledTime=> $csvParams->{'App Time'},
+				site=> $csvParams->{'Site'},
+				ssn=> $csvParams->{'RAMQ'},
+				ssnExpDate=> $csvParams->{'Date Exp RAMQ'},
 				status=> "Open",
 				system=> "Impromptu"
 			};
 
 			#if the appointment info is complete, insert it in the database; otherwise log an error for the entry
-			my $result = (isComplete($csvInfo)) ? insertInDatabase($csvInfo) : "Incomplete csv row information";
-			logResult($csvInfo,$result);
+			my $result = (isComplete($appointmentInfo)) ? insertInDatabase($appointmentInfo) : "Incomplete csv row information";
+			logResult($appointmentInfo,$csvParams,$result);
 		}
 		exit;
 	}
 	#if appointment information was given instead, process it
 	else
 	{
-		$appointmentInfo->{$_} = $args->{$_} for(keys %{$appointmentInfo});
+		$appointmentInfo->{$_} = $args->{$_} for(keys $appointmentInfo->%*);
 
 		#if the appointment info is complete, insert it in the database
 		my $result = (isComplete($appointmentInfo)) ? insertInDatabase($appointmentInfo) : "Incomplete command line arguments";
@@ -222,7 +232,7 @@ sub isComplete
 {
 	my $app = shift; #hash ref
 
-	for(keys %{$app})
+	for(keys $app->%*)
 	{
 		return 0 if(!defined $app->{$_});
 	}
@@ -235,12 +245,12 @@ sub insertInDatabase
 	my $app = shift; #hash ref
 
 	#sanitize the inputs and make sure they are correct
-	my $sanitizeResult = sanitizeAppointment($app);
+	my ($sanitizedApp,$sanitizeResult) = sanitizeAppointment($app);
 
 	if($sanitizeResult eq "Sanitized")
 	{
 		my $functionCall = "./CreateAppointmentInOrms.pl ";
-		$functionCall .= "-$_=\"$app->{$_}\" " for(sort keys %{$app});
+		$functionCall .= "-$_=\"$sanitizedApp->{$_}\" " for(sort keys $sanitizedApp->%*);
 		$functionCall .= "-caller=\"". $cgi->remote_addr() ."\" ";
 
 		my $insertResult = `$functionCall` || "UNDEFINED ERROR";
@@ -257,15 +267,16 @@ sub insertInDatabase
 sub logResult
 {
 	my $appointInfo = shift; #hash ref
+	my $requestInfo = shift; #hash ref
 	my $message = shift; #str
 
-	$_ = (defined $_) ? $_ : '' for(values %{$appointInfo});
+	$_ = (defined $_) ? $_ : '' for(values $requestInfo->%*);
 
 	my $time = localtime;
 	$time = "${\$time->ymd} ${\$time->hms}";
 
 	my $params = '';
-	$params .= "$_: $appointInfo->{$_} |" for (sort keys %{$appointInfo});
+	$params .= "$_: $requestInfo->{$_} |" for (sort keys $requestInfo->%*);
 
 	say $logFile "[$time] result: $message; params: $params";
 
@@ -278,15 +289,15 @@ sub logResult
 		'Can\'t delete - Appointment does not exist'
 	);
 	#my @ignoredMessages = ('success','Appointment already completed');
-	sendEmail($message,$appointmentInfo,$time,$appointInfo) if(none {$message eq $_} @ignoredMessages);
+	sendEmail($message,$time,$appointInfo) if(none {$message eq $_} @ignoredMessages);
 }
 
 sub sanitizeAppointment
 {
-	my $app = shift; #hash ref
+	my $app->%* = shift->%*; #hash ref
 
 	#perfrom some sanitization
-	for(values %{$app})
+	for(values $app->%*)
 	{
 		$_ =~ s/\\//g; #remove backslashes
 		#$_ =~ s/'/\\'/g; #escape quotes
@@ -297,14 +308,14 @@ sub sanitizeAppointment
 	}
 
 	#verify action
-	return "Unknown action" unless($app->{'action'} =~ /ADD|UPD|DEL/);
+	return (undef,"Unknown action") unless($app->{'action'} =~ /ADD|UPD|DEL/);
 
 	#uppercase names
 	$app->{'lastName'} = uc $app->{'lastName'};
 	$app->{'firstName'} = uc $app->{'firstName'};
 
 	#resource and resource description cannot be empty
-	return "Empty resource code or description" unless($app->{'resource'} and $app->{'resourceDesc'});
+	return (undef,"Empty resource code or description") unless($app->{'resource'} and $app->{'resourceDesc'});
 
 	#insert zeros for incomplete MRNs
 	while(length($app->{'patientId'}) < 7)
@@ -321,36 +332,34 @@ sub sanitizeAppointment
 
 	$_ = $_ ? $_ : "" for($yearS,$monthS,$dayS,$yearC,$monthC,$dayC,$hourS,$minuteS);
 
-	return "Incorrect date format for scheduledDate" unless($yearS =~ /\d\d\d\d/ and $monthS =~ /\d\d/ and $dayS =~ /\d\d/);
-	return "Incorrect date format for creationDate" unless($yearC =~ /\d\d\d\d/ and $monthC =~ /\d\d/ and $dayC =~ /\d\d/);
-	return "Incorrect time format for scheduledTime" unless($hourS =~ /\d\d/ and $minuteS =~ /\d\d/);
+	return (undef,"Incorrect date format for scheduledDate") unless($yearS =~ /\d\d\d\d/ and $monthS =~ /\d\d/ and $dayS =~ /\d\d/);
+	return (undef,"Incorrect date format for creationDate") unless($yearC =~ /\d\d\d\d/ and $monthC =~ /\d\d/ and $dayC =~ /\d\d/);
+	return (undef,"Incorrect time format for scheduledTime") unless($hourS =~ /\d\d/ and $minuteS =~ /\d\d/);
 
-	####################deal with visits coming in (usually in progress)
-	#they have 8 digits only
-	#appointments are YYYYA + 8 digits
+	#make sure the appointment id that we'll use in the orms system is in the correct format
+	#visit: 8 digits
+	#appointment: YYYYA + 8 digits
+	#cancelled appointment: YYYYC + 7 digits
+
+	return (undef,"Incorrect appointment ID format") unless($app->{'id'} =~ /^[0-9]{4}A[0-9]{8}/ or $app->{'id'} =~ /^[0-9]{4}C[0-9]{7}/ or $app->{'id'} =~ /^[0-9]{8}/ or $app->{'id'} eq "InstantAddOn");
 
 	#other possible systems are group visits; 999999999G88888888 :  Group Appointment ID  (Appointment sequential#  G  Patient sequential number )  Ex: 20560969G4224207
 	#eClinibase; 9999999E : Eclinibase appointment / visit id Ex: 1373791E
-
-	#if only the numerical part of the appointment ID is given, then add the year of the creation date and an 'A'
-	my $addedYear = $yearC;
-	$app->{'id'} = $addedYear ."A". $app->{'id'} if(length($app->{'id'}) == 8);
-
-	#the appointment is only valid if the length of its id is 13 (YYYYA + 8 digits)
-	return "Incorrect appointment ID format" unless(length($app->{'id'}) == 13 or $app->{'id'} eq "InstantAddOn");
+	#currently not used
 
 	#current supported sites are RVH and MGH
-	return "Site is not supported" unless($app->{'site'} eq "RVH" or $app->{'site'} eq "MGH");
+	$app->{'site'} = "RVH" if($app->{'site'} eq 'V');
+	$app->{'site'} = "MGH" if($app->{'site'} eq 'G');
+	return (undef,"Site is not supported") unless($app->{'site'} eq "RVH" or $app->{'site'} eq "MGH");
 	
 	#all clear
-	return "Sanitized";
+	return ($app,"Sanitized");
 }
 
 #sends an email to the administrator
 sub sendEmail
 {
 	my $subject = shift; #str
-	my $data = shift; #hash ref
 	my $time = shift; #str
 	my $appointInfo = shift; #hash ref
 

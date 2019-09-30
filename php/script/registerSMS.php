@@ -3,8 +3,7 @@
 // php code to insert patients' cell phone numbers and languqge preferences
 // into ORMS 
 //==================================================================================== 
-include_once("classLocation.php");
-include_once(CLASS_PATH ."/Config.php");
+include_once("ScriptLoader.php");
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');

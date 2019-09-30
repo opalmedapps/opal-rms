@@ -42,6 +42,7 @@ my $appointment = {
 	ssnExpDate=> undef,
 	status=> undef,
 	system=> undef,
+	type=> undef,
 
 	caller=> undef
 };

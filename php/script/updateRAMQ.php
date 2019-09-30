@@ -3,8 +3,7 @@
 // php code to update a RAMQ expiration date in the WaitRoomManagement db 
 //==================================================================================== 
 
-include_once("classLocation.php");
-include_once(CLASS_PATH ."/Config.php");
+include_once("ScriptLoader.php");
 
 // Variables to be used throughout
 #$configs = new Config();

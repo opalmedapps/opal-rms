@@ -3,8 +3,7 @@
 // php code to remove patients' cell phone numbers and languagee preferences
 // into ORMS 
 //==================================================================================== 
-include_once("classLocation.php");
-include_once(CLASS_PATH ."/Config.php");
+include_once("ScriptLoader.php");
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');

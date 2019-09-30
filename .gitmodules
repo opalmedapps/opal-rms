@@ -6,3 +6,6 @@
 	path = VirtualWaitingRoom
 	url = http://jkildea@bitbucket.scs.muhc.mcgill.ca/scm/orms/VirtualWaitingRoom.git
 	branch = master
+[submodule "tools/KioskStatus"]
+	path = tools/KioskStatus
+	url = http://jkildea@bitbucket.scs.muhc.mcgill.ca/scm/orms/kioskstatus.git

@@ -84,26 +84,26 @@ function processAppointment(array $appParams): void
         #instantiate an appointment object including a patient object
         $appointment = new Appointment(
             [
-                "appointmentCode" => $appointmentInfoValidated["ActivityCode"],
-                "creationDate" => $appointmentInfoValidated["DHCreRV"],
-                "id" => $appointmentInfoValidated["AppIDComb"],
-                "referringMd" => $appointmentInfoValidated["MdReferantRV"],
-                "resource" => $appointmentInfoValidated["Resource"],
-                "resourceDesc" => $appointmentInfoValidated["ResourceDes"],
-                "scheduledDate" => $appointmentInfoValidated["AppDate"],
+                "appointmentCode"   => $appointmentInfoValidated["ActivityCode"],
+                "creationDate"      => $appointmentInfoValidated["DHCreRV"],
+                "id"                => $appointmentInfoValidated["AppIDComb"],
+                "referringMd"       => $appointmentInfoValidated["MdReferantRV"],
+                "resource"          => $appointmentInfoValidated["Resource"],
+                "resourceDesc"      => $appointmentInfoValidated["ResourceDes"],
+                "scheduledDate"     => $appointmentInfoValidated["AppDate"],
                 "scheduledDateTime" => $appointmentInfoValidated["AppDate"] ." ". $appointmentInfoValidated["AppTime"],
-                "scheduledTime" => $appointmentInfoValidated["AppTime"],
-                "site" => $appointmentInfoValidated["Site"],
-                "status" => "Open",
-                "sourceStatus" => NULL,
-                "system" => "IMPROMPTU"
+                "scheduledTime"     => $appointmentInfoValidated["AppTime"],
+                "site"              => $appointmentInfoValidated["Site"],
+                "status"            => "Open",
+                "sourceStatus"      => NULL,
+                "system"            => "IMPROMPTU"
             ],
             new Patient([
-                "firstName" => $appointmentInfoValidated["FirstName"],
-                "lastName" => $appointmentInfoValidated["Lastname"],
-                "patientId" => $appointmentInfoValidated["MRN"],
-                "ssn" => $appointmentInfoValidated["RAMQ"],
-                "ssnExpDate" => $appointmentInfoValidated["DateExpRAMQ"]
+                "firstName"     => $appointmentInfoValidated["FirstName"],
+                "lastName"      => $appointmentInfoValidated["Lastname"],
+                "patientId"     => $appointmentInfoValidated["MRN"],
+                "ssn"           => $appointmentInfoValidated["RAMQ"],
+                "ssnExpDate"    => $appointmentInfoValidated["DateExpRAMQ"]
             ])
         );
 

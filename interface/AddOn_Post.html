@@ -5,14 +5,14 @@
 </head>
 
 <body ng-init="setDate();" ng-app="myApp" ng-controller="main">
-	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center> 
-	 
-	<table border="0" width="50%" padding="5"> 
+	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
+
+	<table border="0" width="50%" padding="5">
 		<tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in Medivisit.</font></td></tr>
 	</table>
 	<br>
 
-	<form method="post" action="../perl/processAppointments.pl">
+	<form method="post" action="../php/system/processAppointmentFromAddOn.php">
 		<table border="0" width="60%" padding="2">
 
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
@@ -23,24 +23,24 @@
 			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatFirstName" ng-model="first" id="first"></td></tr>
 			<tr><td></td></td>
 
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr> 
+			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
 
 			<tr><td><b>AppointmentCode</b></td>
 			<td>
-			    <select name="AppointCode"> 
-			       <option value="ADD-ON">ADD-ON</option> 
-			       <option value="RTFU">RTFU</option> 
-			       <option value="RTFU-XR">RTFU-XR</option> 
-			    </select> 
+			    <select name="AppointCode">
+			       <option value="ADD-ON">ADD-ON</option>
+			       <option value="RTFU">RTFU</option>
+			       <option value="RTFU-XR">RTFU-XR</option>
+			    </select>
 			</td>
 			</tr>
 
 			<tr><td><b>Clinic Code</b></td>
 			<td>
-			    <select name="ResourceCode"> 
-			       <option value="ADD-ON">ADD-ON</option> 
-			       <option value="JARZ">JARZ</option> 
-			    </select> 
+			    <select name="ResourceCode">
+			       <option value="ADD-ON">ADD-ON</option>
+			       <option value="JARZ">JARZ</option>
+			    </select>
 			</td>
 			</tr>
 
@@ -49,7 +49,7 @@
 			    <input type="text" list="ResourceName" name="ResourceName">
 			    <datalist id="ResourceName">
 			    <option ng-repeat="resource in loadedResources | filter:search" value="{{resource}}"></option>
-			    </datalist> 
+			    </datalist>
 
 			</td>
 			</tr>
@@ -60,24 +60,18 @@
 			<input type="time" id="myTime" name="AppointTime" />
 			</td>
 			</tr>
-			<input type="hidden" name="Status" value="Open"> 
-			<input type="hidden" name="Action" value="ADD"> 
-			<input type="hidden" name="AppointSys" value="InstantAddOn"> 
-			<input type="hidden" name="AppointId" value="InstantAddOn">
-			<input type="hidden" name="CreationDate" value="{{currentDateTime | date: 'yyyy-MM-dd HH:mm:ss'}}">
-			<input type="hidden" name="ReferringMd" value="">
 			<input type="hidden" name="Site" value="{{site}}">
 
 			<tr>
 			<td colspan=5 align="center">
-			<input type="submit" value="Submit"><input type="reset"> 
+			<input type="submit" value="Submit"><input type="reset">
 			</td>
-			</tr> 
-		</table> 
+			</tr>
+		</table>
 	</form>
 
 	<hr>
-	<center> Problems and bug reports to Victor Matassa<br> (victor.matassa@mail.mcgill.ca)</center> 
+	<center> Problems and bug reports to Victor Matassa<br> (victor.matassa@mail.mcgill.ca)</center>
 	<center> <a href="../">Main Page</a></center>
 
 </body>
@@ -96,7 +90,7 @@ app.config(['$locationProvider',function ($locationProvider)
 	});
 }]);
 
-app.controller('main', function($scope,$http,$window,$location) 
+app.controller('main', function($scope,$http,$window,$location)
 {
 	//Ensure that page is refreshed when using back button
 	if(!!$window.performance && $window.performance.navigation.type == 2)
@@ -138,7 +132,7 @@ app.controller('main', function($scope,$http,$window,$location)
 		if (min < 10) min = "0" + min;
 
 		var today = year + "-" + month + "-" + day;
-		var now = hour + ":" + min + ":00"; 
+		var now = hour + ":" + min + ":00";
 		var todayANDnow = today + " " + now;
 
 
@@ -150,11 +144,11 @@ app.controller('main', function($scope,$http,$window,$location)
 	$http({
 		url: "../perl/getClinicResources.pl",
 		method: "GET",
-		params: 
+		params:
 		{
 			speciality: $scope.speciality //"Oncology" or "Ortho"
 		}
-	}).then(function (response) 
+	}).then(function (response)
 	{
 		$scope.loadedResources = response.data;
 	});

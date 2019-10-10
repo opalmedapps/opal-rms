@@ -52,26 +52,26 @@ try
     #instantiate an appointment object including a patient object
     $appointment = new Appointment(
         [
-            "appointmentCode" => $appointmentInfoValidated["AppointCode"],
-            "creationDate" => $appointmentInfoValidated["CreationDate"],
-            "id" => !empty($appointmentInfoValidated["AppointId"]) ? $appointmentInfoValidated["AppointId"] : $appointmentInfoValidated["VisitId"],
-            "referringMd" => $appointmentInfoValidated["ReferringMd"],
-            "resource" => $appointmentInfoValidated["ResourceCode"],
-            "resourceDesc" => $appointmentInfoValidated["ResourceName"],
-            "scheduledDate" => $appointmentInfoValidated["AppointDate"],
+            "appointmentCode"   => $appointmentInfoValidated["AppointCode"],
+            "creationDate"      => $appointmentInfoValidated["CreationDate"],
+            "id"                => !empty($appointmentInfoValidated["AppointId"]) ? $appointmentInfoValidated["AppointId"] : $appointmentInfoValidated["VisitId"],
+            "referringMd"       => $appointmentInfoValidated["ReferringMd"],
+            "resource"          => $appointmentInfoValidated["ResourceCode"],
+            "resourceDesc"      => $appointmentInfoValidated["ResourceName"],
+            "scheduledDate"     => $appointmentInfoValidated["AppointDate"],
             "scheduledDateTime" => $appointmentInfoValidated["AppointDate"] ." ". $appointmentInfoValidated["AppointTime"],
-            "scheduledTime" => $appointmentInfoValidated["AppointTime"],
-            "site" => $appointmentInfoValidated["Site"],
-            "status" => $appointmentInfoValidated["Status"],
-            "sourceStatus" => $appointmentInfoValidated["AdmDesc"],
-            "system" => "MEDIVISIT"
+            "scheduledTime"     => $appointmentInfoValidated["AppointTime"],
+            "site"              => $appointmentInfoValidated["Site"],
+            "status"            => $appointmentInfoValidated["Status"],
+            "sourceStatus"      => $appointmentInfoValidated["AdmDesc"],
+            "system"            => "MEDIVISIT"
         ],
         new Patient([
-            "firstName" => $appointmentInfoValidated["PatFirstName"],
-            "lastName" => $appointmentInfoValidated["PatLastName"],
-            "patientId" => $appointmentInfoValidated["PatientId"],
-            "ssn" => $appointmentInfoValidated["Ramq"],
-            "ssnExpDate" => $appointmentInfoValidated["RamqExpireDate"]
+            "firstName"     => $appointmentInfoValidated["PatFirstName"],
+            "lastName"      => $appointmentInfoValidated["PatLastName"],
+            "patientId"     => $appointmentInfoValidated["PatientId"],
+            "ssn"           => $appointmentInfoValidated["Ramq"],
+            "ssnExpDate"    => $appointmentInfoValidated["RamqExpireDate"]
         ])
     );
 

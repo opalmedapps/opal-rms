@@ -1,3 +1,6 @@
 # ignore ide and editor swap files
 *.vscode
 *.swp
+
+#ignore test folder
+test/

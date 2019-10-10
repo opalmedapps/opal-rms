@@ -8,7 +8,7 @@ class Config
 	private static $configs;
 
 	#class constructor
-	public function init()
+	public static function init()
 	{
 		#load the config file
 		self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/configDev.conf",true);
@@ -33,7 +33,7 @@ class Config
 	{
 		$dbInfo = self::$configs['database'];
 		$options = [
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
+			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
 		];
 
@@ -56,7 +56,7 @@ class Config
 		#logging db
 		elseif($requestedConnection == 'LOGS')
 		{
-			$dbh = new PDO("mariadb:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
+			$dbh = new PDO("mysql:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
 		}
 
 		#opal db

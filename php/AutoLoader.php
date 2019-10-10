@@ -3,6 +3,8 @@
 declare(strict_types = 1);
 error_reporting(E_ALL);
 
+date_default_timezone_set("America/Montreal");
+
 include_once("GlobalFunctions.php");
 
 AutoLoader::init();

@@ -45,9 +45,9 @@ class Appointment
             throw new Exception("Missing database serial numbers");
         }
         //update the patient ssn or ssnExpDate if they have changed
-        else {
-            $this->patient->updateSSNInDatabase();
-        }
+        // else {
+        //     $this->patient->updateSSNInDatabase();
+        // }
 
         #insert row into database
         $dbh = Config::getDatabaseConnection("ORMS");
@@ -103,9 +103,9 @@ class Appointment
             throw new Exception("Missing database serial numbers");
         }
         //update the patient ssn or ssnExpDate if they have changed
-        else {
-            $this->patient->updateSSNInDatabase();
-        }
+        // else {
+        //     $this->patient->updateSSNInDatabase();
+        // }
 
         $dbh = Config::getDatabaseConnection("ORMS");
 

@@ -75,7 +75,7 @@ try
         ])
     );
 
-    #when an appointment is deleted, we don't get the appointment id of the deleted appointment but rather a new appointment id corresponding to the deletion
+    #when an appointment is cancelled, we don't get the appointment id of the cancelled appointment but rather a new appointment id corresponding to the cancellation
     #since we don't have the original appointment id, we delete all appointments with the same resource and scheduled time for that patient
     if($appointmentInfo["Action"] === "S15") {
         $appointment->deleteSimilarAppointments();
@@ -156,8 +156,8 @@ function validateAppointmentInfo(array $appInfo): array
         $appInfo["Status"] = "Open";
     }
 
-    #if the Action is a S15, the appointment is a deleted one
-    if($appInfo["Action"] === "S15") {
+    #if the Action is a S17, the appointment is a deleted one
+    if($appInfo["Action"] === "S17") {
         $appInfo["Status"] = "Deleted";
     }
 

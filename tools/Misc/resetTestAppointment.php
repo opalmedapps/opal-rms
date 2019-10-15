@@ -1,8 +1,9 @@
 <?php
 //==================================================================================== 
 // php script to create/reset the test patient's test appointment
-//==================================================================================== 
-include_once("../../php/class/Config.php");
+//====================================================================================
+$fileLocation = dirname(__FILE__);
+include_once("$fileLocation/../../php/class/Config.php");
 
 $dbh = Config::getDatabaseConnection("ORMS");
 

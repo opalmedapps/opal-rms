@@ -11,7 +11,7 @@ class Config
 	public static function init()
 	{
 		#load the config file
-		self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/configDev.conf",true);
+		self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/config.conf",true);
 	}
 
 	#returns a hash with all configs

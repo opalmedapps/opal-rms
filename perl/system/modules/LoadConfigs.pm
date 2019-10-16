@@ -41,7 +41,7 @@ my $currentLocation = abs_path(__FILE__ ."/../");
 
 #load the config file
 my $configLoader = Config::Tiny->new;
-my $config = $configLoader->read("$currentLocation/../../../config/configDev.conf");
+my $config = $configLoader->read("$currentLocation/../../../config/config.conf");
 
 #returns a hash with all configs
 sub LoadConfigs::getAllConfigs

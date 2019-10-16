@@ -172,7 +172,7 @@ function logRequest(array $requestInfo): void
 
     #send out an email if there was an error
     if($requestInfo["Result"] !== "Success") {
-        #sendEmail($requestInfo);
+        sendEmail($requestInfo);
     }
 }
 

@@ -107,6 +107,10 @@ function validateAppointmentInfo(array $appInfo): array
     #just take the first 4 characters
     $appInfo["RamqExpireDate"] = substr($appInfo["RamqExpireDate"],0,4);
 
+    #time might enter without seconds so add them
+    $appInfo["AppointTime"] = substr($appInfo["AppointTime"],0,5);
+    $appInfo["AppointTime"] .= ":00";
+
     return $appInfo;
 }
 

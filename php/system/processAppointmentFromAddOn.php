@@ -69,6 +69,7 @@ try
     if($result === TRUE)
     {
         $appointmentInfo["Result"] = "Success";
+        checkInPatientForAddOn($appointmentInfo["PatientId"]);
     }
     else
     {
@@ -107,6 +108,15 @@ function validateAppointmentInfo(array $appInfo): array
     $appInfo["RamqExpireDate"] = substr($appInfo["RamqExpireDate"],0,4);
 
     return $appInfo;
+}
+
+#temp function to check in a patient after their add on has been created
+function checkInPatientForAddOn(string $patId): void
+{
+    $path = Config::getConfigs("path");
+    $sciptLocation = $path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php?CheckinVenue=ADDED ON BY RECEPTION&PatientId=$patId";
+    $sciptLocation = str_replace(' ','%20',$sciptLocation);
+    file($sciptLocation);
 }
 
 #logs the POST request

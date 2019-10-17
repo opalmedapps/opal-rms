@@ -82,7 +82,7 @@ catch (Exception $e)
 }
 finally
 {
-    echo $appointmentInfo["Result"];
+    echo "Add on for $appointmentInfo[PatFirstName], $appointmentInfo[PatLastName] ($appointmentInfo[PatientId]) : $appointmentInfo[Result]";
     logRequest($appointmentInfo);
 }
 

@@ -5,5 +5,10 @@
 #ignore test folder
 test/
 
-#ignore config file
-config/config.conf
+#ignore config files
+config/
+
+#ignore slave modules
+ormsscheduler
+tools/KioskStatus
+VirtualWaitingRoom

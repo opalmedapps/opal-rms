@@ -1,15 +1,15 @@
 <?php
-//==================================================================================== 
-// php code to check a patient into Aria 
-//==================================================================================== 
+//====================================================================================
+// php code to check a patient into Aria
+//====================================================================================
 include_once("SystemLoader.php");
 
 $link = Config::getDatabaseConnection("ARIA");
 
 // Extract the webpage parameters
-$CheckinVenue = $_GET["CheckinVenue"];
-$ScheduledActivitySer= $_GET["ScheduledActivitySer"];
-$location= $_GET["location"];
+$CheckinVenue           = !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
+$ScheduledActivitySer   = !empty($_GET["ScheduledActivitySer"]) ? $_GET["ScheduledActivitySer"] : NULL;
+$location               = !empty($_GET["location"]) ? $_GET["location"] : NULL;
 
 if (!$link) {
     die('Something went wrong while connecting to MSSQL');
@@ -18,14 +18,14 @@ if (!$link) {
 $sql = "
 declare @var INT
 
-SET @var = (SELECT 
+SET @var = (SELECT
 Venue.ResourceSer AS ResourceSer
 FROM
 variansystem.dbo.Venue Venue
-WHERE 
+WHERE
 Venue.VenueId='$CheckinVenue')
 
-exec variansystem.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'DS1_1' 
+exec variansystem.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'DS1_1'
 
 ";
 
@@ -42,5 +42,3 @@ if (!$query) {
 }
 
 ?>
-
-

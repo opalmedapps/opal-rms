@@ -61,7 +61,8 @@ class Appointment
                 ScheduledDate     = VALUES(ScheduledDate),
                 ScheduledTime     = VALUES(ScheduledTime),
                 AppointSys        = VALUES(AppointSys),
-                Status            = VALUES(Status)");
+                Status            = VALUES(Status),
+                MedivisitStatus   = VALUES(MedivisitStatus)");
 
         $insertResult = $insertAppointment->execute([
             ":patSer"       => $patientSer,

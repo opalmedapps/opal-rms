@@ -15,8 +15,9 @@ if (!$dbh) {
 
 $host = gethostname();
 
-foreach(['TEST1','TEST2'] as $appId)
+foreach(range(1,2) as $index)
 {
+	$appId = "TEST$index";
 	$dbh->exec("
 		DELETE FROM PatientLocation 
 		WHERE PatientLocation.AppointmentSerNum = 

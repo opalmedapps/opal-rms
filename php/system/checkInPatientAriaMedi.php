@@ -1,8 +1,8 @@
 <?php
-//==================================================================================== 
-// php code to check a patient into all appointments, 
-// regardless of whether in Aria or Medivisit - just needs CheckinVenue and PatientId 
-//==================================================================================== 
+//====================================================================================
+// php code to check a patient into all appointments,
+// regardless of whether in Aria or Medivisit - just needs CheckinVenue and PatientId
+//====================================================================================
 include_once("SystemLoader.php");
 
 $link = Config::getDatabaseConnection("ARIA");
@@ -14,11 +14,11 @@ $connOpal = Config::getDatabaseConnection("OPAL");
 $baseURL = Config::getConfigs("path")["BASE_URL"];
 
 // Extract the webpage parameters
-$PushNotification = 0; # default of zero
-$CheckinVenue 		= $_GET["CheckinVenue"];
-$PatientId		= $_GET["PatientId"];
-$PushNotification	= $_GET["PushNotification"];
-$verbose		= $_GET["verbose"];
+$PushNotification   = 0; # default of zero
+$CheckinVenue 		= !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
+$PatientId		    = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
+$PushNotification	= !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
+$verbose		    = !empty($_GET["verbose"]) ? $_GET["verbose"] : NULL;
 
 if ($verbose) echo "Verbose Mode<br>";
 
@@ -29,7 +29,7 @@ if (!$link) {
 
 if (!$conn) {
     die("<br>Connection failed");
-} 
+}
 
 //======================================================================================
 // Check for upcoming appointments in both Aria and Medivisit for this patient
@@ -43,45 +43,45 @@ if ($verbose) echo "startOfToday: $startOfToday, endOfToday: $endOfToday<p>";
 ############################################################################################
 ######################################### Aria #############################################
 ############################################################################################
-# We need a union on the query as the appointment is either with an auxiliary or a doctor or a resource 
+# We need a union on the query as the appointment is either with an auxiliary or a doctor or a resource
 
 $sqlAppt = "
-	  SELECT DISTINCT 
+	  SELECT DISTINCT
 		Patient.PatientId,
 		Patient.FirstName,
 		Patient.LastName,
 		ScheduledActivity.ScheduledStartTime,
 		vv_ActivityLng.Expression1,
-		ResourceActivity.ResourceSer,	
+		ResourceActivity.ResourceSer,
 		ScheduledActivity.ScheduledActivitySer,
 		Auxiliary.AuxiliaryId,
-		Resource.ResourceType,	
-		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight 
-          FROM  
+		Resource.ResourceType,
+		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
+          FROM
 		variansystem.dbo.Patient Patient,
            	variansystem.dbo.ScheduledActivity ScheduledActivity,
 		variansystem.dbo.ActivityInstance ActivityInstance,
 		variansystem.dbo.Activity Activity,
 		variansystem.dbo.vv_ActivityLng vv_ActivityLng,
 		variansystem.dbo.ResourceActivity ResourceActivity,
-		variansystem.dbo.Auxiliary Auxiliary, 
+		variansystem.dbo.Auxiliary Auxiliary,
 		variansystem.dbo.Resource Resource
-          WHERE 
-            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )    
-            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )    
-	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)           
-	    AND ( Patient.PatientId 				= '$PatientId') 
+          WHERE
+            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
+            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )
+	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)
+	    AND ( Patient.PatientId 				= '$PatientId')
 	    AND ( ScheduledActivity.ScheduledActivityCode 	= 'Open')
             AND ( ResourceActivity.ScheduledActivitySer 	= ScheduledActivity.ScheduledActivitySer )
             AND ( ScheduledActivity.ActivityInstanceSer 	= ActivityInstance.ActivityInstanceSer)
             AND ( ActivityInstance.ActivitySer 			= Activity.ActivitySer)
             AND ( Activity.ActivityCode 			= vv_ActivityLng.LookupValue)
-	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)           
+	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FIRST CONSULT')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FIRST CONSULT')
-	    AND ( 
+	    AND (
 		  vv_ActivityLng.Expression1 			LIKE '%.EB%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%CT%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%.BXC%'
@@ -98,8 +98,8 @@ $sqlAppt = "
 		 OR vv_ActivityLng.Expression1 			LIKE 'CHEMOTHERAPY'
 		 OR vv_ActivityLng.Expression1 			LIKE '%INTRA%'
 		)
-	    AND  ResourceActivity.ResourceSer = Auxiliary.ResourceSer 
-	    AND  Resource.ResourceSer = Auxiliary.ResourceSer 
+	    AND  ResourceActivity.ResourceSer = Auxiliary.ResourceSer
+	    AND  Resource.ResourceSer = Auxiliary.ResourceSer
 	UNION
 	  SELECT DISTINCT
 		Patient.PatientId,
@@ -107,12 +107,12 @@ $sqlAppt = "
 		Patient.LastName,
 		ScheduledActivity.ScheduledStartTime,
 		vv_ActivityLng.Expression1,
-		ResourceActivity.ResourceSer,	
+		ResourceActivity.ResourceSer,
 		ScheduledActivity.ScheduledActivitySer,
-		Doctor.DoctorId,	
-		Resource.ResourceType,	
-		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight 
-          FROM  
+		Doctor.DoctorId,
+		Resource.ResourceType,
+		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
+          FROM
 		variansystem.dbo.Patient Patient,
            	variansystem.dbo.ScheduledActivity ScheduledActivity,
 		variansystem.dbo.ActivityInstance ActivityInstance,
@@ -121,22 +121,22 @@ $sqlAppt = "
 		variansystem.dbo.ResourceActivity ResourceActivity,
 		variansystem.dbo.Doctor Doctor,
 		variansystem.dbo.Resource Resource
-          WHERE 
-            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )    
-            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )    
-	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)           
-	    AND ( Patient.PatientId 				= '$PatientId') 
+          WHERE
+            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
+            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )
+	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)
+	    AND ( Patient.PatientId 				= '$PatientId')
 	    AND ( ScheduledActivity.ScheduledActivityCode 	= 'Open')
             AND ( ResourceActivity.ScheduledActivitySer 	= ScheduledActivity.ScheduledActivitySer )
             AND ( ScheduledActivity.ActivityInstanceSer 	= ActivityInstance.ActivityInstanceSer)
             AND ( ActivityInstance.ActivitySer 			= Activity.ActivitySer)
             AND ( Activity.ActivityCode 			= vv_ActivityLng.LookupValue)
-	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)           
+	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FIRST CONSULT')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FIRST CONSULT')
-	    AND ( 
+	    AND (
 		  vv_ActivityLng.Expression1 			LIKE '%.EB%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%CT%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%.BXC%'
@@ -151,21 +151,21 @@ $sqlAppt = "
 		 OR vv_ActivityLng.Expression1 			LIKE '%CONSULT%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%INTRA%'
 		)
-	    AND  ResourceActivity.ResourceSer = Doctor.ResourceSer 
-	    AND  Resource.ResourceSer = Doctor.ResourceSer 
+	    AND  ResourceActivity.ResourceSer = Doctor.ResourceSer
+	    AND  Resource.ResourceSer = Doctor.ResourceSer
 	UNION
-	  SELECT DISTINCT 
+	  SELECT DISTINCT
 		Patient.PatientId,
 		Patient.FirstName,
 		Patient.LastName,
 		ScheduledActivity.ScheduledStartTime,
 		vv_ActivityLng.Expression1,
-		ResourceActivity.ResourceSer,	
+		ResourceActivity.ResourceSer,
 		ScheduledActivity.ScheduledActivitySer,
 		CONVERT(varchar(30), Resource.ResourceSer),
-		Resource.ResourceType,	
-		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight 
-          FROM  
+		Resource.ResourceType,
+		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
+          FROM
 		variansystem.dbo.Patient Patient,
            	variansystem.dbo.ScheduledActivity ScheduledActivity,
 		variansystem.dbo.ActivityInstance ActivityInstance,
@@ -173,22 +173,22 @@ $sqlAppt = "
 		variansystem.dbo.vv_ActivityLng vv_ActivityLng,
 		variansystem.dbo.ResourceActivity ResourceActivity,
 		variansystem.dbo.Resource Resource
-          WHERE 
-            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )    
-            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )    
-	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)           
-	    AND ( Patient.PatientId 				= '$PatientId') 
+          WHERE
+            	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
+            AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )
+	    AND ( ScheduledActivity.PatientSer 			= Patient.PatientSer)
+	    AND ( Patient.PatientId 				= '$PatientId')
 	    AND ( ScheduledActivity.ScheduledActivityCode 	= 'Open')
             AND ( ResourceActivity.ScheduledActivitySer 	= ScheduledActivity.ScheduledActivitySer )
             AND ( ScheduledActivity.ActivityInstanceSer 	= ActivityInstance.ActivityInstanceSer)
             AND ( ActivityInstance.ActivitySer 			= Activity.ActivitySer)
             AND ( Activity.ActivityCode 			= vv_ActivityLng.LookupValue)
-	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)           
+	    AND ( Patient.PatientSer 				= ScheduledActivity.PatientSer)
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FOLLOW UP')
 	    AND ( vv_ActivityLng.Expression1 			!= 'NUTRITION FIRST CONSULT')
 	    AND ( vv_ActivityLng.Expression1 			!= 'FIRST CONSULT')
-	    AND ( 
+	    AND (
 		  vv_ActivityLng.Expression1 			LIKE '%.EB%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%CT%'
 		 OR vv_ActivityLng.Expression1 			LIKE '%.BXC%'
@@ -204,7 +204,7 @@ $sqlAppt = "
 		 OR vv_ActivityLng.Expression1 			LIKE '%INTRA%'
 		)
 	    AND  ResourceActivity.ResourceSer = Resource.ResourceSer
-	  ORDER BY ScheduledActivity.ScheduledStartTime ASC 
+	  ORDER BY ScheduledActivity.ScheduledStartTime ASC
 	";
 
 # print the SQL query for debugging
@@ -227,7 +227,7 @@ while($row = $query->fetch())
   $ResourceType 	= $row["ResourceType"];
   $AptTimeSinceMidnight = $row["AptTimeSinceMidnight"];
 
-  // Check in to Aria appointment, if there is one 
+  // Check in to Aria appointment, if there is one
   if ($verbose) echo "<br> Aria appt: $ApptDescription at $ScheduledStartTime with $AuxiliaryId<br>";
 
   # since a script exists for this, best to call it here rather than rewrite the wheel
@@ -245,14 +245,14 @@ while($row = $query->fetch())
 ######################################### Medivisit ########################################
 ############################################################################################
 $sqlApptMedivisit = "
-	  SELECT DISTINCT 
+	  SELECT DISTINCT
 		Patient.PatientId,
 		Patient.FirstName,
 		Patient.LastName,
-		MediVisitAppointmentList.ScheduledDateTime, 
+		MediVisitAppointmentList.ScheduledDateTime,
 		MediVisitAppointmentList.AppointmentCode,
 		MediVisitAppointmentList.ResourceDescription,
-		(UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday'))/60 AS AptTimeSinceMidnight, 
+		(UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday'))/60 AS AptTimeSinceMidnight,
 		MediVisitAppointmentList.AppointmentSerNum,
 		MediVisitAppointmentList.Status
           FROM
@@ -260,13 +260,13 @@ $sqlApptMedivisit = "
 		MediVisitAppointmentList
 	 WHERE
 		MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
-		AND MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum 
+		AND MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
 		AND Patient.PatientId = '$PatientId'
-            	AND ( MediVisitAppointmentList.ScheduledDateTime >= '$startOfToday' )    
-                AND ( MediVisitAppointmentList.ScheduledDateTime < '$endOfToday' )  
+            	AND ( MediVisitAppointmentList.ScheduledDateTime >= '$startOfToday' )
+                AND ( MediVisitAppointmentList.ScheduledDateTime < '$endOfToday' )
 		AND MediVisitAppointmentList.Status = 'Open'
 		ORDER BY MediVisitAppointmentList.ScheduledDateTime
-"; 
+";
 
 if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
 
@@ -274,21 +274,21 @@ if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
 $result = $conn->query($sqlApptMedivisit);
 
 // output data of each row
-while($row = $result->fetch()) 
+while($row = $result->fetch())
 {
   #$MV_PatientId	= $row["PatientId"];
   $MV_PatientFirstName	= $row["FirstName"];
   $MV_PatientLastName	= $row["LastName"];
-  $MV_ScheduledStartTime= $row["ScheduledStartTime"];
+  #$MV_ScheduledStartTime= $row["ScheduledStartTime"];
   $MV_ApptDescription	= $row["AppointmentCode"];
   $MV_Resource		= $row["ResourceDescription"];
   $MV_AptTimeSinceMidnight= $row["AptTimeSinceMidnight"];
   $MV_AppointmentSerNum = $row["AppointmentSerNum"];
   $MV_Status		= $row["Status"];
-   
+
   if ($verbose) echo "<br> MV appt: $MV_ApptDescription at $MV_ScheduledStartTime with $MV_Resource<br>";
 
-  // Check in to MediVisit/MySQL appointment, if there is one 
+  // Check in to MediVisit/MySQL appointment, if there is one
   if ($verbose) echo "About to attempt Medivisit checkin<br>";
 
   # since a script exists for this, best to call it here rather than rewrite the wheel
@@ -302,7 +302,7 @@ while($row = $result->fetch())
 
 // Send patientID to James and Yick's OpalCheckin script to synchronize the checkin state with OpalDB and send notifications
 if($PushNotification == 1)
-{ 
+{
 	$opalCheckinURL = Config::getConfigs("opal")["OPAL_CHECKIN_URL"];
 
   $opalCheckinURL = "$opalCheckinURL?PatientId=$PatientId";
@@ -310,7 +310,7 @@ if($PushNotification == 1)
 
   $response = file_get_contents($opalCheckinURL);
 
-  if(strpos($reponse, 'Error')){
+  if(strpos($response, 'Error')){
 	$response = ['error' => $response];
   } else {
 	$response = ['success' => explode(',',  trim($response))];
@@ -321,5 +321,3 @@ if($PushNotification == 1)
   print($response);
 } # End of push notification
 ?>
-
-

@@ -1,6 +1,6 @@
 <?php
-//==================================================================================== 
-// php code to check a Medivisit patient into Mysql 
+//====================================================================================
+// php code to check a Medivisit patient into Mysql
 //====================================================================================
 include_once("SystemLoader.php");
 
@@ -17,7 +17,7 @@ echo "AppointmentSerNum: $AppointmentSerNum<br>";
 // Check connection
 if (!$conn) {
     die("<br>Connection failed");
-} 
+}
 
 #---------------------------------------------------------------------------------------------
 # First, check for an existing entry in the patient location table for this appointment
@@ -28,7 +28,7 @@ $CheckinVenueName;
 $ArrivalDateTime;
 
 $sqlMV_checkCheckin = "
-  SELECT DISTINCT 
+  SELECT DISTINCT
     PatientLocation.PatientLocationSerNum,
     PatientLocation.PatientLocationRevCount,
     PatientLocation.CheckinVenueName,
@@ -50,11 +50,16 @@ if ($result->rowCount() > 0) {
 
        	$PatientLocationSerNum	= $row["PatientLocationSerNum"];
     	$PatientLocationRevCount= $row["PatientLocationRevCount"];
-    	$CheckinVenueName	= $row["CheckinVenueName"]; 
+    	$CheckinVenueName	= $row["CheckinVenueName"];
     	$ArrivalDateTime	= $row["ArrivalDateTime"];
     }
 } else {
     echo "Patient not already checked in for this appointment... proceeding to check in";
+
+    $PatientLocationSerNum = NULL;
+    $PatientLocationRevCount = NULL;
+    $CheckinVenueName = NULL;
+    $ArrivalDateTime = NULL;
 }
 
 echo "PatientLocationSerNum: $PatientLocationSerNum<br>";
@@ -63,7 +68,7 @@ echo "CheckinVenueName: $CheckinVenueName<br>";
 echo "ArrivalDateTime: $ArrivalDateTime<br>";
 
 #---------------------------------------------------------------------------------------------
-# If there is an existing entry in the patient location table, take the values and 
+# If there is an existing entry in the patient location table, take the values and
 # insert them into the PatientLocationMH table
 #---------------------------------------------------------------------------------------------
 if($PatientLocationSerNum)
@@ -96,7 +101,7 @@ else
 
 echo "CheckinStatus: $CheckinStatus... ";
 
-# if there was an existing entry in the patient location table, delete it now 
+# if there was an existing entry in the patient location table, delete it now
 if($PatientLocationSerNum)
 {
       	echo "deleting existing entry in PatientLocation table<br>";
@@ -108,5 +113,3 @@ if($PatientLocationSerNum)
 }
 
 ?>
-
-

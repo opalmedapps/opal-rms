@@ -4,3 +4,6 @@
 
 #ignore test folder
 test/
+
+#ignore config file
+config/config.conf

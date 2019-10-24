@@ -9,6 +9,6 @@ test/
 config/
 
 #ignore slave modules
-ormsscheduler
-tools/KioskStatus
-VirtualWaitingRoom
+ormsscheduler/
+tools/KioskStatus/
+VirtualWaitingRoom/

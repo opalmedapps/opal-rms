@@ -181,7 +181,7 @@ function sendEmail(array $requestInfo): void
 {
     $recepient = "victor.matassa@muhc.mcgill.ca";
     $subject = "ORMS Appointment Error";
-    $message = "ORMS Appointment Error - $requestInfo[Result] for appointment id '$requestInfo[AppIdComb]' at time [$requestInfo[ImportTimestamp]]";
+    $message = "ORMS Appointment Error - $requestInfo[Result] for appointment id '$requestInfo[AppIDComb]' at time [$requestInfo[ImportTimestamp]]";
     $headers = [
         "From" => "orms@muhc.mcgill.ca"
     ];

@@ -60,9 +60,7 @@ sub getRamqInformation
 			</soapenv:Body>
 		</soapenv:Envelope>";
 
-	my $request = POST $requestLocation, Content_Type => $requestType, Content => $requestContent;
-
-	my $response = $ua->request($request); #make the request and get the response back
+	my $response = $ua->post($requestLocation, Content_Type => $requestType, Content => $requestContent);  #make the request and get the response back
 
 	#check if the request failed and exit if it did
 	if(!$response->is_success()) 

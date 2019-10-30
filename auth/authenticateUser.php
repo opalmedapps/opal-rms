@@ -40,7 +40,7 @@ $requestResult["roles"] = !empty($requestResult["roles"]) ? preg_grep("/GA-ORMS/
 #if the return status is 0, then the user's credentials are valid
 #also check if the user is in an ORMS group
 $validUser = $requestResult["statusCode"] == 0 ? TRUE : FALSE;
-#$validUser = $requestResult !== [] ? $validUser : FALSE;
+$validUser = $requestResult["roles"] !== [] ? $validUser : FALSE;
 
 if($validUser === TRUE)
 {

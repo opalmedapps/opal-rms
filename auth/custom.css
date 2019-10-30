@@ -162,6 +162,18 @@ html { height:100%; }
 	transition: color 100ms ease-in-out;
 }
 
+.error-wrapper {
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.error-text {
+    color: red;
+    font-size: 22px;
+}
+
 .help-container {
     display: inline-block;
 	margin: 10px 0;
@@ -174,19 +186,32 @@ html { height:100%; }
     color:#000;
     text-decoration:none;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 20px;
 }
 
 .help-trigger:hover ~ .help-text {
     visibility: visible;
 }
 
+.help-trigger .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+  }
+
 .help-text {
     visibility: hidden;
-    width: 120px;
+    font-size: 20px;
+    width: 150px;
     background-color: black;
     color: #fff;
-    text-align: center;
+    text-align: left;
     border-radius: 6px;
-    padding: 5px 0;
+    padding: 5px;
+    margin-left: 3px;
 }

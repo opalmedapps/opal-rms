@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <link rel="shortcut icon" href="/auth/favicon.ico">
         <title>ORMS Login Page</title>
 
         <script src="/auth/angular.min.js"></script>
@@ -27,9 +26,12 @@
         <form class="login-form" ng-submit="authenticateUser()">
             <div><img src="/auth/logo.png" style="height:50px;" /></div>
             <fieldset class="field-holder">
-                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Username" autofocus required>
-                <input class="credentials" type="password" ng-model="password" placeholder="Password" required>
+                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Username" autofocus required />
+                <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
 
+                <div class="error-wrapper">
+                    <div class="error-text">{{error}}</div>
+                </div>
                 <div class="submit-wrapper">
                     <input type="submit" class="login-submit" title="Confirm" value="Log in" />
                     <div class="submit-icon"><img src="/auth/confirm-white.png" /></div>
@@ -37,11 +39,10 @@
             </fieldset>
             <div class="help-container">
                 <div class="help-trigger">Need help?</div>
-                <div class="help-text">Call XXX</div>
+                <div class="help-text">Please contact the help desk at extension x48484</div>
             </div>
 
         </form>
-        <p>{{error}}</p>
 	</body>
 </html>
 
@@ -52,6 +53,7 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
 {
     $scope.authenticateUser = function()
     {
+        $scope.error = "";
         $http({
                 url: "/auth/authenticateUser.php",
                 method: "POST",
@@ -78,7 +80,7 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
         }
         else
         {
-            $scope.error = "error";
+            $scope.error = "Authentication failed";
         }
     }
 });

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <title>ORMS Login Page</title>
+
+        <script src="/library/angularjs/angular.min.js"></script>
+        <script src="/library/angularjs/angular-cookies.min.js"></script>
+
+        <link rel="stylesheet" href="/auth/custom.css">
+
+        <noscript>
+            <div id="nojavascript">
+                <div>
+                    This application requires JavaScript for correct operation. Please <a href="https://www.enable-javascript.com/" target="_blank" rel="noreferrer noopener">enable JavaScript</a> and reload the page.
+                </div>
+            </div>
+        </noscript>
+    </head>
+
+	<body class="body-login" ng-app="myApp" ng-controller="main">
+        <div class="pageHeader">
+            <img class="logo-animated" src="/images/opal_logo_transparent_purple.png" />
+            <div class="logo-desc"><b>ORMS</b> – Online Room Management System</div>
+        </div>
+
+        <form class="login-form" ng-submit="authenticateUser()">
+            <div><img src="/images/logo.png" style="height:50px;" /></div>
+            <fieldset class="field-holder">
+                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Username" autofocus required />
+                <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
+
+                <div class="error-wrapper">
+                    <div class="error-text">{{error}}</div>
+                </div>
+                <div class="submit-wrapper">
+                    <input type="submit" class="login-submit" title="Confirm" value="Log in" />
+                    <div class="submit-icon"><img src="/images/confirm-white.png" /></div>
+                </div>
+            </fieldset>
+            <div class="help-container">
+                <div class="help-trigger">Need help?</div>
+                <div class="help-text">Please contact the help desk at extension x48484</div>
+            </div>
+
+        </form>
+	</body>
+</html>
+
+<script>
+var app = angular.module('myApp',['ngCookies']);
+
+app.controller('main', function($scope,$http,$cookies,$location,$window)
+{
+    $scope.authenticateUser = function()
+    {
+        $scope.error = "";
+        $http({
+                url: "/auth/authenticateUser.php",
+                method: "POST",
+                data: {
+                    "username": $scope.username,
+                    "password": $scope.password
+                }
+        }).then(function (response)
+        {
+            createCookieAndRedirect(response.data);
+        });
+    };
+
+    function createCookieAndRedirect(result)
+    {
+        var status = result[0];
+        var cookie = result[1];
+
+        if(status === "Authentication success")
+        {
+            $cookies.put(cookie["name"],cookie["key"],{path: "/"});
+            $window.location.href = $location.absUrl();
+        }
+        else
+        {
+            $scope.error = "Authentication failed";
+        }
+    }
+});
+
+</script>

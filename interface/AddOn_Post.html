@@ -16,11 +16,17 @@
 		<table border="0" width="60%" padding="2">
 
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
-			<tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId" ng-model="pid" id="pid"> required</td></tr>
-			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" id="Ramq"><font color="red"> use <b>MRN</b> for out-of-province</font></td></tr>
+            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId" ng-model="pid" id="pid" required></td></tr>
+            <tr><td><b>Site</b></td><td colspan="3"> <select maxlength="40" name="Site" ng-model="site" required>
+                    <option value=""></option>
+                    <option value="RVH">RVH</option>
+                    <option value="MGH">MGH</option>
+                    </select>
+            </td></tr>
+			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
 			<tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" name="RamqExpireDate" ng-model="RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
-			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatLastName" ng-model="last" id="last"></td></tr>
-			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatFirstName" ng-model="first" id="first"></td></tr>
+			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatLastName" ng-model="last" id="last" required></td></tr>
+			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatFirstName" ng-model="first" id="first" required></td></tr>
 			<tr><td></td></td>
 
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
@@ -46,7 +52,7 @@
 
 			<tr><td><b>Clinic Name</b></td>
 			<td>
-			    <input type="text" list="ResourceName" name="ResourceName">
+			    <input type="text" list="ResourceName" name="ResourceName" required>
 			    <datalist id="ResourceName">
 			    <option ng-repeat="resource in loadedResources | filter:search" value="{{resource}}"></option>
 			    </datalist>
@@ -60,7 +66,6 @@
 			<input type="time" id="myTime" name="AppointTime" />
 			</td>
 			</tr>
-			<input type="hidden" name="Site" value="{{site}}">
 
 			<tr>
 			<td colspan=5 align="center">

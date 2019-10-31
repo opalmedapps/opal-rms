@@ -35,7 +35,7 @@ class Appointment
 
     #insert or update an appointment in the ORMS database
     #returns rows inserted
-    public function insertorUpdateAppointmentInDatabase(): bool
+    public function insertOrUpdateAppointmentInDatabase(): bool
     {
         #get the patient and clinic ser nums that are attached to the appointment
         $clinicSer = $this->_getClinicSerNum("INSERT_IF_NULL");

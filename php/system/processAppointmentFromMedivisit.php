@@ -164,7 +164,7 @@ function logRequest(array $requestInfo): void
     $query->execute($requestInfo);
 
     #send out an email if there was an error
-    if(preg_match("/^(Success|Incorrect date format)$/",$requestInfo["Result"])) sendEmail($requestInfo);
+    if(!preg_match("/^(Success|Incorrect date format)$/",$requestInfo["Result"])) sendEmail($requestInfo);
 }
 
 #sends an email to the orms admin

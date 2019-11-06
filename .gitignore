@@ -8,6 +8,9 @@ test/
 #ignore config files
 config/
 
+#ignore js dependencies
+node_modules/
+
 #ignore slave modules
 ormsscheduler/
 tools/KioskStatus/

@@ -1,0 +1,30 @@
+{
+  "name": "orms",
+  "version": "1.0.0",
+  "description": "Online Room Management System",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://jkildea@bitbucket.scs.muhc.mcgill.ca/scm/orms/onlineroommanagmentsystem.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.7.8",
+    "angular-animate": "^1.7.8",
+    "angular-bowser": "0.0.4",
+    "angular-datatables": "^0.6.2",
+    "bootstrap": "^4.3.1",
+    "datatables.net": "^1.10.20",
+    "datatables.net-buttons-dt": "^1.6.1",
+    "highcharts": "^7.2.1",
+    "highcharts-ng": "^1.2.1",
+    "jquery": "^3.4.1",
+    "jquery-ui-dist": "^1.12.1",
+    "popper.js": "^1.16.0",
+    "ui-bootstrap4": "^3.0.6"
+  }
+}

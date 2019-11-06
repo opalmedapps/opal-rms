@@ -47,7 +47,7 @@
 			<!--  User enters MRN or RAMQ to retrieve info  -->
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
 			<tr>
-				<td><b> MRN </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn" id="inputmrn"></td> 
+				<td><b> MRN </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn" id="inputmrn"></td>
 
 				<td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
 			</tr>
@@ -55,11 +55,11 @@
 				<td><p> OR  </p></td>
 			</tr>
 			<tr>
-				<td><b> RAMQ </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq" id="inputramq"></td> 
+				<td><b> RAMQ </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq" id="inputramq"></td>
 
 				<td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
 			</tr>
-			
+
 		</table>
 	</form>
 <p style="visibility:hidden; font-weight: bold;" id="VerifyPat">Please verify this is the correct patient information before continuing <br/>
@@ -95,7 +95,7 @@ Click on any patient data to be brought to add-on page.
 <center> <a href="../">Main Page</a></center>
 </body>
 
-<script src="../library/angularjs/angular.min.js"></script>
+<script src="/node_modules/angular/angular.min.js"></script>
 
 <script>
 var app = angular.module('myApp',[]);
@@ -105,7 +105,7 @@ app.config(['$locationProvider',function ($locationProvider)
 	$locationProvider.html5Mode({
 		enabled: true,
 		requireBase: false,
-		rewriteLinks : false	
+		rewriteLinks : false
 	});
 }]);
 
@@ -189,7 +189,7 @@ app.controller('main', function($scope,$http,$window,$location)
 		//prepare the redirect url with the selected patient's parameters for prefilling
 		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
 		$window.location.href = landingurl; //send user to apt add on
-	}	
+	}
 });
 </script>
 

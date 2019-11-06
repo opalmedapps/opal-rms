@@ -16,6 +16,7 @@
     "angular": "^1.7.8",
     "angular-animate": "^1.7.8",
     "angular-bowser": "0.0.4",
+    "angular-cookies": "^1.7.8",
     "angular-datatables": "^0.6.2",
     "bootstrap": "^4.3.1",
     "datatables.net": "^1.10.20",

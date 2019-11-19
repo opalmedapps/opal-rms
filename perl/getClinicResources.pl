@@ -17,7 +17,6 @@ use JSON;
 
 use List::MoreUtils qw(uniq);
 
-use DBI;
 use LoadConfigs;
 
 #-----------------------------------------
@@ -59,20 +58,16 @@ my @resources;
 
 while(my @data0 = $query0->fetchrow_array())
 {
-	my $resource = "\"$data0[0]\"";
-	$resource =~ s/(\t|\r|\n)//g;
+	my $resource = $data0[0];
+	$resource =~ s/(\t|\r|\n)//g; #remove tabs and newlines
 	push @resources, $resource;
 }
 
 #remove duplicate entries
 @resources = uniq @resources;
 
-my $jstring = "[". join(",",@resources) ."]";
+my $json = JSON->new->ascii->allow_nonref;
 
-say $jstring;
+say $json->encode(\@resources);
 
-#----------------------------------------
-#disconnect from database and end script
-#----------------------------------------
-$dbh->disconnect;
 exit;

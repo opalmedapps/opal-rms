@@ -3,8 +3,8 @@
 	<head>
         <title>ORMS Login Page</title>
 
-        <script src="/library/angularjs/angular.min.js"></script>
-        <script src="/library/angularjs/angular-cookies.min.js"></script>
+        <script src="/node_modules/angular/angular.min.js"></script>
+        <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 
         <link rel="stylesheet" href="/auth/custom.css">
 
@@ -26,7 +26,7 @@
         <form class="login-form" ng-submit="authenticateUser()">
             <div><img src="/images/logo.png" style="height:50px;" /></div>
             <fieldset class="field-holder">
-                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Username" autofocus required />
+                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Hospital AD Username" autofocus required />
                 <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
 
                 <div class="error-wrapper">

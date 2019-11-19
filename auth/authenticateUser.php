@@ -29,7 +29,7 @@ rtrim($fieldString, '&');
 $ch = curl_init();
 curl_setopt($ch,CURLOPT_URL, $url);
 curl_setopt($ch,CURLOPT_POSTFIELDS,$fieldString);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 $requestResult = json_decode(curl_exec($ch),TRUE);
 curl_close($ch);
 
@@ -39,7 +39,7 @@ $requestResult["roles"] = !empty($requestResult["roles"]) ? preg_grep("/GA-ORMS/
 
 #if the return status is 0, then the user's credentials are valid
 #also check if the user is in an ORMS group
-$validUser = $requestResult["statusCode"] == 0 ? TRUE : FALSE;
+$validUser = array_key_exists($requestResult["statusCode"]) && $requestResult["statusCode"] == 0 ? TRUE : FALSE;
 $validUser = $requestResult["roles"] !== [] ? $validUser : FALSE;
 
 if($validUser === TRUE)
@@ -49,7 +49,7 @@ if($validUser === TRUE)
     $memcache->addServer('localhost',11211) or die("error");
 
     #generate cookie uniq session id
-    $key = md5(uniqid(rand(), true) .$_SERVER["REMOTE_ADDR"]. time());
+    $key = md5(uniqid(rand(), TRUE) .$_SERVER["REMOTE_ADDR"]. time());
 
     #$exists = $memcache->get($key);
 

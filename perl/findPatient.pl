@@ -1,7 +1,7 @@
 #!/opt/perl5/perl
 
 # FindByRAMQ: Simple script taking a patient RAMQ and returning that patient's info
- 
+
 #------------------------------------------------------------------------
 # V.Matassa Jul 2019
 # K.Agnew Oct 2018
@@ -17,7 +17,7 @@ use lib "./system/modules";
 #se diagnostics;
 
 #------------------------------------------------------------------------
-# Use the DBI module 
+# Use the DBI module
 #------------------------------------------------------------------------
 use LoadConfigs;
 use Data::Dumper;
@@ -47,7 +47,7 @@ my $AppointSys;
 #------------------------------------------------------------------------
 # Read in the command line arguments
 #------------------------------------------------------------------------
-my $ramq = param("ramq"); 
+my $ramq = param("ramq");
 my $pid = param("pid");
 
 #determine whether to search for a patient using the pid or the ramq
@@ -57,7 +57,7 @@ $mode = "RAMQ" if($ramq);
 #begin feedback
 print "Content-type: application/json\n\n";
 
-#connect to database 
+#connect to database
 my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to database");
 
 #format sql query based on the input mrn
@@ -116,7 +116,7 @@ my $pdsFunction = "
 ";
 
 $pdsFunction = "
-	<pds:findByRamq> 
+	<pds:findByRamq>
 		<ramqs>$ramq</ramqs>
 	</pds:findByRamq>
 " if($mode eq "RAMQ");
@@ -138,14 +138,15 @@ if(!($query->rows)){ #Patient not already in database
 	#check for response failure
 	if(!$response->is_success()) {
 		print "Response failed\n" if $verbose;
-		#return -10; 
+        exit();
+		#return -10;
 	}
 
 	#parse data
 	my %xml_data = %{$xml -> XMLin($response->content())};
 	#select data from xml body
 	my $mainData = $xml_data{'env:Body'}{'ns2:findByMrnResponse'}{'return'};
-	$mainData = $xml_data{'env:Body'}{'ns2:findByRamqResponse'}{'return'} if($mode eq "RAMQ"); 
+	$mainData = $xml_data{'env:Body'}{'ns2:findByRamqResponse'}{'return'} if($mode eq "RAMQ");
 
 	#check if body empty
 	if(!ref($mainData)){
@@ -238,6 +239,3 @@ else{ #Format JSON and return as normal
 	exit;
 
 }
-
-
-

@@ -1171,7 +1171,7 @@ sub findPatient
 			Patient.FirstName,
 			Patient.PatientSer,
 			Patient.SSN
-		  FROM  variansystem.dbo.Patient Patient
+		  FROM  VARIAN.dbo.Patient Patient
 		  WHERE    
 		  $PatientIdentifier
 	  ";
@@ -1379,14 +1379,14 @@ sub CheckinPatient
 			DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight, 
 			DATEPART(hh,ScheduledActivity.ScheduledStartTime)
 		  FROM  
-			variansystem.dbo.Patient Patient,
-			variansystem.dbo.ScheduledActivity ScheduledActivity,
-			variansystem.dbo.ActivityInstance ActivityInstance,
-			variansystem.dbo.Activity Activity,
-			variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-			variansystem.dbo.ResourceActivity ResourceActivity,
-			variansystem.dbo.Auxiliary Auxiliary, 
-			variansystem.dbo.Resource Resource
+			VARIAN.dbo.Patient Patient,
+			VARIAN.dbo.ScheduledActivity ScheduledActivity,
+			VARIAN.dbo.ActivityInstance ActivityInstance,
+			VARIAN.dbo.Activity Activity,
+			VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+			VARIAN.dbo.ResourceActivity ResourceActivity,
+			VARIAN.dbo.Auxiliary Auxiliary, 
+			VARIAN.dbo.Resource Resource
 		  WHERE 
 			( ScheduledActivity.ScheduledStartTime 		> \'$startOfToday\' )    
 		    AND	( ScheduledActivity.ScheduledStartTime 		< \'$endOfToday\' )    
@@ -1434,14 +1434,14 @@ sub CheckinPatient
 			DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight,
 			DATEPART(hh,ScheduledActivity.ScheduledStartTime)
 		  FROM  
-			variansystem.dbo.Patient Patient,
-			variansystem.dbo.ScheduledActivity ScheduledActivity,
-			variansystem.dbo.ActivityInstance ActivityInstance,
-			variansystem.dbo.Activity Activity,
-			variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-			variansystem.dbo.ResourceActivity ResourceActivity,
-			variansystem.dbo.Doctor Doctor,
-			variansystem.dbo.Resource Resource
+			VARIAN.dbo.Patient Patient,
+			VARIAN.dbo.ScheduledActivity ScheduledActivity,
+			VARIAN.dbo.ActivityInstance ActivityInstance,
+			VARIAN.dbo.Activity Activity,
+			VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+			VARIAN.dbo.ResourceActivity ResourceActivity,
+			VARIAN.dbo.Doctor Doctor,
+			VARIAN.dbo.Resource Resource
 		  WHERE 
 			( ScheduledActivity.ScheduledStartTime 		> \'$startOfToday\' )    
 		    AND	( ScheduledActivity.ScheduledStartTime 		< \'$endOfToday\' )    
@@ -1488,13 +1488,13 @@ sub CheckinPatient
 			DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight, 
 			DATEPART(hh,ScheduledActivity.ScheduledStartTime)
 		  FROM  
-			variansystem.dbo.Patient Patient,
-			variansystem.dbo.ScheduledActivity ScheduledActivity,
-			variansystem.dbo.ActivityInstance ActivityInstance,
-			variansystem.dbo.Activity Activity,
-			variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-			variansystem.dbo.ResourceActivity ResourceActivity,
-			variansystem.dbo.Resource Resource
+			VARIAN.dbo.Patient Patient,
+			VARIAN.dbo.ScheduledActivity ScheduledActivity,
+			VARIAN.dbo.ActivityInstance ActivityInstance,
+			VARIAN.dbo.Activity Activity,
+			VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+			VARIAN.dbo.ResourceActivity ResourceActivity,
+			VARIAN.dbo.Resource Resource
 		  WHERE 
 			( ScheduledActivity.ScheduledStartTime 		> \'$startOfToday\' )    
 		    AND	( ScheduledActivity.ScheduledStartTime 		< \'$endOfToday\' )    
@@ -1685,7 +1685,7 @@ sub CheckinPatient
 		  SELECT DISTINCT 
 			Machine.MachineId
 		    FROM  
-			variansystem.dbo.Machine Machine
+			VARIAN.dbo.Machine Machine
 		    WHERE 
 			 Machine.ResourceSer = $ResourceSer[$numAriaAppts]
 		";
@@ -1715,7 +1715,7 @@ sub CheckinPatient
 		  SELECT DISTINCT 
 			Doctor.LastName
 		    FROM  
-			variansystem.dbo.Doctor
+			VARIAN.dbo.Doctor
 		    WHERE 
 			 Doctor.ResourceSer = $ResourceSer[$numAriaAppts]
 		";
@@ -2041,7 +2041,7 @@ sub CheckinPatient
   			SELECT DISTINCT
 				vv_ResourceName.ResourceName
   			FROM
-  				variansystem.dbo.vv_ResourceName vv_ResourceName
+  				VARIAN.dbo.vv_ResourceName vv_ResourceName
   			WHERE 
 				vv_ResourceName.ResourceSer = $ResourceSer[0]
 		";
@@ -2284,7 +2284,7 @@ sub CheckinPatient
 	    print "<br>Checking into Aria appointment #$appointment <br>" if $verbose;
 
 	    my $checkinSQL= "
-		exec variansystem.dbo.vp_CheckInPatient \@nVenueLocationSer = $CheckinVenue, \@nScheduledActivitySer = $ScheduledActivitySer[$appointment], \@strComment = null, \@strHstryUserName=N'$location'
+		exec VARIAN.dbo.vp_CheckInPatient \@nVenueLocationSer = $CheckinVenue, \@nScheduledActivitySer = $ScheduledActivitySer[$appointment], \@strComment = null, \@strHstryUserName=N'$location'
 		";
 
 	    # print the SQL query for debugging
@@ -2313,7 +2313,7 @@ sub CheckinPatient
 	    #--------------------------------------------------------------------------------------------
 	    my $sqlPhoto = "SELECT DISTINCT 
 				DATALENGTH(Photo.Picture) AS PicSize
-			  FROM variansystem.dbo.Photo
+			  FROM VARIAN.dbo.Photo
 			  WHERE Photo.PatientSer = $PatientSer";
 
 	    # print the SQL query for debugging

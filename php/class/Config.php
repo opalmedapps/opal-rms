@@ -47,7 +47,7 @@ class Config
 			$dbh = new PDO("mysql:host={$dbInfo['ORMS_HOST']};port={$dbInfo['ORMS_PORT']};dbname={$dbInfo['ORMS_DB']}",$dbInfo['ORMS_USERNAME'],$dbInfo['ORMS_PASSWORD'],$options);
 		}
 
-		#connects to variansystem by default
+		#connects to VARIAN by default
 		elseif($requestedConnection == 'ARIA')
 		{
 			$dbh = new PDO("odbc:DRIVER=FreeTDS;SERVER={$dbInfo['ARIA_HOST']};PORT={$dbInfo['ARIA_PORT']};DATABASE={$dbInfo['ARIA_DB']}",$dbInfo['ARIA_USERNAME'],$dbInfo['ARIA_PASSWORD'],$options);

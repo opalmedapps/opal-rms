@@ -21,11 +21,11 @@ declare @var INT
 SET @var = (SELECT
 Venue.ResourceSer AS ResourceSer
 FROM
-variansystem.dbo.Venue Venue
+VARIAN.dbo.Venue Venue
 WHERE
 Venue.VenueId='$CheckinVenue')
 
-exec variansystem.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'DS1_1'
+exec VARIAN.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'DS1_1'
 
 ";
 

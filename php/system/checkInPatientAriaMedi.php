@@ -58,14 +58,14 @@ $sqlAppt = "
 		Resource.ResourceType,
 		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
           FROM
-		variansystem.dbo.Patient Patient,
-           	variansystem.dbo.ScheduledActivity ScheduledActivity,
-		variansystem.dbo.ActivityInstance ActivityInstance,
-		variansystem.dbo.Activity Activity,
-		variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-		variansystem.dbo.ResourceActivity ResourceActivity,
-		variansystem.dbo.Auxiliary Auxiliary,
-		variansystem.dbo.Resource Resource
+		VARIAN.dbo.Patient Patient,
+           	VARIAN.dbo.ScheduledActivity ScheduledActivity,
+		VARIAN.dbo.ActivityInstance ActivityInstance,
+		VARIAN.dbo.Activity Activity,
+		VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+		VARIAN.dbo.ResourceActivity ResourceActivity,
+		VARIAN.dbo.Auxiliary Auxiliary,
+		VARIAN.dbo.Resource Resource
           WHERE
             	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
             AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )
@@ -113,14 +113,14 @@ $sqlAppt = "
 		Resource.ResourceType,
 		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
           FROM
-		variansystem.dbo.Patient Patient,
-           	variansystem.dbo.ScheduledActivity ScheduledActivity,
-		variansystem.dbo.ActivityInstance ActivityInstance,
-		variansystem.dbo.Activity Activity,
-		variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-		variansystem.dbo.ResourceActivity ResourceActivity,
-		variansystem.dbo.Doctor Doctor,
-		variansystem.dbo.Resource Resource
+		VARIAN.dbo.Patient Patient,
+           	VARIAN.dbo.ScheduledActivity ScheduledActivity,
+		VARIAN.dbo.ActivityInstance ActivityInstance,
+		VARIAN.dbo.Activity Activity,
+		VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+		VARIAN.dbo.ResourceActivity ResourceActivity,
+		VARIAN.dbo.Doctor Doctor,
+		VARIAN.dbo.Resource Resource
           WHERE
             	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
             AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )
@@ -166,13 +166,13 @@ $sqlAppt = "
 		Resource.ResourceType,
 		DATEDIFF(n,'$startOfToday',ScheduledActivity.ScheduledStartTime) AS AptTimeSinceMidnight
           FROM
-		variansystem.dbo.Patient Patient,
-           	variansystem.dbo.ScheduledActivity ScheduledActivity,
-		variansystem.dbo.ActivityInstance ActivityInstance,
-		variansystem.dbo.Activity Activity,
-		variansystem.dbo.vv_ActivityLng vv_ActivityLng,
-		variansystem.dbo.ResourceActivity ResourceActivity,
-		variansystem.dbo.Resource Resource
+		VARIAN.dbo.Patient Patient,
+           	VARIAN.dbo.ScheduledActivity ScheduledActivity,
+		VARIAN.dbo.ActivityInstance ActivityInstance,
+		VARIAN.dbo.Activity Activity,
+		VARIAN.dbo.vv_ActivityLng vv_ActivityLng,
+		VARIAN.dbo.ResourceActivity ResourceActivity,
+		VARIAN.dbo.Resource Resource
           WHERE
             	( ScheduledActivity.ScheduledStartTime 		>= '$startOfToday' )
             AND	( ScheduledActivity.ScheduledStartTime 		< '$endOfToday' )

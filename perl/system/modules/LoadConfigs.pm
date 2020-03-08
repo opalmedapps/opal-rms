@@ -76,11 +76,11 @@ sub LoadConfigs::GetDatabaseConnection
 		$dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'};port=$dbInfo->{'ORMS_PORT'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
 	}
 
-	#connects to variansystem by default
+	#connects to VARIAN by default
 	elsif($requestedConnection eq 'ARIA')
 	{
 		$dbh = DBI->connect_cached("DBI:Sybase:server=$dbInfo->{'ARIA_HOST'};port=$dbInfo->{'ARIA_PORT'};dbname=$dbInfo->{'ARIA_DB'}",$dbInfo->{'ARIA_USERNAME'},$dbInfo->{'ARIA_PASSWORD'}) or 0;
-		$dbh->do("USE variansystem;") if($dbh);
+		$dbh->do("USE VARIAN;") if($dbh);
 	}
 
 	#logging db

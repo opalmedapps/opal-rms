@@ -100,7 +100,7 @@ if($PatientInORMS == FALSE)
 	Patient.FirstName,
 	Patient.SSN
     FROM
-	variansystem.dbo.Patient
+	VARIAN.dbo.Patient
     WHERE
 	Patient.PatientId = '$PatientId'
 	AND Patient.SSN LIKE '$Ramq%'

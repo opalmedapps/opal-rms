@@ -36,10 +36,10 @@
 </head>
 
 <body ng-app="myApp">
-	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
+	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Patient Finder</u></h2></center>
 
 	<table border="0" width="50%" padding="5">
-		<tr><td valign="top"> Enter patient MRN or RAMQ. You will be brought to the appointment add-on page after selecting. </td></tr>
+		<tr><td valign="top"> Enter patient MRN or RAMQ. You will be brought to the appointment add-on or register sms page after selecting. </td></tr>
 	</table>
 <div ng-controller="main">
 	<form ng-submit="fetchPatients()">
@@ -75,16 +75,20 @@ Click on any patient data to be brought to add-on page.
 					<td> PatientId </td>
 					<td> RAMQ </td>
 					<td> RAMQ Expiry </td>
+					<td></td>
+					<td></td>
 				</tr>
 			</thead>
 			<tbody>
 			<!--  Display the returned patient information  -->
 				<tr ng-repeat="x in patientinfo">
-					<td class="selectable" style="font-weight: bold; color: red;" id="lastname" ng-click="sendToAptAddOn(x)">{{x.last}}</td>
-					<td class="selectable" style="font-weight: bold; color: red;" id="firstname" ng-click="sendToAptAddOn(x)">{{x.first}}</td>
-					<td class="selectable" id="pid" ng-click="sendToAptAddOn(x)">{{x.pid}}</td>
-					<td class="selectable" id="ramq" ng-click="sendToAptAddOn(x)">{{x.ramq}}</td>
-					<td class="selectable" id="ramqexp" ng-click="sendToAptAddOn(x)">{{x.ramqExp}}</td>
+					<td style="font-weight: bold; color: red;" id="lastname">{{x.last}}</td>
+					<td style="font-weight: bold; color: red;" id="firstname">{{x.first}}</td>
+					<td id="pid" >{{x.pid}}</td>
+					<td id="ramq" >{{x.ramq}}</td>
+					<td id="ramqexp">{{x.ramqExp}}</td>
+					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
+					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>		
 				</tr>
 			</tbody>
 		</table>
@@ -190,6 +194,13 @@ app.controller('main', function($scope,$http,$window,$location)
 		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
 		$window.location.href = landingurl; //send user to apt add on
 	}
+
+	$scope.sendToSms = function(data){
+		//prepare the redirect url with the selected patient's parameters for prefilling
+		var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
+		$window.location.href = landingurl; //send user to apt add on
+	}
+
 });
 </script>
 

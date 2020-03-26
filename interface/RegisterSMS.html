@@ -22,9 +22,10 @@
 		maxlength="40" size="20" name="PatientId"
 		placeholder="1234567"
 		pattern="[0-9]{7}"
+		ng-model="pid"
 		required
 		></td></tr>
-	<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" required></td></tr>
+	<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" required></td></tr>
 	<tr><td><b>Mobile number</b></td><td colspan="3"> <input type="tel"
 		maxlength="40" size="20" name="SMSAlertNum"
 		placeholder="1234567890"
@@ -94,7 +95,11 @@ app.config(['$locationProvider',function ($locationProvider)
 app.controller('main', function($scope,$location)
 {
 	//get the speciality
-	$scope.speciality = $location.search().speciality;
+	let pageParams = $location.search();
+	$scope.speciality = pageParams.speciality;
+
+	$scope.pid = pageParams.pid;
+	$scope.Ramq = pageParams.ramq;
 });
 
 </script>

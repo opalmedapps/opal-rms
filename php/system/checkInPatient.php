@@ -25,7 +25,7 @@ VARIAN.dbo.Venue Venue
 WHERE
 Venue.VenueId='$CheckinVenue')
 
-exec VARIAN.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'DS1_1'
+exec VARIAN.dbo.vp_CheckInPatient @nVenueLocationSer = @var, @nScheduledActivitySer = $ScheduledActivitySer, @strComment = null, @strHstryUserName=N'orms_user'
 
 ";
 

@@ -162,7 +162,7 @@ if($PatientInORMS)
 	UPDATE Patient 
 	SET 	Patient.SMSAlertNum='$SMSAlertNum',
 		Patient.SMSSignupDate = CASE WHEN Patient.SMSSignupDate = '0000-00-00 00:00:00' THEN CURRENT_TIMESTAMP() ELSE Patient.SMSSignupDate END,
-		Patient.SMSLastUpdated=CURRENT_TIMESTAMP(),
+		Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
 		Patient.LanguagePreference='$LanguagePreference' 
 	WHERE Patient.PatientId = '$PatientId' AND Patient.SSN = '$Ramq'
   ";
@@ -171,7 +171,7 @@ else
 {
   $sqlSMS = "
        	INSERT INTO Patient(FirstName,LastName,PatientId,SSN,SSNExpDate,SMSAlertNum,SMSSignupDate,SMSLastUpdated,LanguagePreference)
- 	VALUES('$FirstName','$LastName','$PatientId','$SSN','$SSNExpDate','$SMSAlertNum','CURRENT_TIMESTAMP()','CURRENT_TIMESTAMP()','$LanguagePreference')
+ 	VALUES('$FirstName','$LastName','$PatientId','$SSN','$SSNExpDate','$SMSAlertNum',CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP(),'$LanguagePreference')
   ";
 
 }

@@ -196,7 +196,7 @@ echo "<br>";
 //==================================================================================== 
 if($LanguagePreference == "English")
 {
-  $message = "MUHC - Cedars Cancer Centre: You are registered for SMS notifications. To unsubscribe inform the reception at any time.";
+  $message = "MUHC: You are registered for SMS notifications. To unsubscribe, please inform the reception. To check-in for an appointment, reply to this number with \"arrive\". You cannot check-in for blood tests using this system.";
 
 	if($Speciality == "Ortho")
 	{
@@ -208,7 +208,7 @@ else
 {
   #$message = "CUSM - Centre du cancer des c&agrave;dres: vous &ecirc;tes enregistr&eacute;(e) pour recevoir des notifications par message texte pour vos rendez-vous. Pour vous d&eacute;sabonner, veuillez en informer la r&eacute;ception en tout temps. [On ne peut r&eacute;pondre &agrave; ce num&eacute;ro]";
 
-  $message = "CUSM - Centre du cancer des cèdres: l'inscription pour les notifications est confirmée. Pour vous désabonner, veuillez en informer la réception en tout temps.";
+  $message = "CUSM: l'inscription pour les notifications est confirmée. Pour vous désabonner, veuillez informer la réception. Pour enregistrer pour un rendez-vous, répondez à ce numéro avec \"arrive\". Il n’est pas possible de s’enregistrer pour les prises de sang.";
 
 	if($Speciality == "Ortho")
 	{

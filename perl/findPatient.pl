@@ -50,6 +50,10 @@ my $AppointSys;
 #------------------------------------------------------------------------
 my $ramq = param("ramq");
 my $pid = param("pid");
+my $speciality = param("speciality");
+
+$speciality = "MR_PCS" if($speciality eq "Oncology");
+$speciality = "MG_PCS" if($speciality eq "Ortho");
 
 #determine whether to search for a patient using the pid or the ramq
 my $mode = "PID";
@@ -82,30 +86,37 @@ $query->execute() or die "Couldn't execute statement: " . $query->errstr;
 
 my $data = $query->fetchall_arrayref();
 
-#Package for doing JSON formatting
-package rec;
-sub new{
-	my $class = shift;
-	my $row = {
-		last => shift,
-		first => shift,
-		ramq => shift,
-		ramqExp => shift,
-		pid => shift,
-	};
-	my $rowHead = {
-		record => $row
-	};
-	bless $rowHead, $class;
-	return $rowHead;
-}
-
-package main;
 my $json_str = JSON->new->allow_nonref;
 $json_str->convert_blessed(1);
 my $nextRow;
 my $newRec;
 my $json_data;
+
+sub convertAdtDataToJsonFormattedArray
+{
+	my $mainData = shift;
+
+	my $last = $mainData->{'lastName'};
+	my $first = $mainData->{'firstName'};
+	my $ramq = $mainData->{'ramqNumber'};
+	my $ramqExp = substr($mainData->{'ramqExpDate'},2,5);
+
+	my $pid = $mainData->{'mrns'}->[0]->{'mrn'};
+
+	$ramqExp =~ s/-//g;
+	print "Info retrieved: $last $first $ramq $ramqExp $pid \n\n" if $verbose;
+
+	#format as JSON and return
+	my $data = {
+		last => $last,
+		first => $first,
+		ramq => $ramq,
+		ramqExp => $ramqExp,
+		pid => $pid,
+	};
+
+	return $data;
+};
 
 #We must cover the case where a patient mrn doesnt exist in the WaitRoomManagement database
 #In this case use the ADT script written by John to get the info viewable in SOAP
@@ -166,77 +177,57 @@ if(!($query->rows)){ #Patient not already in database
 		}
 		@patients = grep{$_ ne ''} @patients; #remove the empty pats
 
-		if(length(@patients) > 1){
-			print "More than one patient associated to that ramq \n" if $verbose;
-			#return -2;
-		}elsif(length(@patients) eq 0){
-			print "No patients associated to that ramq\n" if $verbose;
-			#return -1;
-		}elsif(length(@patients) eq 1){
-			my $info = $patients[0]; #grab info from soap xml
-			my $last = $info->{'lastName'};
-			my $first = $info->{'firstName'};
-			my $ramq = $info->{'ramqNumber'};
-			my $ramqExp = substr($mainData->{'ramqExpDate'},2,5);
-			my $pid = $info->{'mrns'}->{'mrn'};
-			$ramqExp =~ s/-//g;
-			print "Info retrieved: $last $first $ramq $ramqExp $pid\n\n" if $verbose;
-
-			#format as JSON and return
-			my $data = [[$last,$first,$ramq,$ramqExp,$pid]]; #reformat to be able to reuse the rec package above
-			foreach my $r (@$data){
-				$nextRow = encode_json(\@$r);
-				$newRec = new rec(split(',',substr($nextRow,1,-1)));
-				my $key = (keys %$newRec)[0];
-				$json_data->{$key} ||= [];
-				push @{$json_data->{$key}}, $newRec->{$key};
+		#filter mrns and get the one that matches
+		foreach my $patient (@patients)
+		{
+			if(ref($patient->{'mrns'}) eq 'ARRAY') {
+				$patient->{'mrns'}->@* = grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } $patient->{'mrns'}->@*;
 			}
-			my $JSON = $json_str->encode($json_data);
-			print "$JSON\n";
-			$query->finish;
-			$dbh->disconnect;
-			exit;
+			else {
+				$patient->{'mrns'} = [grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } ($patient->{'mrns'})];
+			}
+			next if(scalar $patient->{'mrns'}->@* == 0);
+
+			push @{$json_data}, convertAdtDataToJsonFormattedArray($patient);
 		}
+		my %seen;
+		$json_data = [grep {!$seen{$_->{'pid'}}++} $json_data->@*]; #filter duplicates
+		my $JSON = $json_str->encode({"record" => $json_data});
+		print "$JSON\n";
 
 	}
 	elsif(ref($mainData) eq 'HASH'){
-		my $last = $mainData->{'lastName'};
-		my $first = $mainData->{'firstName'};
-		my $ramq = $mainData->{'ramqNumber'};
-		my $ramqExp = substr($mainData->{'ramqExpDate'},2,5);
-		my $pid = $mainData->{'mrns'}->{'mrn'};
-		$ramqExp =~ s/-//g;
-		print "Info retrieved: $last $first $ramq $ramqExp $pid \n\n" if $verbose;
-
-		#format as JSON and return
-		my $data = [[$last,$first,$ramq,$ramqExp,$pid]]; #formatted like this to be able to reuse the rec package above
-		foreach my $r (@$data){
-			$nextRow = encode_json(\@$r);
-			$newRec = new rec(split(',',substr($nextRow,1,-1)));
-			my $key = (keys %$newRec)[0];
-			$json_data->{$key} ||= [];
-			push @{$json_data->{$key}}, $newRec->{$key};
+		if(ref($mainData->{'mrns'}) eq 'ARRAY') {
+			$mainData->{'mrns'}->@* = grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } $mainData->{'mrns'}->@*;
 		}
-		my $JSON = $json_str->encode($json_data);
+		else {
+			$mainData->{'mrns'} = [grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } ($mainData->{'mrns'})];
+		}
+		exit if(scalar $mainData->{'mrns'}->@* == 0);
+
+		push @{$json_data}, convertAdtDataToJsonFormattedArray($mainData);
+
+		my $JSON = $json_str->encode({"record" => $json_data});
 		print "$JSON\n";
-		$query->finish;
-		$dbh->disconnect;
-		exit;
 	}
 }
 else{ #Format JSON and return as normal
-	foreach my $r (@$data){
-		$nextRow = encode_json(\@$r);
-		$newRec = new rec(split(',',substr($nextRow,1,-1)));
-		my $key = (keys %$newRec)[0];
-		$json_data->{$key} ||= [];
-		push @{$json_data->{$key}}, $newRec->{$key};
+	foreach my $x (@$data)
+	{
+		push @{$json_data} , {
+			last => $x->[0],
+			first => $x->[1],
+			ramq => $x->[2],
+			ramqExp => $x->[3],
+			pid => $x->[4]
+		};
 	}
-
-	my $JSON = $json_str->encode($json_data);
+	my $JSON = $json_str->encode({"record" => $json_data});
 	print "$JSON\n";
-	$query->finish;
-	$dbh->disconnect;
-	exit;
 
 }
+
+$query->finish;
+$dbh->disconnect;
+exit;
+

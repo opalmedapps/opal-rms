@@ -132,7 +132,7 @@ app.controller('main', function($scope,$http,$window,$location)
 
 		// If user specified MRN
 		if($scope.mrn){
-			$http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn,}})
+			$http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn, speciality: $scope.speciality}})
 			.then(function(response) {
 				//$scope.patientinfo=response.data.record;
 				replaceText(response.data.record);
@@ -141,7 +141,7 @@ app.controller('main', function($scope,$http,$window,$location)
 				console.log(error);
 			});
 		}else if($scope.ramq){ //If user specified RAMQ
-			$http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq,}})
+			$http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq,speciality: $scope.speciality}})
 			.then(function(response) {
 				replaceText(response.data.record);
 				//display the returned records for user to view and select correct patient
@@ -177,11 +177,6 @@ app.controller('main', function($scope,$http,$window,$location)
 				}
 			}
 		}
-		tmp[0].last = tmp[0].last.slice(1,tmp[0].last.length-1)
-		tmp[0].first = tmp[0].first.slice(1,tmp[0].first.length-1)
-		tmp[0].ramq = tmp[0].ramq.slice(1,tmp[0].ramq.length-1)
-		//tmp[0].ramqExp = tmp[0].ramqExp.slice(1,tmp[0].ramqExp.length-1)
-		tmp[0].pid = tmp[0].pid.slice(1,tmp[0].pid.length-1)
 		$scope.patientinfo = tmp;
 	}
 

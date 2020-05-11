@@ -31,15 +31,16 @@
 
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
 
-			<tr><td><b>AppointmentCode</b></td>
+			<tr><td><b>Appointment Code</b></td>
 			<td>
-			    <select name="AppointCode">
-			       <option value="ADD-ON">ADD-ON</option>
-			       <option value="RTFU">RTFU</option>
-			       <option value="RTFU-XR">RTFU-XR</option>
-			    </select>
+			    <input type="text" list="AppointCode" name="AppointCode" required>
+			    <datalist id="AppointCode">
+			    <option ng-repeat="appointment in loadedAppointments | filter:search" value="{{appointment}}"></option>
+			    </datalist>
+
 			</td>
 			</tr>
+
 
 			<tr><td><b>Clinic Code</b></td>
 			<td>
@@ -155,7 +156,8 @@ app.controller('main', function($scope,$http,$window,$location)
 		}
 	}).then(function (response)
 	{
-		$scope.loadedResources = response.data;
+		$scope.loadedResources = response.data.resources;
+		$scope.loadedAppointments = response.data.appointments;
 	});
 
 });

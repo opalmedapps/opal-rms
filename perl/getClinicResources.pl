@@ -63,11 +63,30 @@ while(my @data0 = $query0->fetchrow_array())
 	push @resources, $resource;
 }
 
+my $sql1 = "
+	SELECT DISTINCT
+		MV.AppointmentCode
+	FROM MediVisitAppointmentList MV";
+
+my $query1 = $dbh->prepare_cached($sql1) or die("Query could not be prepared: ".$dbh->errstr);
+$query1->execute() or die("Query execution failed: ".$query1->errstr);
+
+my @appointments;
+
+while(my @data1 = $query1->fetchrow_array())
+{
+	my $app = $data1[0];
+	$app =~ s/(\t|\r|\n)//g; #remove tabs and newlines
+	push @appointments, $app;
+}
+
+
 #remove duplicate entries
 @resources = uniq @resources;
+@appointments = uniq @appointments;
 
 my $json = JSON->new->ascii->allow_nonref;
 
-say $json->encode(\@resources);
+say $json->encode({"resources" => \@resources,"appointments" => \@appointments});
 
 exit;

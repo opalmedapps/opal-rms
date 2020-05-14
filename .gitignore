@@ -15,3 +15,6 @@ node_modules/
 ormsscheduler/
 tools/KioskStatus/
 VirtualWaitingRoom/
+
+#ignore lock files
+smsReceiver.lock

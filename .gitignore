@@ -10,6 +10,7 @@ config/
 
 #ignore js dependencies
 node_modules/
+vendor/
 
 #ignore slave modules
 ormsscheduler/

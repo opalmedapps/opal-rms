@@ -14,15 +14,15 @@ $csvFile = (getopt(null,["file:"]))["file"];
 $modDate = (new DateTime())->setTimestamp(filemtime($csvFile))->format("Y-m-d");
 $today = (new DateTime())->format("Y-m-d");
 
-if($modDate !== $today)
-{
-    if(date('D') == 'Sat' || date('D') == 'Sun') {
-        exit;
-    }
-    else {
-        throw new Exception("CSV file was not updated today");
-    }
-}
+// if($modDate !== $today)
+// {
+//     if(date('D') == 'Sat' || date('D') == 'Sun') {
+//         exit;
+//     }
+//     else {
+//         throw new Exception("CSV file was not updated today");
+//     }
+// }
 
 $fileHandle = fopen($csvFile,"r");
 
@@ -57,23 +57,42 @@ function processCsvFile($handle): void #$handle is stream
 function processAppointment(array $appParams): void
 {
     #keep only the parameters we need
+    // $appointmentInfo = [
+    //     "ImportTimestamp"   => (new DateTime())->format("Y-m-d H:i:s"),
+    //     "Result"            => NULL,
+    //     "ActivityCode"      => !empty($appParams["Activity Code"]) ? $appParams["Activity Code"] : NULL,
+    //     "AppIDComb"         => !empty($appParams["AppIDComb"]) ? $appParams["AppIDComb"] : NULL,
+    //     "AppDate"           => !empty($appParams["App Date"]) ? $appParams["App Date"] : NULL,
+    //     "AppTime"           => !empty($appParams["App Time"]) ? $appParams["App Time"] : NULL,
+    //     "DateExpRAMQ"       => !empty($appParams["Date Exp RAMQ"]) ? $appParams["Date Exp RAMQ"] : NULL,
+    //     "DHCreRV"           => !empty($appParams["DH Cré RV"]) ? $appParams["DH Cré RV"] : NULL,
+    //     "FirstName"         => !empty($appParams["First Name"]) ? $appParams["First Name"] : NULL,
+    //     "Lastname"          => !empty($appParams["Last name"]) ? $appParams["Last name"] : NULL,
+    //     "MdReferantRV"      => !empty($appParams["Md Référant RV"]) ? $appParams["Md Référant RV"] : NULL,
+    //     "MRN"               => !empty($appParams["MRN"]) ? $appParams["MRN"] : NULL,
+    //     "RAMQ"              => !empty($appParams["RAMQ"]) ? $appParams["RAMQ"] : NULL,
+    //     "Resource"          => !empty($appParams["Resource"]) ? $appParams["Resource"] : NULL,
+    //     "ResourceDes"       => !empty($appParams["Resource Des"]) ? $appParams["Resource Des"] : NULL,
+    //     "Site"              => !empty($appParams["Site"]) ? $appParams["Site"] : NULL,
+    // ];
     $appointmentInfo = [
         "ImportTimestamp"   => (new DateTime())->format("Y-m-d H:i:s"),
         "Result"            => NULL,
-        "ActivityCode"      => !empty($appParams["Activity Code"]) ? $appParams["Activity Code"] : NULL,
+        "ActivityCode"      => !empty($appParams["App. Type"]) ? $appParams["App. Type"] : NULL,
         "AppIDComb"         => !empty($appParams["AppIDComb"]) ? $appParams["AppIDComb"] : NULL,
-        "AppDate"           => !empty($appParams["App Date"]) ? $appParams["App Date"] : NULL,
+        "AppDate"           => !empty($appParams["App. Date"]) ? $appParams["App. Date"] : NULL,
         "AppTime"           => !empty($appParams["App Time"]) ? $appParams["App Time"] : NULL,
-        "DateExpRAMQ"       => !empty($appParams["Date Exp RAMQ"]) ? $appParams["Date Exp RAMQ"] : NULL,
-        "DHCreRV"           => !empty($appParams["DH Cré RV"]) ? $appParams["DH Cré RV"] : NULL,
+        "DateExpRAMQ"       => !empty($appParams["Date Exp"]) ? $appParams["Date Exp"] : NULL,
+        "DHCreRV"           => !empty($appParams["Creation Date"]) ? $appParams["Creation Date"] : NULL,
         "FirstName"         => !empty($appParams["First Name"]) ? $appParams["First Name"] : NULL,
-        "Lastname"          => !empty($appParams["Last name"]) ? $appParams["Last name"] : NULL,
-        "MdReferantRV"      => !empty($appParams["Md Référant RV"]) ? $appParams["Md Référant RV"] : NULL,
+        "Lastname"          => !empty($appParams["Last Name"]) ? $appParams["Last Name"] : NULL,
+        "MdReferantRV"      => NULL,
         "MRN"               => !empty($appParams["MRN"]) ? $appParams["MRN"] : NULL,
         "RAMQ"              => !empty($appParams["RAMQ"]) ? $appParams["RAMQ"] : NULL,
-        "Resource"          => !empty($appParams["Resource"]) ? $appParams["Resource"] : NULL,
-        "ResourceDes"       => !empty($appParams["Resource Des"]) ? $appParams["Resource Des"] : NULL,
-        "Site"              => !empty($appParams["Site"]) ? $appParams["Site"] : NULL,
+        "Resource"          => !empty($appParams["Clinic"]) ? $appParams["Clinic"] : NULL,
+        "ResourceDes"       => !empty($appParams["Clinic Desc."]) ? $appParams["Clinic Desc."] : NULL,
+        "Site"              => "RVH",
+        "Speciality"        => !empty($appParams["Speciality"]) ? $appParams["Speciality"]: NULL
     ];
 
     try
@@ -94,6 +113,7 @@ function processAppointment(array $appParams): void
                 "scheduledDateTime" => $appointmentInfoValidated["AppDate"] ." ". $appointmentInfoValidated["AppTime"],
                 "scheduledTime"     => $appointmentInfoValidated["AppTime"],
                 "site"              => $appointmentInfoValidated["Site"],
+                "speciality"        => $appointmentInfoValidated["Speciality"],
                 "status"            => "Open",
                 "sourceStatus"      => NULL,
                 "system"            => "IMPROMPTU"
@@ -133,20 +153,23 @@ function validateAppointmentInfo(array $appInfo): array
         }
     }
 
-    #time comes in as HH:MM
-    #add seconds to time
-    if(!empty($appInfo["AppTime"])) {
-        $appInfo["AppTime"] .= ":00";
-    }
-
     #ssn expiration dates come in as YYMM for quebec ramqs
     #other formats may come in as YYMMDD
     #just take the first 4 characters
-    $appInfo["DateExpRAMQ"] = substr($appInfo["DateExpRAMQ"],0,4);
+    $appInfo["DateExpRAMQ"] = substr($appInfo["DateExpRAMQ"],0,4) ?: "0000";
+
+    #if there is no ramq, use the patient mrn
+    if(empty($appInfo["RAMQ"])) $appInfo["RAMQ"] = $appInfo["MRN"];
 
     #site comes in as 'V' or 'G'
     #change to 'RVH' or 'MGH'
     $appInfo["Site"] = preg_replace(["/^V$/","/^G$/"],["RVH","MGH"],$appInfo["Site"]);
+
+    #format dates
+    $appInfo["AppDate"] = (new DateTime($appInfo["AppDate"]))->format("Y-m-d");
+    $appInfo["DHCreRV"] = (new DateTime($appInfo["DHCreRV"]))->format("Y-m-d H:i:s");
+
+    $appInfo["AppTime"] = (new DateTime($appInfo["AppTime"]))->format("H:i:s");
 
     return $appInfo;
 }
@@ -162,18 +185,18 @@ function logRequest(array $requestInfo): void
     $dbh = Config::getDatabaseConnection("LOGS");
     $query = $dbh->prepare("
         INSERT INTO ImportLogForImpromptu
-        (ImportTimestamp,Result,ActivityCode,AppIDComb,AppDate,AppTime,DateExpRAMQ,DHCreRV,FirstName,Lastname,MdReferantRV,MRN,RAMQ,Resource,ResourceDes,Site)
+        (ImportTimestamp,Result,ActivityCode,AppIDComb,AppDate,AppTime,DateExpRAMQ,DHCreRV,FirstName,Lastname,MdReferantRV,MRN,RAMQ,Resource,ResourceDes,Site,Speciality)
         VALUES
-        (:ImportTimestamp,:Result,:ActivityCode,:AppIDComb,:AppDate,:AppTime,:DateExpRAMQ,:DHCreRV,:FirstName,:Lastname,:MdReferantRV,:MRN,:RAMQ,:Resource,:ResourceDes,:Site)"
+        (:ImportTimestamp,:Result,:ActivityCode,:AppIDComb,:AppDate,:AppTime,:DateExpRAMQ,:DHCreRV,:FirstName,:Lastname,:MdReferantRV,:MRN,:RAMQ,:Resource,:ResourceDes,:Site,:Speciality)"
     );
     $query->execute($requestInfo);
 
 
 
     #send out an email if there was an error
-    if($requestInfo["Result"] !== "Success") {
-        sendEmail($requestInfo);
-    }
+    // if($requestInfo["Result"] !== "Success") {
+    //     sendEmail($requestInfo);
+    // }
 }
 
 #sends an email to the orms admin

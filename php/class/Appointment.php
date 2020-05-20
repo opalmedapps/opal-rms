@@ -18,8 +18,12 @@ class Appointment
     private $scheduledTime       = NULL;
     private $site                = NULL;
     private $sourceStatus        = NULL;
+    private $speciality          = NULL;
+    private $specialityGroup     = NULL;
     private $status              = NULL;
     private $system              = NULL;
+
+
 
     #constructor
     public function __construct(array $appointmentInfo, Patient $patientInfo = NULL)
@@ -45,9 +49,9 @@ class Appointment
             throw new Exception("Missing database serial numbers");
         }
         //update the patient ssn or ssnExpDate if they have changed
-        // else {
-        //     $this->patient->updateSSNInDatabase();
-        // }
+        else {
+            $this->patient->updateSSNInDatabase();
+        }
 
         #insert row into database
         $dbh = Config::getDatabaseConnection("ORMS");
@@ -149,7 +153,7 @@ class Appointment
 
         $queryClinic->execute([":resName" => $this->resourceDesc]);
 
-        $clinicSer = ($queryClinic->fetch())["ClinicResourcesSerNum"];
+        $clinicSer = ($queryClinic->fetch())["ClinicResourcesSerNum"] ?? NULL;
 
         if($clinicSer === NULL && $mode === "INSERT_IF_NULL") {
             $clinicSer = $this->_insertNewResource();
@@ -163,25 +167,15 @@ class Appointment
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
-        $speciality = $this->site;
-        if($speciality === "RVH") {
-            $speciality = "Oncology";
-        }
-        elseif($speciality === "MGH") {
-            $speciality = "Ortho";
-        }
-
         $queryClinicInsert = $dbh->prepare("
-            INSERT INTO ClinicResources (ResourceName,Speciality,ClinicScheduleSerNum)
-            SELECT
-                :resName,
-                :spec,
-                ClinicSchedule.ClinicScheduleSerNum
-            FROM ClinicSchedule
-            WHERE
-                ClinicSchedule.ClinicName LIKE :clin");
+            INSERT INTO ClinicResources(ResourceName,Speciality,ClinicScheduleSerNum)
+            VALUES(:resName,:spec,NULL)
+        ");
 
-        $queryClinicInsert->execute([":resName" => $this->resourceDesc, ":spec" => $speciality, ":clin" => "%$speciality Default%"]);
+        $queryClinicInsert->execute([
+            ":resName" => $this->resourceDesc,
+            ":spec" => $this->specialityGroup,
+        ]);
 
         $clinicSer = $dbh->lastInsertId();
         if($clinicSer === 0) {
@@ -230,9 +224,13 @@ class Appointment
         }
 
         #current supported sites are RVH and MGH
-        if(!preg_match("/^(RVH|MGH)$/",$this->site)) {
+        if(!preg_match("/^(RVH)$/",$this->site)) {
             throw new Exception("Site is not supported");
         }
+
+        #map the speciality to the speciality group
+        if(preg_match("/^(OPD-MCI)$/",$this->speciality)) $this->specialityGroup = "RespiratoryMedicine";
+        else throw new Exception("Unknown Speciality");
 
         #make sure the appointment id that we'll use in the orms system is in the correct format
         #3 possibilities: visit (8 digits), appointment: (YYYYA + 8 digits), cancelled appointment: (YYYYC + 7 digits)

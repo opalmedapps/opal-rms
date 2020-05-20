@@ -27,7 +27,7 @@ class Config
 	}
 
 	#returns a db connection handle to a requested database server
-	#options are currently predefined as "ORMS" or "ARIA"
+	#options are currently predefined as "ORMS"
 	#return 0 if connection fails
 	public static function getDatabaseConnection($requestedConnection)
 	{
@@ -45,12 +45,6 @@ class Config
 		if($requestedConnection == 'ORMS')
 		{
 			$dbh = new PDO("mysql:host={$dbInfo['ORMS_HOST']};port={$dbInfo['ORMS_PORT']};dbname={$dbInfo['ORMS_DB']}",$dbInfo['ORMS_USERNAME'],$dbInfo['ORMS_PASSWORD'],$options);
-		}
-
-		#connects to VARIAN by default
-		elseif($requestedConnection == 'ARIA')
-		{
-			$dbh = new PDO("odbc:DRIVER=FreeTDS;SERVER={$dbInfo['ARIA_HOST']};PORT={$dbInfo['ARIA_PORT']};DATABASE={$dbInfo['ARIA_DB']}",$dbInfo['ARIA_USERNAME'],$dbInfo['ARIA_PASSWORD'],$options);
 		}
 
 		#logging db

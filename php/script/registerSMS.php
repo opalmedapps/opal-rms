@@ -1,8 +1,8 @@
 <?php
-//==================================================================================== 
+//====================================================================================
 // php code to insert patients' cell phone numbers and languqge preferences
-// into ORMS 
-//==================================================================================== 
+// into ORMS
+//====================================================================================
 include_once("ScriptLoader.php");
 
 #print header
@@ -29,14 +29,14 @@ if( empty($PatientId) || empty($Ramq) || empty($SMSAlertNum) || empty($LanguageP
   exit("All input parameters are required - please use back button and fill out form completely");
 }
 
-//==================================================================================== 
+//====================================================================================
 // 2019-03-22 YM : Force the RAMQ to upper case
-//==================================================================================== 
+//====================================================================================
 $Ramq = strtoupper($Ramq);
 
-//==================================================================================== 
+//====================================================================================
 // Database - ORMS
-//==================================================================================== 
+//====================================================================================
 // Create MySQL DB connection
 $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -45,13 +45,13 @@ if (!$dbh) {
     die("<br>Connection failed");
 }
 
-//==================================================================================== 
-// If Patient exists in ORMS, update the preferences 
-//==================================================================================== 
+//====================================================================================
+// If Patient exists in ORMS, update the preferences
+//====================================================================================
 // first check that the patient exists in ORMS
 $sqlPatient= "
 	SELECT Patient.LastName
-	FROM Patient 
+	FROM Patient
 	WHERE  Patient.PatientId =  '$PatientId'
 ";
 
@@ -61,10 +61,10 @@ $result = $dbh->query($sqlPatient);
 $LastName;
 if ($result->rowCount() > 0) {
     // output data of each row
-    $row = $result->fetch(); 
-  
+    $row = $result->fetch();
+
     $LastName = $row["LastName"];
-} 
+}
 
 $PatientInORMS;
 if(!empty($LastName) )
@@ -75,111 +75,32 @@ if(!empty($LastName) )
 else
 {
   $PatientInORMS = FALSE;
-  echo "Patient does not exist in ORMS - checking Aria...<br>";
 }
 
-//==================================================================================== 
-// If patient was not found in ORMS, check in Aria
-//==================================================================================== 
-if($PatientInORMS == FALSE)
+//====================================================================================
+// Exit now if the patient does not exist in either ORM
+//====================================================================================
+if(!$PatientInORMS)
 {
-  echo "Checking Aria...<br>";
-  // Aria DB connection  
-  $link = Config::getDatabaseConnection("ARIA");
-
-  //echo "Got a link<br>";
-
-  if (!$link)
-  {
-    die('Something went wrong while connecting to Aria');
-  }
-
-  $sqlAriaPatient = "
-    SELECT 
-	Patient.LastName,
-	Patient.FirstName,
-	Patient.SSN
-    FROM
-	VARIAN.dbo.Patient
-    WHERE
-	Patient.PatientId = '$PatientId'
-	AND Patient.SSN LIKE '$Ramq%'
-  ";
-
-  echo "sqlAriaPatient: $sqlAriaPatient<br>";
-
-  $query = $link->query($sqlAriaPatient);
-
-  while($row = $query->fetch())
-  {
-    echo "Row: $row<br>";
-
-    $LastName 	= $row['LastName'];
-    $FirstName 	= $row['FirstName'];
-    $SSNAria	= $row['SSN'];
-  }
-
-  # OTES01161973 22/12
-  # 012345678901234567
-
-  $SSNExpDate_year = substr($SSNAria,13,2);
-  $SSNExpDate_month = substr($SSNAria,16,2);
-  $SSNExpDate = "$SSNExpDate_year$SSNExpDate_month";
-  $SSN = substr($SSNAria,0,12);
-
-  echo "The following was found in Aria: LastName: $LastName, FirstName: $FirstName, SSN: $SSN<br>";
-  echo "SSNExpDate_year: $SSNExpDate_year<br>";
-  echo "SSNExpDate_month: $SSNExpDate_month<br>";
-
-  if(!empty($LastName) )
-  {
-    $PatientInAria = TRUE;
-    echo "Patient exists in Aria, will copy to ORMS...<br>";
-  }
-  else
-  {
-    $PatientInAria = FALSE;
-    echo "Patient does not exist in Aria. Needs to be added-on manually...<br>";
-  }
-
-} # end of Aria check
-
-//==================================================================================== 
-// Exit now if the patient does not exist in either ORMS or Aria
-//==================================================================================== 
-if(!$PatientInORMS && !$PatientInAria)
-{
-  exit("This patient does not exist in either ORMS or Aria. Patient must have an appointment in order to be set up for SMS<br>");
+  exit("This patient does not exist in either ORMS. Patient must have an appointment in order to be set up for SMS<br>");
 }
 
-//==================================================================================== 
-// Write to the ORMS db - either an update if patient already exists in ORMS or an insert
-// if the patient only exists in Aria 
-//==================================================================================== 
+//====================================================================================
+// Write to the ORMS db - either an update if patient already exists in ORMS
+//====================================================================================
 if($PatientInORMS)
 {
   $sqlSMS = "
-	UPDATE Patient 
+	UPDATE Patient
 	SET 	Patient.SMSAlertNum='$SMSAlertNum',
 		Patient.SMSSignupDate = CASE WHEN Patient.SMSSignupDate = '0000-00-00 00:00:00' THEN CURRENT_TIMESTAMP() ELSE Patient.SMSSignupDate END,
 		Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
-		Patient.LanguagePreference='$LanguagePreference' 
+		Patient.LanguagePreference='$LanguagePreference'
 	WHERE Patient.PatientId = '$PatientId' AND Patient.SSN = '$Ramq'
   ";
 }
-else
-{
-  $sqlSMS = "
-       	INSERT INTO Patient(FirstName,LastName,PatientId,SSN,SSNExpDate,SMSAlertNum,SMSSignupDate,SMSLastUpdated,LanguagePreference)
- 	VALUES('$FirstName','$LastName','$PatientId','$SSN','$SSNExpDate','$SMSAlertNum',CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP(),'$LanguagePreference')
-  ";
-
-}
 
 echo "SMS: $sqlSMS<br>";
-
-
-
 
 
 if ($dbh->query($sqlSMS)) {
@@ -191,9 +112,9 @@ if ($dbh->query($sqlSMS)) {
 
 echo "<br>";
 
-//==================================================================================== 
+//====================================================================================
 // Confirmation Message Creation
-//==================================================================================== 
+//====================================================================================
 if($LanguagePreference == "English")
 {
   $message = "MUHC: You are registered for SMS notifications. To unsubscribe, please inform the reception. To check-in for an appointment, reply to this number with \"arrive\". You cannot check-in for blood tests using this system.";
@@ -214,20 +135,20 @@ else
 	{
 		$message = "HGM - Orthopédie: l'inscription pour les notifications est confirmée. Pour vous désabonner, veuillez en informer la réception en tout temps.";
 	}
-	
+
 }
 
-//==================================================================================== 
-// Sending 
-//==================================================================================== 
+//====================================================================================
+// Sending
+//====================================================================================
 if($paidService==1)
 {
   $SMS = "$SMS_gatewayURL?PhoneNumber=$SMSAlertNum&Message=$message&LicenseKey=$SMS_licencekey";
-   
-  echo "SMS: $SMS<br>"; 
+
+  echo "SMS: $SMS<br>";
 
   $SMS = str_replace(' ', '%20', $SMS);
-  $SMS_response = file_get_contents($SMS); 
+  $SMS_response = file_get_contents($SMS);
 
 }
 else
@@ -251,5 +172,3 @@ print_r($SMS_response);
 echo "<br>message should have been sent...<br>";
 
 ?>
-
-

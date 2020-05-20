@@ -58,7 +58,7 @@ sub LoadConfigs::GetConfigs
 }
 
 #returns a db connection handle to a requested database server
-#options are predefined as "ORMS" or "ARIA"
+#options are predefined as "ORMS"
 #return 0 if connection fails
 sub LoadConfigs::GetDatabaseConnection
 {
@@ -74,13 +74,6 @@ sub LoadConfigs::GetDatabaseConnection
 	if($requestedConnection eq 'ORMS')
 	{
 		$dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'};port=$dbInfo->{'ORMS_PORT'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
-	}
-
-	#connects to VARIAN by default
-	elsif($requestedConnection eq 'ARIA')
-	{
-		$dbh = DBI->connect_cached("DBI:Sybase:server=$dbInfo->{'ARIA_HOST'};port=$dbInfo->{'ARIA_PORT'};dbname=$dbInfo->{'ARIA_DB'}",$dbInfo->{'ARIA_USERNAME'},$dbInfo->{'ARIA_PASSWORD'}) or 0;
-		$dbh->do("USE VARIAN;") if($dbh);
 	}
 
 	#logging db

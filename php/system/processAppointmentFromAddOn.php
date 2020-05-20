@@ -13,6 +13,7 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 #process post request
 $postParams = getPostContents();
+$postParams = utf8_decode_recursive($postData);
 
 #keep only the parameters we need
 $appointmentInfo = [
@@ -28,7 +29,8 @@ $appointmentInfo = [
     "RamqExpireDate"    => !empty($postParams["RamqExpireDate"]) ? $postParams["RamqExpireDate"] : NULL,
     "ResourceCode"      => !empty($postParams["ResourceCode"]) ? $postParams["ResourceCode"] : NULL,
     "ResourceName"      => !empty($postParams["ResourceName"]) ? $postParams["ResourceName"] : NULL,
-    "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : NULL
+    "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : NULL,
+    "SpecialityCode"    => !empty($postParams["SpecialityCode"]) ? $postParams["SpecialityCode"] : NULL
 ];
 
 try
@@ -49,6 +51,7 @@ try
             "scheduledDateTime" => $appointmentInfoValidated["AppointDate"] ." ". $appointmentInfoValidated["AppointTime"],
             "scheduledTime"     => $appointmentInfoValidated["AppointTime"],
             "site"              => $appointmentInfoValidated["Site"],
+            "speciality"        => $appointmentInfoValidated["SpecialityCode"],
             "status"            => "Open",
             "sourceStatus"      => NULL,
             "system"            => "InstantAddOn"
@@ -134,9 +137,9 @@ function logRequest(array $requestInfo): void
     $dbh = Config::getDatabaseConnection("LOGS");
     $query = $dbh->prepare("
         INSERT INTO ImportLogForAddOns
-        (ImportTimestamp,Result,AppointCode,AppointDate,AppointTime,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ResourceCode,ResourceName,Site)
+        (ImportTimestamp,Result,AppointCode,AppointDate,AppointTime,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ResourceCode,ResourceName,Site,SpecialityCode)
         VALUES
-        (:ImportTimestamp,:Result,:AppointCode,:AppointDate,:AppointTime,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ResourceCode,:ResourceName,:Site)"
+        (:ImportTimestamp,:Result,:AppointCode,:AppointDate,:AppointTime,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ResourceCode,:ResourceName,:Site,:SpecialityCode)"
     );
     $query->execute($requestInfo);
 }

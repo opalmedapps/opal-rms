@@ -36,6 +36,7 @@ $appointmentInfo = [
     "ResourceCode"      => !empty($postParams["ResourceCode"]) ? $postParams["ResourceCode"] : NULL,
     "ResourceName"      => !empty($postParams["ResourceName"]) ? $postParams["ResourceName"] : NULL,
     "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : NULL,
+    "SpecialityCode"    => !empty($postParams["SpecialityCode"]) ? $postParams["SpecialityCode"] : NULL,
     "Status"            => !empty($postParams["Status"]) ? $postParams["Status"] : NULL,
     "VisitDate"         => !empty($postParams["VisitDate"]) ? $postParams["VisitDate"] : NULL,
     "VisitId"           => !empty($postParams["VisitId"]) ? $postParams["VisitId"] : NULL,
@@ -62,6 +63,7 @@ try
             "scheduledDateTime" => $appointmentInfoValidated["AppointDate"] ." ". $appointmentInfoValidated["AppointTime"],
             "scheduledTime"     => $appointmentInfoValidated["AppointTime"],
             "site"              => $appointmentInfoValidated["Site"],
+            "speciality"        => $appointmentInfoValidated["SpecialityCode"],
             "status"            => $appointmentInfoValidated["Status"],
             "sourceStatus"      => $appointmentInfoValidated["AdmDesc"],
             "system"            => "MEDIVISIT"
@@ -139,6 +141,9 @@ function validateAppointmentInfo(array $appInfo): array
     #just take the first 4 characters
     $appInfo["RamqExpireDate"] = substr($appInfo["RamqExpireDate"],0,4);
 
+    #if there is no ramq, use the patient mrn
+    if(empty($appInfo["Ramq"])) $appInfo["Ramq"] = $appInfo["PatientId"];
+
     #convert an 'In Progress' status to 'Open'
     if($appInfo["Status"] === "In Progress") $appInfo["Status"] = "Open";
 
@@ -157,14 +162,14 @@ function logRequest(array $requestInfo): void
     $dbh = Config::getDatabaseConnection("LOGS");
     $query = $dbh->prepare("
         INSERT INTO ImportLogForMedivisitInterfaceEngine
-        (ImportTimestamp,Result,Action,AdmDesc,AdmType,AppointCode,AppointDate,AppointId,AppointSys,AppointTime,CreationDate,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ReferringMd,ResourceCode,ResourceName,Site,Status,VisitDate,VisitId,VisitTime)
+        (ImportTimestamp,Result,Action,AdmDesc,AdmType,AppointCode,AppointDate,AppointId,AppointSys,AppointTime,CreationDate,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ReferringMd,ResourceCode,ResourceName,Site,SpecialityCode,Status,VisitDate,VisitId,VisitTime)
         VALUES
-        (:ImportTimestamp,:Result,:Action,:AdmDesc,:AdmType,:AppointCode,:AppointDate,:AppointId,:AppointSys,:AppointTime,:CreationDate,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ReferringMd,:ResourceCode,:ResourceName,:Site,:Status,:VisitDate,:VisitId,:VisitTime)"
+        (:ImportTimestamp,:Result,:Action,:AdmDesc,:AdmType,:AppointCode,:AppointDate,:AppointId,:AppointSys,:AppointTime,:CreationDate,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ReferringMd,:ResourceCode,:ResourceName,:Site,:SpecialityCode,:Status,:VisitDate,:VisitId,:VisitTime)"
     );
     $query->execute($requestInfo);
 
     #send out an email if there was an error
-    if(!preg_match("/^(Success|Incorrect date format)$/",$requestInfo["Result"])) sendEmail($requestInfo);
+    // if(!preg_match("/^(Success|Incorrect date format)$/",$requestInfo["Result"])) sendEmail($requestInfo);
 }
 
 #sends an email to the orms admin

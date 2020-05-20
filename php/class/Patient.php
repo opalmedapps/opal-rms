@@ -131,7 +131,7 @@ class Patient
         ]);
 
         $result = $query->fetch();
-        if($result !== NULL)
+        if($result !== FALSE)
         {
             if($mode === "ONLY_PATIENT_SER")
             {
@@ -172,13 +172,26 @@ class Patient
             }
         }
 
+        #insert zeros for incomplete MRNs
+        $this->patientId = str_pad($this->patientId,7,"0",STR_PAD_LEFT);
+
+        #remove the ramq if the ramq is just a placeholder (XXXXYYMMDD)
+        if(preg_match("/^[A-Z]{4}[0-9]{6}$/",$this->ssn)) {
+            $this->ssn = NULL;
+            $this->ssnExpDate = "0000";
+        }
+
+        #if the patient has no ramq, use the mrn as the ramq
+        if($this->ssn === NULL) {
+            $this->ssn = $this->patientId;
+            $this->ssnExpDate = "0000";
+        }
+
         #uppercase names and ssn
         $this->firstName = strtoupper($this->firstName);
         $this->lastName = strtoupper($this->lastName);
         $this->ssn = strtoupper($this->ssn);
 
-        #insert zeros for incomplete MRNs
-        $this->patientId = str_pad($this->patientId,7,"0",STR_PAD_LEFT);
     }
 }
 

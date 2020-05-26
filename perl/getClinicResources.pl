@@ -30,9 +30,6 @@ print $cgi->header('application/json');
 #------------------------------------------
 my $speciality = param("speciality");
 
-my $specialityFilter = "";
-$specialityFilter = " AND ClinicResources.Speciality = '$speciality' " if($speciality eq 'Ortho');
-
 #-----------------------------------------------------
 #connect to database and run queries
 #-----------------------------------------------------
@@ -45,14 +42,12 @@ my $sql0 = "
 	FROM
 		ClinicResources
 	WHERE
-		ClinicResources.ResourceName NOT LIKE '%blood%'
-                AND ClinicResources.ResourceName not in ('', ' null')
-		$specialityFilter
+		ClinicResources.Speciality = ?
 	ORDER BY
 		ClinicResources.ResourceName";
 
 my $query0 = $dbh->prepare_cached($sql0) or die("Query could not be prepared: ".$dbh->errstr);
-$query0->execute() or die("Query execution failed: ".$query0->errstr);
+$query0->execute($speciality) or die("Query execution failed: ".$query0->errstr);
 
 my @resources;
 
@@ -65,11 +60,14 @@ while(my @data0 = $query0->fetchrow_array())
 
 my $sql1 = "
 	SELECT DISTINCT
-		MV.AppointmentCode
-	FROM MediVisitAppointmentList MV";
+		MediVisitAppointmentList.AppointmentCode
+	FROM
+        MediVisitAppointmentList
+        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MediVisitAppointmentList.ResourceDescription
+            AND ClinicResources.Speciality = ?";
 
 my $query1 = $dbh->prepare_cached($sql1) or die("Query could not be prepared: ".$dbh->errstr);
-$query1->execute() or die("Query execution failed: ".$query1->errstr);
+$query1->execute($speciality) or die("Query execution failed: ".$query1->errstr);
 
 my @appointments;
 

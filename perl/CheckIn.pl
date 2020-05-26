@@ -229,9 +229,11 @@ my $MainMessage_en 			= "Check in";
 my $subMessage_bgcolor 	= $white;
 my $subMessage_txtcolor 	= $black;
 #my $subMessage_fr 		= "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Veuillez tenir votre carte &agrave environ 10 cm du lecteur.</font></b></span></center>";
-my $subMessage_fr 		= "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> </center>";
+# my $subMessage_fr 		= "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> </center>";
+my $subMessage_fr           = "<center>Veuillez entrer le numero de dossier medical du patient pour l'enregistrer <br></center>";
 #my $subMessage_en 		= "<center>Please scan your medicare card to check in.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Please hold card about 10 cm from scanner.</font></b></span></center>";
-my $subMessage_en 		= "<center>Please scan your medicare card to check in.<br> </center>";
+# my $subMessage_en 		= "<center>Please scan your medicare card to check in.<br> </center>";
+my $subMessage_en       = "<center>Please enter the patient MRN to check in <br></center>";
 my $log_message;
 
 # Appointment details go below the message
@@ -1177,45 +1179,46 @@ sub findPatient
   # just updated it at Admissions so we need to query the ADT ourselves
   # directly
   #######################################################################
-  my $RAMQCardExpired;
+  my $RAMQCardExpired = 0;
 
-  #call the hospital ADT to check if the ramq is expired
-  my $ramqInfo = HospitalADT->getRamqInformation($PatientSSN);
+#   #call the hospital ADT to check if the ramq is expired
+#   my $ramqInfo = HospitalADT->getRamqInformation($PatientSSN);
 
-  if($verbose)
-  {
-	print "Ramq function status: $ramqInfo->{'Status'}<br>";
-	print "Ramq function message: $ramqInfo->{'Message'}<br>";
-  }
+#   if($verbose)
+#   {
+# 	print "Ramq function status: $ramqInfo->{'Status'}<br>";
+# 	print "Ramq function message: $ramqInfo->{'Message'}<br>";
+#   }
 
-  #if an error is produced, we count the ramq as valid since the patient, probably doesn't have a ramq yet
-  if($ramqInfo->{'Status'} =~ /Valid|Error/)
-  {
-	#likewise, if the patient has no MRN, they probably don't have a ramq
-	if(!$ramqInfo->{'Mrns'} or $ramqInfo->{'Mrns'} =~ /$mrnType/)
-	{
-	  $RAMQCardExpired = 0;
+#   #if an error is produced, we count the ramq as valid since the patient, probably doesn't have a ramq yet
+#   if($ramqInfo->{'Status'} =~ /Valid|Error/)
+#   {
+# 	#likewise, if the patient has no MRN, they probably don't have a ramq
+# 	if(!$ramqInfo->{'Mrns'} or $ramqInfo->{'Mrns'} =~ /$mrnType/)
+# 	{
+# 	  $RAMQCardExpired = 0;
 
-	  #update the WRM db with the valid ramq expiration date if the current one in the WRM db is expired
-	  my $result = HospitalADT->updateRamqInWRM($PatientSSN);
-	  print "$result<br>" if $verbose;
-	}
-	else
-	{
-		$RAMQCardExpired = 1;
-	}
-  }
-  else
-  {
-	$RAMQCardExpired = 1;
-  }
+# 	  #update the WRM db with the valid ramq expiration date if the current one in the WRM db is expired
+# 	  my $result = HospitalADT->updateRamqInWRM($PatientSSN);
+# 	  print "$result<br>" if $verbose;
+# 	}
+# 	else
+# 	{
+# 		$RAMQCardExpired = 1;
+# 	}
+#   }
+#   else
+#   {
+# 	$RAMQCardExpired = 1;
+#   }
   print "Is ramq expired? : $RAMQCardExpired<br>" if $verbose;
 
 
   #######################################################################
 
   # Set the patient's display name for the screen using the SSN
-  my $PatientSSNLetters = substr($PatientSSN,0,3);
+#   my $PatientSSNLetters = substr($PatientSSN,0,3);
+  my $PatientSSNLetters = substr($PatientLastName,0,3);
   my $PatientDAYOFBIRTH = substr($PatientSSN,8,2);
   my $PatientDisplayName = "$PatientFirstName $PatientSSNLetters****";
 

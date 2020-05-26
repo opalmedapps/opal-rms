@@ -50,10 +50,8 @@ my $AppointSys;
 #------------------------------------------------------------------------
 my $ramq = param("ramq");
 my $pid = param("pid");
-my $speciality = param("speciality");
 
-$speciality = "MR_PCS" if($speciality eq "Oncology");
-$speciality = "MG_PCS" if($speciality eq "Ortho");
+my $mrnType = "MR_PCS";
 
 #determine whether to search for a patient using the pid or the ramq
 my $mode = "PID";
@@ -171,7 +169,7 @@ if(!($query->rows)){ #Patient not already in database
 		foreach my $patient (@patients)
 		{
 			my %pat = %{$patient};
-			if(Time::Piece->strptime(substr($pat{'ramqExpDate'},0,10), '%Y-%m-%d') <= $dateLimit){
+			if($pat{'ramqExpDate'} and Time::Piece->strptime(substr($pat{'ramqExpDate'},0,10), '%Y-%m-%d') <= $dateLimit){
 				$patient = '';
 			}
 		}
@@ -181,15 +179,16 @@ if(!($query->rows)){ #Patient not already in database
 		foreach my $patient (@patients)
 		{
 			if(ref($patient->{'mrns'}) eq 'ARRAY') {
-				$patient->{'mrns'}->@* = grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } $patient->{'mrns'}->@*;
+				$patient->{'mrns'}->@* = grep { $_->{'mrnType'} eq $mrnType and $_->{'mrn'} eq $pid } $patient->{'mrns'}->@*;
 			}
 			else {
-				$patient->{'mrns'} = [grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } ($patient->{'mrns'})];
+				$patient->{'mrns'} = [grep { $_->{'mrnType'} eq $mrnType and $_->{'mrn'} eq $pid } ($patient->{'mrns'})];
 			}
 			next if(scalar $patient->{'mrns'}->@* == 0);
 
 			push @{$json_data}, convertAdtDataToJsonFormattedArray($patient);
 		}
+
 		my %seen;
 		$json_data = [grep {!$seen{$_->{'pid'}}++} $json_data->@*]; #filter duplicates
 		my $JSON = $json_str->encode({"record" => $json_data});
@@ -198,10 +197,10 @@ if(!($query->rows)){ #Patient not already in database
 	}
 	elsif(ref($mainData) eq 'HASH'){
 		if(ref($mainData->{'mrns'}) eq 'ARRAY') {
-			$mainData->{'mrns'}->@* = grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } $mainData->{'mrns'}->@*;
+			$mainData->{'mrns'}->@* = grep { $_->{'mrnType'} eq $mrnType and $_->{'mrn'} eq $pid } $mainData->{'mrns'}->@*;
 		}
 		else {
-			$mainData->{'mrns'} = [grep { $_->{'mrnType'} eq $speciality and $_->{'mrn'} eq $pid } ($mainData->{'mrns'})];
+			$mainData->{'mrns'} = [grep { $_->{'mrnType'} eq $mrnType and $_->{'mrn'} eq $pid } ($mainData->{'mrns'})];
 		}
 		exit if(scalar $mainData->{'mrns'}->@* == 0);
 
@@ -230,4 +229,3 @@ else{ #Format JSON and return as normal
 $query->finish;
 $dbh->disconnect;
 exit;
-

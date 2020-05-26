@@ -14,7 +14,6 @@
 	<p>
 
 	<form action="../php/script/registerSMS.php">
-	<input hidden name="Speciality" value="{{speciality}}"></input>
 	<table border="0" width="50%" padding="2">
 
 	<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Register Patient</font></th></tr>
@@ -94,10 +93,6 @@ app.config(['$locationProvider',function ($locationProvider)
 
 app.controller('main', function($scope,$location)
 {
-	//get the speciality
-	let pageParams = $location.search();
-	$scope.speciality = pageParams.speciality;
-
 	$scope.pid = pageParams.pid;
 	$scope.Ramq = pageParams.ramq;
 });

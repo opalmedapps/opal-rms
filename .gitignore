@@ -11,6 +11,7 @@ config/
 #ignore js dependencies
 node_modules/
 vendor/
+package-lock.json
 
 #ignore slave modules
 ormsscheduler/

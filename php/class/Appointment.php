@@ -229,7 +229,8 @@ class Appointment
         }
 
         #map the speciality to the speciality group
-        if(preg_match("/^(OPD-MCI)$/",$this->speciality)) $this->specialityGroup = "RespiratoryMedicine";
+        if(preg_match("/^(OPD-MCI|Respiratory Medicine)$/",$this->speciality)) $this->specialityGroup = "Respiratory Medicine";
+        elseif(preg_match("/^(CARDIO|Cardiology)/",$this->speciality)) $this->specialityGroup = "Cardiology";
         else throw new Exception("Unknown Speciality");
 
         #make sure the appointment id that we'll use in the orms system is in the correct format

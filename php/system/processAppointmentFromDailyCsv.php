@@ -86,7 +86,7 @@ function processAppointment(array $appParams): void
         "DHCreRV"           => !empty($appParams["Creation Date"]) ? $appParams["Creation Date"] : NULL,
         "FirstName"         => !empty($appParams["First Name"]) ? $appParams["First Name"] : NULL,
         "Lastname"          => !empty($appParams["Last Name"]) ? $appParams["Last Name"] : NULL,
-        "MdReferantRV"      => NULL,
+        "MdReferantRV"      => !empty($appParams["Ref. MD"]) ? $appParams["Ref. MD"] : NULL,
         "MRN"               => !empty($appParams["MRN"]) ? $appParams["MRN"] : NULL,
         "RAMQ"              => !empty($appParams["RAMQ"]) ? $appParams["RAMQ"] : NULL,
         "Resource"          => !empty($appParams["Clinic"]) ? $appParams["Clinic"] : NULL,

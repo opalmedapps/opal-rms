@@ -35,12 +35,12 @@ curl_close($ch);
 
 #process the result of the AD call
 #filter all groups that aren't ORMS
-$requestResult["roles"] = !empty($requestResult["roles"]) ? preg_grep("/GA-ORMS/",$requestResult["roles"]) : [];
+// $requestResult["roles"] = !empty($requestResult["roles"]) ? preg_grep("/GA-ORMS/",$requestResult["roles"]) : [];
 
 #if the return status is 0, then the user's credentials are valid
 #also check if the user is in an ORMS group
 $validUser = array_key_exists("statusCode",$requestResult) && $requestResult["statusCode"] == 0 ? TRUE : FALSE;
-$validUser = $requestResult["roles"] !== [] ? $validUser : FALSE;
+// $validUser = $requestResult["roles"] !== [] ? $validUser : FALSE;
 
 if($validUser === TRUE)
 {

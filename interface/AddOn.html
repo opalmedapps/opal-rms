@@ -88,7 +88,7 @@ Click on any patient data to be brought to add-on page.
 					<td id="ramq" >{{x.ramq}}</td>
 					<td id="ramqexp">{{x.ramqExp}}</td>
 					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
-					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>		
+					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
 				</tr>
 			</tbody>
 		</table>
@@ -100,9 +100,10 @@ Click on any patient data to be brought to add-on page.
 </body>
 
 <script src="/node_modules/angular/angular.min.js"></script>
+<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 
 <script>
-var app = angular.module('myApp',[]);
+var app = angular.module('myApp',['ngCookies']);
 
 app.config(['$locationProvider',function ($locationProvider)
 {
@@ -118,9 +119,6 @@ app.controller('main', function($scope,$http,$window,$location)
 	$scope.mrn = "";
 	$scope.ramq = "";
 
-	//get the speciality
-	$scope.speciality = $location.search().speciality;
-
 	//Ensure page is refreshed when using back button
 	if (!!$window.performance && $window.performance.navigation.type==2){
 		$window.location.reload();
@@ -132,7 +130,7 @@ app.controller('main', function($scope,$http,$window,$location)
 
 		// If user specified MRN
 		if($scope.mrn){
-			$http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn, speciality: $scope.speciality}})
+			$http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn}})
 			.then(function(response) {
 				//$scope.patientinfo=response.data.record;
 				replaceText(response.data.record);
@@ -141,7 +139,7 @@ app.controller('main', function($scope,$http,$window,$location)
 				console.log(error);
 			});
 		}else if($scope.ramq){ //If user specified RAMQ
-			$http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq,speciality: $scope.speciality}})
+			$http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq}})
 			.then(function(response) {
 				replaceText(response.data.record);
 				//display the returned records for user to view and select correct patient
@@ -186,13 +184,13 @@ app.controller('main', function($scope,$http,$window,$location)
 
 	$scope.sendToAptAddOn = function(data){
 		//prepare the redirect url with the selected patient's parameters for prefilling
-		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
+		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
 		$window.location.href = landingurl; //send user to apt add on
 	}
 
 	$scope.sendToSms = function(data){
 		//prepare the redirect url with the selected patient's parameters for prefilling
-		var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp)+"&speciality="+$scope.speciality;
+		var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
 		$window.location.href = landingurl; //send user to apt add on
 	}
 

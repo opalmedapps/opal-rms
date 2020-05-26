@@ -5,7 +5,11 @@
 
         <script src="/node_modules/angular/angular.min.js"></script>
         <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+        <script src="/node_modules/angular-animate/angular-animate.min.js"></script>
+        <script src="/node_modules/angular-aria/angular-aria.min.js"></script>
+        <script src="/node_modules/angular-material/angular-material.js"></script>
 
+        <link rel="stylesheet" href="/node_modules/angular-material/angular-material.min.css">
         <link rel="stylesheet" href="/auth/custom.css">
 
         <noscript>
@@ -17,39 +21,43 @@
         </noscript>
     </head>
 
-	<body class="body-login" ng-app="myApp" ng-controller="main">
-        <div class="pageHeader">
-            <img class="logo-animated" src="/images/opal_logo_transparent_purple.png" />
-            <div class="logo-desc"><b>ORMS</b> – Online Room Management System</div>
-        </div>
+    <body ng-app="myApp" ng-controller="main">
+        <div ng-if="!speciality" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
 
-        <form class="login-form" ng-submit="authenticateUser()">
-            <div><img src="/images/logo.png" style="height:50px;" /></div>
-            <fieldset class="field-holder">
-                <input class="credentials" type="text" ng-model="username" name="username" placeholder="Hospital AD Username" autofocus required />
-                <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
-
-                <div class="error-wrapper">
-                    <div class="error-text">{{error}}</div>
-                </div>
-                <div class="submit-wrapper">
-                    <input type="submit" class="login-submit" title="Confirm" value="Log in" />
-                    <div class="submit-icon"><img src="/images/confirm-white.png" /></div>
-                </div>
-            </fieldset>
-            <div class="help-container">
-                <div class="help-trigger">Need help?</div>
-                <div class="help-text">Please contact the help desk at extension x48484</div>
+        <div class="body-login">
+            <div class="pageHeader">
+                <img class="logo-animated" src="/images/opal_logo_transparent_purple.png" />
+                <div class="logo-desc"><b>ORMS</b> – Online Room Management System</div>
             </div>
 
-        </form>
+            <form class="login-form" ng-submit="authenticateUser()">
+                <div><img src="/images/logo.png" style="height:50px;" /></div>
+                <fieldset class="field-holder">
+                    <input class="credentials" type="text" ng-model="username" name="username" placeholder="Hospital AD Username" autofocus required />
+                    <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
+
+                    <div class="error-wrapper">
+                        <div class="error-text">{{error}}</div>
+                    </div>
+                    <div class="submit-wrapper">
+                        <input type="submit" class="login-submit" title="Confirm" value="Log in" />
+                        <div class="submit-icon"><img src="/images/confirm-white.png" /></div>
+                    </div>
+                </fieldset>
+                <div class="help-container">
+                    <div class="help-trigger">Need help?</div>
+                    <div class="help-text">Please contact the help desk at extension x48484</div>
+                </div>
+
+            </form>
+        </div>
 	</body>
 </html>
 
 <script>
-var app = angular.module('myApp',['ngCookies']);
+var app = angular.module('myApp',['ngCookies','ngMaterial']);
 
-app.controller('main', function($scope,$http,$cookies,$location,$window)
+app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$window)
 {
     $scope.authenticateUser = function()
     {
@@ -82,6 +90,44 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
             $scope.error = "Authentication failed";
         }
     }
+
+    let answer = $mdDialog.confirm(
+    {
+        escapeToClose: false,
+        template: specialityTemplate,
+        controller: function($scope)
+        {
+            $scope.complete = function (option)
+            {
+                $mdDialog.hide(option);
+            }
+        }
+    })
+    .parent(angular.element(document.querySelector('#mockId')))
+    .ariaLabel('Area Dialog')
+    .hasBackdrop(false);
+
+    $mdDialog.show(answer).then(function (result)
+    {
+        $cookies.put("speciality",result,{path: "/"});
+        $scope.speciality = result;
+    });
+
 });
+
+var specialityTemplate = `
+    <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+        <h2 class="md-title ng-binding">Connect to a Clinical Area</h2>
+        <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+            <span style="display:flex;justify-content:center;">
+                <md-button md-no-ink="" class="md-raised md-primary" ng-click="complete('Respiratory Medicine')">Respiratory Medicine</md-button>
+                <md-button md-no-ink="" class="md-raised md-primary" ng-click="complete('Cardiology')">Cardiology</md-button>
+                <md-button md-no-ink="" class="md-raised md-primary" ng-click="complete('Internal Medicine')">Internal Medicine</md-button>
+                <md-button md-no-ink="" class="md-raised md-primary" ng-click="complete('Infectious Diseases')">Infectious Diseases</md-button>
+                <md-button md-no-ink="" class="md-raised md-primary" ng-click="complete('Tropical Medicine')">Tropical Medicine</md-button>
+            </span>
+        </div>
+    </md-dialog-content>
+`;
 
 </script>

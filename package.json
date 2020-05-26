@@ -15,9 +15,12 @@
   "dependencies": {
     "angular": "^1.7.8",
     "angular-animate": "^1.7.8",
+    "angular-aria": "^1.7.8",
     "angular-bowser": "0.0.4",
     "angular-cookies": "^1.7.8",
     "angular-datatables": "^0.6.2",
+    "angular-material": "^1.1.20",
+    "angular-messages": "^1.7.8",
     "bootstrap": "^4.3.1",
     "datatables.net": "^1.10.20",
     "datatables.net-buttons-dt": "^1.6.1",

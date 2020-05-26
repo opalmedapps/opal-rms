@@ -122,10 +122,8 @@ class Patient
             FROM
                 Patient
             WHERE
-                Patient.SSN = :ssn
-                AND (Patient.PatientId = :patId OR Patient.PatientId_MGH = :patIdMGH)");
+                Patient.PatientId = :patId OR Patient.PatientId_MGH = :patIdMGH");
         $query->execute([
-            ":ssn" => $this->ssn,
             ":patId" => $this->patientId,
             ":patIdMGH" => $this->patientId_MGH
         ]);

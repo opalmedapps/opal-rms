@@ -5,7 +5,7 @@ require_once __DIR__ ."/SystemLoader.php";
 
 #get the list of aria appointments to process
 #group appointments by patient
-$appointments = getAriaAppointments();
+$appointments = getAppointments();
 $patients = ArrayUtilB::groupArrayByKeyRecursiveKeepKeys($appointments,"mrn");
 
 #merge appointment entries for the same patient
@@ -93,16 +93,22 @@ function getPatientPhoneNumber(string $mrn): array
     return $query->fetchAll()[0] ?? [];
 }
 
-function getAriaAppointments(): array
+function getAppointments(): array
 {
-    $dbh = Config::getDatabaseConnection("ARIA");
+    $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
+        SELECT
+            Patient.PatientId AS mrn,
+            Medi
+
+
+
         SELECT
             Patient.PatientId as mrn,
             ScheduledActivity.ScheduledActivitySer AS appSer,
             CAST(ScheduledActivity.ScheduledStartTime AS DATE) AS date,
             CAST(CAST(ScheduledActivity.ScheduledStartTime AS TIME) AS VARCHAR(5)) AS time,
-            vv_Activity.Expression1 as fullname,   
+            vv_Activity.Expression1 as fullname,
             CASE
                 WHEN LTRIM(RTRIM(vv_Activity.Expression1)) LIKE '.EB%' THEN 'Radiotherapy'
                 WHEN (LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'Consult%'
@@ -160,7 +166,7 @@ function getAriaAppointments(): array
 
     #filter if a reminder was already sent for this appointment
     $appointments = array_filter($appointments,function($x) {
-	return checkIfReminderAlreadySent($x["appSer"]);
+	    return checkIfReminderAlreadySent($x["appSer"]);
     });
 
     return $appointments;
@@ -172,8 +178,8 @@ function checkIfReminderAlreadySent(string $appSer): bool
     $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
         SELECT AriaReminderLogSer
-	FROM TEMP_AriaReminderLog
-	WHERE AppointmentSer LIKE :appSer
+        FROM TEMP_AriaReminderLog
+        WHERE AppointmentSer LIKE :appSer
         LIMIT 1
     ");
     $query->execute([":appSer" => "%$appSer%"]);
@@ -287,4 +293,3 @@ class ArrayUtilB
 }
 
 ?>
-

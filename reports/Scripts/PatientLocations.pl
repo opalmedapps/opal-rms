@@ -34,8 +34,7 @@ my $specifiedAppointment = param("filter");
 my $sDate = $sDateInit ." 00:00:00";
 my $eDate = $eDateInit ." 23:59:59";
 
-my $specialityFilter = "AND ClinicResources.Speciality = 'Oncology' " if($clinic eq 'onc');
-$specialityFilter = "AND ClinicResources.Speciality = 'Ortho' " if($clinic eq 'ortho');
+my $specialityFilter = "AND ClinicResources.Speciality = '$clinic' ";
 
 my $appointmentFilter = "";
 $appointmentFilter = " AND MediVisitAppointmentList.AppointmentCode LIKE '%$specifiedAppointment%' " if($specifiedAppointment);

@@ -10,6 +10,7 @@
 <script src="../node_modules/highcharts/highcharts.js"></script>
 <script src="../node_modules/highcharts-ng/dist/highcharts-ng.min.js"></script>
 <script src="../node_modules/angular-bowser/src/angular-bowser.js"></script>
+<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
@@ -149,20 +150,11 @@
 </div>
 
 <script>
-var app = angular.module('myApp',['ui.bootstrap','ngAnimate','highcharts-ng','jlareau.bowser']).config(['$qProvider', function ($qProvider) {
+var app = angular.module('myApp',['ui.bootstrap','ngAnimate','highcharts-ng','jlareau.bowser','ngCookies']).config(['$qProvider', function ($qProvider) {
     $qProvider.errorOnUnhandledRejections(false);
 }]);
 
-app.config(['$locationProvider',function ($locationProvider)
-{
-	$locationProvider.html5Mode({
-		enabled: true,
-		requireBase: false,
-		rewriteLinks: false
-	});
-}]);
-
-app.controller('main', function($scope,$uibModal,$location,callScript,bowser)
+app.controller('main', function($scope,$uibModal,$cookies,callScript,bowser)
 {
 	$scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
 	if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
@@ -173,8 +165,7 @@ app.controller('main', function($scope,$uibModal,$location,callScript,bowser)
 
 	$scope.filter = '';
 
-	var pageParams = $location.search();
-	var speciality = pageParams.speciality;
+	var speciality = $cookies.get("speciality");
 
 	if(speciality === 'onc') {$scope.header = "MUHC Department of Radiation Oncology";}
 	else if(speciality === 'ortho') {$scope.header = "MGH Department of Orthopedics";}

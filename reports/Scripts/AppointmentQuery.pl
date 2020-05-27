@@ -57,23 +57,13 @@ $appFilter .=  ") ";
 
 ($specificType = $specificType) =~ s/'/\'/g;
 
-my $specialityFilter = "AND CR.Speciality = 'Oncology' " if($clinic eq 'onc');
-$specialityFilter = "AND CR.Speciality = 'Ortho' " if($clinic eq 'ortho');
+my $specialityFilter = "AND CR.Speciality = '$clinic' ";
 
 #escape any ' characters we find
 ($specificType = $specificType) =~ s/'/\\'/g;
 
 my $typeFilter = "" if($appType eq 'all');
-$typeFilter = "AND (MV.ResourceDescription = 'Bladder Installation'
-			OR MV.ResourceDescription = 'Bladder Installation Treatment - Glen'
-			OR MV.ResourceDescription = 'Chemotherapy Treatment - Glen'
-			OR MV.ResourceDescription = 'Treatment - Glen') " if($appType eq 'chemo');
-$typeFilter = "AND MV.ResourceDescription != 'Bladder Installation'
-		AND MV.ResourceDescription != 'Bladder Installation Treatment - Glen'
-		AND MV.ResourceDescription != 'Chemotherapy Treatment - Glen'
-		AND MV.ResourceDescription != 'Treatment - Glen' " if($appType eq 'clinic');
 $typeFilter = "AND MV.ResourceDescription = '$specificType' " if($appType eq 'specific');
-
 
 # print $appFilter . "\n\n";
 # print $typeFilter . "\n\n";
@@ -117,9 +107,6 @@ my $sql0 = "
 	WHERE
 		MV.ClinicResourcesSerNum = CR.ClinicResourcesSerNum
 		$specialityFilter
-		AND MV.ResourceDescription NOT LIKE '%blood%'
-		AND CR.ResourceName != 'null'
-		AND CR.ResourceName IS NOT NULL
 	ORDER BY MV.ResourceDescription,MV.Resource";
 
  #print $sql0 . "\n\n";

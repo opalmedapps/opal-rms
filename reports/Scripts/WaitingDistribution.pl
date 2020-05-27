@@ -28,14 +28,11 @@ print $cgi->header('application/json');
 #------------------------------------------
 my $sDateInit = param("sDate");
 my $eDateInit = param("eDate");
-my $mode = param("mode"); #either ortho or onc; indicates which category of appointments to find
+my $speciality = param("mode"); #either ortho or onc; indicates which category of appointments to find
 my $method = param("method"); #normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
 my $sDate = $sDateInit ." 00:00:00";
 my $eDate = $eDateInit ." 23:59:59";
-
-my $speciality = "Oncology" if($mode eq "onc");
-$speciality = "Ortho" if($mode eq "ortho");
 
 #-----------------------------------------------------
 #setup global variables

@@ -40,7 +40,7 @@ $messages = array_map(function($x) {
     $x["Message"] = $msg;
 
     #also convert the received utc timezone into the local one
-    $utcTime = new DateTime($x["ResponseReceiveDate"],new DateTimeZone("utc")); 
+    $utcTime = new DateTime($x["ResponseReceiveDate"],new DateTimeZone("utc"));
     $x["ResponseReceiveDate"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y:m:d H:i:s");
 
     return $x;
@@ -98,7 +98,7 @@ foreach($messages as $message)
     }
 
     #get the patients next appointments for the day
-    $appointments = array_merge(getOrmsAppointments($patientSer),getAriaAppointments($patientMrn));
+    $appointments = getOrmsAppointments($patientSer);
     usort($appointments,function($x,$y) {
         return $x["time"] <=> $y["time"];
     });
@@ -108,19 +108,9 @@ foreach($messages as $message)
         else return $acc . "$x[name] at $x[time]\n";
     },"");
 
-    #check for a blood test appointment
-    $bloodTestApp = FALSE;
-    $checkInLocation = "CELL PHONE";
-    foreach($appointments as $app) {
-        if($app["name"] === "NS - prise de sang/blood tests pre/post tx") {
-            $bloodTestApp = TRUE;
-            $checkInLocation = "TEST CENTRE WAITING ROOM";
-        }
-    }
-
     #check the patient into all of his appointments
+    $checkInLocation = "CELL PHONE";
     // foreach($ormsApps as $app) sendToLocation("QQQ",$app);
-    // foreach($ariaApps as $app) sendToLocationAria("QQQ",$app);
 
     #check in the patient
     if($appointments === [])
@@ -144,21 +134,11 @@ foreach($messages as $message)
 
     if($checkInResult < 300)
     {
-        if($bloodTestApp === TRUE) {
-            if($language === "French") {
-                $returnString = "CUSM: Les inscriptions via téléphone cellulaire ne sont pas disponibles pour les prises de sang. Dirigez-vous vers le Centre de prélèvement du Centre du cancer et prenez un billet.";
-            }
-            else {
-                $returnString = "MUHC: Cell phone check-in is not available for blood test appointments. Please go to the Blood Test Reception in the Cedars Cancer Centre and take a number.";
-            }
+        if($language === "French") {
+            $returnString = "CUSM: Vous etes enregistrés pour vos rendez-vous:\n{$appointmentString}Vous recevrez un message quand vous serez appelés pour votre rendez-vous.";
         }
         else {
-            if($language === "French") {
-                $returnString = "CUSM: Vous etes enregistrés pour vos rendez-vous:\n{$appointmentString}Vous recevrez un message quand vous serez appelés pour votre rendez-vous.";
-            }
-            else {
-                $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
-            }
+            $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
         }
 
         textPatient($message["FromPhoneNumber"],$returnString);
@@ -211,58 +191,6 @@ function getOrmsAppointments(string $pSer): array
             AND MV.Status = 'Open'"
     );
     $query->execute([":pSer" => $pSer]);
-
-    return $query->fetchAll();
-}
-
-function getAriaAppointments(string $mrn): array
-{
-    $dbh = Config::getDatabaseConnection("ARIA");
-    $query = $dbh->prepare("
-        SELECT
-            ScheduledActivity.ScheduledActivitySer as id,
-            CAST(ScheduledActivity.ScheduledStartTime AS DATE) AS date,
-            CAST(CAST(ScheduledActivity.ScheduledStartTime AS TIME) AS VARCHAR(5)) AS time,
-	    CASE
-		WHEN LTRIM(RTRIM(vv_Activity.Expression1)) LIKE '.EB%' THEN 'Radiotherapy'
-		WHEN (LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'Consult%'
-			OR LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'CONSULT%') THEN 'Consult'
-		WHEN LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'FOLLOW UP %' THEN 'Follow Up'
-		ELSE LTRIM(RTRIM(vv_Activity.Expression1))
-	    END AS name
-        FROM
-            Patient
-            INNER JOIN ScheduledActivity ON ScheduledActivity.PatientSer = Patient.PatientSer
-                AND CAST(ScheduledActivity.ScheduledStartTime AS DATE) = CAST(GETDATE() AS DATE)
-                AND ScheduledActivity.ObjectStatus = 'Active'
-                AND ScheduledActivity.ScheduledActivityCode = 'Open'
-            INNER JOIN ActivityInstance ON ActivityInstance.ActivityInstanceSer = ScheduledActivity.ActivityInstanceSer
-            INNER JOIN Activity ON Activity.ActivitySer = ActivityInstance.ActivitySer
-            INNER JOIN vv_Activity ON vv_Activity.LookupValue = Activity.ActivityCode
-                AND vv_Activity.SubSelector = ActivityInstance.DepartmentSer
-                AND vv_Activity.Expression1 NOT LIKE 'NUTRITION%'
-		AND vv_Activity.Expression1 NOT LIKE '%On Hold%'
-		AND vv_Activity.Expression1 NOT LIKE '%Cancelled%'
-		AND vv_Activity.Expression1 NOT LIKE '%Portal Only%'
-		AND vv_Activity.Expression1 NOT LIKE '%Pt Booked%'
-		AND vv_Activity.Expression1 NOT LIKE '%Waiting%'
-                AND (
-                    vv_Activity.Expression1 LIKE '.EB%'
-                    OR vv_Activity.Expression1 LIKE '.BX%'
-                    OR vv_Activity.Expression1 LIKE 'CT Sim%'
-                    OR vv_Activity.Expression1 LIKE 'Consult%'
-                    OR vv_Activity.Expression1 LIKE 'CONSULT%'
-                    OR vv_Activity.Expression1 LIKE '%FOLLOW UP %'
-                    OR vv_Activity.Expression1 LIKE 'INTRA TREAT%'
-                    OR vv_Activity.Expression1 = 'Transfusion'
-                    OR vv_Activity.Expression1 = 'Injection'
-                    OR vv_Activity.Expression1 = 'Hydration'
-                    OR vv_Activity.Expression1 = 'Nursing Consult'
-                )
-        WHERE
-            Patient.PatientId = :mrn
-    ");
-    $query->execute([":mrn" => $mrn]);
 
     return $query->fetchAll();
 }
@@ -374,4 +302,3 @@ class ArrayUtilB
 }
 
 ?>
-

@@ -5,10 +5,10 @@ error_reporting(E_ALL);
 //define some contstants
 
 //correct contents to read dev database
-define( "DB_HOST", "172.26.120.179" );
-define( "DB_PORT", "3306");
+define( "DB_HOST", "" );
+define( "DB_PORT", "");
 define( "DB_USERNAME", "opalAdmin" );
-define( "DB_PASSWORD", "nChs2Gfs1FeubVK0" );
+define( "DB_PASSWORD", "" );
 define( "DB_NAME", "questionnaireDB2019");
 
 define( "OPAL_DB", "OpalDB");

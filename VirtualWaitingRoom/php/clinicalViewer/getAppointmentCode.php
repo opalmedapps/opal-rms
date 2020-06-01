@@ -4,7 +4,7 @@ declare(strict_types=1);
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------
 
-require_once __DIR__."/../configFileLive.php";
+require_once __DIR__."/../loadConfigs.php";
 
 $speciality = $_GET["clinic"] ?? NULL;
 

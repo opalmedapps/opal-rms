@@ -2,15 +2,15 @@
 /**************************************************
     Database configuration
 **************************************************/
-define( "DB_HOST", "172.26.120.179" ); // Database location
-define ( "DB_PORT", "3306");
+define( "DB_HOST", "" ); // Database location
+define ( "DB_PORT", "");
 define( "DB_NAME", "questionnaireDB2019" ); // Database Name
 
 // PreProd Database for the patient information
 define( "DB_X_NAME", "OpalDB" ); // Cross Database Name
 
-define( "DB_USERNAME", "opalAdmin" ); // UserName
-define( "DB_PASSWORD", "nChs2Gfs1FeubVK0" ); // Password
+define( "DB_USERNAME", "" ); // UserName
+define( "DB_PASSWORD", "" ); // Password
 
 function utf8_encode_recursive($data)
 {

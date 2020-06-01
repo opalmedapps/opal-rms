@@ -4,7 +4,7 @@ declare(strict_types=1);
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
-require_once __DIR__."/../configFileLive.php";
+require_once __DIR__."/../loadConfigs.php";
 
 #get input parameters
 

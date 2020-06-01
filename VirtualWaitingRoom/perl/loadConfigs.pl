@@ -1,28 +1,52 @@
 #!/opt/perl5/perl
-#--------------------------------------------------
-# Loads the appropriate config file depending on the git branch of the repository
-#--------------------------------------------------
+#----------------------------------------
+# live perl config file
+#----------------------------------------
 use strict;
 use v5.30;
 use lib "./";
 
-#get current git branch
-my $output = `git symbolic-ref -q HEAD 2>&1`;
-chomp($output);
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
 
-my $gitBranch = (split('/',$output))[-1]; #get the last section of the string to get the branch
+use JSON;
 
-#if on preprod or master branch, load configs for live use
-#otherwise load the default dev configs
+use Cwd qw(abs_path);
 
-if($gitBranch eq 'testing' or $gitBranch eq 'master' or $gitBranch eq 'aria15')
+#get the root orms folder
+our $BASEPATH = abs_path($0."/../../");
+
+#set up some useful objects
+our $JSON = JSON->new;
+our $CGI = CGI->new;
+
+#set up database configs
+our $WRM_DB = "DBI:MariaDB:database=WaitRoomManagement;host=172.26.125.194;port=3306";
+our $WRM_USER = "ormsadm";
+our $WRM_PASS = "aklw3hrq3asdf923k";
+
+our $LOG_DB = "DBI:MariaDB:database=OrmsLog;host=172.26.125.194;port=3306";
+our $LOG_TABLE = "VirtualWaitingRoomLog";
+our $LOG_USER = "ormsadm";
+our $LOG_PASS = "aklw3hrq3asdf923k";
+
+#determine if weight documents should be sent
+our $sendDocument = 0;
+
+#initialize logging function
+sub LOG_MESSAGE
 {
-	require("configFileLive.pl");
-}
-else
-{
-	require("configFileDev.pl");
+	my $identifier = $_[0];
+	my $type = $_[1];
+	my $message = $_[2];
+
+	my ($package,$filename,$line) = caller;
+
+	$filename =~ s{.*/}{}; #remove path from the filename
+
+	my $encodedArgs = $JSON->encode({filename=> $filename,identifier=> $identifier,type=> $type,message=> $message});
+
+	system("./logMessage.pl '$encodedArgs' 1"); #add a second argument so that the log script knows to use system arguments and not cgi params
 }
 
 1;
-

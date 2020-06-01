@@ -1,0 +1,105 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Virtual Waiting Room Menu</title>
+
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+
+  </head>
+  <body ng-app="myApp" ng-controller="main" style="color: rgb(0, 0, 0); background-color: rgb(128,128,128); font-size:18px; font-family: Helvetica,Arial,sans-serif;" link="#0000ee" vlink="#551a8b" alink="#ee0000">
+  <center>
+
+
+  <table style="text-align: left; width: 1000px; background-color: rgb(255, 255, 255); font-size:24px;" border="0" cellpadding="2" cellspacing="10">
+  <tbody>
+
+    <tr style="font-family: Helvetica,Arial,sans-serif;">
+    <td></td>
+    <td style="vertical-align: center; background-color: rgb(255, 255, 255);">
+        <center><img height="150" src="/images/logo.png" alt="logo" border="0"></center>
+    </td>
+    <td></td>
+    </tr>
+
+      <tr style="font-family: Helvetica,Arial,sans-serif;">
+    <td></td>
+    <td style="vertical-align: center; background-color: rgb(0,0,255);">
+        <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;">
+            <center>Virtual Waiting Room Menu</center>
+        </span>
+    </td>
+    <td></td>
+      </tr>
+
+      <tr style="font-family: Helvetica,Arial,sans-serif;">
+    <td></td>
+    <td style="vertical-align: center; background-color: rgb(255,255,255);">
+        <span style="color: rgb(0,0,0);font-size:30px;">
+        Please select your virtual waiting room from one of the links below:
+        </span><br>
+    </td>
+    <td></td>
+      </tr>
+
+      <tr style="font-family: Helvetica,Arial,sans-serif;" align="center">
+    <td colspan="3" style="vertical-align: center; background-color: rgb(255,255,255);">
+        <table border="0" cellpadding="20">
+        <tbody><tr>
+            <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
+
+
+	<div ng-repeat="(category,profiles) in profileList">
+		<p style="text-align: left;padding-left: 25%;">{{category}}</p>
+		<ul>
+			<p ng-repeat="profile in profiles">
+				<a href="./virtualWaitingRoom?profile={{profile.ProfileId}}">{{profile.ProfileId}}</a>
+			</p>
+		</ul>
+	</div>
+
+<br>
+<hr>
+<center> <a href="/">Main Page</a></center>
+
+
+    </tbody>
+    </table>
+
+  </center>
+
+
+<script>
+var app = angular.module('myApp',['ngCookies']);
+
+app.config(["$locationProvider",function ($locationProvider)
+{
+    $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false,
+        rewriteLinks: false
+    });
+}]);
+
+app.controller('main', function($scope,$location,$http,$cookies)
+{
+	$scope.profileList = {};
+	//get list of profiles available
+	$http({
+        method: "GET",
+        url: "./php/getListOfProfiles.php",
+        params: {speciality: $cookies.get("speciality")}
+    })
+	.then( response => {
+		response.data.forEach( x => {
+			$scope.profileList[x.Category] = $scope.profileList[x.Category] || [];
+			$scope.profileList[x.Category].push(x);
+		});
+		console.log($scope.profileList);
+	});
+
+
+
+});
+
+</script>
+</body>
+</html>

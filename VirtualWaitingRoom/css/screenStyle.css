@@ -1,0 +1,78 @@
+/*css for the list of patients */
+
+.patient-list {
+	width: 1700px;
+	height: 167px;
+	display: block;
+	border-bottom: 1px solid black;
+}
+
+.patient-list-inner-block {
+	display: inline-flex;
+	height: 100%;
+	width: 100%;
+}
+
+.patient-arrow {
+	width: 10%;
+	height: 100%;
+}
+
+.patient-location {
+	width: 80%;
+	height: 100%;
+}
+
+.location-name {
+	font-weight: bold;
+	font-size: 75px;
+	height: 50%;
+}
+
+.location-room {
+	font-size: 55px;
+	height: 50%;
+}
+
+.left-arrow {
+	width: 90%;
+	position: relative;
+	left: 4px;
+}
+
+.right-arrow {
+	width: 90%;
+	position: relative;
+	right: 4px;
+}
+
+/* ticker css*/
+.ticker1 {
+ height: 70px;	
+ width: 6000px;	
+ position: relative;
+ background: black;
+}
+.ticker1 h3 {
+ font-size: 1.2em;
+ color: white;
+ position: absolute;
+ height: 100%;
+ line-height: 30px;
+ text-align: left;
+ vertical-align: middle;
+
+ /* Starting position */
+ transform:translateX(100%);
+
+ /* Apply animation to this element */	
+ animation: ticker1 50s linear infinite;
+}
+
+/* Move it (define the animation) */
+@keyframes ticker1 
+{ 
+ 0%   {  transform: translateX(50%);  }
+ 100% {  transform: translateX(-100%); } 
+}
+

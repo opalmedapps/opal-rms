@@ -16,7 +16,6 @@ package-lock.json
 #ignore slave modules
 ormsscheduler/
 tools/KioskStatus/
-VirtualWaitingRoom/
 
 #ignore lock files
 smsReceiver.lock

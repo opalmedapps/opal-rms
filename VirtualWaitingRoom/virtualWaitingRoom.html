@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>Virtual Waiting Room</title>
+
+<!--#include virtual="./scripts.shtml" -->
+
+<!-- css -->
+<link rel="stylesheet" href="/VirtualWaitingRoom/css/vwrStyle.css">
+
+</head>
+
+<body>
+    <div id="mockId"></div>
+
+    <div ng-controller="virtualWaitingRoomController" ng-cloak>
+        <center>
+            <table border=0 class="table" style="width: 100%">
+                <tr>
+                    <td align="center" valign="center"></td>
+                    <td align="center" valign="center">
+                        <center>
+                            <h2><b>{{pageSettings.ProfileId}} - Virtual Waiting Room</b><br> </h2>
+                        </center>
+                    </td>
+                    <td align="center" valign="bottom"></td>
+                </tr>
+            </table>
+        </center>
+
+        <div style="width:100%;display:inline-flex">
+            <div style="width:80%;">
+                <div class="option-holder-div">
+                    <md-button class="md-primary selector-button" ng-click="openSelectorModal(allResources,selectedResources,'Resource/Clinician Filter')" ng-disabled="!resourceLoadingEnabled"><b>User Selected Resource(s):</b></md-button>
+                    <div class="option-holder">
+                        <span ng-repeat="res in selectedResources"><mark>{{res.Name}}</mark> </span>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="option-holder-div">
+                    <md-button class="md-primary selector-button" ng-click="openSelectorModal(allLocations,selectedLocations,'Location(s) Selection')" ng-disabled="!resourceLoadingEnabled"><b>User Selected Location(s):</b></md-button>
+                    <div class="option-holder">
+                        <span ng-repeat="loc in selectedLocations"><mark>{{loc.Name}}</mark> </span>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="option-holder-div" style="align-items: center;">
+                    <md-button class="md-primary" ng-disabled="!resourceLoadingEnabled" ng-click="focusOnId('zoom-input')"><b>MSSS Zoom Link:</b></md-button>
+                    <input id="zoom-input" class="zoom-input" ng-model="pageSettings.zoomLink" placeholder="Please paste your Zoom Personal Meeting ID URL here (include the pwd=XXXXXXX part of the URL)">
+                </div>
+
+            </div>
+
+            <div>
+                <div style="position:absolute;right:0;width:20%;">
+                    <md-button class="md-primary" disabled><b>Clinical Area: {{pageSettings.ClinicalArea}}</b></md-button>
+                    <br>
+                    <md-button class="md-primary" ng-if="patientLoadingEnabled && resourceLoadingEnabled" ng-click="openLegendDialog()"><b>Show Legend</b></md-button>
+                    <br>
+                    <span>
+                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="./images/waiting.gif"></img>
+                        <span ng-if="patientLoadingEnabled && resourceLoadingEnabled" class="btn-group">
+                            <label ng-model="pageSettings.SelectedRowTypes.CheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.CheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Checked In</label>
+                            <label ng-model="pageSettings.SelectedRowTypes.NotCheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.NotCheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Scheduled</label>
+                            <label ng-model="pageSettings.SelectedRowTypes.Completed" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.Completed ? '' : 'btn-row-type'" uib-btn-checkbox>Completed</label>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+
+        <table class="table patient-list">
+            <tr class="bg-info">
+                <th ng-click="changeSortOrder()">&#9660;</th>
+                <th ng-repeat="column in pageSettings.ColumnsDisplayed" style="text-align: center;">
+                    {{column.DisplayName}}<br /><span class="glyphicon {{column.Glyphicon}}"></span>
+                </th>
+            </tr>
+            <tr ng-repeat="patient in checkins | multiResourceFilter: [selectedResources,selectedAppointments,screenRows,pageSettings] | orderBy: pageSettings.sortOrder | orderBy: sortByRowType" ng-class="determineRowClass(patient)">
+                <td></td>
+                <td ng-repeat="column in pageSettings.ColumnsDisplayed" style="text-align: center;">
+                    <span ng-switch="patient.RowType">
+                        <span ng-switch-when="Completed">
+                            <span ng-switch="column.ColumnName" ng-switch="column.ColumnName">
+                                <span   ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>
+                                <span   ng-switch-when="CellPhoneNumber">
+                                    <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
+                                </span>
+                                <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
+                                <span   ng-switch-when="CurrentLocation">
+                                    <div style="display:inline-flex;height:34px;">
+                                        <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+                                        <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img>
+                                    </div>
+                                </span>
+                                <span   ng-switch-when="PatientName">
+                                    {{patient.LastName}}, {{patient.FirstName}}<br>
+                                    <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
+                                    <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                                </span>
+                                <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
+                                <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
+                                <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
+                            </span>
+                        </span>
+                        <span ng-switch-when="NotCheckedIn" ng-switch="column.ColumnName">
+                            <span   ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>
+                            <span   ng-switch-when="CallPatient" ng-switch="patient.AppointmentName">
+                                <span ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
+                                    <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
+                                    <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
+                                </span>
+                            </span>
+                            <span   ng-switch-when="CellPhoneNumber">
+                                <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
+                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="['TV-NP','TV-FU','TCC/TCR','PHONE','FOLLOW UP TELEMED MORE/30 DAYS','FOLLOW UP TELEMED LESS/30 DAYS','CONSULT RETURN TELEMED','CONSULT NEW TELEMED'].includes(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                            </span>
+                            <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
+                            <span   ng-switch-when="CurrentLocation">
+                                <div style="display:inline-flex;height:34px;">
+                                    <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+                                    <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img>
+                                </div>
+                            </span>
+                            <span   ng-switch-when="PatientName">
+                                {{patient.LastName}}, {{patient.FirstName}}<br>
+                                <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
+                                <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                            </span>
+                            <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
+                            <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
+                            <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
+                            <span   ng-switch-when="UndoCall" ng-switch="patient.AppointmentName">
+                                <button ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
+                            </span>
+                        </span>
+                        <span ng-switch-default ng-switch="column.ColumnName">
+                            <span   ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>
+                            <span   ng-switch-when="ArrivalTime">{{patient.ArrivalDateTime_hh}}:{{'0'+patient.ArrivalDateTime_mm | limitTo:-2}}</span>
+                            <button ng-switch-when="AssignRoom" ng-show="screenRows.hasOwnProperty(patient.Identifier)" ng-click="openCallModal(patient,'ASSIGN EXAM ROOM')" ng-class="checkIfPatientInExamRoom(patient) ? 'btn btn-success green-button' : 'btn btn-danger'">{{checkIfPatientInExamRoom(patient) ? patient.VenueId : 'Assign Exam Room'}}</button>
+                            <span   ng-switch-when="CallPatient" ng-switch="patient.AppointmentName">
+                                <span ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
+                                    <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
+                                    <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
+                                </span>
+                                <span ng-switch-default>
+                                    <button ng-show="!screenRows.hasOwnProperty(patient.Identifier)" ng-click="openCallModal(patient)" class="btn btn-primary">Call Patient</button>
+                                    <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="callPatientAgain(patient,true)" class="btn btn-danger">Call Again</button>
+                                </span>
+                            </span>
+                            <span   ng-switch-when="CellPhoneNumber">
+                                <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
+                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="['TV-NP','TV-FU','TCC/TCR','PHONE','FOLLOW UP TELEMED MORE/30 DAYS','FOLLOW UP TELEMED LESS/30 DAYS','CONSULT RETURN TELEMED','CONSULT NEW TELEMED'].includes(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                            </span>
+                            <span   ng-switch-when="CompleteAppointment">
+                                <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called' || patient.VenueId == 'VISIT COMPLETE' || wasZoomLinkSent(patient)" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
+                                <span ng-show="screenRows[patient.Identifier].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
+                            </span>
+                            <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
+                            <span   ng-switch-when="CurrentLocation">
+                                {{patient.VenueId}}<br>
+                                <div style="display:inline-flex;height:34px;">
+                                    <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+                                    <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img>
+                                </div>
+                            </span>
+                            <span   ng-switch-when="PatientName">
+                                {{patient.LastName}}, {{patient.FirstName}}<br>
+                                <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
+                                <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                            </span>
+                            <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
+                            <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
+                            <span   ng-switch-when="RemainingTime">{{patient.TimeRemaining}}</span>
+                            <button ng-switch-when="SendForPhysio" ng-show="patient.VenueId != 'SENT FOR PHYSIO'" ng-click="sendToLocation(patient,'SENT FOR PHYSIO',true)" class="btn btn-default">Send for Physio</button>
+                            <span   ng-switch-when="SendForWeight" ng-if="patient.PatientIdRVH" ng-switch="patientWeightRequired(patient)">
+                                <button ng-switch-when="Yes" ng-click="openWeightModal(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</button>
+                                <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
+                                <button ng-switch-when="No" ng-click="addToWeighArray(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Send For Weight</button>
+                            </span>
+                            <button ng-switch-when="SendForXray" ng-show="patient.VenudId != 'SENT FOR X-RAY'" ng-click="sendToLocation(patient,'SENT FOR X-RAY',true)" class="btn btn-warning">Send for X-Ray</button>
+                            <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
+                            <span   ng-switch-when="UndoCall" ng-switch="patient.AppointmentName">
+                                <button ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
+                                <button ng-switch-default ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
+                            </span>
+                            <span   ng-switch-when="WaitingTime">{{patient.WaitTime}}</span>
+                            <span   ng-switch-when="WeighPatient" ng-if="patient.PatientIdRVH" ng-switch="patientWeightRequired(patient)">
+                                <button ng-switch-when="Yes" ng-click="openWeightModal(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</button>
+                                <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
+                            </span>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        <nav class="navbar-xs navbar-inverse navbar-fixed-bottom bottom-bar">
+            <span style="margin-left: 10px; float: left;">
+                <i class="glyphicon glyphicon-time"></i>
+                Current Time: <b>{{timeNow | date:'yyyy-MM-dd hh:mm'}}</b>
+            </span>
+            <span>
+                Questions or Comments? Please contact Victor Matassa at x48117
+            </span>
+            <span style="margin-right: 10px; float: right;" ng-class="screenMessage == 'Normal' ? '' : 'status-danger'">
+                <b>Status:</b> {{screenMessage}}
+            </span>
+        </nav>
+
+    </div>
+</body>
+</html>

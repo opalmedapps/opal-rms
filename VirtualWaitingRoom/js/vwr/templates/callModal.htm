@@ -1,0 +1,21 @@
+<!-- Call Modal -->
+<div class="modal-header">
+	<h3 class="modal-title">Select Exam Room</h3>
+</div>
+<div class="modal-body">
+	<ul style="padding-left:0;">
+		<li ng-repeat="destination in callDestinations | orderBy: '+LocationId'" ng-class="destination.PatientIdRVH == 'Nobody' && destination.PatientIdMGH == 'Nobody' ? 'btn btn-info btn-block' : 'btn btn-danger btn-block'" ng-click="checkRoomConditions(destination)">
+			<a ng-if="destination.PatientIdRVH == 'Nobody' && destination.PatientIdMGH == 'Nobody'" style="color: #FFFFFF;"><b>{{destination.LocationId}}</b></a>
+			<a ng-if="destination.PatientIdRVH != 'Nobody' || destination.PatientIdMGH != 'Nobody'" style="color: #FFFFFF;"><b>{{destination.LocationId}}</b> <br /><span ng-if="destination.PatientIdRVH">(RV:{{destination.PatientIdRVH}})</span> <span ng-if="destination.PatientIdMGH">(MG:{{destination.PatientIdMGH}})</span></a>
+		</li>
+	</ul>
+</div>
+
+<div class="modal-body">
+	Selected: <b>{{selected.Name}}</b>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="accept()" ng-disabled="selected.Name == ''">OK</button>
+	<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
+

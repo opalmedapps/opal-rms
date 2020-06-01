@@ -1,0 +1,2 @@
+Needed for the bootstrap_3.3.6.min.css in the /css/ folder.
+Will be removed when migrating completely to bootstrap v4.

@@ -1,0 +1,24 @@
+<!-- RegisterSMS Modal -->
+<div class="modal-header">
+    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} <span ng-if="patient.PatientIdRVH">(RV:{{patient.PatientIdRVH}})<span> <span ng-if="patient.PatientIdMGH">(MG:{{patient.PatientIdMGH}})<span></h3>
+</div>
+<div class="modal-body">
+    <form ng-action="accept()">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Mobile Number:</span>
+            <input type="input" name="enteredNumber" ng-model="patient.enteredNumber" placeholder="1234567890" class="form-control" ng-change="validatePhoneNumber()" autocomplete="off">
+            <select ng-model="patient.selectedLanguage" class="form-control">
+                <option value="French" selected>French</option>
+                <option value="English">English</option>
+            </select>
+        </div>
+
+        <div style="padding: 10px;"></div>
+        <button class="btn btn-primary" ng-click="addSMS()" ng-disabled="!patient.phoneNumberIsValid">Update</button>
+    </form>
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
+

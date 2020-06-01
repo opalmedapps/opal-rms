@@ -1,0 +1,43 @@
+<div class="modal-header">
+	<h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}}</h3>
+</div>
+
+<div class="modal-body" ng-init="addScrollFunc()">
+
+	<h2>{{selectedQuestionnaire}}</h2>
+
+	<md-tabs md-selected="selectedTab" md-stretch-tabs="always" layout-fill>
+			<md-tab label="Select Mode" > <!-- ModeTab -->
+				<h3>Select2 theme</h3>
+				<ui-select ng-model="selectedQuestionnaire" on-select="testFunc()" theme="select2" style="min-width: 300px;">
+					<ui-select-match placeholder="Select a questionnaire..."><span style="color:#999;">{{$select.placeholder}}</span></ui-select-match>
+					<ui-select-choices repeat="opt in qqq | filter: $select.search">
+						<div>{{opt.Name}}</div>
+						<small>Type: {{opt.Type}}</small>
+					</ui-select-choices>
+				</ui-select>
+			</md-tab>
+
+			<md-tab label="Select" > <!-- ModeTab -->
+
+			</md-tab>
+	</md-tabs>
+			
+
+	<div ng-if="selectedQuestionnaire">
+		<hr>
+		<h2 style="text-align: center">{{selectedQuestionnaire.name}}</h2>
+		<h3>Answered On: {{selectedQuestionnaire.date}}</h3>
+
+		<div class="row">
+			<div class="col-xs-6 col-md-6" ng-repeat="question in selectedQuestionnaire.questions">
+				<highchart config="question.config"></highchart>
+			</div>
+		</div>
+	</div>
+
+	<br>
+	<p>{{aaa}}</p>
+</div>
+
+

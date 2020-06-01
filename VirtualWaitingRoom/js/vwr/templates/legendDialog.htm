@@ -1,0 +1,86 @@
+<md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+	<h2 class="md-title ng-binding">Button and Symbol Legend</h2>
+	<div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+		<span style="display:flex;justify-content:center;">
+			<table class="legend-table">
+				<tr>
+					<th>Button/Symbol</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#337ab7;border-color:#2e6da4;">Call Patient</md-button></td>
+					<td>Indicates the patient has not been called to a room.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#d9534f;border-color:#d43f3a;">Call Patient</md-button></td>
+					<td>Indicates that the patient has been called to a room. Click on the button to refresh the patient name on the tv screens.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">Undo Call</md-button></td>
+					<td>Click to return the patient to the waiting room.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</md-button></td>
+					<td>Click to update the patient's weight.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#e8ea3d;border-color:#bec320;color:black;">Enter Weight</md-button></td>
+					<td>Indicates that the patient has been weighed within the last 3 weeks. Click to update the patient's weight.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#59d45d;border-color:#299e29;">Enter Weight</md-button></td>
+					<td>Indicates that the patient has been weighed today. Click to update the patient's weight.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#4e5cf0;border-color:#4436ee;">Send For Weight</md-button></td>
+					<td>Click to signal that the patient needs to be weighed.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#d9534f;border-color:#d43f3a;">Assign Exam Room</md-button></td>
+					<td>Click to assign a patient to an exam room.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#59d45d;border-color:#299e29;">Assign Exam Room</md-button></td>
+					<td>Indicates that the patient is already in an exam room. Click to move the patient to another exam room.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button></td>
+					<td>Click to view the patient's questionnaires.</td>
+					</tr>
+				<tr>
+					<td>
+					<span style="width:100%;display:inline-block;position:relative;">
+						<md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button>
+						<span class="alert-circle-legend green-circle"></span>
+					</td>
+					<td>Indicates that the patient has completed a questionnaire within the past week. Click to view the patient's questionnaires.</td>
+					</tr>
+				<tr>
+					<td>
+					<span style="width:100%;display:inline-block;position:relative;">
+						<md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button>
+						<span class="alert-circle-legend red-circle"></span>
+					</td>
+					<td>Indicates that one of the patient's questionnaires has a high alert level. Click to view the patient's questionnaires.</td>
+					</tr>
+				<tr>
+					<td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#59d45d;border-color:#299e29;">Complete Appointment</md-button></td>
+					<td>Click to check a patient out of the Virtual Waiting Room.</td>
+					</tr>
+				<tr>
+					<td><center style="margin:6px 0 6px 0;"><span style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span></center></td>
+					<td>Indicates that the patient has text message alerts turned on.</td>
+					</tr>
+				<tr>
+					<td><center style="margin:6px 0 6px 0;"><img style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img></center></td>
+					<td>Indicates that the patient is on the Opal phone app.</td>
+					</tr>
+				<tr>
+					<td style="background-color:#f2dede"></td>
+					<td>Indicates that it is past the scheduled time for the patient's appointment.</td>
+					</tr>				
+			</table>
+		</span>
+	</div>
+</md-dialog-content>
+

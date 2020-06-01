@@ -1,0 +1,378 @@
+<html>
+
+<title>Appointment List Report</title>
+
+<body ng-app="vwr">
+
+<script src="./node_modules/jquery/dist/jquery.min.js"></script>
+<script src="./node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+<script src="./node_modules/datatables.net/js/jquery.dataTables.js"></script>
+<script src="./node_modules/angular/angular.min.js"></script>
+<script src="./node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="./node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
+<script src="./node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
+<script src="./node_modules/angular-datatables/dist/angular-datatables.min.js"></script>
+<script src="./node_modules/angular-datatables/dist/plugins/buttons/angular-datatables.buttons.min.js"></script>
+<script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
+<script src="./node_modules/angular-bowser/src/angular-bowser.js"></script>
+<!--Angular libraries -->
+<script src="./node_modules/jquery/dist/jquery.min.js"></script>
+
+<script src="./node_modules/checklist-model/checklist-model.js"></script>
+<script src="./library/angular-ui_0.4.0.js"></script>
+<script src="./node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+<script src="./node_modules/ui-select/dist/select.min.js"></script>
+<script src="./node_modules/angular-animate/angular-animate.min.js"></script>
+<script src="./node_modules/angular-aria/angular-aria.min.js"></script>
+<script src="./node_modules/angular-material/angular-material.js"></script>
+<script src="./node_modules/angular-audio/app/angular.audio.js"></script>
+<script src="./node_modules/checklist-model/checklist-model.js"></script>
+<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+
+<script src="./node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js"></script>
+
+<!--Firebase libraries >
+<script src="./node_modules/firebase/lib/firebase-web.js"></script-->
+<script src="./node_modules/angularfire/dist/angularfire.min.js"></script>
+
+<!--Highcharts -->
+<script src="./node_modules/highcharts/highcharts.js"></script>
+<script src="./node_modules/highcharts/modules/exporting.js"></script>
+<script src="./node_modules/highcharts-ng/dist/highcharts-ng.min.js"></script>
+
+<!--Crytojs -->
+<script type="text/javascript" src="./node_modules/crypto-js/crypto-js.js"></script>
+
+<!--CSS -->
+<!--<link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css"> use bootstrap v3 css; the css styling can be done later-->
+<link media="all" type="text/css" rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="./node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="./node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="./node_modules/angular-datatables/dist/css/angular-datatables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="./node_modules/jquery-ui-dist/jquery-ui.min.css">
+<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
+<link rel="stylesheet" href="./node_modules/ui-select/dist/select.min.css">
+<link rel="stylesheet" href="./node_modules/angular-material/angular-material.min.css">
+<link rel="stylesheet" href="./css/select2.css">
+
+
+
+<!--link media="all" type="text/css" rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="../node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="../node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="../node_modules/angular-datatables/dist/css/angular-datatables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="../node_modules/jquery-ui-dist/jquery-ui.min.css"-->
+
+<link  media="all" type="text/css" rel="stylesheet" href="./css/vwrStyle.css">
+
+<script src = "./js/vwr/controllers/clinicalViewer.js"></script>
+<script src="./js/vwr/controllers/questionnaireLegacyModal.js"></script>
+<script src="./js/vwr/controllers/selectorModal.js"></script>
+<script src="./node_modules/checklist-model/checklist-model.js"></script>
+
+<style>
+    .page {margin:10px;}
+
+    td {
+        padding-right: 15px;
+        padding-bottom: 10px;
+    }
+
+    .tables {
+        width:100%;
+        table-layout: fixed;
+    }
+    .tables thead>tr>th {
+        padding-right: 5px;
+        vertical-align: bottom;
+        border-bottom: 2px solid #ddd;
+    }
+    .tables tbody {
+        display: table-row-group;
+        vertical-align: middle;
+    }
+    .tables tbody>tr>td {
+        line-height: 1.42857143;
+        vertical-align: middle;
+        border-top: 1px solid #ddd;
+        font-size: 15px;
+        overflow: auto;
+    }
+
+    .btn.btn-primary {
+        z-index: 1;
+        background-color: #9d9d9d;
+    }
+
+    .btn.btn-primary:hover,
+    .btn.btn-primary.active {
+        z-index: 1;
+        background-color: #337ab7
+    }
+
+    .btn.btn-sr {
+        z-index: 1;
+        background-color: silver;
+    }
+
+    .btn.btn-sr:hover,
+    .btn.btn-sr.active {
+        z-index: 1;
+        background-color: #9d9d9d;
+    }
+
+
+    .items,
+    .items td,
+    .items tr,
+    .items th {
+        border-collapse:collapse;
+        border:1px solid black;
+        text-align:left;
+        --box-sizing: border-box !important;
+        --table-layout:fixed;
+        overflow-wrap: break-word;
+    }
+
+    .items tr:nth-child(even){background-color:#f1f1f1;}
+    .items th {background-color:#98FB98}
+
+    /*remove date and title on top of printed pages*/
+    /*@page {
+        size: auto;
+        margin-top: 0mm;
+    }*/
+
+    /*repeat table headers on each page*/
+    @media print {
+        thead {display: table-header-group;}
+    }
+
+    .textStyleRed{
+        font-size: 25px;
+        color: red;
+    }
+
+    .textStyleGreen{
+        font-size: 25px;
+        color: limegreen;
+    }
+
+    @media (min-width: 576px) {
+        .modal-dialog {
+            max-width: unset;
+        }
+    }
+    div.selectorModal > div.modal-dialog {
+        width: 700px;
+    }
+
+</style>
+
+<div class="page" ng-controller="main" ng-init="runScript(true)">
+    <center><h1>Opal-Clinical</h1></center><center><h2><u>Dashboard</u></h2></center>
+
+    <form ng-submit="runScript()">
+
+
+
+        <table border="0" style="table-layout:fixed;width:80%;" padding="5" >
+
+            <tr><td><b>Mode:</b></td>
+                <td><div class="btn-group">
+                    <label ng-model="liveMode" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'Live'" >Live</label>
+                    <label ng-model="liveMode" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'Report'">Report</label>
+                </div></td>
+                <td ng-show="showLM && liveMode ==='Live'"><b>Live Mode: </b></td>
+                <td ng-show="showLM && liveMode ==='Live'">
+
+                    <b ng-class="(liveState==='Paused') ? 'textStyleRed' : 'textStyleGreen'">{{liveState}}</b>
+
+                </td>
+            </tr>
+            <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> Menu </button></td>
+            <tr ng-show="test.showMenu">
+
+            </tr>
+
+
+                <tr ng-show="test.showMenu" bgcolor=#1D0886 fgcolor=#FFFFFF>
+                    <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Filter</font></th>
+                </tr>
+                <tr ng-if="test.showMenu"><td><br></td></tr>
+
+                <tr ng-show="test.showMenu">
+                    <td><b>From Date: </b></td>
+                    <td><input type="date" ng-model="sDate" ng-change="inputchange()" required></td>
+                    <td><b>To Date: </b></td>
+                    <td><input type="date" ng-model="eDate" ng-change="inputchange()" required></td>
+
+
+                </tr>
+
+                <tr ng-show="test.showMenu">
+                    <td><b>Starting From (Scheduled Time): </b></td>
+                    <td><input type="time" ng-model="sTime" ng-change="inputchange()" required></td>
+                    <td><b>Ending At: </b></td>
+                    <td><input type="time" ng-model="eTime" ng-change="inputchange()" required></td>
+                </tr>
+
+                <tr ng-show="test.showMenu">
+                    <td><b>Appointment Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.comp" class="btn btn-primary" ng-change="keepAppChecked('comp')" uib-btn-checkbox>Completed</label>
+                            <label ng-model="inputs.openn" class="btn btn-primary" ng-change="keepAppChecked('openn')" uib-btn-checkbox>Open</label>
+                            <label ng-model="inputs.canc" class="btn btn-primary" ng-change="keepAppChecked('canc')" uib-btn-checkbox>Cancelled</label>
+                        </div></td>
+                    <td><b>Checkin Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.arrived" class="btn btn-primary" ng-change="keepPatChecked('arrived')" uib-btn-checkbox>Checked in</label>
+                            <label ng-model="inputs.notArrived" class="btn btn-primary" ng-change="keepPatChecked('notArrived')" uib-btn-checkbox>Not Checked in</label>
+                        </div></td>
+                </tr>
+
+                <tr ng-show="test.showMenu">
+                    <td><b>Clinic Name: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.type" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                            <label ng-model="inputs.type" class="btn btn-primary" ng-change="inputchange()"
+                                   ng-click="openSelectorModal(clinics, inputs.selectedclinics,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                        </div></td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <!--select ng-show="inputs.type == 'specific'" ng-model="inputs.specificType" ng-options="val.name for val in clinics"></select-->
+                        <div ng-show="inputs.type == 'specific'" class = "option-holder" style="width: 500px">
+                        <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
+                </tr>
+                <tr ng-show="test.showMenu">
+                    <td><b>Clinic Code: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                            <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()"
+                                   ng-click="openSelectorModal(codes, inputs.selectedcodes,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                        </div></td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <!--select ng-show="inputs.ctype == 'specific'" ng-model="inputs.cspecificType" ng-options="val.Name for val in codes"></select></td-->
+                        <div select ng-show="inputs.ctype == 'specific'" class = "option-holder" style="width: 500px">
+                        <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
+                </tr>
+
+                <tr ng-show="test.showMenu" bgcolor=#1D0886 fgcolor=#FFFFFF>
+                    <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Filter</font></th>
+                </tr>
+                <tr ng-show="test.showMenu"><td><br></td></tr>
+
+                <tr ng-show="test.showMenu">
+                <td><b>Diagnosis: </b></td>
+                <td>
+                    <div class="btn-group">
+                        <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                        <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
+                               ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                    </div></td>
+                <td style="display:inline-flex;vertical-align:bottom;">
+                    <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
+                    <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
+                        <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
+                </tr>
+
+
+            <tr>
+                <td></td>
+                <td align="right">
+                <td align="right">
+                    <button type="submit" ng-class=" isInputsChange === false ? 'btn btn-danger' : 'btn btn-sr'">Submit</button>
+                    <button type="button" class ="btn btn-sr" ng-click='reset(1)'>Reset</button>
+                <td ng-show="!isInputsChange" style ="color: red"><b>Note:</b> Click "Submit" to apply the changes or reactive live mode.</td>
+                <td ng-show="test.emptyList" style ="color: red"><b>Warning:</b> Please select at least one option when choosing "Specific"</td>
+                </td>
+            </tr>
+
+        </table>
+    </form>
+
+
+
+
+
+    <p>{{message}}</p>
+    <div ng-if='showDiv'>
+        <table>
+            <tr>
+                <td><b>Current Date: </b></td><td>{{today | date}}</td>
+                <td><b>Search Date: </b></td><td>{{sDateDisplay | date}} - {{eDateDisplay |date}}</td>
+                <td><b>Clinic Name: </b></td><td>{{hideType ? appName : 'All'}}</td>
+            </tr>
+            <tr>
+                <td><b>diagnosis Name: </b></td><td>{{hideDiagnosisType ? appDiagnosis : 'All'}}</td>
+                <td><b>Appointments: </b></td>
+                <td>
+                    <span ng-if="optionSelected.comp">Completed</span>
+                    <span ng-if="optionSelected.openn">Open</span>
+                    <span ng-if="optionSelected.canc">Cancelled</span>
+                    <span ng-if="optionSelected.arrived">CheckedIn</span>
+                    <span ng-if="optionSelected.notArrived">NotCheckedIn</span>
+                </td>
+                <td><b>Clinic Code: </b></td><td>{{hideCodeType ? appCodeName : 'All'}}</td>
+            </tr>
+        </table>
+        <br>
+
+        <h1>Appointment List</h1>
+        <table class='items' datatable="ng" dt-options="dtOptions">
+            <thead>
+            <tr>
+                <th>Last Name</th>
+                <th>First Name</th>
+                <th>Patient ID</th>
+                <th>RAMQ</th>
+                <th ng-if="!hideType">Clinic/Treatment</th>
+                <th>Code</th>
+                <th>App. Code</th>
+                <th ng-if="!sameDate">Scheduled Date</th>
+                <th>Scheduled Time</th>
+                <th>Checkin Time</th>
+                <th>Status</th>
+                <th>Medivisit Status</th>
+                <th>Diagnosis</th>
+                <th>Questionnaires</th>
+                <th>Consult</th>
+                <th>Suivi</th>
+                <th>Procedure</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="appoint in tableData">
+                <td>{{appoint.lname}}</td>
+                <td>{{appoint.fname}}</td>
+                <td>{{appoint.pID}}</td>
+                <td>{{appoint.ssn.num}}</td>
+                <td ng-if="!hideType">{{appoint.appName}}</td>
+                <td>{{appoint.appClinic}}</td>
+                <td>{{appoint.appType}}</td>
+                <td ng-if="!sameDate">{{appoint.appDay}}</td>
+                <td>{{appoint.appTime}}</td>
+                <td>{{appoint.checkin}}</td>
+                <td>{{appoint.appStatus}}</td>
+                <td>{{appoint.mediStatus}}</td>
+                <td>{{appoint.diagnosis}}</td>
+                <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button></center></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<br>
+<hr>
+<center> Problems and bug reports to John Kildea<br> (jkildea@medphys.mcgill.ca)</center>
+</body>
+</html>

@@ -1,0 +1,384 @@
+/*needed to get uibModal to appear in bootstrap v4 */
+.fade.in {
+    opacity: 1;
+}
+
+/*necessary for highcharts to display properly*/
+highchart {
+	width: 100%;
+	display: block;
+}
+
+/*make sure md dialogs are at the front of the page*/
+.md-dialog-container {
+    z-index: 2000;
+}
+
+/*css for the selection modal */
+
+.option-holder-div {
+	display: inline-flex;
+	width: 100%;
+}
+
+.option-holder {
+	margin-top: 0.5%;
+	width: 80%;
+	min-height: 50px;
+	max-height: 100px;
+	overflow: auto;
+}
+
+.selector-button {
+	margin-top: 0;
+	margin-top: 0;
+	height: 0;	
+}
+
+.selector-gif {
+ 	margin-left:70px;
+	width:50px;
+}
+
+.selector-color-IntermediateVenue {
+	color: blue;
+}
+
+.selector-color-TreatmentVenue {
+	color: green;
+}
+
+.selector-color-ExamRoom {
+	color: red;
+}
+
+/*css for the main ORMS patient table */
+table.patient-list {
+	/*table-layout: fixed;
+	border: 1px solid black;*/
+	width: 100%;
+	max-width:100%;
+}
+
+table.patient-list th, table.patient-list td {
+	/*border: 1px solid black;*/
+}
+
+/*modal animate css */
+.modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+       -o-transform: translate(0, 0);
+          transform: translate(0, 0);
+}
+
+.modal-backdrop.in {
+    filter: alpha(opacity=50);
+    opacity: .5;
+}
+
+/* selector modal css */
+.option-checkbox {
+	list-style: none;
+	max-height: 400px;
+	overflow-y: auto;
+	list-style: none;
+	border: 1px #ccc solid;
+	margin-top: 10px;
+	border-radius: 5px;
+}
+
+.option-list {
+	overflow: auto;
+	word-wrap: break-word;
+	min-height: 5vh;
+	max-height: 20vh;
+}
+
+.alert-circle {
+	padding-top: 24%;
+	width: 24%;
+	background-color: transparent;
+	border-radius: 100%;
+	position: absolute;
+	right: -12%;
+	top: -25%;
+}
+
+.green-circle {
+	background-color: #59d45d;
+}
+
+.orange-circle {
+	background-color: #fe8100;
+}
+
+.red-circle {
+	background-color: #ff0000;
+}
+
+.weight-indicator {
+	background-color: #e8ea3d !important;
+	border-color: #bec320 !important;
+	color: black;
+}
+
+.green-button {
+	background-color: #59d45d !important;
+	border-color: #299e29 !important;
+}
+
+.turquoise-button {
+    background-color: #0ca0a0;
+    border-color: #5fb9b9;
+}
+
+/*css for the weight input table */
+.weight-div {
+	width: 100%;
+}
+
+table.table-measurement {
+	width: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table.table-measurement>tbody>tr>td {
+	border: 0;
+}
+
+.weight-modal-input {
+	width: 30%;
+	text-align: right;
+}
+
+.weight-cell {
+	background: yellow;
+	font-size: 20px;	
+}
+
+.weight-input {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.weight-update-button {
+	width: 75px;
+}
+
+.weight-update-button-warning {
+	background: red;
+	border-color: black;
+}
+
+/*status bar css*/
+.status-danger {
+	color: red;
+}
+
+
+/*order selector popup css */
+.order-table td {
+	padding: 1px;
+}
+
+.sort-button {
+	width: 100%;
+}
+.sort-priority-cell {
+	background: yellow;
+}
+
+/*legend dialog css*/
+.legend-table {
+	border-collapse: separate;
+	border-spacing: 3em 0;
+}
+
+.legend-table th,td {
+	text-align: left;
+}
+
+.legend-button {
+	cursor: default;
+	width: 100%;
+	margin-right: 0;
+	margin-left: 0;
+}
+
+.alert-circle-legend {
+	padding-top: 12%;
+	width: 12%;
+	border-radius: 100%;
+	position: absolute;
+	right: -5%;
+	top: -2%;
+}
+
+/*################################################*/
+/*bottom notification row css */
+/*################################################*/
+.bottom-bar {
+	color: white;
+	display: inline-block;
+	text-align: center;
+}
+
+/*###############################################*/
+/*css for the questionnaire modal */
+/*###############################################*/
+
+div.questionnaireModal > div.modal-dialog {
+	width: calc(80vw);
+}
+
+.questionnaireModal md-tabs-canvas {
+	background: #f1f1f1;
+}
+
+.questionnaireModal md-tabs.md-default-theme .md-tab, 
+.questionnaireModal md-tabs .md-tab {
+	color: rgba(0,0,0,0.54);
+	max-width: 50% !important;
+}
+
+.questionnaireModal md-tabs.md-default-theme .md-tab.md-active,
+.questionnaireModal md-tabs .md-tab.md-active,
+.questionnaireModal md-tabs.md-default-theme .md-tab.md-active md-icon,
+.questionnaireModal md-tabs .md-tab.md-active md-icon,
+.questionnaireModal md-tabs.md-default-theme .md-tab.md-focused,
+.questionnaireModal md-tabs .md-tab.md-focused,
+.questionnaireModal md-tabs.md-default-theme .md-tab.md-focused md-icon,
+.questionnaireModal md-tabs .md-tab.md-focused md-icon {
+	color: rgb(63,81,181);
+	max-width: 50% !important;
+}
+
+
+
+
+/*###############################################*/
+/*css for the legacy questionnaire modal */
+/*###############################################*/
+
+div.questionnaireLegacyModal > div.modal-dialog {
+	width: calc(80vw);
+}
+
+/*css for the questionnaire selection section */
+/*
+.questionnaire-container {
+	height: 0;
+	max-height: 50vh;
+	width: 95%;
+	position: absolute;
+	transition: height 0.5s;
+	-webkit-transition: height 0.5s;
+	overflow: hidden;
+	z-index: 10000;
+	background: white;
+	border: 1px solid black;
+}
+.questionnaire-container.grow {
+	height: 50vh;
+	overflow: auto;
+}
+*/
+
+.btn-que {
+	color: #FFFFFF;
+	font-weight: bold;
+	margin-bottom: 5px;	
+}
+
+.ques-row {
+	min-height:0;
+}
+
+.selected-button {
+	background: purple;
+}
+
+.selected-button:focus {
+	background: purple;
+}
+
+/* sliding animations for the questionnaires */
+.animate-show {
+ -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+ transition-delay: 0.5s;	
+  opacity:1;
+  right: 0;
+}
+
+.animate-show.ng-hide {
+  right: -100%;
+  opacity:0;
+}
+
+.animate-show.ng-hide.ng-hide-add {
+  right: 100%;
+  width: 0%;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.4s;
+}
+
+/*add x to search input texts */
+input[type="search"] {
+  -webkit-appearance: searchfield;
+}
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: searchfield-cancel-button;
+}
+
+.zoom-input {
+    height: 50%;
+    background-color: #fcf8e3;
+    color: black;
+    border: none;
+    width: 50%;
+}
+
+.zoom-input:focus {
+    width: 50%;
+}
+
+.btn-zoom {
+    background-color: #ff7600;
+    border-color: #122b40;
+    color: #fff;
+}
+
+.btn-zoom:hover  {
+    background-color: #d86707;
+    color: #fff;
+}
+
+.btn-zoom:focus  {
+    background-color: #d86707;
+    color: #fff;
+}
+
+.btn-zoom:active  {
+    background-color: #d86707;
+    color: #fff;
+}
+
+.row-checkedIn {
+    background-color: #f2dede;
+}
+
+.row-notCheckedIn {
+    background-color: #d6d6d6;
+}
+
+.row-completed {
+    background-color: #e4f0e5;
+}
+
+.btn.btn-primary.btn-row-type {
+    background-color: #9d9d9d;
+}
+

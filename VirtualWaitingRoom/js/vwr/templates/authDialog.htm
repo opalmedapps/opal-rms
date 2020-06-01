@@ -1,0 +1,24 @@
+<md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+    <h2 class="md-title ng-binding">Login to mark as Reviewed</h2>
+    <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+        <form ng-action="authenticate()">
+            <div class="input-group" style="padding-bottom: 5px;">
+                <span class="input-group-addon" style="width: 100px;">Username</span>
+                <input type="input" ng-model="page.username" class="form-control" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon" style="width: 100px;">Password</span>
+                <input type="password" ng-model="page.password" class="form-control" autocomplete="off">
+            </div>
+
+            <br>
+            <div style="color: red;">{{page.message}}</div>
+
+            <div style="padding-top: 8px;">
+                <md-button md-no-ink="" class="md-raised md-primary" style="margin-left: 10%;" ng-click="authenticate()">Submit</md-button>
+                <button hidden ng-click="authenticate()"></button> <!-- needed for the form to submit on enter key -->
+            </div>
+        </form>
+
+    </div>
+</md-dialog-content>

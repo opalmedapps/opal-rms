@@ -99,70 +99,27 @@ function getAppointments(): array
     $query = $dbh->prepare("
         SELECT
             Patient.PatientId AS mrn,
-            Medi
-
-
-
-        SELECT
-            Patient.PatientId as mrn,
-            ScheduledActivity.ScheduledActivitySer AS appSer,
-            CAST(ScheduledActivity.ScheduledStartTime AS DATE) AS date,
-            CAST(CAST(ScheduledActivity.ScheduledStartTime AS TIME) AS VARCHAR(5)) AS time,
-            vv_Activity.Expression1 as fullname,
-            CASE
-                WHEN LTRIM(RTRIM(vv_Activity.Expression1)) LIKE '.EB%' THEN 'Radiotherapy'
-                WHEN (LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'Consult%'
-                    OR LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'CONSULT%') THEN 'Consult'
-                WHEN LTRIM(RTRIM(vv_Activity.Expression1)) LIKE 'FOLLOW UP %' THEN 'Follow Up'
-                ELSE LTRIM(RTRIM(vv_Activity.Expression1))
-            END AS name
+            Patient.SMSAlertNum AS phoneNumber,
+            Patient.LanguagePreference AS language,
+            MediVisitAppointmentList.AppointmentSerNum AS appSer,
+            MediVisitAppointmentList.ScheduledDate AS date,
+            MediVisitAppointmentList.ScheduledTime AS time,
+            MediVisitAppointmentList.ResourceDescription AS fullname,
+            MediVisitAppointmentList.ResourceDescription AS name,
+            ClinicResource.Speciality AS speciality
         FROM
-            Patient
-            INNER JOIN ScheduledActivity ON ScheduledActivity.PatientSer = Patient.PatientSer
-                AND CAST(ScheduledActivity.ScheduledStartTime AS DATE) = DATEADD(DAY,1,CAST(GETDATE() AS DATE))
-                AND ScheduledActivity.ObjectStatus = 'Active'
-                AND ScheduledActivity.ScheduledActivityCode = 'Open'
-            INNER JOIN ActivityInstance ON ActivityInstance.ActivityInstanceSer = ScheduledActivity.ActivityInstanceSer
-            INNER JOIN Activity ON Activity.ActivitySer = ActivityInstance.ActivitySer
-            INNER JOIN vv_Activity ON vv_Activity.LookupValue = Activity.ActivityCode
-                AND vv_Activity.SubSelector = ActivityInstance.DepartmentSer
-                AND vv_Activity.Expression1 NOT LIKE 'NUTRITION%'
-		AND vv_Activity.Expression1 NOT LIKE '%On Hold%'
-		AND vv_Activity.Expression1 NOT LIKE '%Cancelled%'
-		AND vv_Activity.Expression1 NOT LIKE '%Portal Only%'
-		AND vv_Activity.Expression1 NOT LIKE '%Pt Booked%'
-		AND vv_Activity.Expression1 NOT LIKE '%Waiting%'
-                AND (
-                    vv_Activity.Expression1 LIKE '.EB%'
-                    OR vv_Activity.Expression1 LIKE '.BX%'
-                    OR vv_Activity.Expression1 LIKE 'CT Sim%'
-                    -- OR vv_Activity.Expression1 LIKE 'Consult%'
-                    -- OR vv_Activity.Expression1 LIKE 'CONSULT%'
-                    -- OR vv_Activity.Expression1 LIKE '%FOLLOW UP %'
-                    -- OR vv_Activity.Expression1 LIKE 'INTRA TREAT%'
-                    -- OR vv_Activity.Expression1 = 'Transfusion'
-                    -- OR vv_Activity.Expression1 = 'Injection'
-                    -- OR vv_Activity.Expression1 = 'Hydration'
-                    -- OR vv_Activity.Expression1 = 'Nursing Consult'
-                )
+            MediVisitAppointmentList
+            INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
+                AND Patient.SMSAlertNum != ''
+                AND Patient.SMSAlertNum IS NOT NULL
+            INNER JOIN ClinicResources ON ClinicResources.ResourceName = MediVisitAppointmentList.ResourceDescription
+        WHERE
+            MediVisitAppointmentList.Status = 'Open'
+            AND MediVisitAppointmentList.ScheduledDate = CURDATE() + INTERVAL 1 DAY
         ORDER BY
-            ScheduledActivity.ScheduledStartTime
+            MediVisitAppointmentList.ScheduledTime
     ");
     $query->execute();
-
-    #get the phone number of the patient
-    $appointments = array_map(function($x) {
-        $phoneInfo = getPatientPhoneNumber($x["mrn"]);
-        $x["phoneNumber"] = $phoneInfo["SMSAlertNum"] ?? NULL;
-        $x["language"] = $phoneInfo["LanguagePreference"] ?? NULL;
-
-        return $x;
-    },$query->fetchAll());
-
-    #filter the appointment if no phone number
-    $appointments = array_filter($appointments,function($x) {
-        return ($x["phoneNumber"] !== NULL);
-    });
 
     #filter if a reminder was already sent for this appointment
     $appointments = array_filter($appointments,function($x) {

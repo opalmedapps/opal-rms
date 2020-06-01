@@ -6,56 +6,65 @@ $checkInScriptLocation = Config::getConfigs("path")["BASE_URL"] ."/php/system/ch
 $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
 
 #get all the message that we received since the last time we checked
-$xmlResponse = (new HttpRequestB("https://sms2.cdyne.com/sms.svc/SecureREST/GetUnreadIncomingMessages",["LicenseKey" => $licence]))->executeRequest();
-$messages = simplexml_load_string($xmlResponse);
-
-#check how many elements were in the response
-#if there was only one, the conversion to an array won't work as expected as the message variable will be an associative array and not an array of messages
-$numElem = $messages->children()->count();
-
-$messages = json_decode(json_encode($messages),TRUE)["SMSIncomingMessage"] ?? [];
-if($numElem === 1) $messages = [$messages];
+$cURL = curl_init();
+curl_setopt_array($cURL,[
+    CURLOPT_URL => "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages",
+    CURLOPT_POST => TRUE,
+    CURLOPT_POSTFIELDS => json_encode(["LicenseKey" => $licence,"UnreadMessagesOnly" => TRUE]),
+    CURLOPT_RETURNTRANSFER => TRUE,
+    CURLOPT_HTTPHEADER => ["Content-Type: application/json","Accept: application/json"]
+]);
+$messages = json_decode(curl_exec($cURL),TRUE);
 
 #messages have the following structure:
+#the values are either string or NULL
 /*
 Array
     (
-        [FromPhoneNumber] => string
-        [IncomingMessageID] => string
-        [MatchedMessageID] => string
-        [Message] => string
-        [ResponseReceiveDate] => string
-        [ToPhoneNumber] => string
+        [Attachments]
+        [From]
+        [IncomingMessageID]
+        [OutgoingMessageID]
+        [Payload]
+        [ReceivedDate] => "/Date(1590840267010-0700)/" //.NET DataContractJsonSerializer format
+        [Subject]
+        [To]
+        [Udh]
     )
 */
 
+#order messages in chronological order (also sorts into the correct order messages split into chunks)
+usort($messages,function($x,$y) {
+    return $x["IncomingMessageID"] <=> $y["IncomingMessageID"];
+});
+
 #long messages are received in chunks so piece together the full message
-$messages = ArrayUtilB::groupArrayByKey($messages,"MatchedMessageID");
+$messages = ArrayUtilB::groupArrayByKey($messages,"OutgoingMessageID");
 $messages = array_map(function($x) {
     $msg = array_reduce($x,function($acc,$y) {
-        return $acc . $y["Message"];
+        return $acc . $y["Payload"];
     },"");
 
     $x = array_merge(...$x);
-    $x["Message"] = $msg;
+    $x["Payload"] = $msg;
 
     #also convert the received utc timezone into the local one
-    $utcTime = new DateTime($x["ResponseReceiveDate"],new DateTimeZone("utc"));
-    $x["ResponseReceiveDate"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y:m:d H:i:s");
+    $utcTime = new DateTime($x["ReceivedDate"],new DateTimeZone("utc"));
+    $x["ReceivedDate"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y-m-d H:i:s");
 
     return $x;
 },$messages);
 
-#//filter all non test phone numbers for now
-#$messages = array_filter($messages,function($x) {
-#    return ($x["FromPhoneNumber"] === "15147157890"
-#		|| $x["FromPhoneNumber"] === "15144758943");
-#});
+//filter all non test phone numbers for now
+$messages = array_filter($messages,function($x) {
+    return ($x["From"] === "15147157890"
+		|| $x["From"] === "15144758943");
+});
 
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message)
 {
-    logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],NULL,$message["Message"],NULL,"SMS received");
+    logData($message["ReceivedDate"],$message["From"],NULL,$message["Payload"],NULL,"SMS received");
 }
 
 #process messages
@@ -63,7 +72,7 @@ foreach($messages as $message)
 {
     #sanitize the phone number
     #the number might have a 1 in front of it; remove it
-    $number = $message["FromPhoneNumber"];
+    $number = $message["From"];
     if(strlen($number) === 11 && $number[0] === "1") $number = substr($number,1);
 
     #find the patient associated with the phone number
@@ -72,7 +81,7 @@ foreach($messages as $message)
     #return nothing if the patient doesn't exist and skip
     if($patientData === NULL)
     {
-        logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],NULL,$message["Message"],NULL,"Patient not found");
+        logData($message["ReceivedDate"],$message["From"],NULL,$message["Payload"],NULL,"Patient not found");
         continue;
     }
 
@@ -86,13 +95,13 @@ foreach($messages as $message)
     sleep(2);
 
     #if it's not, send a message to the patient instructing them how to use the service
-    if(strtoupper($message["Message"]) !== "ARRIVE")
+    if(strtoupper($message["Payload"]) !== "ARRIVE")
     {
         if($language === "French") $returnString = "CUSM: Pour vous enregister pour votre rendez-vous, svp repondez \"arrive\". Aucune autre message à ce numéro sera lu.";
         else $returnString = "MUHC: To check-in for an appointment, please reply with the word \"arrive\". No other messages are accepted.";
 
-        textPatient($message["FromPhoneNumber"],$returnString);
-        logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],$patientSer,$message["Message"],$returnString,"Success");
+        textPatient($message["From"],$message["To"],$returnString);
+        logData($message["ReceivedDate"],$message["FromPhoneNumber"],$patientSer,$message["Payload"],$returnString,"Success");
 
         continue;
     }
@@ -110,7 +119,6 @@ foreach($messages as $message)
 
     #check the patient into all of his appointments
     $checkInLocation = "CELL PHONE";
-    // foreach($ormsApps as $app) sendToLocation("QQQ",$app);
 
     #check in the patient
     if($appointments === [])
@@ -122,8 +130,8 @@ foreach($messages as $message)
             $returnString = "MUHC: Problem checking in for your appointment(s). If you have an appointment today, please go to the reception to complete the check-in process.";
         }
 
-        textPatient($message["FromPhoneNumber"],$returnString);
-        logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],$patientSer,$message["Message"],$returnString,"Success");
+        textPatient($message["From"],$message["To"],$returnString);
+        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
 
         continue;
     }
@@ -141,8 +149,8 @@ foreach($messages as $message)
             $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
         }
 
-        textPatient($message["FromPhoneNumber"],$returnString);
-        logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],$patientSer,$message["Message"],$returnString,"Success");
+        textPatient($message["From"],$message["To"],$returnString);
+        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
     }
     else
     {
@@ -153,25 +161,35 @@ foreach($messages as $message)
             $returnString = "MUHC: Problem checking in for your appointment(s). If you have an appointment today, please go to the reception to complete the check-in process.";
         }
 
-        textPatient($message["FromPhoneNumber"],$returnString);
-        logData($message["ResponseReceiveDate"],$message["FromPhoneNumber"],$patientSer,$message["Message"],$returnString,"Error");
+        textPatient($message["From"],$message["To"],$returnString);
+        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Error");
     }
 
 }
 
 #functions
 
-function textPatient(string $phoneNumber,string $returnMessage): void
+function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string $returnMessage): void
 {
     $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
     $url = Config::getConfigs("sms")["SMS_GATEWAY_URL"];
 
-    $fields = [
-        "PhoneNumber" => $phoneNumber,
-        "Message"     => $returnMessage,
-        "LicenseKey"  => $licence
-    ];
-    $response = (new HttpRequestB($url,$fields))->executeRequest();
+    $cURL = curl_init();
+    curl_setopt_array($cURL,[
+        CURLOPT_URL => $url,
+        CURLOPT_POST => TRUE,
+        CURLOPT_POSTFIELDS => json_encode([
+            "LicenseKey" => $licence,
+            "From" => $sourcePhoneNumber,
+            "To" => $targetPhoneNumber,
+            "Body" => $returnMessage,
+            "Concatenate" => TRUE,
+            "UseMMS" => FALSE
+        ]),
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_HTTPHEADER => ["Content-Type: application/json","Accept: application/json"]
+    ]);
+    $response = json_decode(curl_exec($cURL),TRUE);
 }
 
 function getOrmsAppointments(string $pSer): array

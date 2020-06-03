@@ -103,12 +103,13 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     }
 
     $scope.test = {
-        showMenu: false,
+        showMenu: 'Show Menu',
         emptyList: false
     };
 
     $scope.showMenuButton = function(){
-        $scope.test.showMenu = !$scope.test.showMenu;
+        if($scope.test.showMenu == 'Show Menu') $scope.test.showMenu = 'Hide Menu';
+        else $scope.test.showMenu = 'Show Menu';
     }
 
 
@@ -226,12 +227,12 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         }
 
         $scope.isInputsChange = true;
-        $scope.liveState= 'Active'
+        $scope.liveState= 'Live'
         $scope.showLM = true;
         if($scope.liveMode === 'Report'){
             $scope.showLM = false;
         }
-        $scope.showMenu = false;
+        $scope.showMenu = 'false';
 
 
         callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.inputs,speciality).then(function (response)

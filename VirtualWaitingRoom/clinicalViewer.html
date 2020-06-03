@@ -171,38 +171,42 @@
 </style>
 
 <div class="page" ng-controller="main" ng-init="runScript(true)">
-    <center><h1>Opal-Clinical</h1></center><center><h2><u>Dashboard</u></h2></center>
+    <center><h1>Opal</h1></center><center><h2><u>Clinical Dashboard</u></h2></center>
 
     <form ng-submit="runScript()">
 
-
-
-        <table border="0" style="table-layout:fixed;width:80%;" padding="5" >
-
+        <table border="0" style="table-layout:fixed;width:50%;" padding="2">
             <tr><td><b>Mode:</b></td>
                 <td><div class="btn-group">
                     <label ng-model="liveMode" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'Live'" >Live</label>
                     <label ng-model="liveMode" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'Report'">Report</label>
                 </div></td>
                 <td ng-show="showLM && liveMode ==='Live'"><b>Live Mode: </b></td>
+                <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
                 <td ng-show="showLM && liveMode ==='Live'">
 
                     <b ng-class="(liveState==='Paused') ? 'textStyleRed' : 'textStyleGreen'">{{liveState}}</b>
 
                 </td>
-            </tr>
-            <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> Menu </button></td>
-            <tr ng-show="test.showMenu">
+                <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
 
             </tr>
+            <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
+            <tr ng-show="test.showMenu === 'Hide Menu'">
+
+            </tr>
+        </table>
 
 
-                <tr ng-show="test.showMenu" bgcolor=#1D0886 fgcolor=#FFFFFF>
+
+        <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
+
+                <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
                     <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Filter</font></th>
                 </tr>
-                <tr ng-if="test.showMenu"><td><br></td></tr>
+                <tr ng-if="test.showMenu  === 'Hide Menu'"><td><br></td></tr>
 
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu === 'Hide Menu'">
                     <td><b>From Date: </b></td>
                     <td><input type="date" ng-model="sDate" ng-change="inputchange()" required></td>
                     <td><b>To Date: </b></td>
@@ -211,14 +215,14 @@
 
                 </tr>
 
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu === 'Hide Menu'">
                     <td><b>Starting From (Scheduled Time): </b></td>
                     <td><input type="time" ng-model="sTime" ng-change="inputchange()" required></td>
                     <td><b>Ending At: </b></td>
                     <td><input type="time" ng-model="eTime" ng-change="inputchange()" required></td>
                 </tr>
 
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu === 'Hide Menu'">
                     <td><b>Appointment Status: </b></td>
                     <td>
                         <div class="btn-group">
@@ -234,7 +238,7 @@
                         </div></td>
                 </tr>
 
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu  === 'Hide Menu'">
                     <td><b>Clinic Name: </b></td>
                     <td>
                         <div class="btn-group">
@@ -247,7 +251,7 @@
                         <div ng-show="inputs.type == 'specific'" class = "option-holder" style="width: 500px">
                         <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu  === 'Hide Menu'">
                     <td><b>Clinic Code: </b></td>
                     <td>
                         <div class="btn-group">
@@ -261,12 +265,12 @@
                         <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
 
-                <tr ng-show="test.showMenu" bgcolor=#1D0886 fgcolor=#FFFFFF>
+                <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
                     <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Filter</font></th>
                 </tr>
-                <tr ng-show="test.showMenu"><td><br></td></tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
 
-                <tr ng-show="test.showMenu">
+                <tr ng-show="test.showMenu === 'Hide Menu'">
                 <td><b>Diagnosis: </b></td>
                 <td>
                     <div class="btn-group">
@@ -308,7 +312,7 @@
                 <td><b>Clinic Name: </b></td><td>{{hideType ? appName : 'All'}}</td>
             </tr>
             <tr>
-                <td><b>diagnosis Name: </b></td><td>{{hideDiagnosisType ? appDiagnosis : 'All'}}</td>
+                <td><b>Diagnosis Name: </b></td><td>{{hideDiagnosisType ? appDiagnosis : 'All'}}</td>
                 <td><b>Appointments: </b></td>
                 <td>
                     <span ng-if="optionSelected.comp">Completed</span>
@@ -326,45 +330,35 @@
         <table class='items' datatable="ng" dt-options="dtOptions">
             <thead>
             <tr>
-                <th>Last Name</th>
-                <th>First Name</th>
-                <th>Patient ID</th>
-                <th>RAMQ</th>
+                <th>Patient Information (Name, ID, RAMQ)</th>
                 <th ng-if="!hideType">Clinic/Treatment</th>
                 <th>Code</th>
                 <th>App. Code</th>
-                <th ng-if="!sameDate">Scheduled Date</th>
+                <!--th ng-if="!sameDate">Scheduled Date</--th-->
                 <th>Scheduled Time</th>
                 <th>Checkin Time</th>
                 <th>Status</th>
                 <th>Medivisit Status</th>
                 <th>Diagnosis</th>
                 <th>Questionnaires</th>
-                <th>Consult</th>
-                <th>Suivi</th>
-                <th>Procedure</th>
 
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="appoint in tableData">
-                <td>{{appoint.lname}}</td>
-                <td>{{appoint.fname}}</td>
-                <td>{{appoint.pID}}</td>
-                <td>{{appoint.ssn.num}}</td>
+                <td>{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</td>
                 <td ng-if="!hideType">{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td>{{appoint.appType}}</td>
-                <td ng-if="!sameDate">{{appoint.appDay}}</td>
-                <td>{{appoint.appTime}}</td>
+                <!--td ng-if="!sameDate">{{appoint.appDay}}</td-->
+                <td>{{appoint.appDay}}
+                    {{appoint.appTime}}</td>
                 <td>{{appoint.checkin}}</td>
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
                 <td>{{appoint.diagnosis}}</td>
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button></center></td>
-                <td></td>
-                <td></td>
-                <td></td>
+
             </tr>
             </tbody>
         </table>

@@ -9,12 +9,15 @@ require("loadConfigs.php");
 # Extract the webpage parameters
 
 $patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"];
+$patientIdMGH = $_GET["patientIdMGH"] ?? NULL;
 $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 
 #find the patient in ORMS
 $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+
+$IdMGHFilter = ($patientIdMGH == NUll) ? "" : "AND Patient.PatientId_MGH = :patIdMGH";
+
 $queryOrms = $dbh->prepare("
     SELECT
         Patient.SMSAlertNum,
@@ -23,11 +26,13 @@ $queryOrms = $dbh->prepare("
         Patient
     WHERE
         Patient.PatientId = :patIdRVH
-        AND Patient.PatientId_MGH = :patIdMGH
+        $IdMGHFilter
 ");
+
+if ($IdMGHFilter !== "") $query->bindValue(":patIdMGH", $patientIdMGH);
+
 $queryOrms->execute([
     ":patIdRVH" => $patientIdRVH,
-    ":patIdMGH" => $patientIdMGH
 ]);
 
 $patInfo = $queryOrms->fetchAll()[0] ?? NULL;

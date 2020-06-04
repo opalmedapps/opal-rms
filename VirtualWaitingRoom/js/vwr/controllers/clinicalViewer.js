@@ -177,6 +177,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     {
         if(firstTime) {
             $scope.reset();
+            $scope.zoomLink = "";
             $scope.showLM = true;
         }
 
@@ -309,6 +310,30 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         $scope.isInputsChange = false;
         $scope.liveState = 'Paused'
 
+    }
+
+    $scope.sendZoomLink = function(appoint)
+    {
+        if($scope.zoomLink.length> 10 || $scope.zoomLink.includes("zoom.us")) {
+            $http({
+                url: "php/sendSmsForZoom",
+                method: "GET",
+                params:
+                    {
+                        patientIdRVH: appoint.pID,
+                        patientIdMGH: null,
+                        zoomLink: $scope.zoomLink,
+                        resName: appoint.appName
+                    }
+            });
+            alert("The message should have been sent.");
+        }
+        else{
+            alert("Please paste your Zoom Personal Meeting ID URL on MSSS Zoom Link!");
+        }
+            //.then( _ => {
+                //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
+            //});
     }
 
     $interval(function () {

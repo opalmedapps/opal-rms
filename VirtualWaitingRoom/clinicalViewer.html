@@ -159,6 +159,27 @@
         color: limegreen;
     }
 
+    .btn-zoom {
+        background-color: #ff7600;
+        border-color: #122b40;
+        color: #fff;
+    }
+
+    .btn-zoom:hover  {
+        background-color: #d86707;
+        color: #fff;
+    }
+
+    .btn-zoom:focus  {
+        background-color: #d86707;
+        color: #fff;
+    }
+
+    .btn-zoom:active  {
+        background-color: #d86707;
+        color: #fff;
+    }
+
     @media (min-width: 576px) {
         .modal-dialog {
             max-width: unset;
@@ -191,10 +212,16 @@
                 <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
 
             </tr>
-            <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
-            <tr ng-show="test.showMenu === 'Hide Menu'">
-
+            <tr>
+            <td>
+                <div class="option-holder-div" style="align-items: center; width: 1000%">
+                    <md-button class="md-primary" ng-disabled="!resourceLoadingEnabled" ng-click="focusOnId('zoom-input')"><b>MSSS Zoom Link:</b></md-button>
+                    <input id="zoom-input" class="zoom-input" ng-model="zoomLink" placeholder="Please paste your Zoom Personal Meeting ID URL here (include the pwd=XXXXXXX part of the URL)">
+                </div></td>
             </tr>
+            <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
+
+            <tr ng-show="test.showMenu === 'Hide Menu'"></tr>
         </table>
 
 
@@ -287,13 +314,15 @@
 
             <tr>
                 <td></td>
-                <td align="right">
+                <td align="right"></td>
                 <td align="right">
                     <button type="submit" ng-class=" isInputsChange === false ? 'btn btn-danger' : 'btn btn-sr'">Submit</button>
                     <button type="button" class ="btn btn-sr" ng-click='reset(1)'>Reset</button>
-                <td ng-show="!isInputsChange" style ="color: red"><b>Note:</b> Click "Submit" to apply the changes or reactive live mode.</td>
-                <td ng-show="test.emptyList" style ="color: red"><b>Warning:</b> Please select at least one option when choosing "Specific"</td>
                 </td>
+                <td ng-show="!isInputsChange" style ="color: red"><b>Note:</b> Click "Submit" to apply the changes or reactive live mode.</td>
+                <td ng-show="isInputsChange"></td>
+                <td ng-show="test.emptyList" style ="color: red"><b>Warning:</b> Please select at least one option when choosing "Specific"</td>
+                <td ng-show="!test.emptyList"></td>
             </tr>
 
         </table>
@@ -340,6 +369,7 @@
                 <th>Status</th>
                 <th>Medivisit Status</th>
                 <th>Diagnosis</th>
+                <th>Call Patient</th>
                 <th>Questionnaires</th>
 
             </tr>
@@ -357,6 +387,7 @@
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
                 <td>{{appoint.diagnosis}}</td>
+                <td><button class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button></td>
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button></center></td>
 
             </tr>

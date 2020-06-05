@@ -296,6 +296,14 @@
                     <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Filter</font></th>
                 </tr>
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <td><b>Opal/SMS Status: </b></td>
+                <td>
+                    <div class="btn-group">
+                        <label ng-model="inputs.opal" class="btn btn-primary" ng-change="keepOpalChecked('opal')" uib-btn-checkbox>Opal</label>
+                        <label ng-model="inputs.SMS" class="btn btn-primary" ng-change="keepOpalChecked('SMS')" uib-btn-checkbox>SMS</label>
+                    </div></td>
+                </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'">
                 <td><b>Diagnosis: </b></td>
@@ -344,13 +352,20 @@
                 <td><b>Diagnosis Name: </b></td><td>{{hideDiagnosisType ? appDiagnosis : 'All'}}</td>
                 <td><b>Appointments: </b></td>
                 <td>
-                    <span ng-if="optionSelected.comp">Completed</span>
-                    <span ng-if="optionSelected.openn">Open</span>
-                    <span ng-if="optionSelected.canc">Cancelled</span>
-                    <span ng-if="optionSelected.arrived">CheckedIn</span>
-                    <span ng-if="optionSelected.notArrived">NotCheckedIn</span>
+                    <span ng-if="optionSelected.comp">Completed </span>
+                    <span ng-if="optionSelected.openn">Open </span>
+                    <span ng-if="optionSelected.canc">Cancelled </span>
+                    <span ng-if="optionSelected.arrived">CheckedIn </span>
+                    <span ng-if="optionSelected.notArrived">NotCheckedIn </span>
                 </td>
                 <td><b>Clinic Code: </b></td><td>{{hideCodeType ? appCodeName : 'All'}}</td>
+            </tr>
+            <tr>
+                <td><b>Patient Source</b></td>
+                <td>
+                    <span ng-if="optionSelected.opal">Opal </span>
+                    <span ng-if="optionSelected.SMS">SMS </span>
+                </td>
             </tr>
         </table>
         <br>
@@ -360,6 +375,7 @@
             <thead>
             <tr>
                 <th>Patient Information (Name, ID, RAMQ)</th>
+                <th>Opal/SMS</th>
                 <th ng-if="!hideType">Clinic/Treatment</th>
                 <th>Code</th>
                 <th>App. Code</th>
@@ -377,6 +393,8 @@
             <tbody>
             <tr ng-repeat="appoint in tableData">
                 <td>{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</td>
+                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+                    <img ng-if="appoint.OpalPatient == 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img></td>
                 <td ng-if="!hideType">{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td>{{appoint.appType}}</td>

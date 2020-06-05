@@ -21,6 +21,8 @@ $statusConditions = [
 
 $checkForArrived = isset($_GET["arrived"]) ? TRUE : NULL;
 $checkForNotArrived = isset($_GET["notArrived"]) ? TRUE : NULL;
+$OPAL = isset($_GET["opal"]) ? TRUE : NULL;
+$SMS = isset($_GET["SMS"]) ? TRUE : NULL;
 $appType = $_GET["type"] ?? NULL;
 $specificApp = $_GET["specificType"] ?? "NULL";
 $appcType = $_GET["ctype"] ?? NULL;
@@ -75,6 +77,12 @@ $specialityFilter = "ClinicResources.Speciality = '$clinic'";
 $activeStatusConditions = array_filter($statusConditions);
 //if($specificApp === NULL) print("t");
 //else print("x");
+$opalFilter = "";
+if($OPAL==NULL) $opalFilter .= "AND Patient.SMSAlertNum IS NOT NULL";
+
+if($SMS==NULL) $opalFilter .= "AND Patient.OpalPatient = 1";
+
+
 $statusFilter = " AND MV.Status IN (" . implode(",", $activeStatusConditions) . ")";
 $appFilter = ($appType === "all") ? "" : " AND MV.ResourceDescription IN (" . implode(",", explode(",",$specificApp)) . ")";
 $cappFilter = ($appcType === "all") ? "" : " AND MV.AppointmentCode IN (" . implode(",", explode(",",$cspecificApp)) . ")";
@@ -105,7 +113,9 @@ $sql = "
         (select PL.ArrivalDateTime from PatientLocation PL where PL.AppointmentSerNum = MV.AppointmentSerNum AND PL.PatientLocationRevCount = 1 limit 1) as CurrentCheckInTime,
         (select PLM.ArrivalDateTime from PatientLocationMH PLM where PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 limit 1) as PreviousCheckInTime,
         MV.MedivisitStatus,
-        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview
+        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
+        Patient.OpalPatient,
+        Patient.SMSAlertNum
     FROM
         Patient
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
@@ -120,6 +130,7 @@ $sql = "
         $statusFilter
         $appFilter
         $cappFilter
+        $opalFilter
 
     ORDER BY
         MV.ScheduledDate,
@@ -168,6 +179,7 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
     $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
 
     $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
+    if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
 
     $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
     $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
@@ -204,6 +216,8 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
             "mediStatus" => $row["MedivisitStatus"],
             "diagnosis" => $row["Diagnosis"],
             "QStatus" => $row["QStatus"],
+            "opalpatient" =>$row["OpalPatient"],
+            "SMSAlertNum" => $row["SMSAlertNum"],
         ];
    }
 }

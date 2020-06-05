@@ -87,6 +87,14 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
 
     }
 
+    $scope.keepOpalChecked = function (check) {
+        if ($scope.inputs.opal == false && $scope.inputs.SMS == false) {
+            $scope.inputs[check] = true;
+        }
+        $scope.isInputsChange = false;
+        $scope.liveState = 'Paused'
+    }
+
     $scope.keepPatChecked = function (check) {
         if($scope.inputs.arrived == false && $scope.inputs.notArrived == false) {
             $scope.inputs[check] = true;
@@ -128,6 +136,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                 canc: false,
                 arrived: true,
                 notArrived: true,
+                opal: true,
+                SMS: true,
                 type: 'all',
                 ctype: 'all',
                 dtype: 'all',
@@ -402,6 +412,8 @@ app.factory('callScript',function($http,$q)
             canc = (inputs.canc) ? "&canc=1" : "";
             arrived = (inputs.arrived) ? "&arrived=1" : "";
             notArrived = (inputs.notArrived) ? "&notArrived=1" : "";
+            opal = (inputs.opal) ? "&opal=1" : "";
+            SMS = (inputs.SMS) ? "&SMS=1" : "";
             typeSelect = (inputs.type) ? "&type="+ inputs.type : "";
             specificType = (clinics !="" && inputs.type != 'all') ? "&specificType="+ clinics : "";
             ctypeSelect = (inputs.ctype) ? "&ctype="+ inputs.ctype : "";
@@ -409,7 +421,7 @@ app.factory('callScript',function($http,$q)
             dtypeSelect = (inputs.dtype) ? "&dtype="+ inputs.dtype : "";
             dspecificType = (diagnosis !="" && inputs.dtype != 'all') ? "&dspecificType="+ diagnosis : "";
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType+"&clinic="+speciality).then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType+"&clinic="+speciality).then(function (response)
             {
                 let info = {};
                 info = response.data;

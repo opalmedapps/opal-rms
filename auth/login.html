@@ -22,7 +22,7 @@
     </head>
 
     <body ng-app="myApp" ng-controller="main">
-        <div ng-if="!speciality" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
+        <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
 
         <div class="body-login">
             <div class="pageHeader">
@@ -82,36 +82,37 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
 
         if(status === "Authentication success")
         {
-            $cookies.put(cookie["name"],cookie["key"],{path: "/"});
-            $window.location.href = $location.absUrl();
+            $scope.showSpecialitySelection = true;
+
+            let answer = $mdDialog.confirm(
+            {
+                escapeToClose: false,
+                template: specialityTemplate,
+                controller: function($scope)
+                {
+                    $scope.complete = function (option)
+                    {
+                        $mdDialog.hide(option);
+                    }
+                }
+            })
+            .parent(angular.element(document.querySelector('#mockId')))
+            .ariaLabel('Area Dialog')
+            .hasBackdrop(false);
+
+            $mdDialog.show(answer).then(function(result)
+            {
+                $cookies.put("speciality",result,{path: "/"});
+                $cookies.put(cookie["name"],cookie["key"],{path: "/"});
+                $window.location.href = $location.absUrl();
+            });
         }
         else
         {
             $scope.error = "Authentication failed";
+            $scope.password = "";
         }
     }
-
-    let answer = $mdDialog.confirm(
-    {
-        escapeToClose: false,
-        template: specialityTemplate,
-        controller: function($scope)
-        {
-            $scope.complete = function (option)
-            {
-                $mdDialog.hide(option);
-            }
-        }
-    })
-    .parent(angular.element(document.querySelector('#mockId')))
-    .ariaLabel('Area Dialog')
-    .hasBackdrop(false);
-
-    $mdDialog.show(answer).then(function (result)
-    {
-        $cookies.put("speciality",result,{path: "/"});
-        $scope.speciality = result;
-    });
 
 });
 

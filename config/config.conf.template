@@ -3,7 +3,7 @@
 [path]
 BASE_PATH             =
 BASE_URL              =
- 
+
 IMAGE_PATH            =
 IMAGE_URL             =
 LOG_PATH              =
@@ -34,6 +34,7 @@ OPAL_TYPE             =
 OPAL_HOST             =
 OPAL_PORT             =
 OPAL_DB               =
+QUESTIONNAIRE_DB      =
 OPAL_USERNAME         =
 OPAL_PASSWORD         =
 
@@ -44,3 +45,8 @@ OPAL_CHECKIN_URL      =
 SMS_LICENCE_KEY       =
 SMS_GATEWAY_URL       =
 SMS_WEBSERVICE_MUHC   =
+
+[vwr]
+FIREBASE_URL          =
+FIREBASE_SECRET       =
+SEND_WEIGHTS          =

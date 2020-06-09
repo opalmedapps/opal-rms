@@ -3,6 +3,8 @@
 # live version of config
 ###################################################
 
+require __DIR__."/../../php/AutoLoader.php";
+
 //set all error reporting on for security purposes
 error_reporting(E_ALL);
 
@@ -21,37 +23,31 @@ function handleNoticeError($errno,$errstr,$errfile,$errline)
 set_error_handler('handleNoticeError', E_NOTICE);
 
 //define some constants
+$configs = Config::GetAllConfigs();
 
-//get the current directory
-$baseLoc = dirname(__FILE__);
-$baseLoc = str_replace("/php","",$baseLoc);
-
-define("BASE_URL",str_replace("/var/www/OnlineRoomManagementSystem/","",$baseLoc));
-define("BASE_PATH",$baseLoc);
+define("BASE_URL",$configs["path"]["BASE_URL"]."/VirtualWaitingRoom");
+define("BASE_PATH",$configs["path"]["BASE_PATH"]."/VirtualWaitingRoom");
 
 //define the location of the checked in patients text file
 define("CHECKIN_FILE_PATH",BASE_PATH ."/checkin/checkinlist.txt");
 define("CHECKIN_FILE_URL", BASE_URL ."/checkin/checkinlist.txt");
 
 //DB Settings
-define("MYSQL_HOST","");
-define("MYSQL_PORT","");
-define("WAITROOM_DB","WaitRoomManagement");
-define("MYSQL_USERNAME","");
-define("MYSQL_PASSWORD","");
-
-define("QUESTIONNAIRE_DB","");
+define("MYSQL_HOST",$configs["database"]["ORMS_HOST"]);
+define("MYSQL_PORT",$configs["database"]["ORMS_PORT"]);
+define("WAITROOM_DB",$configs["database"]["ORMS_DB"]);
+define("MYSQL_USERNAME",$configs["database"]["ORMS_USERNAME"]);
+define("MYSQL_PASSWORD",$configs["database"]["ORMS_PASSWORD"]);
 
 //Opal Settings
-define("OPAL_HOST","");
-define("OPAL_PORT","");
-define("OPAL_DB","OpalDB");
-define("OPAL_USERNAME","");
-define("OPAL_PASSWORD","");
+define("OPAL_HOST",$configs["database"]["Opal_HOST"]);
+define("OPAL_PORT",$configs["database"]["Opal_PORT"]);
+define("OPAL_DB",$configs["database"]["Opal_DB"]);
+define("OPAL_USERNAME",$configs["database"]["Opal_USERNAME"]);
+define("OPAL_PASSWORD",$configs["database"]["Opal_PASSWORD"]);
 
 //PDO specific variables/options
 define("WRM_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". WAITROOM_DB);
-define("QUESTIONNAIRE_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". QUESTIONNAIRE_DB);
 define("OPAL_CONNECT","mysql:host=". OPAL_HOST .";port=". OPAL_PORT .";dbname=". OPAL_DB);
 
 $WRM_OPTIONS = [
@@ -65,12 +61,12 @@ $OPAL_OPTIONS = [
 	PDO::ATTR_EMULATE_PREPARES => true];
 
 //Variables for SMS messages
-define( "SMS_licencekey", "f0d8384c-ace2-46ef-8fa4-6e54d389ff51" );
-define( "SMS_gatewayURL", "https://sms2.cdyne.com/sms.svc/SecureREST/SimpleSMSsend" );
-define( "MUHC_SMS_webservice", "http://172.26.119.60/WS_Transport/Transport.asmx?WSDL");
+define( "SMS_licencekey",$config["sms"]["SMS_LICENCE_KEY"]);
+define( "SMS_gatewayURL", $configs["sms"]["SMS_GATEWAY_URL"]);
+define( "MUHC_SMS_webservice",$configs["sms"]["SMS_WEBSERVICE_MUHC"]);
 
-define( "FIREBASE_URL", "https://virtualwaitingroom-8869c.firebaseio.com/RVH/DEV/");
-define( "FIREBASE_SECRET", "k5zGA9zJa3SFSsrvRoExD1V45s0iEXFFUaFRwnAN");
+define( "FIREBASE_URL",$configs["vwr"]["FIREBASE_URL"]);
+define( "FIREBASE_SECRET",$configs["vwr"]["FIREBASE_SECRET"]);
 
 //Initialize the data logging function
 function LOG_MESSAGE($identifier,$type,$message)
@@ -80,24 +76,6 @@ function LOG_MESSAGE($identifier,$type,$message)
 	chdir(BASE_PATH."/perl");
 	exec("./logMessage.pl 'filename=$callingScript&identifier=$identifier&type=$type&message=$message'");
 	chdir("../php");
-}
-
-function utf8_encode_recursive($data)
-{
-    if (is_array($data)) foreach ($data as $key => $val) $data[$key] = utf8_encode_recursive($val);
-    elseif (is_string ($data)) return utf8_encode($data);
-
-    return $data;
-}
-
-#encodes the values of an array from utf8 to latin1
-#also works on array of arrays or other nested structures
-function utf8_decode_recursive($data)
-{
-    if (is_array($data)) foreach ($data as $key => $val) $data[$key] = utf8_decode_recursive($val);
-    elseif (is_string ($data)) return utf8_decode($data);
-
-    return $data;
 }
 
 ?>

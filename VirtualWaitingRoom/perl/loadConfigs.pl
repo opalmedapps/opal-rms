@@ -5,33 +5,38 @@
 use strict;
 use v5.30;
 use lib "./";
+use lib "../../perl/system/modules";
 
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 
 use JSON;
-
 use Cwd qw(abs_path);
 
+use LoadConfigs;
+
+#load configs;
+$configs = LoadConfigs::getAllConfigs();
+
 #get the root orms folder
-our $BASEPATH = abs_path($0."/../../");
+our $BASEPATH = $configs->{"path"}->{"BASE_PATH"};
 
 #set up some useful objects
 our $JSON = JSON->new;
 our $CGI = CGI->new;
 
 #set up database configs
-our $WRM_DB = "DBI:MariaDB:database=WaitRoomManagement;host=172.26.125.194;port=3306";
-our $WRM_USER = "ormsadm";
-our $WRM_PASS = "aklw3hrq3asdf923k";
+our $WRM_DB = "DBI:MariaDB:database=". $configs->{"database"}{"ORMS_DB"} .";host=". $configs->{"database"}{"ORMS_HOST"} .";port=". $configs->{"database"}{"ORMS_PORT"};
+our $WRM_USER = $configs->{"database"}{"ORMS_USERNAME"};
+our $WRM_PASS = $configs->{"database"}{"ORMS_PASSWORD"};
 
-our $LOG_DB = "DBI:MariaDB:database=OrmsLog;host=172.26.125.194;port=3306";
+our $LOG_DB = "DBI:MariaDB:database=". $configs->{"database"}{"LOG_DB"} .";host=". $configs->{"database"}{"LOG_HOST"} .";port=". $configs->{"database"}{"LOG_PORT"};
+our $LOG_USER = $configs->{"database"}{"LOG_USERNAME"};
+our $LOG_PASS = $configs->{"database"}{"LOG_PASSWORD"};
 our $LOG_TABLE = "VirtualWaitingRoomLog";
-our $LOG_USER = "ormsadm";
-our $LOG_PASS = "aklw3hrq3asdf923k";
 
 #determine if weight documents should be sent
-our $sendDocument = 0;
+our $sendDocument = $configs->{"vwr"}->{"SEND_WEIGHTS"};
 
 #initialize logging function
 sub LOG_MESSAGE

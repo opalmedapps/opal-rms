@@ -5,6 +5,7 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
 {
 	$scope.selectedTab = ''; //set the first tab as the default view
     $scope.speciality = $cookies.get("speciality");
+    $scope.clinicalArea = $cookies.get("hub");
 
 	var resetPage = function()
 	{
@@ -14,7 +15,8 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
 			Speciality: '', //speciality the user is in
 			Group: '', //group category the user selected
 			Profiles: [], //list of all profiles in a selected group
-			SelectedProfile: {} //user sselected profile; used to launch the VWR page
+            SelectedProfile: {}, //user sselected profile; used to launch the VWR page
+            ClinicalArea: $scope.clinicalArea
 		};
 	}
 	resetPage();
@@ -80,7 +82,8 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
 		{
 			profiles: $scope.userOptions.Profiles,
 			group: $scope.userOptions.Group,
-			speciality: $scope.userOptions.Speciality
+            speciality: $scope.userOptions.Speciality,
+            clinicalArea: $scope.userOptions.ClinicalArea
 		});
 	}
 

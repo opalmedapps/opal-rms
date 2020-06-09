@@ -32,7 +32,7 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
 			{
 				Appointments: [],
 				Category: $scope.group,
-				ClinicalArea: $scope.speciality, // '',
+				ClinicalArea: $scope.clinicalArea, // '',
 				Clinics: [],
 				ColumnsDisplayed: [],
 				ExamRooms: [],
@@ -77,7 +77,8 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
 	{
 		$scope.selectedTab = 1;
 		$scope.group = data.group;
-		$scope.speciality = data.speciality;
+        $scope.speciality = data.speciality;
+        $scope.clinicalArea = data.clinicalArea;
 
 		$scope.profiles = data.profiles;
 		$scope.lastButtonBorder = CrossCtrlFuncs.assignBorderClass($scope.profiles);

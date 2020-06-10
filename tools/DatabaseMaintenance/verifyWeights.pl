@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #-----------------------------------------------
 # Script that updates the orms db with the proper first and last names from the hospital ADT
@@ -10,7 +10,7 @@
 
 use strict;
 #use warnings;
-use v5.30;
+use v5.26;
 
 use Cwd qw(abs_path);
 
@@ -52,7 +52,7 @@ my $sqlWeightList = "
 		MV.AppointmentSerNum,
 		MV.AppointIdIn
 	FROM
-		PatientMeasurement		
+		PatientMeasurement
 		INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = PatientMeasurement.PatientSer
 			AND MV.PatientSerNum NOT IN (33651,52641,827,27183,21265,35870,845,44281,44282,44284,44287,44529)
 			-- AND MV.AppointId NOT LIKE '%Pre%'
@@ -114,5 +114,3 @@ exit;
 # 		$weight->{'LastUpdated'}
 # 		);
 # }
-
-

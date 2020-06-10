@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #---------------------------------------------------
 # Package that loads configs for use in perl scripts
 #---------------------------------------------------
@@ -6,7 +6,7 @@
 package LoadConfigs;
 
 use strict;
-use v5.30;
+use v5.26;
 use lib ".";
 
 use Config::Tiny;

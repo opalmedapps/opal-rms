@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all appointments matching the specified criteria and returns patient information from the phpmyadmin WaitRoomManagment database.
 #---------------------------------------------------------------------------------------------------------------
@@ -7,7 +7,7 @@
 #import modules
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 
 use lib '../../perl/system/modules';
 use HospitalADT;

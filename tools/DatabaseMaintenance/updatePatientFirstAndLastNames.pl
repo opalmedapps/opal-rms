@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #-----------------------------------------------
 # Script that updates the orms db with the proper first and last names from the hospital ADT
@@ -10,7 +10,7 @@
 
 use strict;
 use warnings;
-use v5.30;
+use v5.26;
 
 use Cwd qw(abs_path);
 
@@ -54,14 +54,14 @@ $listString = "($listString)";
 
 #get a list of all the patients in the database
 my $sqlPatientList = "
-	SELECT 
+	SELECT
 		Patient.FirstName,
 		Patient.LastName,
 		Patient.PatientId,
 		Patient.SSN,
 		Patient.SSNExpDate,
 		Patient.PatientSerNum
-	FROM 
+	FROM
 		Patient
 	WHERE
 		Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC','')

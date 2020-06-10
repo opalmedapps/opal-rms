@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #-----------------------------------------------
 # Script that updates the orms db with the proper first and last names from the hospital ADT
@@ -10,7 +10,7 @@
 
 use strict;
 #use warnings;
-use v5.30;
+use v5.26;
 
 use Cwd qw(abs_path);
 
@@ -72,7 +72,7 @@ $excludeString = "AND MV.PatientSerNum NOT IN ($excludeString)" if($excludeStrin
 
 #get a list of all the patients in the database
 my $sqlPatientList = "
-	SELECT 
+	SELECT
 		MV.PatientSerNum,
 		MV.ScheduledDateTime,
 		MV.ScheduledDate,
@@ -84,7 +84,7 @@ my $sqlPatientList = "
 		MV.ResourceDescription,
 		MV.CreationDate,
 		MV.Status
-	FROM 
+	FROM
 		MediVisitAppointmentList MV
 	WHERE
 		MV.PatientSerNum NOT IN (33651,52641,827,27183,21265,35870,845,44281,44282,44284,44287,44529)

@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #----------------------------------------------
 # Script to log a webpage input to a log file
 #---------------------------------------------
@@ -7,7 +7,7 @@
 # import modules
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 use lib "./";
 
 use CGI qw(:standard);
@@ -73,4 +73,3 @@ my $query = $dbh->do($sql,undef,($now,$filename,$identifier,$type,$message)) or 
 $dbh->disconnect;
 
 exit;
-

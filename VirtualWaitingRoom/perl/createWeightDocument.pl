@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #----------------------------------------------
 # Script to create a pdf that contains a list of weights for a patient and to send that document to Oacis through ATS
 #---------------------------------------------
@@ -10,7 +10,7 @@
 # import modules
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 use lib "./";
 
 use CGI qw(:standard);
@@ -150,7 +150,7 @@ while(my $data = $query->fetchrow_hashref)
 }
 
 #exit if the patient has not had any measurements taken
-if(!%dates) 
+if(!%dates)
 {
 	say "No weights!";
 	exit;
@@ -159,7 +159,7 @@ if(!%dates)
 #---------------------------------------------------------
 # create a table in latex and then convert to pdf
 #---------------------------------------------------------
-# open the temporary datafile that will hold the .tex file 
+# open the temporary datafile that will hold the .tex file
 my $aptsChart = "FMU-4183";
 
 my $outputWeightFile = "$BASEPATH/perl/$patientIdRVH\_$aptsChart\_$timestamp";
@@ -179,7 +179,7 @@ $svgInfo = decode_base64($svgInfo); #the svg data is encoded in base64 so we dec
 $svgInfo =~ s/Highcharts\.com//g; #remove the watermark from the image
 
 #translate eng to fr
-$svgInfo =~ s/Weight/Poids/g; 
+$svgInfo =~ s/Weight/Poids/g;
 $svgInfo =~ s/Historical Measurement/Mesures Historique/g;
 
 $svgInfo =~ s/data-z-index="(.+?)"//g; #filter out data-z-index or the rasterizer crashes
@@ -221,7 +221,7 @@ say $aptOut "
 	\\fancyfoot[R]{Page \\thepage~de \\pageref{LastPage}} %page number on right
 	\\fancyfoot[C]{} %blank central footer
 
-	\\lfoot{\\textbf{FMU-4183 Source :} ARIA(REV 2018/08/24) \\\\ 
+	\\lfoot{\\textbf{FMU-4183 Source :} ARIA(REV 2018/08/24) \\\\
 	\\hfill\\\\
 	\\footnotesize{Si une version papier de ce document est re\\c{c}ue aux archives, avec ou sans notes manuscrites, en statut pr\\'{e}liminaire ou final, \\textbf{il ne sera pas num\\'{e}ris\\'{e}}.  Les corrections doivent \\^{e}tre faites dans le document pr\\'{e}liminaire ou via l'addendum si le document est final.\\\\
 	\\hfill\\\\
@@ -357,7 +357,7 @@ $ftpConnection->binary(); #necessary (vital) for some reason
 $ftpConnection->put($pdfFile,"\\Orms\\MUHC-$facility-$noZeroesId-$aptsChart^Orms.001");
 LOG_MESSAGE('send_pdf','General',"Sent weight pdf for patient $patientIdRVH to server with message: ". $ftpConnection->message);
 
-#copy the xml file to the ATS server 
+#copy the xml file to the ATS server
 $ftpConnection->put($outputXMLFile,"\\Orms\\MUHC-$facility-$noZeroesId-$aptsChart^Orms.xml");
 LOG_MESSAGE('send_xml','General',"Sent weight xml for patient $patientIdRVH to server with message: ". $ftpConnection->message);
 

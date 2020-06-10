@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #------------------------------------------------------------------------
 # PERL-CGI- script to check a patient in
@@ -9,7 +9,7 @@
 #------------------------------------------------------------------------
 $SIG{__DIE__} = sendToReception;
 use strict;
-use v5.30;
+use v5.26;
 use lib "./system/modules";
 #use warnings;
 #use diagnostics;

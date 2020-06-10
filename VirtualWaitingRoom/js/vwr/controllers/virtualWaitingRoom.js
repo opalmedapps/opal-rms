@@ -87,7 +87,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				method: "GET"
 			}).then(function(response)
 			{
-				$scope.checkinFile = response.data.replace(/("|\\)/g,"");
+                $scope.checkinFile = response.data.replace(/("|\\)/g,"");
+                $scope.checkinFile = $scope.checkinFile +"_"+ $scope.pageSettings.Speciality;
 				loadPatients();
 			});
 		}

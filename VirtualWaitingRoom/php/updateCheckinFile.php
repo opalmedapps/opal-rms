@@ -47,7 +47,8 @@ $json = [];
 $sqlWRM = "
 	SELECT
 		MediVisitAppointmentList.AppointmentSerNum AS ScheduledActivitySer,
-		MediVisitAppointmentList.AppointId AS AppointmentId,
+        MediVisitAppointmentList.AppointId AS AppointmentId,
+        ClinicResources.Speciality,
 		PatientLocation.ArrivalDateTime,
 		LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentName,
 		Patient.LastName,
@@ -78,7 +79,8 @@ $sqlWRM = "
 		PatientMeasurement.BSA,
 		(SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview
 	FROM
-		MediVisitAppointmentList
+        MediVisitAppointmentList
+        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MediVisitAppointmentList.ResourceDescription
 		INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
 		LEFT JOIN PatientLocation ON PatientLocation.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
 		LEFT JOIN PatientMeasurement ON PatientMeasurement.PatientMeasurementSer =
@@ -152,25 +154,22 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
 	$row['PatientIdRVH'] = '\''. $row['PatientIdRVH'] .'\'';
 	$row['PatientIdMGH'] = '\''. $row['PatientIdMGH'] .'\'';
 
-	$json[] = $row;
+	$json[$row["Speciality"]][] = $row;
 }
 
-//encode the data to JSON
-$json = utf8_encode_recursive($json);
-$json = json_encode($json,JSON_NUMERIC_CHECK);
+//======================================================================================
+// Open the checkinlist.txt file for writing and output the json data to the checkinlist file
+//======================================================================================
+foreach($json as $speciality => $data)
+{
+    //encode the data to JSON
+    $data = utf8_encode_recursive($data);
+    $data = json_encode($data,JSON_NUMERIC_CHECK);
 
-//======================================================================================
-// Open the checkinlist.txt file for writing
-//======================================================================================
-$checkinlist = fopen(CHECKIN_FILE_PATH, "w") or die("Unable to open checkinlist file!");
-
-//======================================================================================
-// Output the json data to the checkinlist file
-//======================================================================================
-fwrite($checkinlist,$json);
-
-// close the output file
-fclose($checkinlist);
+    $checkinlist = fopen(CHECKIN_FILE_PATH ."_$speciality", "w") or die("Unable to open checkinlist file!");
+    fwrite($checkinlist,$data);
+    fclose($checkinlist);
+}
 
 #if(is_writable(CHECKIN_FILE_PATH)) {chmod(CHECKIN_FILE_PATH,0777);}
 

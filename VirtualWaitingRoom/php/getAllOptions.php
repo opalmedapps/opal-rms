@@ -7,10 +7,6 @@ require("loadConfigs.php");
 
 //get webpage parameters
 $speciality = $_GET["speciality"];
-$clinicalArea = $_GET["clinicalArea"];
-
-$specialityFilter = '';
-if($speciality) {$specialityFilter = "AND ClinicResources.Speciality = '$speciality' ";}
 
 $json = []; //json object to be returned
 
@@ -32,17 +28,15 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //==================================================================
 
 //get the WRM resources
-$sql2 = "
-	SELECT DISTINCT
-		LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS ResourceDescription
-	FROM
-		MediVisitAppointmentList
-		INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
-			$specialityFilter
-	WHERE
-		MediVisitAppointmentList.ResourceDescription NOT LIKE '%blood%'";
-
-$query2 = $dbWRM->query($sql2);
+$query2 = $dbWRM->prepare("
+    SELECT DISTINCT
+        LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS ResourceDescription
+    FROM
+        MediVisitAppointmentList
+    INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+        AND ClinicResources.Speciality = ?
+");
+$query2->execute([$speciality]);
 
 // Process results
 while($row = $query2->fetch(PDO::FETCH_ASSOC))
@@ -55,14 +49,14 @@ while($row = $query2->fetch(PDO::FETCH_ASSOC))
 //================================================================================
 
 //get all exam rooms for the speciality
-$sql3 = "
-	SELECT DISTINCT
-		LTRIM(RTRIM(ExamRoom.AriaVenueId)) AS AriaVenueId
-	FROM
-		ExamRoom
-    WHERE ExamRoom.Level = '$clinicalArea' ";
-
-$query3 = $dbWRM->query($sql3);
+$query3 = $dbWRM->prepare("
+    SELECT DISTINCT
+        LTRIM(RTRIM(ExamRoom.AriaVenueId)) AS AriaVenueId
+    FROM
+        ExamRoom
+    WHERE ExamRoom.Level = ?
+");
+$query3->execute([$speciality]);
 
 // Process results
 while($row = $query3->fetch(PDO::FETCH_ASSOC))
@@ -71,16 +65,15 @@ while($row = $query3->fetch(PDO::FETCH_ASSOC))
 }
 
 //get all possible intermediate venues for the speciality
-
-$sql4 = "
+$query4 = $dbWRM->prepare("
     SELECT DISTINCT
         LTRIM(RTRIM(IntermediateVenue.AriaVenueId)) AS AriaVenueId
     FROM
         IntermediateVenue
     WHERE
-        IntermediateVenue.Level = '$clinicalArea' ";
-
-$query4 = $dbWRM->query($sql4);
+        IntermediateVenue.Level = ?
+");
+$query4->execute([$speciality]);
 
 // Process results
 while($row = $query4->fetch(PDO::FETCH_ASSOC))
@@ -102,15 +95,15 @@ while($row = $query4->fetch(PDO::FETCH_ASSOC))
 //================================================================================
 
 //get all appointments from WRM
-$sql6 = "
-	SELECT DISTINCT
-		LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentCode
-	FROM
-		MediVisitAppointmentList
-		INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
-			$specialityFilter";
-
-$query6 = $dbWRM->query($sql6);
+$query6 = $dbWRM->prepare("
+    SELECT DISTINCT
+        LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentCode
+    FROM
+        MediVisitAppointmentList
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+            AND ClinicResources.Speciality = ?"
+);
+$query6->execute([$speciality]);
 
 //process results
 while($row = $query6->fetch(PDO::FETCH_ASSOC))
@@ -125,7 +118,7 @@ $sql7 = "
 	FROM
 		ClinicSchedule
 		INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-			/*$specialityFilter*/";
+";
 
 $query7 = $dbWRM->query($sql7);
 

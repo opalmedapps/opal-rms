@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #-----------------------------------------------
 # Script that updates orms db patients using the RAMQ
@@ -10,7 +10,7 @@
 
 use strict;
 use warnings;
-use v5.30;
+use v5.26;
 
 use Cwd qw(abs_path);
 
@@ -54,7 +54,7 @@ $listString = "($listString)";
 
 #get a list of all the patients in the database
 my $sqlPatientList = "
-	SELECT 
+	SELECT
 		Patient.FirstName,
 		Patient.LastName,
 		Patient.PatientId,
@@ -62,7 +62,7 @@ my $sqlPatientList = "
 		Patient.SSN,
 		Patient.SSNExpDate,
 		Patient.PatientSerNum
-	FROM 
+	FROM
 		Patient
 	WHERE
 		Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC','')
@@ -96,7 +96,7 @@ while(my $data = $queryPatientList->fetchrow_hashref())
 
 	next if(!defined $patient);
 
-	#since we're updating everything besides the ramq, it would be prudent to save the old information 
+	#since we're updating everything besides the ramq, it would be prudent to save the old information
 	my $mrnStringRVH = "$data->{'PatientId'} -> $patient->{'mrns'}->{'MR_PCS'}->{'mrn'}";
 	my $mrnStringMGH = "$data->{'PatientId_MGH'} -> $patient->{'mrns'}->{'MG_PCS'}->{'mrn'}";
 	my $ramqString = "$originalSSN -> $patient->{'ramqNumber'}";
@@ -118,7 +118,7 @@ while(my $data = $queryPatientList->fetchrow_hashref())
 		nameString=> $nameString
 	};
 
-	push @oldInfo, $changes; 
+	push @oldInfo, $changes;
 
 	my $updateResult = updateInOrmsDb($data->{'PatientSerNum'},$patient);
 

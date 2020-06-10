@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all the locations patients visited during the specified time range for the appointments in the specified time range and in the phpmyadmin WaitRoomManagment database.
 #---------------------------------------------------------------------------------------------------------------
@@ -7,7 +7,7 @@
 #import modules
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 
 use lib '../../perl/system/modules';
 use LoadConfigs;

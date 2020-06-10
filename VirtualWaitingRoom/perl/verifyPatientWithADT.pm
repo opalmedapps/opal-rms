@@ -1,11 +1,11 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 ######################################################################
 #package that verifies if a patient exists in the hospital ADT and that the information given matches the ADT
 ####################################################################
 package verifyPatientWithADT;
 
 use strict;
-use v5.30;
+use v5.26;
 use lib "./";
 
 use HTTP::Request::Common;
@@ -22,7 +22,7 @@ my $xml = XML::Simple->new();
 #my $result = patientExists('','5442751','RV','JOYCE','BEAUCAGE');
 #say $result;
 
-#returns 1 if all patient parameters match one found in the ADT and 0 if it isn't 
+#returns 1 if all patient parameters match one found in the ADT and 0 if it isn't
 #anything else indicates an error
 sub patientExists
 {
@@ -36,7 +36,7 @@ sub patientExists
 	my $expectedType = "";
 	$expectedType = "MG_PCS" if($idType eq "MG");
 	$expectedType = "MR_PCS" if($idType eq "RV");
-	#$expectedType = "MC_ADT" what this is for is unknown 
+	#$expectedType = "MC_ADT" what this is for is unknown
 
 	my $requestLocation = 'http://172.26.119.94:8080/pds/pds?wsdl'; #where to send the xml request
 	my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
@@ -88,11 +88,11 @@ sub patientExists
 			}
 			else {return -15;}
 		}
-		
+
 		if($match) {return 1;}
 		else {return 0;}
 	}
-	elsif(ref($data) eq 'ARRAY') 
+	elsif(ref($data) eq 'ARRAY')
 	{
 		#if multiple patients are matched from the patientId, check if at least one matches the input parameters
 		#if it does, then we know we have the correct information for a patient
@@ -118,7 +118,7 @@ sub patientExists
 					}
 				}
 				else {return -15;}
-			}	
+			}
 		}
 
 		if($match) {return 1;}
@@ -131,4 +131,3 @@ sub patientExists
 }
 
 1;
-

@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all resources matching the specified speciality from the phpmyadmin WaitRoomManagment database.
 #---------------------------------------------------------------------------------------------------------------
@@ -8,7 +8,7 @@
 #----------------------------------------
 use strict;
 use Time::Piece;
-use v5.30;
+use v5.26;
 use lib "./system/modules";
 
 use CGI qw(:standard);

@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 # FindByRAMQ: Simple script taking a patient RAMQ and returning that patient's info
 
@@ -11,7 +11,7 @@
 # Declarations/initialisations
 #------------------------------------------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 use lib "./system/modules";
 #use warnings;
 #se diagnostics;

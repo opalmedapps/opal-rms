@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 #-----------------------------------------------
 # Script that queries the ORMS database for all patients and finds the patient in the hospital ADT.
@@ -11,7 +11,7 @@
 
 use strict;
 #use warnings;
-use v5.30;
+use v5.26;
 
 #use Cwd qw(abs_path);
 
@@ -60,13 +60,13 @@ my $dbh = DBI->connect_cached("DBI:MariaDB:database=WaitRoomManagement;host=172.
 
 #get a list of all the patients in the database
 my $sqlPatientList = "
-	SELECT 
+	SELECT
 		Patient.FirstName,
 		Patient.LastName,
 		Patient.PatientId,
 		Patient.PatientId_MGH,
 		Patient.PatientSerNum
-	FROM 
+	FROM
 		Patient
 	WHERE
 		Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')

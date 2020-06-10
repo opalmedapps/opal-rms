@@ -1,4 +1,4 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all appointment in the specified time range and outputs all patient checkins and venue movements
 #---------------------------------------------------------------------------------------------------------------
@@ -7,7 +7,7 @@
 #import modules
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 
 use lib '../../perl/system/modules';
 use LoadConfigs;

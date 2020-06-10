@@ -1,10 +1,10 @@
-#!/opt/perl5/perl
+#!/usr/bin/perl
 
 package HospitalADT;
 
 use strict;
 #use warnings;
-use v5.30;
+use v5.26;
 use lib ".";
 
 ####################################################
@@ -63,7 +63,7 @@ sub getRamqInformation
 	my $response = $ua->post($requestLocation, Content_Type => $requestType, Content => $requestContent);  #make the request and get the response back
 
 	#check if the request failed and exit if it did
-	if(!$response->is_success()) 
+	if(!$response->is_success())
 	{
 		%returnObject = (Status=> 'Error', Message=> "Error code -10: Connection failed", Ramq=> $ramq);
 		_LOG_MESSAGE("-10",$returnObject{'Status'},$returnObject{'Message'});
@@ -117,11 +117,11 @@ sub getRamqInformation
 		#filter the entries with expired ramqs
 		@patients = grep{$_ ne ''} @patients;
 
-		if(scalar(@patients) > 1) 
+		if(scalar(@patients) > 1)
 		{
 			%returnObject = (Status=> 'Error', Message=> "Error code -2: Multiple patient matches for ramq $ramq!");
 		}
-		elsif(scalar(@patients) eq 0) 
+		elsif(scalar(@patients) eq 0)
 		{
 			%returnObject = (Status=> 'Error', Message=> "Error code -3: No specific patient associated with ramq $ramq");
 		}
@@ -129,7 +129,7 @@ sub getRamqInformation
 		{
 			my %info = %{$patients[0]};
 			my $expiration = Time::Piece->strptime(substr($info{'ramqExpDate'},0,10),'%Y-%m-%d');
-	
+
 			%returnObject = (Status=> 'Valid', Message=> "ramq $ramq not expired", Expiration=> $expiration->strftime('%Y-%d-%m'), Mrns=> _getMrns($info{'mrns'}));
 		}
 	}
@@ -159,7 +159,7 @@ sub _getMrns
 	#patients can have multiple mrns if they are patients of multiple hospitals so we check the reference type and look through all their mrns
 	if(ref($mrns) eq 'HASH') #one mrn
 	{
-		$mrnString .= "$mrns->{'mrn'} ($mrns->{'mrnType'})"; 
+		$mrnString .= "$mrns->{'mrn'} ($mrns->{'mrnType'})";
 	}
 	elsif(ref($mrns) eq 'ARRAY') #multiple mrns
 	{
@@ -192,7 +192,7 @@ sub updateRamqInWRM
 		_LOG_MESSAGE("B","General","Unable to update RAMQ; $info->{'Message'}");
 		return "Unable to update RAMQ; $info->{'Message'}";
 	}
-	
+
 	#connect to the WRM db and setup queries
 	if(not defined $dbhWRM)
 	{
@@ -212,7 +212,7 @@ sub updateRamqInWRM
 	{
 		$queryGetExpiration = $dbhWRM->prepare_cached($sqlGetExpiration) or die("Query could not be prepared: ".$dbhWRM->errstr);
 	}
-	
+
 	my $sqlUpdateExpiration = "
 		UPDATE Patient
 		SET Patient.SSNExpDate = ?
@@ -235,7 +235,7 @@ sub updateRamqInWRM
 	if($oldExpirationTP != $currentExpirationTP)
 	{
 		$queryUpdateExpiration->execute($currentExpirationTP->strftime('%y%m'),$ramq) or die("Update execution failed: ".$queryUpdateExpiration->errstr);
-		
+
 		_LOG_MESSAGE("C","General","Updated RAMQ $ramq");
 		return "Updated RAMQ";
 	}
@@ -259,7 +259,7 @@ sub _LOG_MESSAGE
 	my $LOG_TABLE = "KioskLog";
 
 	my $now = localtime;
-	$now = $now->strftime('%Y-%m-%d %H:%M:%S');	
+	$now = $now->strftime('%Y-%m-%d %H:%M:%S');
 
 	#-----------------------------------------------------
 	# connect to database and log message

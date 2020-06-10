@@ -394,7 +394,7 @@
             <tr ng-repeat="appoint in tableData">
                 <td>{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</td>
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
-                    <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="../images/opal_logo_transparent_purple.png"></img> </td>
+                    <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-if="!hideType">{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td>{{appoint.appType}}</td>

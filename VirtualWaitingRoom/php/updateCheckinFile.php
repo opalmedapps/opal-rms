@@ -125,7 +125,7 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
 	}
 
     	if($row["Status"] === "Completed") $row["RowType"] = "Completed";
-    	elseif($row["ArrivalDateTime"] === NULL) $row["RowType"] = "NotCheckedIn";
+    	else if($row["ArrivalDateTime"] === NULL) $row["RowType"] = "NotCheckedIn";
     	else $row["RowType"] = "CheckedIn";
 
 	//cross query OpalDB for questionnaire information

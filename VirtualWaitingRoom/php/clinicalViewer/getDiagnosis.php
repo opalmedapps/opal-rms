@@ -5,8 +5,8 @@ declare(strict_types=1);
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------
 
-require_once __DIR__."/../loadConfigs.php";
-
+//require_once __DIR__."/../loadConfigs.php";
+require("loadConfigs.php");
 $dbh = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
 
 $sql = "

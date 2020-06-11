@@ -336,6 +336,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                         resName: appoint.appName
                     }
             });
+            $scope.zoomLinkSent = true;
             alert("The message should have been sent.");
         }
         else{
@@ -344,6 +345,11 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
             //.then( _ => {
                 //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
             //});
+    }
+
+    $scope.openZoomLink = function()
+    {
+        $window.open($scope.zoomLink,"_blank");
     }
 
     $interval(function () {

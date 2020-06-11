@@ -40,11 +40,11 @@ define("MYSQL_USERNAME",$configs["database"]["ORMS_USERNAME"]);
 define("MYSQL_PASSWORD",$configs["database"]["ORMS_PASSWORD"]);
 
 //Opal Settings
-define("OPAL_HOST",$configs["database"]["Opal_HOST"]);
-define("OPAL_PORT",$configs["database"]["Opal_PORT"]);
-define("OPAL_DB",$configs["database"]["Opal_DB"]);
-define("OPAL_USERNAME",$configs["database"]["Opal_USERNAME"]);
-define("OPAL_PASSWORD",$configs["database"]["Opal_PASSWORD"]);
+define("OPAL_HOST",$configs["database"]["OPAL_HOST"]);
+define("OPAL_PORT",$configs["database"]["OPAL_PORT"]);
+define("OPAL_DB",$configs["database"]["OPAL_DB"]);
+define("OPAL_USERNAME",$configs["database"]["OPAL_USERNAME"]);
+define("OPAL_PASSWORD",$configs["database"]["OPAL_PASSWORD"]);
 
 //PDO specific variables/options
 define("WRM_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". WAITROOM_DB);

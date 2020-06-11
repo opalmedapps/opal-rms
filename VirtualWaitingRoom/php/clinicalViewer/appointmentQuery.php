@@ -4,7 +4,7 @@ declare(strict_types=1);
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
-require_once __DIR__."/../loadConfigs.php";
+require("../loadConfigs.php");
 
 #get input parameters
 
@@ -39,6 +39,7 @@ $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 
 $dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
+
 $sqlOpal = "
     SELECT
         DT.Name_EN,

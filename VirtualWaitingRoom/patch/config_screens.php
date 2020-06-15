@@ -5,9 +5,9 @@ require __DIR__."/../../php/AutoLoader.php";
 //set off all error for security purposes
 error_reporting(E_ALL);
 
-//define some contstants
+$configs = Config::GetAllConfigs();
 
-//correct contents to read dev database
+//define some contstants
 define( "DB_HOST",$configs["database"]["OPAL_HOST"]);
 define( "DB_PORT",$configs["database"]["OPAL_PORT"]);
 define( "DB_USERNAME",$configs["database"]["OPAL_USERNAME"]);

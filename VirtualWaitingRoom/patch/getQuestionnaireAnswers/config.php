@@ -4,6 +4,8 @@
 **************************************************/
 require __DIR__."/../../../php/AutoLoader.php";
 
+$configs = Config::GetAllConfigs();
+
 define( "DB_HOST",$configs["database"]["OPAL_HOST"]); // Database location
 define ( "DB_PORT",$configs["database"]["OPAL_PORT"]);
 define( "DB_NAME",$configs["database"]["QUESTIONNAIRE_DB"]); // Database Name

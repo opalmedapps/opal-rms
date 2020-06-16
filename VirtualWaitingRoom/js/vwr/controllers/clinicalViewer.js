@@ -1,6 +1,6 @@
 let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies']);
 
-app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookies,DTOptionsBuilder,callScript,bowser)
+app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
 {
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
@@ -87,6 +87,14 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
 
     }
 
+    $scope.keepOpalChecked = function (check) {
+        if ($scope.inputs.opal == false && $scope.inputs.SMS == false) {
+            $scope.inputs[check] = true;
+        }
+        $scope.isInputsChange = false;
+        $scope.liveState = 'Paused'
+    }
+
     $scope.keepPatChecked = function (check) {
         if($scope.inputs.arrived == false && $scope.inputs.notArrived == false) {
             $scope.inputs[check] = true;
@@ -103,12 +111,13 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     }
 
     $scope.test = {
-        showMenu: false,
+        showMenu: 'Show Menu',
         emptyList: false
     };
 
     $scope.showMenuButton = function(){
-        $scope.test.showMenu = !$scope.test.showMenu;
+        if($scope.test.showMenu == 'Show Menu') $scope.test.showMenu = 'Hide Menu';
+        else $scope.test.showMenu = 'Show Menu';
     }
 
 
@@ -127,6 +136,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                 canc: false,
                 arrived: true,
                 notArrived: true,
+                opal: true,
+                SMS: true,
                 type: 'all',
                 ctype: 'all',
                 dtype: 'all',
@@ -176,6 +187,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     {
         if(firstTime) {
             $scope.reset();
+            $scope.zoomLink = "";
             $scope.showLM = true;
         }
 
@@ -226,13 +238,24 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         }
 
         $scope.isInputsChange = true;
-        $scope.liveState= 'Active'
+        $scope.liveState= 'Live'
         $scope.showLM = true;
         if($scope.liveMode === 'Report'){
             $scope.showLM = false;
         }
-        $scope.showMenu = false;
+        $scope.showMenu = 'false';
 
+        if($scope.inputs.dtype === 'specific' && $scope.inputs.selecteddiagnosis.length >0) $scope.diagnosisUsed = true;
+        else $scope.diagnosisUsed = false;
+
+        if($scope.inputs.ctype === 'specific' && $scope.inputs.selectedcodes.length >0) $scope.codeUsed = true;
+        else $scope.codeUsed = false;
+
+        if($scope.inputs.type === 'specific' && $scope.inputs.selectedclinics.length >0) $scope.clinicsUsed = true;
+        else $scope.clinicsUsed = false;
+
+        if($scope.inputs.opal&& $scope.inputs.SMS) $scope.opalUsed = false;
+        else $scope.opalUsed = true;
 
         callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.inputs,speciality).then(function (response)
         {
@@ -310,6 +333,36 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
 
     }
 
+    $scope.sendZoomLink = function(appoint)
+    {
+        if($scope.zoomLink.length> 10 || $scope.zoomLink.includes("zoom.us")) {
+            $http({
+                url: "php/sendSmsForZoom",
+                method: "GET",
+                params:
+                    {
+                        patientIdRVH: appoint.pID,
+                        patientIdMGH: null,
+                        zoomLink: $scope.zoomLink,
+                        resName: appoint.appName
+                    }
+            });
+            $scope.zoomLinkSent = true;
+            alert("The message should have been sent.");
+        }
+        else{
+            alert("Please paste your Zoom Personal Meeting ID URL on MSSS Zoom Link!");
+        }
+            //.then( _ => {
+                //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
+            //});
+    }
+
+    $scope.openZoomLink = function()
+    {
+        $window.open($scope.zoomLink,"_blank");
+    }
+
     $interval(function () {
         var clinics = "";
         for (i = 0; i < $scope.inputs.selectedclinics.length; i++) {
@@ -376,6 +429,8 @@ app.factory('callScript',function($http,$q)
             canc = (inputs.canc) ? "&canc=1" : "";
             arrived = (inputs.arrived) ? "&arrived=1" : "";
             notArrived = (inputs.notArrived) ? "&notArrived=1" : "";
+            opal = (inputs.opal) ? "&opal=1" : "";
+            SMS = (inputs.SMS) ? "&SMS=1" : "";
             typeSelect = (inputs.type) ? "&type="+ inputs.type : "";
             specificType = (clinics !="" && inputs.type != 'all') ? "&specificType="+ clinics : "";
             ctypeSelect = (inputs.ctype) ? "&ctype="+ inputs.ctype : "";
@@ -383,7 +438,7 @@ app.factory('callScript',function($http,$q)
             dtypeSelect = (inputs.dtype) ? "&dtype="+ inputs.dtype : "";
             dspecificType = (diagnosis !="" && inputs.dtype != 'all') ? "&dspecificType="+ diagnosis : "";
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType+"&clinic="+speciality).then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType+"&clinic="+speciality).then(function (response)
             {
                 let info = {};
                 info = response.data;

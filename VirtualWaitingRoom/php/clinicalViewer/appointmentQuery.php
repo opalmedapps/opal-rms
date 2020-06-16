@@ -4,7 +4,7 @@ declare(strict_types=1);
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
-require_once __DIR__."/../loadConfigs.php";
+require("../loadConfigs.php");
 
 #get input parameters
 
@@ -21,6 +21,8 @@ $statusConditions = [
 
 $checkForArrived = isset($_GET["arrived"]) ? TRUE : NULL;
 $checkForNotArrived = isset($_GET["notArrived"]) ? TRUE : NULL;
+$OPAL = isset($_GET["opal"]) ? TRUE : NULL;
+$SMS = isset($_GET["SMS"]) ? TRUE : NULL;
 $appType = $_GET["type"] ?? NULL;
 $specificApp = $_GET["specificType"] ?? "NULL";
 $appcType = $_GET["ctype"] ?? NULL;
@@ -37,18 +39,35 @@ $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 
 $dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
+
 $sqlOpal = "
     SELECT
-        DT.Name_EN
+        DT.Name_EN,
+        Q.QuestionnaireCompletionDate,
+        Q.CompletedWithinLastWeek
+        
     FROM
         (SELECT P.PatientId, D.DiagnosisCode
          from Patient P INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
          WHERE P.PatientId = ?
          ORDER BY D.LastUpdated DESC) DP,
          DiagnosisCode DC,
-         DiagnosisTranslation DT
+         DiagnosisTranslation DT,
+        (SELECT
+			Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
+			CASE
+                WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
+               		ELSE 0
+            	END AS CompletedWithinLastWeek
+		FROM
+			Patient
+			INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
+				AND Questionnaire.CompletedFlag = 1
+		WHERE
+			Patient.PatientId = ?) Q
     WHERE DC.DiagnosisCode = DP.DiagnosisCode
     AND DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
+    ORDER BY Q.QuestionnaireCompletionDate DESC
     LIMIT 1";
 
 $queryOpal = $dbOpal->prepare($sqlOpal);
@@ -59,6 +78,12 @@ $specialityFilter = "ClinicResources.Speciality = '$clinic'";
 $activeStatusConditions = array_filter($statusConditions);
 //if($specificApp === NULL) print("t");
 //else print("x");
+$opalFilter = "";
+if($OPAL==NULL) $opalFilter .= "AND Patient.SMSAlertNum IS NOT NULL";
+
+if($SMS==NULL) $opalFilter .= "AND Patient.OpalPatient = 1";
+
+
 $statusFilter = " AND MV.Status IN (" . implode(",", $activeStatusConditions) . ")";
 $appFilter = ($appType === "all") ? "" : " AND MV.ResourceDescription IN (" . implode(",", explode(",",$specificApp)) . ")";
 $cappFilter = ($appcType === "all") ? "" : " AND MV.AppointmentCode IN (" . implode(",", explode(",",$cspecificApp)) . ")";
@@ -88,7 +113,10 @@ $sql = "
         MV.ReferringPhysician,
         (select PL.ArrivalDateTime from PatientLocation PL where PL.AppointmentSerNum = MV.AppointmentSerNum AND PL.PatientLocationRevCount = 1 limit 1) as CurrentCheckInTime,
         (select PLM.ArrivalDateTime from PatientLocationMH PLM where PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 limit 1) as PreviousCheckInTime,
-        MV.MedivisitStatus
+        MV.MedivisitStatus,
+        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
+        Patient.OpalPatient,
+        Patient.SMSAlertNum
     FROM
         Patient
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
@@ -103,6 +131,7 @@ $sql = "
         $statusFilter
         $appFilter
         $cappFilter
+        $opalFilter
 
     ORDER BY
         MV.ScheduledDate,
@@ -147,10 +176,24 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
     if (isset($row["ssnExp"]) && $row["ssnExp"] !== NULL) $row["ssnExp"] = (new DateTime($row["ssnExp"]))->format("ym");
     $row["ScheduledTime"] = substr($row["ScheduledTime"], 0, -3);
 
-    $queryOpal->execute([$row['PatientId']]);
+    $queryOpal->execute([$row['PatientId'],$row['PatientId']]);
     $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
 
     $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
+    if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
+
+    $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
+    $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
+    $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
+
+    if(
+        ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
+        ||
+        (
+            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
+            && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($row["LastQuestionnaireReview"]))->getTimestamp()
+        )
+    ) $row["QStatus"] = "red-circle";
 
     if($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp)) ){
         $listOfAppointments[] = [
@@ -173,6 +216,9 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
             "referringPhysician" => $row["ReferringPhysician"],
             "mediStatus" => $row["MedivisitStatus"],
             "diagnosis" => $row["Diagnosis"],
+            "QStatus" => $row["QStatus"],
+            "opalpatient" =>$row["OpalPatient"],
+            "SMSAlertNum" => $row["SMSAlertNum"],
         ];
    }
 }

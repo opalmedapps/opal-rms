@@ -9,7 +9,7 @@ require("loadConfigs.php");
 # Extract the webpage parameters
 
 $patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"];
+$patientIdMGH = $_GET["patientIdMGH"] ?? "";
 $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 

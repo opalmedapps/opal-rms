@@ -46,9 +46,17 @@ define("OPAL_DB",$configs["database"]["OPAL_DB"]);
 define("OPAL_USERNAME",$configs["database"]["OPAL_USERNAME"]);
 define("OPAL_PASSWORD",$configs["database"]["OPAL_PASSWORD"]);
 
+//Questionnaire Settings
+define("QUESTIONNAIRE_HOST",$configs["database"]["QUESTIONNAIRE_HOST"]);
+define("QUESTIONNAIRE_PORT",$configs["database"]["QUESTIONNAIRE_PORT"]);
+define("QUESTIONNAIRE_DB",$configs["database"]["QUESTIONNAIRE_DB"]);
+define("QUESTIONNAIRE_USERNAME",$configs["database"]["QUESTIONNAIRE_USERNAME"]);
+define("QUESTIONNAIRE_PASSWORD",$configs["database"]["QUESTIONNAIRE_PASSWORD"]);
+
 //PDO specific variables/options
 define("WRM_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". WAITROOM_DB);
 define("OPAL_CONNECT","mysql:host=". OPAL_HOST .";port=". OPAL_PORT .";dbname=". OPAL_DB);
+define("QUESTIONNIARE_CONNECT","mysql:host=". QUESTIONNAIRE_HOST .";port=". QUESTIONNAIRE_PORT .";dbname=". QUESTIONNAIRE_DB);
 
 $WRM_OPTIONS = [
 	PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -58,7 +66,12 @@ $ARIA_OPTIONS = [
 	PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 
 $OPAL_OPTIONS = [
-	PDO::ATTR_EMULATE_PREPARES => true];
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_EMULATE_PREPARES => true];
+
+$QUESTIONNAIRE_OPTIONS = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_EMULATE_PREPARES => true];
 
 //Variables for SMS messages
 define( "SMS_licencekey",$config["sms"]["SMS_LICENCE_KEY"]);

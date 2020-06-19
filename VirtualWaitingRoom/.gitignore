@@ -14,8 +14,3 @@ cronjob/*.lock
 node_modules/
 #include modified modules
 !node_modules/angular-material/angular-material_mod.js
-
-php/loadConfigs.php
-perl/loadConfigs.pl
-patch/config_screens.php
-patch/getQuestionnaires/config.php

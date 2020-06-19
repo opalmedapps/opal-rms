@@ -6,8 +6,8 @@ angular.module('vwr').component('questionnaireLegacyModal',{
 function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDialog,$cookies,$filter,patient)
 {
 	$scope.patient = patient;
-	
-	$scope.questionnaireList = [];	
+
+	$scope.questionnaireList = [];
 
 	$scope.selectedQuestionnaire; //initialize variable so we know it exists
 	$scope.questionnaires = [];
@@ -17,10 +17,10 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 	//***********************************************************
 
 	$http({
-		url: "./patch/getQuestionnaires.php",
+		url: "./php/questionnaire/getQuestionnaires.php",
 		method: "GET",
 		params: {Patient_ID: $scope.patient.PatientIdRVH}
-	}).then(function (response) 
+	}).then(function (response)
 	{
 		$scope.questionnaireList = response.data;
 
@@ -39,13 +39,13 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 		$scope.displayChart($scope.questionnaireList[0]);
 	});
 
-	
+
 	//add scoll tracking to the modal to determine when the user has reached the bottom of the modal
 	/*$scope.addScrollFunc = function()
 	{
-		$(".modal").scroll(function() 
+		$(".modal").scroll(function()
 		{
-			if($(".modal").scrollTop() + $(".modal").height() == $(".modal")[0].scrollHeight) 
+			if($(".modal").scrollTop() + $(".modal").height() == $(".modal")[0].scrollHeight)
 			{
 				console.log("bottom!");
 			}
@@ -112,8 +112,8 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
             .then( _ => {$scope.patient.LastQuestionnaireReview = $filter("date")(new Date(),"yyyy-MM-dd HH-mm");});
         });
     }
-	
-	
+
+
 	//set which questionnaire to display
 	$scope.displayChart = function(que)
 	{
@@ -128,7 +128,7 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 		if($scope.selectedQuestionnaire.Visualization === "1")
 		{
 			$http({
-				url: "./patch/getQuestionnaireAnswers/reportDisplay.php",
+				url: "./php/questionnaire/reportDisplay.php",
 				method: "GET",
 				params: {ID: $scope.patient.PatientIdRVH,
 					rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
@@ -149,7 +149,7 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 								return '<b>Date: </b>' + Highcharts.dateFormat('%Y - %b - %e', new Date(this.x)) +'<br /> <b>' + this.series.name +': </b>'  + this.y;
 							};
 							chart.xAxis.labels.format = "'{value:%Y}'+<br />+{value:%b}'";
-												
+
 							Highcharts.chart('question'+index,chart)
 						});
 					});
@@ -157,9 +157,9 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 		}
 		//use if the answers are displayed as a list
 		else if($scope.selectedQuestionnaire.Visualization === "0")
-		{	
+		{
 			$http({
-				url: "./patch/getQuestionnaireAnswers/report.php",
+				url: "./php/questionnaire/report.php",
 				method: "GET",
 				params: {ID: $scope.patient.PatientIdRVH,
 					rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
@@ -170,7 +170,7 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 						lastDateAnswered: $scope.selectedQuestionnaire.CompletionDate,
 						qData: response.data,
 					}
-				
+
 					console.log($scope.selectedQuestionnaire.questions);
 
 					$scope.selectedQuestionnaireIsNonChart = true;
@@ -179,15 +179,13 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
 		}
 		else {console.log("Unknown questionnaire");}
 	}
-	
+
 	//custom filter that filters the list of shown questionnaires; depends on user search input
 	$scope.listFilter = function(type)
 	{
 		filter = type || '';
-		return function(que) { 
+		return function(que) {
 			return (que.Status === 'New' && (filter == false || que.Name.toLowerCase().lastIndexOf(filter.toLowerCase()) >= 0));
 		}
 	}
 }
-
-

@@ -26,15 +26,10 @@ function GetQuestionnaire($wsPatientID, $wsrptID, $wsQuestionnaireSerNum) {
   }
 
   // Setup the database connection
-  include_once('config.php');
-  $servername = DB_HOST;
-  $port = DB_PORT;
-  $username = DB_USERNAME;
-  $password = DB_PASSWORD;
-  $dbname = DB_NAME;
+  require_once __DIR__."/../loadConfigs.php";
 
   // Connect to the database
-  $connection = new PDO("mysql:host=$servername;port=$port;dbname=$dbname", $username, $password);
+  $connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
 
   // Check datbaase connection
   if (!$connection) {

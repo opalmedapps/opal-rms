@@ -9,10 +9,10 @@
 #}
 
 // Get the configuration file
-include_once("config_screens.php");
+require_once __DIR__."/../loadConfigs.php";
 
 // Create DB connection
-$conn = new PDO("mysql:host=". DB_HOST .";port=". DB_PORT .";dbname=". DB_NAME, DB_USERNAME, DB_PASSWORD);
+$conn = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
 
 // Extract the webpage parameters
 $wsPatientID = $_GET["Patient_ID"];

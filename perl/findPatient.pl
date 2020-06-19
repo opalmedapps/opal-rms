@@ -72,7 +72,7 @@ my $sql="
 		LastName,
 		FirstName,
 		SSN,
-		SSNExpDate,
+		CASE WHEN SSNExpDate = 0 THEN '0000' ELSE SSNExpDate END AS SSNExpDate,
 		PatientId
 	FROM
 		Patient

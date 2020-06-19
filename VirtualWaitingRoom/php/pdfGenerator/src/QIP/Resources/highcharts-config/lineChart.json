@@ -1,0 +1,50 @@
+{
+  "chart": {
+    "type": "line",
+    "height": 1024,
+    "width": 800
+  },
+  "credits": {
+    "enabled": true
+  },
+  "exporting": {
+    "enabled": false,
+    "allowHTML": true
+  },
+  "title": null,
+  "tooltip": {
+    "formatter": null
+  },
+  "yAxis": [],
+  "xAxis": {
+    "lineColor": false,
+    "opposite": true,
+    "type": "datetime",
+    "title": null,
+    "labels": {
+      "format": "{value:%y/<br/>%m/<br/>%d}",
+      "style": {
+        "fontSize": "23px"
+      }
+    }
+  },
+  "plotOptions": {
+    "line": {
+      "marker": {
+        "enabled": "true",
+        "symbol": "circle"
+      }
+    },
+    "series": {
+      "animation": false,
+      "fillOpacity": 0.3,
+      "dataLabels": {
+        "enabled": true,
+        "style": {
+          "fontSize": "20px"
+        }
+      }
+    }
+  },
+  "series": []
+}

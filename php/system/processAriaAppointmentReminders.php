@@ -122,7 +122,7 @@ function getAppointments(): array
     $query->execute();
 
     #filter if a reminder was already sent for this appointment
-    $appointments = array_filter($appointments,function($x) {
+    $appointments = array_filter($query->fetchAll(),function($x) {
 	    return checkIfReminderAlreadySent($x["appSer"]);
     });
 

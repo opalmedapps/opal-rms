@@ -36,7 +36,7 @@ $appointmentInfo = [
     "ResourceCode"      => !empty($postParams["ResourceCode"]) ? $postParams["ResourceCode"] : NULL,
     "ResourceName"      => !empty($postParams["ResourceName"]) ? $postParams["ResourceName"] : NULL,
     "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : NULL,
-    "SpecialityCode"    => !empty($postParams["SpecialityCode"]) ? $postParams["SpecialityCode"] : NULL,
+    "SpecialityGroup"    => !empty($postParams["SpecialityGroup"]) ? $postParams["SpecialityGroup"] : NULL,
     "Status"            => !empty($postParams["Status"]) ? $postParams["Status"] : NULL,
     "VisitDate"         => !empty($postParams["VisitDate"]) ? $postParams["VisitDate"] : NULL,
     "VisitId"           => !empty($postParams["VisitId"]) ? $postParams["VisitId"] : NULL,
@@ -63,7 +63,7 @@ try
             "scheduledDateTime" => $appointmentInfoValidated["AppointDate"] ." ". $appointmentInfoValidated["AppointTime"],
             "scheduledTime"     => $appointmentInfoValidated["AppointTime"],
             "site"              => $appointmentInfoValidated["Site"],
-            "speciality"        => $appointmentInfoValidated["SpecialityCode"],
+            "specialityGroup"   => $appointmentInfoValidated["SpecialityGroup"],
             "status"            => $appointmentInfoValidated["Status"],
             "sourceStatus"      => $appointmentInfoValidated["AdmDesc"],
             "system"            => $appointmentInfoValidated["AppointSys"] ?? "MEDIVISIT"
@@ -162,9 +162,9 @@ function logRequest(array $requestInfo): void
     $dbh = Config::getDatabaseConnection("LOGS");
     $query = $dbh->prepare("
         INSERT INTO ImportLogForMedivisitInterfaceEngine
-        (ImportTimestamp,Result,Action,AdmDesc,AdmType,AppointCode,AppointDate,AppointId,AppointSys,AppointTime,CreationDate,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ReferringMd,ResourceCode,ResourceName,Site,SpecialityCode,Status,VisitDate,VisitId,VisitTime)
+        (ImportTimestamp,Result,Action,AdmDesc,AdmType,AppointCode,AppointDate,AppointId,AppointSys,AppointTime,CreationDate,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ReferringMd,ResourceCode,ResourceName,Site,SpecialityGroup,Status,VisitDate,VisitId,VisitTime)
         VALUES
-        (:ImportTimestamp,:Result,:Action,:AdmDesc,:AdmType,:AppointCode,:AppointDate,:AppointId,:AppointSys,:AppointTime,:CreationDate,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ReferringMd,:ResourceCode,:ResourceName,:Site,:SpecialityCode,:Status,:VisitDate,:VisitId,:VisitTime)"
+        (:ImportTimestamp,:Result,:Action,:AdmDesc,:AdmType,:AppointCode,:AppointDate,:AppointId,:AppointSys,:AppointTime,:CreationDate,:PatFirstName,:PatLastName,:PatientId,:Ramq,:RamqExpireDate,:ReferringMd,:ResourceCode,:ResourceName,:Site,:SpecialityGroup,:Status,:VisitDate,:VisitId,:VisitTime)"
     );
     $query->execute($requestInfo);
 

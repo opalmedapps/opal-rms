@@ -18,12 +18,9 @@ class Appointment
     private $scheduledTime       = NULL;
     private $site                = NULL;
     private $sourceStatus        = NULL;
-    private $speciality          = NULL;
     private $specialityGroup     = NULL;
     private $status              = NULL;
     private $system              = NULL;
-
-
 
     #constructor
     public function __construct(array $appointmentInfo, Patient $patientInfo = NULL)
@@ -227,11 +224,6 @@ class Appointment
         if(!preg_match("/^(RVH)$/",$this->site)) {
             throw new Exception("Site is not supported");
         }
-
-        #map the speciality to the speciality group
-        if(preg_match("/^(OPD-MCI|Respiratory Medicine)$/",$this->speciality)) $this->specialityGroup = "Respiratory Medicine";
-        elseif(preg_match("/^(CARDIO|Cardiology)/",$this->speciality)) $this->specialityGroup = "Cardiology";
-        else throw new Exception("Unknown Speciality");
 
         #make sure the appointment id that we'll use in the orms system is in the correct format
         #3 possibilities: visit (8 digits), appointment: (YYYYA + 8 digits), cancelled appointment: (YYYYC + 7 digits)

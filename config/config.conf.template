@@ -23,13 +23,6 @@ LOG_DB                          =
 LOG_USERNAME                    =
 LOG_PASSWORD                    =
 
-ARIA_TYPE                       =
-ARIA_HOST                       =
-ARIA_PORT                       =
-ARIA_DB                         =
-ARIA_USERNAME                   =
-ARIA_PASSWORD                   =
-
 OPAL_TYPE                       =
 OPAL_HOST                       =
 OPAL_PORT                       =

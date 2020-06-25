@@ -103,6 +103,7 @@ catch (Exception $e)
 }
 finally
 {
+    echo $appointmentInfo["Result"];
     logRequest($appointmentInfo);
 }
 

@@ -30,9 +30,14 @@ $cspecificApp = $_GET["cspecificType"] ?? "NULL";
 $appdType = $_GET["dtype"] ?? NULL;
 $dspecificApp = $_GET["dspecificType"] ?? "NULL";
 $checkRamqExpiration = isset($_GET["checkRamqExpiration"]) ? TRUE : NULL;
+$qType = $_GET["qtype"] ?? NULL;
+$qspecificApp = $_GET["qspecificType"] ?? "NULL";
+$qDateInit = $_GET["qselectedDate"] ?? NULL;
+$qTime = $_GET["qselectedTime"] ?? NULL;
 
 $sDate = "$sDateInit $sTime";
 $eDate = "$eDateInit $eTime";
+$qDate = "$qDateInit $qTime";
 
 #query the database
 $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
@@ -42,32 +47,39 @@ $dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
 
 $sqlOpal = "
     SELECT
-        DT.Name_EN,
-        Q.QuestionnaireCompletionDate,
-        Q.CompletedWithinLastWeek
-        
-    FROM
-        (SELECT P.PatientId, D.DiagnosisCode
-         from Patient P INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
-         WHERE P.PatientId = ?
-         ORDER BY D.LastUpdated DESC) DP,
-         DiagnosisCode DC,
-         DiagnosisTranslation DT,
-        (SELECT
-			Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
-			CASE
-                WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
-               		ELSE 0
-            	END AS CompletedWithinLastWeek
-		FROM
-			Patient
-			INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
-				AND Questionnaire.CompletedFlag = 1
-		WHERE
-			Patient.PatientId = ?) Q
-    WHERE DC.DiagnosisCode = DP.DiagnosisCode
-    AND DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
-    ORDER BY Q.QuestionnaireCompletionDate DESC
+            DT.Name_EN,
+            Q.QuestionnaireCompletionDate,
+            Q.QuestionnaireName,
+            Q.CompletedWithinLastWeek,
+            Q.RecentAnswered
+        FROM
+            (SELECT P.PatientId, D.DiagnosisCode
+             from Patient P INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
+             WHERE P.PatientId = :uid
+             ORDER BY D.LastUpdated DESC) DP,
+             DiagnosisCode DC,
+             DiagnosisTranslation DT,
+            (SELECT
+                Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
+                QC.QuestionnaireName_EN AS QuestionnaireName,
+                CASE
+                    WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
+                        ELSE 0
+                    END AS CompletedWithinLastWeek,
+                CASE
+                    WHEN Questionnaire.CompletionDate BETWEEN :qDate AND NOW() THEN 1
+                        ELSE 0
+                    END AS RecentAnswered
+            FROM
+                Patient
+                INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
+                    AND Questionnaire.CompletedFlag = 1
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Questionnaire.QuestionnaireControlSerNum   
+            WHERE
+                Patient.PatientId = :uid2) Q
+        WHERE DC.DiagnosisCode = DP.DiagnosisCode
+        AND DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
+        ORDER BY Q.QuestionnaireCompletionDate DESC
     LIMIT 1";
 
 $queryOpal = $dbOpal->prepare($sqlOpal);
@@ -163,23 +175,24 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
     if ($filterAppointment) continue;
 
     #if ramq expiration checking is enabled, check if the ramq is expired
-/*
-    $ramqExpired = FALSE;
-    if ($checkRamqExpiration) {
-        $ramqInfo = AdtWebservice::getRamqInformation($row["SSN"]);
-        $row["ssnExp"] = $ramqInfo["Expiration"];
-        if ($ramqInfo["Status"] === "Expired" || $ramqInfo["Status"] === "Error") $ramqExpired = TRUE;
-    }
-*/
+    /*
+        $ramqExpired = FALSE;
+        if ($checkRamqExpiration) {
+            $ramqInfo = AdtWebservice::getRamqInformation($row["SSN"]);
+            $row["ssnExp"] = $ramqInfo["Expiration"];
+            if ($ramqInfo["Status"] === "Expired" || $ramqInfo["Status"] === "Error") $ramqExpired = TRUE;
+        }
+    */
 
     #perform some processing
     if (isset($row["ssnExp"]) && $row["ssnExp"] !== NULL) $row["ssnExp"] = (new DateTime($row["ssnExp"]))->format("ym");
     $row["ScheduledTime"] = substr($row["ScheduledTime"], 0, -3);
 
-    $queryOpal->execute([$row['PatientId'],$row['PatientId']]);
+    $queryOpal->execute(array(":uid" => $row["PatientId"],":qDate" => $qDate,":uid2" => $row["PatientId"]));
     $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
 
     $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
+    $row["QuestionnaireName"] = !empty($resultOpal["QuestionnaireName"]) ? $resultOpal["QuestionnaireName"] : "";
     if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
 
     $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
@@ -195,7 +208,7 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
         )
     ) $row["QStatus"] = "red-circle";
 
-    if($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp)) ){
+    if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]===1)&& ($qType ==="all" || in_array( $row["QuestionnaireName"],explode(",",$qspecificApp)))){
         $listOfAppointments[] = [
             "fname" => $row["FirstName"],
             "lname" => $row["LastName"],
@@ -220,7 +233,7 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
             "opalpatient" =>$row["OpalPatient"],
             "SMSAlertNum" => $row["SMSAlertNum"],
         ];
-   }
+    }
 }
 
 $listOfAppointments = utf8_encode_recursive($listOfAppointments);

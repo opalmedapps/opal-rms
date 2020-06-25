@@ -141,12 +141,15 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                 type: 'all',
                 ctype: 'all',
                 dtype: 'all',
+                qtype: 'all',
                 /*specificType: {name: ''},
                 cspecificType: {name: ''},
                 dspecificType: {name: ''},*/
                 selectedclinics: [],
                 selectedcodes: [],
                 selecteddiagnosis: [],
+                selectedQuestionnaire: [],
+                selectedHourNumber: 24,
             }
 
         $scope.isInputsChange = false;
@@ -167,20 +170,24 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     $http.get("./php/clinicalViewer/resourceQuery.php?clinic="+speciality).then(function(response)
     {
         $scope.clinics = response.data;
-
-       // $scope.inputs.specificType = $scope.clinics[0];
+        // $scope.inputs.specificType = $scope.clinics[0];
     });
 
     $http.get("./php/clinicalViewer/getAppointmentCode.php?clinic="+speciality).then(function(response)
     {
         $scope.codes = response.data;
-       // $scope.inputs.cspecificType = $scope.codes[0];
+        // $scope.inputs.cspecificType = $scope.codes[0];
     });
 
     $http.get("./php/clinicalViewer/getDiagnosis.php?").then(function(response)
     {
         $scope.diagnosis = response.data;
         //$scope.inputs.dspecificType = $scope.diagnosis[0];
+    })
+
+    $http.get("./php/clinicalViewer/getQuestionnaireName.php?").then(function(response)
+    {
+        $scope.questionnaireType = response.data;
     })
 
     $scope.runScript = function (firstTime)
@@ -236,6 +243,32 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         {
             $scope.inputs.selecteddiagnosis = [];
         }
+        if($scope.inputs.qtype == 'all')
+        {
+            $scope.inputs.selectedQuestionnaire = [];
+        }
+
+        $scope.qdate = new Date();
+        $scope.qdate.setSeconds(0,0)
+
+        var nhour = $scope.inputs.selectedHourNumber;
+        var nday = 0;
+        var nmonth = 0;
+        if($scope.inputs.selectedHourNumber>= 24){
+            nday = Math.floor(nhour/24);
+            nhour = nhour - 24*nday;
+        }
+        if($scope.qdate.getMonth()==2 && nday >= 28){
+            nmonth += 1;
+            nday -= 28;
+        }
+        if(nday >= 30 ){
+            nmonth = Math.floor(nday/30);
+            nday = nday- 30*nmonth;
+        }
+        $scope.qdate.setHours($scope.qdate.getHours()- nhour);
+        $scope.qdate.setDate($scope.qdate.getDate() - nday );
+        $scope.qdate.setMonth($scope.qdate.getMonth() - nmonth);
 
         $scope.isInputsChange = true;
         $scope.liveState= 'Live'
@@ -257,7 +290,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         if($scope.inputs.opal&& $scope.inputs.SMS) $scope.opalUsed = false;
         else $scope.opalUsed = true;
 
-        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.inputs,speciality).then(function (response)
+        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate),$scope.inputs,speciality).then(function (response)
         {
             $scope.tableData = response;
 
@@ -322,7 +355,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                 selectedOptions.push(op);
             });
             if(($scope.inputs.type == 'specific' && $scope.inputs.selectedclinics.length == 0)||
-            ($scope.inputs.ctype == 'specific' && $scope.inputs.selectedcodes.length == 0)||
+                ($scope.inputs.ctype == 'specific' && $scope.inputs.selectedcodes.length == 0)||
                 ($scope.inputs.dtype == 'specific' && $scope.inputs.selecteddiagnosis.length == 0))
                 $scope.test.emptyList = true;
             else $scope.test.emptyList = false;
@@ -353,9 +386,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         else{
             alert("Please paste your Zoom Personal Meeting ID URL on MSSS Zoom Link!");
         }
-            //.then( _ => {
-                //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
-            //});
+        //.then( _ => {
+        //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
+        //});
     }
 
     $scope.openZoomLink = function()
@@ -369,8 +402,31 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
             clinics += "" +$scope.inputs.selectedclinics[i].Name + "";
             if(i< $scope.inputs.selectedclinics.length-1) clinics += ", ";
         }
+
+        $scope.qdate = new Date();
+        $scope.qdate.setSeconds(0,0)
+
+        var nhour = $scope.inputs.selectedHourNumber;
+        var nday = 0;
+        var nmonth = 0;
+        if($scope.inputs.selectedHourNumber>= 24){
+            nday = Math.floor(nhour/24);
+            nhour = nhour - 24*nday;
+        }
+        if($scope.qdate.getMonth()==2 && nday >= 28){
+            nmonth += 1;
+            nday -= 28;
+        }
+        if(nday >= 30 ){
+            nmonth = Math.floor(nday/30);
+            nday = nday- 30*nmonth;
+        }
+        $scope.qdate.setHours($scope.qdate.getHours()- nhour);
+        $scope.qdate.setDate($scope.qdate.getDate() - nday );
+        $scope.qdate.setMonth($scope.qdate.getMonth() - nmonth);
+
         if($scope.isInputsChange && $scope.liveMode === 'Live'){
-            callScript.getData($scope.convertDate($scope.sDate), $scope.convertDate($scope.eDate), $scope.convertTime($scope.sTime), $scope.convertTime($scope.eTime), $scope.inputs, speciality).then(function (response) {
+            callScript.getData($scope.convertDate($scope.sDate), $scope.convertDate($scope.eDate), $scope.convertTime($scope.sTime), $scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate), $scope.inputs, speciality).then(function (response) {
                 $scope.tableData = response;
 
                 //filter all blood test appointments
@@ -402,7 +458,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
 app.factory('callScript',function($http,$q)
 {
     return {
-        getData: function(sDate,eDate,sTime,eTime,inputs,speciality)
+        getData: function(sDate,eDate,sTime,eTime,qdate,qtime,inputs,speciality)
         {
             let defer = $q.defer();
             var clinics = "";
@@ -421,6 +477,12 @@ app.factory('callScript',function($http,$q)
                 if(i< inputs.selecteddiagnosis.length-1) diagnosis += ",";
             }
 
+            var questionnaireType = "";
+            for (i = 0; i < inputs.selectedQuestionnaire.length; i++) {
+                questionnaireType += ""+inputs.selectedQuestionnaire[i].Name + "";
+                if(i< inputs.selectedQuestionnaire.length-1) questionnaireType += ",";
+            }
+
 
             url = "./php/clinicalViewer/appointmentQuery.php?"
 
@@ -437,8 +499,11 @@ app.factory('callScript',function($http,$q)
             cspecificType = (codes !="" && inputs.ctype != 'all') ? "&cspecificType="+ codes : "";
             dtypeSelect = (inputs.dtype) ? "&dtype="+ inputs.dtype : "";
             dspecificType = (diagnosis !="" && inputs.dtype != 'all') ? "&dspecificType="+ diagnosis : "";
+            qtypeSelect = (inputs.qtype) ? "&qtype="+ inputs.qtype : "";
+            qspecificType = (questionnaireType !="" && inputs.qtype != 'all')? "&qspecificType="+ questionnaireType :"";
+            selectedDate = "&qselectedDate="+qdate + "&qselectedTime="+qtime;
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType+"&clinic="+speciality).then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+"&clinic="+speciality).then(function (response)
             {
                 let info = {};
                 info = response.data;

@@ -74,9 +74,8 @@ $QUESTIONNAIRE_OPTIONS = [
     PDO::ATTR_EMULATE_PREPARES => true];
 
 //Variables for SMS messages
-define( "SMS_licencekey",$config["sms"]["SMS_LICENCE_KEY"]);
+define( "SMS_licencekey",$configs["sms"]["SMS_LICENCE_KEY"]);
 define( "SMS_gatewayURL", $configs["sms"]["SMS_GATEWAY_URL"]);
-define( "MUHC_SMS_webservice",$configs["sms"]["SMS_WEBSERVICE_MUHC"]);
 
 define( "FIREBASE_URL",$configs["vwr"]["FIREBASE_URL"]);
 define( "FIREBASE_SECRET",$configs["vwr"]["FIREBASE_SECRET"]);

@@ -43,7 +43,6 @@ OPAL_CHECKIN_URL                =
 [sms]
 SMS_LICENCE_KEY                 =
 SMS_GATEWAY_URL                 =
-SMS_WEBSERVICE_MUHC             =
 
 [vwr]
 FIREBASE_URL                    =

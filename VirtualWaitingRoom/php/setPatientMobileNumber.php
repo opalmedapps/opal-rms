@@ -83,11 +83,22 @@ else
 $SMS_licencekey = SMS_licencekey;
 $SMS_gatewayURL = SMS_gatewayURL;
 
-$SMS = "$SMS_gatewayURL?PhoneNumber=$smsAlertNum&Message=$message&LicenseKey=$SMS_licencekey";
+$fields = [
+    "Body" => $message,
+    "LicenseKey" => $SMS_licencekey,
+    "To" => [$smsAlertNum],
+    "Concatenate" => TRUE,
+    "UseMMS" => FALSE
+];
 
-echo "SMS: $SMS<br>";
-
-$SMS = str_replace(' ', '%20', $SMS);
-$SMS_response = file_get_contents($SMS);
+$curl = curl_init();
+curl_setopt_array($curl,[
+    CURLOPT_URL             => $SMS_gatewayURL,
+    CURLOPT_POST            => true,
+    CURLOPT_POSTFIELDS      => json_encode($fields),
+    CURLOPT_RETURNTRANSFER  => true,
+    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
+]);
+curl_exec($curl);
 
 ?>

@@ -13,9 +13,6 @@ $smsSettings = Config::getConfigs("sms");
 
 $SMS_licencekey = $smsSettings["SMS_LICENCE_KEY"];
 $SMS_gatewayURL = $smsSettings["SMS_GATEWAY_URL"];
-$MUHC_SMS_webservice = $smsSettings["SMS_WEBSERVICE_MUHC"];
-$SMS_response = "";
-$paidService = 1; # Use paid service for SMS messages
 
 // Extract the webpage parameters
 $PatientId		= $_GET["PatientId"] ?? '';
@@ -91,9 +88,10 @@ if($PatientInORMS)
 {
   $sqlSMS = "
 	UPDATE Patient
-	SET 	Patient.SMSAlertNum='$SMSAlertNum',
-		Patient.SMSSignupDate = CASE WHEN Patient.SMSSignupDate = '0000-00-00 00:00:00' THEN CURRENT_TIMESTAMP() ELSE Patient.SMSSignupDate END,
-		Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
+    SET
+        Patient.SMSAlertNum='$SMSAlertNum',
+        Patient.SMSSignupDate = NOW(),
+		Patient.SMSLastUpdated = NOW(),
 		Patient.LanguagePreference='$LanguagePreference'
 	WHERE Patient.PatientId = '$PatientId' AND Patient.SSN = '$Ramq'
   ";
@@ -128,34 +126,25 @@ else
 //====================================================================================
 // Sending
 //====================================================================================
-if($paidService==1)
-{
-  $SMS = "$SMS_gatewayURL?PhoneNumber=$SMSAlertNum&Message=$message&LicenseKey=$SMS_licencekey";
+$fields = [
+    "Body" => $message,
+    "LicenseKey" => $SMS_licencekey,
+    "To" => [$SMSAlertNum],
+    "Concatenate" => TRUE,
+    "UseMMS" => FALSE
+];
 
-  echo "SMS: $SMS<br>";
+$curl = curl_init();
+curl_setopt_array($curl,[
+    CURLOPT_URL             => $SMS_gatewayURL,
+    CURLOPT_POST            => TRUE,
+    CURLOPT_POSTFIELDS      => json_encode($fields),
+    CURLOPT_RETURNTRANSFER  => TRUE,
+    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
+]);
+$response = curl_exec($curl);
+// $headers = curl_getinfo($curl);
 
-  $SMS = str_replace(' ', '%20', $SMS);
-  $SMS_response = file_get_contents($SMS);
-
-}
-else
-{
-  $client = new SoapClient($MUHC_SMS_webservice);
-
-  echo "got to here<br>";
-
-  $requestParams = [
-    'mobile' => $SMSAlertNum,
-    'body' => $message
-  ];
-
-  print_r($requestParams);
-  echo "<br>";
-
-  $SMS_response = $client->SendSMS($requestParams);
-}
-
-print_r($SMS_response);
-echo "<br>message should have been sent...<br>";
+echo "Message should have been sent...";
 
 ?>

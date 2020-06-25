@@ -211,11 +211,11 @@
 
             </tr>
             <tr>
-            <td>
-                <div class="option-holder-div" style="align-items: center; width: 1000%">
-                    <md-button class="md-primary" ng-disabled="!resourceLoadingEnabled" ng-click="focusOnId('zoom-input')"><b>MSSS Zoom Link:</b></md-button>
-                    <input id="zoom-input" class="zoom-input" ng-model="zoomLink" placeholder="Please paste your Zoom Personal Meeting ID URL here (include the pwd=XXXXXXX part of the URL)">
-                </div></td>
+                <td>
+                    <div class="option-holder-div" style="align-items: center; width: 1000%">
+                        <md-button class="md-primary" ng-disabled="!resourceLoadingEnabled" ng-click="focusOnId('zoom-input')"><b>MSSS Zoom Link:</b></md-button>
+                        <input id="zoom-input" class="zoom-input" ng-model="zoomLink" placeholder="Please paste your Zoom Personal Meeting ID URL here (include the pwd=XXXXXXX part of the URL)">
+                    </div></td>
             </tr>
             <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
 
@@ -223,8 +223,10 @@
         </table>
 
 
-
         <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
+
+
+            <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
 
                 <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
                     <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Filter</font></th>
@@ -274,7 +276,7 @@
                     <td style="display:inline-flex;vertical-align:bottom;">
                         <!--select ng-show="inputs.type == 'specific'" ng-model="inputs.specificType" ng-options="val.name for val in clinics"></select-->
                         <div ng-show="inputs.type == 'specific'" class = "option-holder" style="width: 500px">
-                        <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
+                            <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
                 <tr ng-show="test.showMenu  === 'Hide Menu'">
                     <td><b>Clinic Code: </b></td>
@@ -282,12 +284,12 @@
                         <div class="btn-group">
                             <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
                             <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()"
-                                   ng-click="openSelectorModal(codes, inputs.selectedcodes,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                                   ng-click="openSelectorModal(codes, inputs.selectedcodes,'Clinic Code(s) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
                         <!--select ng-show="inputs.ctype == 'specific'" ng-model="inputs.cspecificType" ng-options="val.Name for val in codes"></select></td-->
                         <div select ng-show="inputs.ctype == 'specific'" class = "option-holder" style="width: 500px">
-                        <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
+                            <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
@@ -295,43 +297,69 @@
                 </tr>
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
                 <tr ng-show="test.showMenu === 'Hide Menu'">
-                <td><b>Opal/SMS Status: </b></td>
-                <td>
-                    <div class="btn-group">
-                        <label ng-model="inputs.opal" class="btn btn-primary" ng-change="keepOpalChecked('opal')" uib-btn-checkbox>Opal</label>
-                        <label ng-model="inputs.SMS" class="btn btn-primary" ng-change="keepOpalChecked('SMS')" uib-btn-checkbox>SMS</label>
-                    </div></td>
+                    <td><b>Opal/SMS Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.opal" class="btn btn-primary" ng-change="keepOpalChecked('opal')" uib-btn-checkbox>Opal</label>
+                            <label ng-model="inputs.SMS" class="btn btn-primary" ng-change="keepOpalChecked('SMS')" uib-btn-checkbox>SMS</label>
+                        </div></td>
                 </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'">
-                <td><b>Diagnosis: </b></td>
-                <td>
-                    <div class="btn-group">
-                        <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
-                        <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
-                               ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
-                    </div></td>
-                <td style="display:inline-flex;vertical-align:bottom;">
-                    <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
-                    <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
-                        <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
+                    <td><b>Diagnosis: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
+                                   ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
+                        </div></td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
+                        <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
+                            <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
 
+                <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
+                    <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Questionnaire Filter</font></th>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
 
-            <tr>
-                <td></td>
-                <td align="right"></td>
-                <td align="right">
-                    <button type="submit" ng-class=" isInputsChange === false ? 'btn btn-danger' : 'btn btn-sr'">Submit</button>
-                    <button type="button" class ="btn btn-sr" ng-click='reset(1)'>Reset</button>
-                </td>
-                <td ng-show="!isInputsChange" style ="color: red"><b>Note:</b> Click "Submit" to apply the changes or reactive live mode.</td>
-                <td ng-show="isInputsChange"></td>
-                <td ng-show="test.emptyList" style ="color: red"><b>Warning:</b> Please select at least one option when choosing "Specific"</td>
-                <td ng-show="!test.emptyList"></td>
-            </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'">
+                    <td><b>Questionnaire Name: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.qtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                            <label ng-model="inputs.qtype" class="btn btn-primary" ng-change="inputchange()"
+                                   ng-click="openSelectorModal(questionnaireType, inputs.selectedQuestionnaire,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                        </div>
+                    </td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <div  ng-show="inputs.qtype == 'specific'" class = "option-holder" style="width: 500px">
+                            <span ng-repeat="loc in inputs.selectedQuestionnaire"><mark>{{loc.Name}}</mark> </span></div></td>
 
-        </table>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'">
+                    <td>
+                        <p style="width: 200%" ><b>Answered in last</b>
+                            <input  style="width: 30%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).</b></p></td>
+                </tr>
+
+                <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
+
+                <tr>
+                    <td></td>
+                    <td align="right"></td>
+                    <td align="right">
+                        <button type="submit" ng-class=" isInputsChange === false ? 'btn btn-danger' : 'btn btn-sr'">Submit</button>
+                        <button type="button" class ="btn btn-sr" ng-click='reset(1)'>Reset</button>
+                    </td>
+                    <td ng-show="!isInputsChange" style ="color: red"><b>Note:</b> Click "Submit" to apply the changes or reactive live mode.</td>
+                    <td ng-show="isInputsChange"></td>
+                    <td ng-show="test.emptyList" style ="color: red"><b>Warning:</b> Please select at least one option when choosing "Specific"</td>
+                    <td ng-show="!test.emptyList"></td>
+                </tr>
+
+            </table>
     </form>
 
 

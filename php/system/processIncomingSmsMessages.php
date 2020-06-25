@@ -6,15 +6,15 @@ $checkInScriptLocation = Config::getConfigs("path")["BASE_URL"] ."/php/system/ch
 $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
 
 #get all the message that we received since the last time we checked
-$cURL = curl_init();
-curl_setopt_array($cURL,[
-    CURLOPT_URL => "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages",
-    CURLOPT_POST => TRUE,
-    CURLOPT_POSTFIELDS => json_encode(["LicenseKey" => $licence,"UnreadMessagesOnly" => TRUE]),
-    CURLOPT_RETURNTRANSFER => TRUE,
-    CURLOPT_HTTPHEADER => ["Content-Type: application/json","Accept: application/json"]
+$curl = curl_init();
+curl_setopt_array($curl,[
+    CURLOPT_URL             => "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages",
+    CURLOPT_POST            => TRUE,
+    CURLOPT_POSTFIELDS      => json_encode(["LicenseKey" => $licence, "UnreadMessagesOnly" => TRUE]),
+    CURLOPT_RETURNTRANSFER  => TRUE,
+    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
 ]);
-$messages = json_decode(curl_exec($cURL),TRUE);
+$messages = json_decode(curl_exec($curl),TRUE);
 
 #messages have the following structure:
 #the values are either string or NULL
@@ -48,9 +48,14 @@ $messages = array_map(function($x) {
     $x = array_merge(...$x);
     $x["Payload"] = $msg;
 
-    #also convert the received utc timezone into the local one
-    $utcTime = new DateTime($x["ReceivedDate"],new DateTimeZone("utc"));
-    $x["ReceivedDate"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y-m-d H:i:s");
+    #also convert the received utc timestamp into the local one
+    #timezone isn't really utc; it actually has an offset
+    $timestampWithOffset = preg_replace("/[^0-9 -]/","",$x["ReceivedDate"]);
+    $timestamp = (int) (substr($timestampWithOffset,0,-5)/1000);
+    $tzOffset = (new DateTime("",new DateTimeZone(substr($timestampWithOffset,-5))))->getOffset();
+    $utcTime = (new DateTime("@$timestamp"))->modify("$tzOffset second");
+
+    $x["ReceivedDateStr"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y-m-d H:i:s");
 
     return $x;
 },$messages);
@@ -64,7 +69,7 @@ $messages = array_filter($messages,function($x) {
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message)
 {
-    logData($message["ReceivedDate"],$message["From"],NULL,$message["Payload"],NULL,"SMS received");
+    logData($message["ReceivedDateStr"],$message["From"],NULL,$message["Payload"],NULL,"SMS received");
 }
 
 #process messages
@@ -81,7 +86,7 @@ foreach($messages as $message)
     #return nothing if the patient doesn't exist and skip
     if($patientData === NULL)
     {
-        logData($message["ReceivedDate"],$message["From"],NULL,$message["Payload"],NULL,"Patient not found");
+        logData($message["ReceivedDateStr"],$message["From"],NULL,$message["Payload"],NULL,"Patient not found");
         continue;
     }
 
@@ -101,7 +106,7 @@ foreach($messages as $message)
         else $returnString = "MUHC: To check-in for an appointment, please reply with the word \"arrive\". No other messages are accepted.";
 
         textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDate"],$message["FromPhoneNumber"],$patientSer,$message["Payload"],$returnString,"Success");
+        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
 
         continue;
     }
@@ -131,7 +136,7 @@ foreach($messages as $message)
         }
 
         textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
+        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
 
         continue;
     }
@@ -150,7 +155,7 @@ foreach($messages as $message)
         }
 
         textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
+        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
     }
     else
     {
@@ -162,7 +167,7 @@ foreach($messages as $message)
         }
 
         textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDate"],$message["From"],$patientSer,$message["Payload"],$returnString,"Error");
+        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Error");
     }
 
 }
@@ -174,22 +179,24 @@ function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string 
     $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
     $url = Config::getConfigs("sms")["SMS_GATEWAY_URL"];
 
-    $cURL = curl_init();
-    curl_setopt_array($cURL,[
-        CURLOPT_URL => $url,
-        CURLOPT_POST => TRUE,
-        CURLOPT_POSTFIELDS => json_encode([
-            "LicenseKey" => $licence,
-            "From" => $sourcePhoneNumber,
-            "To" => $targetPhoneNumber,
-            "Body" => $returnMessage,
-            "Concatenate" => TRUE,
-            "UseMMS" => FALSE
-        ]),
-        CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json","Accept: application/json"]
+    $fields = [
+        "Body" => $returnMessage,
+        "LicenseKey" => $licence,
+        "From" => $sourcePhoneNumber,
+        "To" => [$targetPhoneNumber],
+        "Concatenate" => TRUE,
+        "UseMMS" => FALSE
+    ];
+
+    $curl = curl_init();
+    curl_setopt_array($curl,[
+        CURLOPT_URL             => $url,
+        CURLOPT_POST            => TRUE,
+        CURLOPT_POSTFIELDS      => json_encode($fields),
+        CURLOPT_RETURNTRANSFER  => TRUE,
+        CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
     ]);
-    $response = json_decode(curl_exec($cURL),TRUE);
+    curl_exec($curl);
 }
 
 function getOrmsAppointments(string $pSer): array

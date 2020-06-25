@@ -93,6 +93,8 @@ app.config(['$locationProvider',function ($locationProvider)
 
 app.controller('main', function($scope,$location)
 {
+    var pageParams = $location.search();
+
 	$scope.pid = pageParams.pid;
 	$scope.Ramq = pageParams.ramq;
 });

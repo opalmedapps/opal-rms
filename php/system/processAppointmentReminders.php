@@ -66,11 +66,22 @@ function textPatient(string $phoneNumber,string $returnMessage): void
     $url = Config::getConfigs("sms")["SMS_GATEWAY_URL"];
 
     $fields = [
-        "PhoneNumber" => $phoneNumber,
-        "Message"     => $returnMessage,
-        "LicenseKey"  => $licence
+        "Body" => $returnMessage,
+        "LicenseKey" => $licence,
+        "To" => [$phoneNumber],
+        "Concatenate" => TRUE,
+        "UseMMS" => FALSE
     ];
-    $response = (new HttpRequestB($url,$fields))->executeRequest();
+
+    $curl = curl_init();
+    curl_setopt_array($curl,[
+        CURLOPT_URL             => $url,
+        CURLOPT_POST            => TRUE,
+        CURLOPT_POSTFIELDS      => json_encode($fields),
+        CURLOPT_RETURNTRANSFER  => TRUE,
+        CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
+    ]);
+    curl_exec($curl);
 }
 
 function getPatientPhoneNumber(string $mrn): array
@@ -155,56 +166,6 @@ function logData(string $mrn,string $phoneNumber,string $message,string $appSer,
 }
 
 #classes
-
-#Handles making http requests
-class HttpRequestB
-{
-    //private resource $curlObj;
-    private $curlObj;
-
-    public function __construct(string $url,array $requestFields = [],string $type = "GET")
-    {
-        if($type === "GET")
-        {
-            #if no fields have been provided, then it's assumed that they have already been inserted in the url
-            $completedUrl = ($requestFields === []) ? $url : $url."?".http_build_query($requestFields);
-
-            $this->curlObj = curl_init($completedUrl);
-            curl_setopt_array($this->curlObj,[
-                CURLOPT_RETURNTRANSFER => TRUE
-            ]);
-        }
-        elseif($type === "POST")
-        {
-            $this->curlObj = curl_init($url);
-            curl_setopt_array($this->curlObj,[
-                CURLOPT_POSTFIELDS => http_build_query($requestFields),
-                CURLOPT_RETURNTRANSFER => TRUE
-            ]);
-        }
-        else throw new \Exception("Request must be of type GET or POST");
-    }
-
-    #executes the curl request and returns the output
-    #if the execution failed or an empty string is received, returns NULL
-    public function executeRequest(): ?string
-    {
-        return curl_exec($this->curlObj) ?: NULL;
-    }
-
-    #get the headers currently stored in the curl object
-    #will be empty if called before executeRequest
-    public function getRequestHeaders(): array
-    {
-        return curl_getinfo($this->curlObj);
-    }
-
-    #close the curl object handle
-    public function closeConnection(): void
-    {
-        curl_close($this->curlObj);
-    }
-}
 
 class ArrayUtilB
 {

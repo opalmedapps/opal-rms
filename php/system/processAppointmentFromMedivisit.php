@@ -7,6 +7,7 @@
 include_once("SystemLoader.php");
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
     echo json_encode("Non POST requests not supported");
     exit;
 }
@@ -43,8 +44,6 @@ $appointmentInfo = [
     "VisitId"           => !empty($postParams["VisitId"]) ? $postParams["VisitId"] : NULL,
     "VisitTime"         => !empty($postParams["VisitTime"]) ? $postParams["VisitTime"] : NULL,
 ];
-
-$returnMessage = "Failure"; # json message to return back to the caller
 
 try
 {
@@ -89,22 +88,21 @@ try
     if($result === TRUE)
     {
         $appointmentInfo["Result"] = "Success";
-        $returnMessage = "Success";
+        http_response_code(200);
     }
     else
     {
         $appointmentInfo["Result"] = "Appointment insert or update failed";
-        $returnMessage = "Failure";
+        http_response_code(400);
     }
 }
 catch (Exception $e)
 {
     $appointmentInfo["Result"] = $e->getMessage();
-    $returnMessage = "Failure";
+    http_response_code(400);
 }
 finally
 {
-    echo json_encode($returnMessage);
     logRequest($appointmentInfo);
 }
 

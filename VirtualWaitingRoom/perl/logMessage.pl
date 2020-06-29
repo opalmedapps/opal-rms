@@ -7,7 +7,7 @@
 # import modules
 #----------------------------------------
 use strict;
-use v5.16;
+use v5.26;
 use lib "./";
 
 use CGI qw(:standard);

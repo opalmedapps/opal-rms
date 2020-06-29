@@ -8,7 +8,7 @@
 #----------------------------------------
 use strict;
 use Time::Piece;
-use v5.16;
+use v5.26;
 use lib "./system/modules";
 
 use CGI qw(:standard);

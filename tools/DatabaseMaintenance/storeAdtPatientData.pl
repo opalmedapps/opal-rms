@@ -11,7 +11,7 @@
 
 use strict;
 #use warnings;
-use v5.26;
+use v5.16;
 
 #use Cwd qw(abs_path);
 

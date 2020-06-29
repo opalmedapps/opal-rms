@@ -6,7 +6,7 @@
 package LoadConfigs;
 
 use strict;
-use v5.26;
+use v5.16;
 use lib ".";
 
 use Config::Tiny;

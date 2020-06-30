@@ -48,3 +48,7 @@ SMS_GATEWAY_URL                 =
 FIREBASE_URL                    =
 FIREBASE_SECRET                 =
 SEND_WEIGHTS                    =
+
+[aria]
+ARIA_CHECKIN_URL                =
+PHOTO_URL                       =

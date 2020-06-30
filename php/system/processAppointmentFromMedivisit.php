@@ -66,7 +66,7 @@ try
             "specialityGroup"   => $appointmentInfoValidated["SpecialityGroup"],
             "status"            => $appointmentInfoValidated["Status"],
             "sourceStatus"      => $appointmentInfoValidated["AdmDesc"],
-            "system"            => $appointmentInfoValidated["AppointSys"] ?? "MEDIVISIT"
+            "system"            => $appointmentInfoValidated["AppointSys"] ?? "Medivisit"
         ],
         new Patient([
             "firstName"     => $appointmentInfoValidated["PatFirstName"],

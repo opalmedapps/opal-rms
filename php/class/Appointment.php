@@ -228,7 +228,7 @@ class Appointment
         #make sure the appointment id that we'll use in the orms system is in the correct format
         #3 possibilities: visit (8 digits), appointment: (YYYYA + 8 digits), cancelled appointment: (YYYYC + 7 digits)
         #if the appointment origin is InstantAddOn, any id is valid
-        if(!preg_match("/^([0-9]{4}A[0-9]{8}|[0-9]{4}C[0-9]{7}|[0-9]{8})$/",$this->id) && $this->system !== 'InstantAddOn') {
+        if(!preg_match("/^([0-9]{4}A[0-9]{8}|[0-9]{4}C[0-9]{7}|[0-9]{8})$/",$this->id) && !preg_match("InstantAddOn|Aria/",$this->system)) {
             throw new Exception("Incorrect appointment id format");
         }
 

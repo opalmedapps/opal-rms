@@ -98,7 +98,7 @@ try
 }
 catch (Exception $e)
 {
-    $appointmentInfo["Result"] = $e->getMessage();
+    $appointmentInfo["Result"] = "{$e->getMessage()} on line {$e->getLine()} in file {$e->getFile()}";
     http_response_code(400);
 }
 finally
@@ -140,9 +140,6 @@ function validateAppointmentInfo(array $appInfo): array
     #other formats may come in as YYMMDD
     #just take the first 4 characters
     $appInfo["RamqExpireDate"] = substr($appInfo["RamqExpireDate"],0,4);
-
-    #if there is no ramq, use the patient mrn
-    if(empty($appInfo["Ramq"])) $appInfo["Ramq"] = $appInfo["PatientId"];
 
     #convert an 'In Progress' status to 'Open'
     if($appInfo["Status"] === "In Progress") $appInfo["Status"] = "Open";

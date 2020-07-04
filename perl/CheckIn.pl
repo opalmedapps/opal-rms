@@ -20,6 +20,8 @@ use Date::Calc;
 #use Date::Calc qw( Standard_to_Business Today Business_to_Standard );
 use Date::Calc qw(Day_of_Week_to_Text Day_of_Week Decode_Month Today Now Decode_Date_US Today_and_Now Delta_DHMS Add_Delta_Days Delta_Days Add_Delta_DHMS Day_of_Week_Abbreviation);
 use Time::Piece;
+use LWP::UserAgent;
+use JSON;
 
 use LoadConfigs;
 
@@ -44,6 +46,13 @@ my $PilotStatus;
 my $ReloadFinal = 6; # 10 second to reload the final screen
 #my $ReloadMid = 3; # 3 seconds to display the patient name by default
 my $ReloadMid = 8; # 8 seconds to display the patient name by default - Measles
+
+my $ariaSettings = LoadConfigs::GetConfigs("aria");
+my $ariaCheckinUrl = $ariaSettings->{"ARIA_CHECKIN_URL"};
+my $ariaPhotoUrl = $ariaSettings->{"PHOTO_URL"};
+
+#user agent for http calls
+my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 
 #------------------------------------------------------------------------
 # Start the webpage here so it can be used in verbose mode
@@ -1247,6 +1256,8 @@ sub CheckinPatient
   my $PhotoOk = 1; # ok by default - eg if not an Aria patient it will be ok
   my $PilotOk = 1; # ok by default - unless the patient has a non-pilot medivisit appointment it should be ok
 
+  my $hasAriaAppointment = 0;
+
   ##############################################################################################
   #					MySQL/Medivisit					       #
   ##############################################################################################
@@ -1281,7 +1292,7 @@ sub CheckinPatient
   ##############################################################################################
   my $sqlApptMedivisit = "
 	  SELECT DISTINCT
-		Patient.PatientId$hospitalMV,
+		Patient.PatientId,
 		Patient.FirstName,
 		Patient.LastName,
 		MediVisitAppointmentList.ScheduledDateTime,
@@ -1289,7 +1300,9 @@ sub CheckinPatient
 		MediVisitAppointmentList.ResourceDescription,
 		(UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
 		MediVisitAppointmentList.AppointmentSerNum,
-		HOUR(MediVisitAppointmentList.ScheduledDateTime)
+		HOUR(MediVisitAppointmentList.ScheduledDateTime),
+        MediVisitAppointmentList.AppointSys,
+        MediVisitAppointmentList.AppointId
           FROM
 		Patient,
 		MediVisitAppointmentList
@@ -1329,6 +1342,8 @@ sub CheckinPatient
   my @MV_MachineId;
   my @MV_AptTimeHour;
   my @MV_AMorPM;
+  my @MV_sys;
+  my @MV_appId;
 
   print "<br>-------------Medivisit Appointment Search---------------------------<br>" if $verbose;
   my $numMedivisitAppts = 0;
@@ -1348,6 +1363,8 @@ sub CheckinPatient
     $MV_AptTimeSinceMidnight[$numMedivisitAppts]= $data[6];
     $MV_AppointmentSerNum[$numMedivisitAppts]	= $data[7];
     $MV_AptTimeHour[$numMedivisitAppts]		= $data[8];
+    $MV_sys[$numMedivisitAppts]             = $data[9];
+    $MV_appId[$numMedivisitAppts]           = $data[10];
 
     # appointment AM or PM
     if($MV_AptTimeHour[$numMedivisitAppts] >= 13)
@@ -1434,24 +1451,30 @@ sub CheckinPatient
   my $CheckinVenue;
   my $CheckinVenueName;
 
-  if($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3" || $location =~ m/ReceptionRC/i)
+  if($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3")
   {
     $CheckinVenue = 8225;
-    $CheckinVenueName = "RC WAITING ROOM";
+    $CheckinVenueName = "D-RC WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
   }
-  elsif($location eq "DS1_1" || $location eq "DS1_2" || $location =~ m/ReceptionS1/i)
+  elsif($location eq "DS1_1" || $location eq "DS1_2")
   {
     $CheckinVenue = 8226;
-    $CheckinVenueName = "S1 WAITING ROOM";
+    $CheckinVenueName = "D-S1 WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
   }
   # Orthopedics
-  elsif($location eq "Ortho_1" || $location eq "Ortho_2" || $location =~ m/ReceptionOrtho/i)
+  elsif($location eq "Ortho_1" || $location eq "Ortho_2")
   {
     $CheckinVenue = 0;
     $CheckinVenueName = "ORTHO WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
+  }
+  elsif($location =~ /Reception/)
+  {
+    $CheckinVenue = 0;
+    $CheckinVenueName = $location =~ s/Reception//r;
+    $CheckinVenueName = uc "$CheckinVenueName WAITING ROOM";
   }
   else
   {
@@ -1469,79 +1492,74 @@ sub CheckinPatient
 
   # Patients for whom the next appointment is a blood test, should be sent to the test centre
   # and also checked into the test centre
-  if($CheckInResource eq "NS - prise de sang/blood tests pre/post tx")
-  {
-    print "******** This patient has a blood test first ****************<br>" if $verbose;
+#   if($CheckInResource eq "NS - prise de sang/blood tests pre/post tx")
+#   {
+#     print "******** This patient has a blood test first ****************<br>" if $verbose;
 
-    # checking patient into test centre waiting room so that it is clear to all that they
-    # are getting a blood test
-    $CheckinVenue = 8227;
-    $CheckinVenueName = "TEST CENTRE WAITING ROOM";
-    print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
+#     # checking patient into test centre waiting room so that it is clear to all that they
+#     # are getting a blood test
+#     $CheckinVenue = 8227;
+#     $CheckinVenueName = "TEST CENTRE WAITING ROOM";
+#     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
 
-    $WaitingRoomWherePatientShouldWait = "TestCentre";
-  }
+#     $WaitingRoomWherePatientShouldWait = "TestCentre";
+#   }
 
-  # Patients for whom the next appointment is an ortho appointment that needs an x-ray
-  # should be sent to radiology to have the x-ray taken, if this is their first check
-  # in for their ortho appointment. Thus, need to see if the patient has already checked
-  # in for their ortho appointment and direct accordingly
-  if($location =~ m/Ortho/i )
-  {
-    print "******** This patient is Ortho ****************<br>" if $verbose;
-    print "******** checking if already checked in ****************<br>" if $verbose;
-    # Simply check the PatientLocation table to see if they have already checked in
+#   # Patients for whom the next appointment is an ortho appointment that needs an x-ray
+#   # should be sent to radiology to have the x-ray taken, if this is their first check
+#   # in for their ortho appointment. Thus, need to see if the patient has already checked
+#   # in for their ortho appointment and direct accordingly
+#   if($location =~ m/Ortho/i )
+#   {
+#     print "******** This patient is Ortho ****************<br>" if $verbose;
+#     print "******** checking if already checked in ****************<br>" if $verbose;
+#     # Simply check the PatientLocation table to see if they have already checked in
 
-    my $sqlCheckIfCheckedIn =
-		"
-			SELECT DISTINCT
-				PatientLocationRevCount
-			FROM
-				PatientLocation
-			WHERE
-				PatientLocation.AppointmentSerNum = $MV_AppointmentSerNum[0]
-		";
+#     my $sqlCheckIfCheckedIn =
+# 		"
+# 			SELECT DISTINCT
+# 				PatientLocationRevCount
+# 			FROM
+# 				PatientLocation
+# 			WHERE
+# 				PatientLocation.AppointmentSerNum = $MV_AppointmentSerNum[0]
+# 		";
 
-    print "<p>sqlCheckIfCheckedIn: $sqlCheckIfCheckedIn<br>" if $verbose;
+#     print "<p>sqlCheckIfCheckedIn: $sqlCheckIfCheckedIn<br>" if $verbose;
 
-    my $query= $dbh_mysql->prepare($sqlCheckIfCheckedIn)
-      #or die "Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr;
-      or print CHECKINLOG "###$now, $location ERROR - Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr . "\n\n";
+#     my $query= $dbh_mysql->prepare($sqlCheckIfCheckedIn)
+#       #or die "Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr;
+#       or print CHECKINLOG "###$now, $location ERROR - Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr . "\n\n";
 
-    $query->execute()
-      #or die "Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr;
-      or print CHECKINLOG "###$now, $location ERROR - Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr . "\n\n";
+#     $query->execute()
+#       #or die "Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr;
+#       or print CHECKINLOG "###$now, $location ERROR - Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr . "\n\n";
 
-    my @data = $query->fetchrow_array();
+#     my @data = $query->fetchrow_array();
 
-    # grab data from MySQL
-    my $PatientLocationRevCount = $data[0];
+#     # grab data from MySQL
+#     my $PatientLocationRevCount = $data[0];
 
-    # No existing checkin - then send for X-ray
-    #if($PatientLocationRevCount < 100)
-    if( ($nextApptDescription =~ m/NP-XR/i || $nextApptDescription =~ m/RTFU-XR/i) && !$PatientLocationRevCount)
-    {
-      print "******** This patient should go for an x-ray ****************<br>" if $verbose;
-      $CheckinVenue = 0;
-      $CheckinVenueName = "SENT FOR X-RAY";
-      print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
-      $WaitingRoomWherePatientShouldWait = "RadiologyMGH";
-    }
-    elsif($PatientLocationRevCount) # patient already checked in so must be back from x-ray
-    {
-      print "******** This patient has already been to x-ray ****************<br>" if $verbose;
-      $CheckinVenue = 0;
-      $CheckinVenueName = "BACK FROM X-RAY/PHYSIO";
-      print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
-      $WaitingRoomWherePatientShouldWait = "OrthoWaitRoom";
-    }
+#     # No existing checkin - then send for X-ray
+#     #if($PatientLocationRevCount < 100)
+#     if( ($nextApptDescription =~ m/NP-XR/i || $nextApptDescription =~ m/RTFU-XR/i) && !$PatientLocationRevCount)
+#     {
+#       print "******** This patient should go for an x-ray ****************<br>" if $verbose;
+#       $CheckinVenue = 0;
+#       $CheckinVenueName = "SENT FOR X-RAY";
+#       print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
+#       $WaitingRoomWherePatientShouldWait = "RadiologyMGH";
+#     }
+#     elsif($PatientLocationRevCount) # patient already checked in so must be back from x-ray
+#     {
+#       print "******** This patient has already been to x-ray ****************<br>" if $verbose;
+#       $CheckinVenue = 0;
+#       $CheckinVenueName = "BACK FROM X-RAY/PHYSIO";
+#       print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
+#       $WaitingRoomWherePatientShouldWait = "OrthoWaitRoom";
+#     }
 
-  }
-
-  ##########################################################################################
-  # Check the patient in for ALL Aria appointments
-  ##########################################################################################
-  my @Aria_CheckinStatus;
+#   }
 
   ##########################################################################################
   # Check the patient in for all Medivisit appointments
@@ -1637,7 +1655,31 @@ sub CheckinPatient
     print "<center>Patient has been checked into appointment <i>$MV_Resource[$appointment]</i> at <b>$MV_ScheduledStartTime[$appointment]</b>... status: $MV_CheckinStatus[$appointment]<br></center>" if $verbose || $location =~ m/Reception/i;
     print "<br>===================== Finished Medivisit checkin =====================<br>" if $verbose;
 
+    #if the appointment originates from Aria, call the AriaIE to update the Aria db
+    if($MV_sys[$appointment] eq "Aria" and $ariaCheckinUrl)
+    {
+        my $trueAppId = $MV_appId[$appointment] =~ s/Aria//r;
+        my $aria_checkin = "$ariaCheckinUrl?appointmentId=$trueAppId&location=$CheckinVenueName";
+        $ua->get($aria_checkin);
+        $hasAriaAppointment = 1;
+
+        $WaitingRoomWherePatientShouldWait = "DS1";
+    }
+
   } # end of Medivisit checkin
+
+  #check if the patient has an Aria photo
+  if($hasAriaAppointment)
+  {
+    my $mrn = $MV_PatientId[0];
+    my $photoResult = $ua->get("$ariaPhotoUrl?type=MRN&identifier=$mrn")->content;;
+
+    my $json = JSON->new->allow_nonref;
+    $photoResult = $json->decode($photoResult);
+
+    $PhotoOk = 0 if(!$photoResult->{"hasPhoto"} eq "1");
+  }
+
 
   ####### Return Value for Medivisit ###########################
   # Set the return value

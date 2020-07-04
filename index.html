@@ -42,50 +42,18 @@
 	<tr>
 		<td></td>
 		<td style="vertical-align: center; align: center;" colspan="8">
-					<span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
-						<center>
-							<ul style="list-style:none;">
-                            <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Virtual Waiting Room - Clinics</a></li>
-                            <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li>
-							<li><a href="./interface/AddOn.html">Register Patient for Add-On or SMS Messages<br></a></li>
-							<li><a href="./perl/CheckIn.pl?location={{speciality+ ' Reception'}}">Patient check-in interface <br></a></li>
-							<li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
-
-							</ul>
-						</center></span></td>
-
-	<!--td>
-		<tr>
-		<td></td>
-		<td colspan="4" style="text-align: center; background-color: rgb(15,119,204);border: 1px solid black;">
-			<span style="font-weight: bold; color: rgb(255,255,255); font-size:30px;margin:5%;">Oncology Clinics and ODC</span></td>
-		</tr>
-
-		<tr style="font-family: Helvetica,Arial,sans-serif;" align="center">
-		<td></td>
-		<td colspan="4" style="border:1px solid black; vertical-align: center; background-color: rgb(255,255,255);">
-			<table>
-			<thead></thead>
-			<tbody style="vertical-align:top">
-				<tr><td><br></td></tr>
-				<tr>
-				<td valign="center">
-					<span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
-						<center>
-							<ul style="list-style:none;">
-                            <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Virtual Waiting Room - Clinics</a></li>
-                            <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li>
-							<li><a href="./interface/AddOn.html">Register Patient for Add-On or SMS Messages<br></a></li>
-							<li><a href="./perl/CheckIn.pl?location={{speciality+ ' Reception'}}">Patient check-in interface <br></a></li>
-							<li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
-
-							</ul>
-						<center>
-					</span></td>
-				</tr>
-			</tbody>
-			</table></td-->
-		</tr>
+            <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
+                <center>
+                    <ul style="list-style:none;">
+                        <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Virtual Waiting Room - Clinics</a></li>
+                        <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li>
+                        <li><a href="./interface/AddOn.html">Register Patient for Add-On or SMS Messages<br></a></li>
+                        <li><a href="./perl/CheckIn.pl?location={{hub+ ' Reception'}}">Patient check-in interface <br></a></li>
+                        <li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
+                    </ul>
+                </center>
+            </span>
+        </td>
 	</tr>
 
 	<tr><td><br></td></tr>
@@ -105,7 +73,7 @@ var app = angular.module('myApp',['ngCookies']);
 
 app.controller('main', function($scope,$http,$cookies,$location,$window)
 {
-    $scope.speciality = $cookies.get("speciality");
+    $scope.hub = $cookies.get("hub");
     $scope.logOut = function()
     {
         $cookies.remove("ormsAuth");

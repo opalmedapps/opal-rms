@@ -45,7 +45,7 @@ $sqlApptMedivisit = "
         (UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday'))/60 AS AptTimeSinceMidnight,
         MediVisitAppointmentList.AppointmentSerNum,
         MediVisitAppointmentList.Status,
-        MediVisitAppointmentList.AppointId
+        MediVisitAppointmentList.AppointId,
         MediVisitAppointmentList.AppointSys
     FROM
         Patient,

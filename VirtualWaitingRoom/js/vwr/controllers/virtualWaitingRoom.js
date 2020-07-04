@@ -196,7 +196,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 			});
 
             //make sure we have the right waiting room
-            $scope.pageSettings.WaitingRoom = "BACK TO WAITING";
+            $scope.pageSettings.WaitingRoom = "BACK TO WAITING ROOM";
 
 			//load checkin data
 			$scope.patientLoadingEnabled = 1;

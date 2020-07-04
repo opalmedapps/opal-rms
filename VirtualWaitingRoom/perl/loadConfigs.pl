@@ -16,7 +16,7 @@ use Cwd qw(abs_path);
 use LoadConfigs;
 
 #load configs;
-$configs = LoadConfigs::getAllConfigs();
+my $configs = LoadConfigs::getAllConfigs();
 
 #get the root orms folder
 our $BASEPATH = $configs->{"path"}->{"BASE_PATH"};

@@ -58,12 +58,23 @@ class Appointment
             (PatientSerNum,Resource,ResourceDescription,ClinicResourcesSerNum,ScheduledDateTime,ScheduledDate,ScheduledTime,AppointmentCode,AppointId,AppointIdIn,AppointSys,Status,MedivisitStatus,CreationDate,ReferringPhysician,LastUpdatedUserIP)
             VALUES(:patSer,:res,:resDesc,:clinSer,:schDateTime,:schDate,:schTime,:appCode,:appId,:appIdIn,:appSys,:status,:mvStatus,:creDate,:refPhys,:callIP)
             ON DUPLICATE KEY UPDATE
-                ScheduledDateTime = VALUES(ScheduledDateTime),
-                ScheduledDate     = VALUES(ScheduledDate),
-                ScheduledTime     = VALUES(ScheduledTime),
-                AppointSys        = VALUES(AppointSys),
-                Status            = VALUES(Status),
-                MedivisitStatus   = VALUES(MedivisitStatus)");
+                PatientSerNum           = VALUES(PatientSerNum),
+                Resource                = VALUES(Resource),
+                ResourceDescription     = VALUES(ResourceDescription),
+                ClinicResourcesSerNum   = VALUES(ClinicResourcesSerNum),
+                ScheduledDateTime       = VALUES(ScheduledDateTime),
+                ScheduledDate           = VALUES(ScheduledDate),
+                ScheduledTime           = VALUES(ScheduledTime),
+                AppointmentCode         = VALUES(AppointmentCode),
+                AppointId               = VALUES(AppointId),
+                AppointIdIn             = VALUES(AppointIdIn),
+                AppointSys              = VALUES(AppointSys),
+                Status                  = VALUES(Status),
+                MedivisitStatus         = VALUES(MedivisitStatus),
+                CreationDate            = VALUES(CreationDate),
+                ReferringPhysician      = VALUES(ReferringPhysician),
+                LastUpdatedUserIP       = VALUES(LastUpdatedUserIP)
+        ");
 
         $insertResult = $insertAppointment->execute([
             ":patSer"       => $patientSer,

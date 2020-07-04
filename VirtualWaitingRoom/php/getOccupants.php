@@ -15,8 +15,8 @@ $checkinVenue = $_GET["checkinVenue"];
 
 if($checkinVenue)
 {
-	$checkinVenue_list = $checkinVenue = explode(",", $checkinVenue);
-	$checkinVenue = "'" . implode("','", $checkinVenue) . "'";
+	$checkinVenue_list = explode(",", $checkinVenue);
+	$checkinVenue_list = "'" . implode("','", $checkinVenue_list) . "'";
 }
 else
 {

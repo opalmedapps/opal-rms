@@ -6,7 +6,6 @@ angular.module('vwr').component('questionnaireLegacyModal',{
 function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDialog,$cookies,$filter,patient)
 {
 	$scope.patient = patient;
-
 	$scope.questionnaireList = [];
 
 	$scope.selectedQuestionnaire; //initialize variable so we know it exists
@@ -64,7 +63,7 @@ function questionnaireLegacyModalController($scope,$uibModalInstance,$http,$mdDi
                     password: "",
                     message: ""
                 };
-
+                $scope.Title = 'Login to mark as Reviewed';
                 $scope.authenticate = async function()
                 {
                     let authResult = await $http({

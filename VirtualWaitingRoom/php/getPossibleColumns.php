@@ -14,22 +14,21 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //==================================
 //get columns
 //==================================
-$sql = "
-	SELECT
-		ProfileColumnDefinition.ColumnName,
-		ProfileColumnDefinition.DisplayName,
-		ProfileColumnDefinition.Glyphicon,
-		ProfileColumnDefinition.Description
-	FROM
-		ProfileColumnDefinition
-	WHERE
-		(ProfileColumnDefinition.Speciality = 'All'
-			OR ProfileColumnDefinition.Speciality = '$speciality')
-	ORDER BY ProfileColumnDefinition.ColumnName";
-
+$query = $dbWRM->prepare("
+    SELECT
+        ProfileColumnDefinition.ColumnName,
+        ProfileColumnDefinition.DisplayName,
+        ProfileColumnDefinition.Glyphicon,
+        ProfileColumnDefinition.Description
+    FROM
+        ProfileColumnDefinition
+    WHERE
+        (ProfileColumnDefinition.Speciality = 'All'
+            OR ProfileColumnDefinition.Speciality = ?)
+    ORDER BY ProfileColumnDefinition.ColumnName");
+$query->execute([$speciality]);
 
 //process results
-$query = $dbWRM->query($sql);
 
 while($row = $query->fetch(PDO::FETCH_ASSOC))
 {

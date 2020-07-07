@@ -38,13 +38,13 @@ my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to
 #get the list of possible appointments and their resources
 my $sql0 = "
 	SELECT DISTINCT
-		ClinicResources.ResourceName
+		MediVisitAppointmentList.Resource,
+        MediVisitAppointmentList.ResourceDescription
 	FROM
-		ClinicResources
-	WHERE
-		ClinicResources.Speciality = ?
-	ORDER BY
-		ClinicResources.ResourceName";
+        MediVisitAppointmentList
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+            AND ClinicResources.Speciality = ?
+    ORDER BY MediVisitAppointmentList.ResourceDescription";
 
 my $query0 = $dbh->prepare_cached($sql0) or die("Query could not be prepared: ".$dbh->errstr);
 $query0->execute($speciality) or die("Query execution failed: ".$query0->errstr);
@@ -54,8 +54,9 @@ my @resources;
 while(my @data0 = $query0->fetchrow_array())
 {
 	my $resource = $data0[0];
+    my $resourceDesc = $data0[1];
 	$resource =~ s/(\t|\r|\n)//g; #remove tabs and newlines
-	push @resources, $resource;
+	push @resources, {"code" => $resource,"description" => $resourceDesc};
 }
 
 my $sql1 = "
@@ -63,8 +64,9 @@ my $sql1 = "
 		MediVisitAppointmentList.AppointmentCode
 	FROM
         MediVisitAppointmentList
-        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MediVisitAppointmentList.ResourceDescription
-            AND ClinicResources.Speciality = ?";
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+            AND ClinicResources.Speciality = ?
+    ORDER BY MediVisitAppointmentList.AppointmentCode";
 
 my $query1 = $dbh->prepare_cached($sql1) or die("Query could not be prepared: ".$dbh->errstr);
 $query1->execute($speciality) or die("Query execution failed: ".$query1->errstr);

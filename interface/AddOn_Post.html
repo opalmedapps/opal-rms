@@ -13,8 +13,10 @@
 	<br>
 
 	<form ng-submit="createAddOn()">
-		<table border="0" width="60%" padding="2">
+        <input type="hidden" name="ResourceCode" ng-value="selectedResource.code">
+        <input type="hidden" name="ResourceName" ng-value="selectedResource.description">
 
+		<table border="0" width="60%" padding="2">
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
             <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId" ng-model="pid" id="pid" required></td></tr>
             <tr><td><b>Site</b></td><td colspan="3"> <select maxlength="40" name="Site" ng-model="site" required>
@@ -41,21 +43,11 @@
 			</td>
 			</tr>
 
-			<tr><td><b>Clinic Code</b></td>
-			<td>
-			    <select name="ResourceCode" ng-model="ResourceCode">
-			       <option value="ADD-ON">ADD-ON</option>
-			    </select>
-			</td>
-			</tr>
-
 			<tr><td><b>Clinic Name</b></td>
 			<td>
-			    <input type="text" list="ResourceName" name="ResourceName" ng-model="ResourceName" required>
-			    <datalist id="ResourceName">
-			    <option ng-repeat="resource in loadedResources | filter:search" value="{{resource}}"></option>
-			    </datalist>
-
+                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select clinic" ng-model="userSelectedResource" ng-change="updateSelectedResource(userSelectedResource)" required>
+                    <option ng-repeat="resource in loadedResources" data-subtext={{resource.code}} value="{{resource}}">{{resource.description}}</option>
+                </select>
 			</td>
 			</tr>
 
@@ -80,8 +72,21 @@
 
 </body>
 
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
 <script src="/node_modules/angular/angular.min.js"></script>
 <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+
+<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet" href="/node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+
+<style>
+.border-select {
+    border: 1px solid grey;
+}
+
+</style>
 
 <script>
 var app = angular.module('myApp',['ngCookies']);
@@ -95,7 +100,7 @@ app.config(['$locationProvider',function ($locationProvider)
 	});
 }]);
 
-app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
+app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$location)
 {
 	//Ensure that page is refreshed when using back button
 	if(!!$window.performance && $window.performance.navigation.type == 2)
@@ -114,7 +119,11 @@ app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
 	$scope.Ramq = pageParams.ramq;
 	$scope.RamqExpiryDate = pageParams.ramqExp;
     $scope.speciality = $cookies.get("speciality");
-    $scope.ResourceCode = "ADD-ON";
+
+    $scope.selectedResource = {
+        code: undefined,
+        description: undefined
+    }
 
     if(!$scope.Ramq) {
         $scope.Ramq = $scope.pid;
@@ -151,7 +160,13 @@ app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
         // document.getElementById('myTime').value = now;
 
         $scope.timestamp = today +" "+ now;
-	}
+    }
+
+    $scope.updateSelectedResource = resource => {
+        resource = JSON.parse(resource);
+        $scope.selectedResource.code = resource.code;
+        $scope.selectedResource.description = resource.description;
+    }
 
 	//load list of oncology resources
 	$http({
@@ -164,7 +179,10 @@ app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
 	}).then(function (response)
 	{
 		$scope.loadedResources = response.data.resources;
-		$scope.loadedAppointments = response.data.appointments;
+        $scope.loadedAppointments = response.data.appointments;
+
+        //initialize the bootstrap select
+        $timeout(function () {$('.selectpicker').selectpicker('refresh')});
     });
 
     $scope.createAddOn = function()
@@ -185,10 +203,10 @@ app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
                 PatientId: $scope.pid,
                 Ramq: $scope.Ramq,
                 RamqExpireDate: $scope.RamqExpiryDate,
-                ResourceCode: $scope.ResourceCode,
-                ResourceName: $scope.ResourceName,
+                ResourceCode: $scope.selectedResource.code,
+                ResourceName: $scope.selectedResource.description,
                 Site: $scope.site,
-                SpecialityCode: $scope.speciality,
+                SpecialityGroup: $scope.speciality,
                 Status: "Open"
             }
         })
@@ -205,6 +223,8 @@ app.controller('main', function($scope,$http,$filter,$cookies,$window,$location)
 
             alert(result.data);
         });
+
+        console.log($scope.selectedResource);
     }
 });
 

@@ -218,7 +218,7 @@
                     </div></td>
             </tr>
             <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
-
+            <td><button type="button" ng-class="(confid==='Nominal Mode') ? 'btn btn-danger' : 'btn btn-sr'" ng-click="confidentialMode()">{{confid}}</button></td>
             <tr ng-show="test.showMenu === 'Hide Menu'"></tr>
         </table>
 
@@ -341,7 +341,7 @@
                 <tr ng-show="test.showMenu === 'Hide Menu'">
                     <td>
                         <p style="width: 200%" ><b>Answered in last</b>
-                            <input  style="width: 30%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).</b></p></td>
+                            <input  style="width: 15%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).</b></p></td>
                 </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
@@ -395,8 +395,6 @@
             </tr>
         </table>
         <br>
-
-        <h1>Appointment List</h1>
         <table class='items' datatable="ng" dt-options="dtOptions">
             <thead>
             <tr>
@@ -418,7 +416,8 @@
             </thead>
             <tbody>
             <tr ng-repeat="appoint in tableData">
-                <td>{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</td>
+                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</div>
+                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td>
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>

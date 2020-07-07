@@ -12,7 +12,8 @@
 		    <input type="search" ng-model="qfilter" ng-change="changeIndexGroup(groupData,0)" placeholder="Filter questionnaires..."/>
 		</div>
 		<div style="width: 33%">
-		    <input type="button" class="btn" ng-class="patient.QStatus === 'red-circle' ? 'btn-default' : 'btn-success'" ng-style="(patient.QStatus === 'red-circle') ? {'background-color': '#fe4b4b'} : {}" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" ng-click="markAsReviewed()">
+		    <input type="button" ng-show="patient.confidMode === 'Nominal Mode'" class="btn btn-block"  style="background-color: grey; width: 60%" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" >
+            <input type="button" ng-show="patient.confidMode != 'Nominal Mode'" class="btn" ng-class="patient.QStatus === 'red-circle' ? 'btn-default' : 'btn-success'" ng-style="(patient.QStatus === 'red-circle') ? {'background-color': '#fe4b4b'} : {}" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" ng-click="markAsReviewed()">
 		</div>
 		<div>
 		    Last review: {{patient.LastQuestionnaireReview}}

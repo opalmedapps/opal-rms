@@ -1,6 +1,6 @@
 let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies']);
 
-app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
+app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
 {
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
@@ -102,13 +102,22 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         $scope.isInputsChange = false;
         $scope.liveState = 'Paused'
 
-    }
+    };
 
     $scope.inputchange = function(){
         $scope.isInputsChange = false;
         $scope.liveState = 'Paused';
 
-    }
+    };
+
+    $scope.confidentialMode = function(){
+        if($scope.confid == 'Nominal Mode') {
+            $scope.login();
+        }
+        else{
+            $scope.confid = 'Nominal Mode';
+        }
+    };
 
     $scope.test = {
         showMenu: 'Show Menu',
@@ -118,7 +127,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
     $scope.showMenuButton = function(){
         if($scope.test.showMenu == 'Show Menu') $scope.test.showMenu = 'Hide Menu';
         else $scope.test.showMenu = 'Show Menu';
-    }
+    };
 
 
     $scope.reset = function (resetPressed)
@@ -190,12 +199,65 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         $scope.questionnaireType = response.data;
     })
 
+    $scope.login = function()
+    {
+        let answer = $mdDialog.confirm(
+            {
+                templateUrl: './js/vwr/templates/authDialog.htm',
+                controller: function($scope)
+                {
+                    $scope.page = {
+                        username: $cookies.get("lastUsedUsername") ?? "", //if the user has previously authenticated, a cookie with the username should exist
+                        password: "",
+                        message: ""
+                    };
+                    $scope.Title = 'Login to change to Nominal Mode';
+                    $scope.authenticate = async function()
+                    {
+                        let authResult = await $http({
+                            url: "./php/authenticateUser.php",
+                            method: "POST",
+                            data: {
+                                username: $scope.page.username,
+                                password: $scope.page.password
+                            }
+                        })
+                            .then( response => response.data.valid)
+                            .catch( _ => null);
+
+                        $scope.page.password = ""; //clear the password field
+
+                        if(authResult === true)
+                        {
+                            //$cookies.put("lastUsedUsername",$scope.page.username); //store the last authenticated username in case the user is reviewing multiple questionnaires
+                            $mdDialog.hide($scope.page.username);
+                        }
+                        else if(authResult === false) {
+                            $scope.page.message = "Invalid username or password!";
+                        }
+                        else {
+                            $scope.page.message = "Error! Please try again later.";
+                        }
+                    }
+                }
+
+            })
+            .ariaLabel('Auth Dialog')
+            .clickOutsideToClose(true);
+
+        $mdDialog.show(answer).then( result => {
+            $scope.confid = 'Confidential Mode';
+            $scope.confidentialTimer();
+        });
+    }
+
     $scope.runScript = function (firstTime)
     {
         if(firstTime) {
             $scope.reset();
             $scope.zoomLink = "";
             $scope.showLM = true;
+            $scope.confid = 'Confidential Mode';
         }
 
         $scope.sDateDisplay = $scope.sDate;
@@ -312,7 +374,25 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
             $scope.showDiv = true;
 
             $scope.addPrintButton();
+            $scope.confidentialTimer();
         });
+    };
+
+    $scope.confidentialTimer = function(){
+        document.addEventListener("mousedown", $scope.resetConfidTimer, false);
+        document.addEventListener("mousemove", $scope.resetConfidTimer, false);
+        document.addEventListener("keypress", $scope.resetConfidTimer, false);
+        document.addEventListener("touchmove", $scope.resetConfidTimer, false);
+        $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
+
+    };
+
+
+    $scope.resetConfidTimer = function(){
+        window.clearTimeout($scope.timeout);
+        if($scope.confid === 'Confidential Mode') {
+            $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
+        }
     }
 
     $scope.openQuestionnaireModal = function (appoint)
@@ -327,7 +407,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
                 //backdrop: 'static',
                 resolve:
                     {
-                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID};}
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus,'confidMode': $scope.confid};},
                     }
             }).result.then(function(response)
         {

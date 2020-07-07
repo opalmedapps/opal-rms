@@ -49,7 +49,6 @@ $sqlOpal = "
     SELECT
             DT.Name_EN,
             Q.QuestionnaireCompletionDate,
-            Q.QuestionnaireName,
             Q.CompletedWithinLastWeek,
             Q.RecentAnswered
         FROM
@@ -61,7 +60,6 @@ $sqlOpal = "
              DiagnosisTranslation DT,
             (SELECT
                 Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
-                QC.QuestionnaireName_EN AS QuestionnaireName,
                 CASE
                     WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
                         ELSE 0
@@ -74,7 +72,6 @@ $sqlOpal = "
                 Patient
                 INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
                     AND Questionnaire.CompletedFlag = 1
-                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Questionnaire.QuestionnaireControlSerNum   
             WHERE
                 Patient.PatientId = :uid2) Q
         WHERE DC.DiagnosisCode = DP.DiagnosisCode
@@ -83,6 +80,17 @@ $sqlOpal = "
     LIMIT 1";
 
 $queryOpal = $dbOpal->prepare($sqlOpal);
+
+$sqlOpal2 = "
+    SELECT DISTINCT QC.QuestionnaireName_EN AS QuestionnaireName
+            FROM
+                Patient
+                INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
+                    AND Questionnaire.CompletedFlag = 1
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Questionnaire.QuestionnaireControlSerNum 
+            WHERE Patient.PatientId = :uid";
+
+$queryOpal2 = $dbOpal->prepare($sqlOpal2);
 
 
 $specialityFilter = "ClinicResources.Speciality = '$clinic'";
@@ -208,7 +216,16 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
         )
     ) $row["QStatus"] = "red-circle";
 
-    if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]===1)&& ($qType ==="all" || in_array( $row["QuestionnaireName"],explode(",",$qspecificApp)))){
+    $answeredQuestionnaire = False;
+    $queryOpal2->execute(array(":uid" => $row["PatientId"]));
+    while ($questionnaireName = $queryOpal2->fetch(PDO::FETCH_ASSOC)){
+        if(in_array( $questionnaireName["QuestionnaireName"],explode(",",$qspecificApp))){
+            $answeredQuestionnaire = true;
+            break;
+        }
+    }
+
+    if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]==1)&&($qType ==="all" ||$answeredQuestionnaire)){
         $listOfAppointments[] = [
             "fname" => $row["FirstName"],
             "lname" => $row["LastName"],

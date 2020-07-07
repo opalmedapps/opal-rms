@@ -120,10 +120,7 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 	$scope.RamqExpiryDate = pageParams.ramqExp;
     $scope.speciality = $cookies.get("speciality");
 
-    $scope.selectedResource = {
-        code: undefined,
-        description: undefined
-    }
+    $scope.updateSelectedResource;
 
     if(!$scope.Ramq) {
         $scope.Ramq = $scope.pid;
@@ -164,8 +161,10 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.updateSelectedResource = resource => {
         resource = JSON.parse(resource);
-        $scope.selectedResource.code = resource.code;
-        $scope.selectedResource.description = resource.description;
+        $scope.selectedResource = {
+            code:  resource.code,
+            description: resource.description
+        }
     }
 
 	//load list of oncology resources
@@ -187,6 +186,11 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.createAddOn = function()
     {
+        if(!$scope.selectedResource) {
+            alert("Please select a clinic");
+            return;
+        }
+
         $http({
             url: "/php/system/processAppointmentFromMedivisit.php",
             method: "POST",
@@ -222,9 +226,8 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
             });
 
             alert(result.data);
-        });
-
-        console.log($scope.selectedResource);
+        })
+        .catch(result => {alert(result.data);});
     }
 });
 

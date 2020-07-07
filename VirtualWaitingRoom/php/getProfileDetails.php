@@ -23,7 +23,7 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //==================================
 //get profile
 //==================================
-$sqlProfile = "
+$queryProfile = $dbWRM->prepare("
 	SELECT
 		Profile.ProfileSer,
 		Profile.ProfileId,
@@ -36,10 +36,10 @@ $sqlProfile = "
 	FROM
 		Profile
 	WHERE
-		Profile.ProfileId = '$profileId'";
-
+		Profile.ProfileId = ?"
+);
 //process results
-$queryProfile = $dbWRM->query($sqlProfile);
+$queryProfile->execute([$profileId]);
 
 $rows = $queryProfile->fetchAll(PDO::FETCH_ASSOC);
 
@@ -64,8 +64,9 @@ if(count($rows) > 0)
 		$json['Appointments'] = [];
 		$json['ColumnsDisplayed'] = [];
 
-		//if there profile has no assigned clinical area, use the one provided by the user
-		if(!$json['ClinicalArea']) {$json['ClinicalArea'] = $clinicalArea;}
+        //if there profile has no assigned clinical area, use the one provided by the user
+        //if the user provided a clinical area, use it
+        if($clinicalArea) $json['ClinicalArea'] = $clinicalArea;
 	}
 }
 else {die("{}");}

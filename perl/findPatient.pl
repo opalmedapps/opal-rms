@@ -117,7 +117,7 @@ sub convertAdtDataToJsonFormattedArray
 };
 
 #We must cover the case where a patient mrn doesnt exist in the WaitRoomManagement database
-#In this case use the ADT script written by John to get the info viewable in SOAP
+#In this case use the connect to the ADT
 
 my $pdsFunction = "
 	<pds:findByMrn>

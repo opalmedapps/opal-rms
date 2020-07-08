@@ -202,11 +202,11 @@ function logRequest(array $requestInfo): void
 #sends an email to the orms admin
 function sendEmail(array $requestInfo): void
 {
-    $recepient = "victor.matassa@muhc.mcgill.ca";
+    $recepient = "opal@muhc.mcgill.ca";
     $subject = "ORMS Appointment Error";
     $message = "ORMS Appointment Error - $requestInfo[Result] for appointment id '$requestInfo[AppIDComb]' at time [$requestInfo[ImportTimestamp]]";
     $headers = [
-        "From" => "orms@muhc.mcgill.ca"
+        "From" => "opal@muhc.mcgill.ca"
     ];
 
     mail($recepient,$subject,$message,$headers);

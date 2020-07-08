@@ -23,11 +23,11 @@ my $format = "%b %d %Y %I:%M%p";
 use DBI;
 #use DBD::Sybase;
 #use Date::Calc;
-#use Date::Calc qw(Decode_Month Today Now Decode_Date_US Today_and_Now Delta_DHMS); 
+#use Date::Calc qw(Decode_Month Today Now Decode_Date_US Today_and_Now Delta_DHMS);
 
 use UtilityFetch;
 #use LinkAppointmentAndPlan;
-use File::Basename qw(fileparse); 
+use File::Basename qw(fileparse);
 use MIME::Base64 qw(encode_base64);
 
 use MIME::Lite;
@@ -50,13 +50,13 @@ my $dbh = DBI->connect_cached("DBI:mysql:database=MedPhysLog;host=localhost","re
 
 =begin
 my $sql = "
-	SELECT 
+	SELECT
 		Message,
 		LastUpdated
-	FROM 
-		VirtualWaitingRoomLog 
-	WHERE 
-		FileName = 'createWeightDocument.pl' 
+	FROM
+		VirtualWaitingRoomLog
+	WHERE
+		FileName = 'createWeightDocument.pl'
 		AND Identifier = 'send_xml'
 		AND LastUpdated BETWEEN '2019-07-10' AND '2019-07-24 23:59:00'
 	ORDER BY LastUpdated DESC";
@@ -92,13 +92,13 @@ my $sql2 = "
 	SELECT DISTINCT
 		Patient.PatientId,
 		ScheduledDate,
-		Status 
-	FROM 
-		WaitRoomManagement.MediVisitAppointmentList 
-		INNER JOIN WaitRoomManagement.Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum 
+		Status
+	FROM
+		WaitRoomManagement.MediVisitAppointmentList
+		INNER JOIN WaitRoomManagement.Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
 			AND Patient.PatientId IN ($patList)
 		INNER JOIN WaitRoomManagement.PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
-	WHERE 
+	WHERE
 		ScheduledDate BETWEEN '2019-07-25' AND '2019-07-27'
 		AND Status != 'Cancelled'
 		AND Status != 'Deleted'";
@@ -143,9 +143,9 @@ my $sql3 = "
 		PatientMeasurement.Weight,
 		PatientMeasurement.Height,
 		PatientMeasurement.BSA
-	FROM 
+	FROM
 		WaitRoomManagement.Patient
-		INNER JOIN WaitRoomManagement.PatientMeasurement ON PatientMeasurement.PatientMeasurementSer = 
+		INNER JOIN WaitRoomManagement.PatientMeasurement ON PatientMeasurement.PatientMeasurementSer =
 			(
 				SELECT
 					PM.PatientMeasurementSer
@@ -205,7 +205,7 @@ foreach my $pat (@jsonData)
 	($noZeroesId = $noZeroesId) =~ s/0*(\d+)/$1/; #remove all leading zeroes in the patient id
 
 	#if(-e "./weightGenerator/docs/$id\_FMU-4183.pdf" and -e "./weightGenerator/docs/MUHC-RV-$noZeroesId-FMU-4183^Aria.xml")
-	if(-e "/var/www/devDocuments/victor/weightGenerator/docs/$id\_FMU-4183.pdf" and -e "/var/www/devDocuments/victor/weightGenerator/docs/MUHC-RV-$noZeroesId-FMU-4183^Aria.xml")
+	if(-e "/var/www/devDocuments/weightGenerator/docs/$id\_FMU-4183.pdf" and -e "/var/www/devDocuments/weightGenerator/docs/MUHC-RV-$noZeroesId-FMU-4183^Aria.xml")
 	{
 		say "ok";
 	}

@@ -104,7 +104,7 @@ if ($dbh->query($sqlSMS)) {
     echo "Record updated successfully<br>";
 } else {
     echo "Error updating record: " . print_r($dbh->errorInfo());
-    exit("This record could not be updated. Please mark the patient's form and call Victor Matassa at 514 715 7890.<br>");
+    exit("This record could not be updated. Please mark the patient's form and contact opal@muhc.mcgill.ca.<br>");
 }
 
 echo "<br>";

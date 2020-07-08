@@ -9,6 +9,39 @@ myApp.config(['$locationProvider','$qProvider',function($locationProvider,$qProv
 	$qProvider.errorOnUnhandledRejections(false); //tell modal not to throw errors when we close the modal
 }]);
 
+//modify ngMaterial tab directives and define behavior for ng-hide
+myApp.config(['$provide',function($provide) {
+    $provide.decorator('mdTabDirective',function($delegate) {
+        let directive = $delegate[0];
+        directive.scope.hide = "=?ngHide";
+
+        return $delegate;
+    });
+}]);
+
+myApp.config(['$provide',function($provide) {
+    $provide.decorator('mdTabItemDirective',function($delegate) {
+        let directive = $delegate[0];
+        let link = function linkOverride (scope, element, attr, ctrl) {
+            if (!ctrl) return;
+            ctrl.attachRipple(scope, element);
+
+            scope.$watch('tab.scope.hide', function (value) {
+                if (value) element.css('display', 'none');
+                else element.css('display', 'block');
+            });
+        }
+
+        directive.compile = function() {
+            return function(scope, element, attr, ctrl) {
+                link.apply(this,arguments);
+            };
+        };
+
+        return $delegate;
+    });
+}]);
+
 //create a factory with useful function that all controllers can use
 angular.module('index').factory('CrossCtrlFuncs',[function ()
 {

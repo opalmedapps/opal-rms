@@ -1,8 +1,8 @@
 <?php
-//==================================================================================== 
+//====================================================================================
 // php code to remove patients' cell phone numbers and languagee preferences
-// into ORMS 
-//==================================================================================== 
+// into ORMS
+//====================================================================================
 include_once("ScriptLoader.php");
 
 #print header
@@ -16,9 +16,9 @@ if(empty($SMSAlertNum))
   exit("All input parameters are required - please use back button and fill out form completely");
 }
 
-//==================================================================================== 
+//====================================================================================
 // Database - ORMS
-//==================================================================================== 
+//====================================================================================
 // Create MySQL DB connection
 $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -27,11 +27,11 @@ if (!$dbh) {
     die("<br>Connection failed");
 }
 
-//==================================================================================== 
-// Remove the input phone number from to the ORMS db 
-//==================================================================================== 
+//====================================================================================
+// Remove the input phone number from to the ORMS db
+//====================================================================================
 $sqlSMS = "
-	UPDATE Patient 
+	UPDATE Patient
 	SET 	Patient.SMSAlertNum = NULL,
 		Patient.SMSSignupDate = NULL,
 		Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
@@ -45,11 +45,9 @@ if ($dbh->query($sqlSMS)) {
     echo "Record updated successfully<br>";
 } else {
     echo "Error updating record: " .print_r($dbh->errorInfo());
-    exit("This record could not be updated. Please mark the patient's form and call Victor Matassa at 514 715 7890.<br>");
+    exit("This record could not be updated. Please mark the patient's form and contact opal@muhc.mcgill.ca.<br>");
 }
 
 echo "<br>";
 
 ?>
-
-

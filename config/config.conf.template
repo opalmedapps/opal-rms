@@ -1,5 +1,9 @@
 #config file to store all needed configs
 
+[orms]
+SITE                            =
+ADT_SITE_CODE                   =
+
 [path]
 BASE_PATH                       =
 BASE_URL                        =

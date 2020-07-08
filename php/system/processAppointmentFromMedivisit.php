@@ -6,6 +6,8 @@
 #load global configs
 include_once("SystemLoader.php");
 
+$systemSite = Config::getConfigs("orms")["SITE"];
+
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode("Non POST requests not supported");
@@ -37,7 +39,7 @@ $appointmentInfo = [
     "ReferringMd"       => !empty($postParams["ReferringMd"]) ? $postParams["ReferringMd"] : NULL,
     "ResourceCode"      => !empty($postParams["ResourceCode"]) ? $postParams["ResourceCode"] : NULL,
     "ResourceName"      => !empty($postParams["ResourceName"]) ? $postParams["ResourceName"] : NULL,
-    "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : NULL,
+    "Site"              => !empty($postParams["Site"]) ? $postParams["Site"] : $systemSite,
     "SpecialityGroup"    => !empty($postParams["SpecialityGroup"]) ? $postParams["SpecialityGroup"] : NULL,
     "Status"            => !empty($postParams["Status"]) ? $postParams["Status"] : NULL,
     "VisitDate"         => !empty($postParams["VisitDate"]) ? $postParams["VisitDate"] : NULL,

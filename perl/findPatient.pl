@@ -38,6 +38,9 @@ my $ua = LWP::UserAgent->new();
 #prepare an xml parser
 my $xml = XML::Simple->new();
 
+#load configs
+my $mrnType = LoadConfigs::GetConfigs("orms")->{"ADT_SITE_CODE"};
+
 #------------------------------------------------------------------------
 # Internal Variables
 #------------------------------------------------------------------------
@@ -50,8 +53,6 @@ my $AppointSys;
 #------------------------------------------------------------------------
 my $ramq = param("ramq");
 my $pid = param("pid");
-
-my $mrnType = "MR_PCS";
 
 #determine whether to search for a patient using the pid or the ramq
 my $mode = "PID";

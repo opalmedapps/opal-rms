@@ -231,8 +231,9 @@ class Appointment
             throw new Exception("Incorrect time format");
         }
 
-        #current supported sites are RVH and MGH
-        if(!preg_match("/^(RVH)$/",$this->site)) {
+        #make sure the site of the appointment matches the site in the config
+        $acceptedSite = Config::getConfigs("orms")["SITE"];
+        if($acceptedSite !== $this->site) {
             throw new Exception("Site is not supported");
         }
 

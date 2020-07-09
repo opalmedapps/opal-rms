@@ -116,6 +116,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }
         else{
             $scope.confid = 'Nominal Mode';
+            localStorage.setItem("value",$scope.confid)
         }
     };
 
@@ -128,6 +129,15 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         if($scope.test.showMenu == 'Show Menu') $scope.test.showMenu = 'Hide Menu';
         else $scope.test.showMenu = 'Show Menu';
     };
+
+    $scope.OnOffButton = function(){
+        if ($scope.inputs.offbutton === 'OFF'){
+            $scope.inputs.offbutton = 'ON';
+        }
+        else $scope.inputs.offbutton = 'OFF';
+
+        $scope.inputchange();
+    }
 
 
     $scope.reset = function (resetPressed)
@@ -151,6 +161,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 ctype: 'all',
                 dtype: 'all',
                 qtype: 'all',
+                offbutton: 'ON',
                 /*specificType: {name: ''},
                 cspecificType: {name: ''},
                 dspecificType: {name: ''},*/
@@ -247,9 +258,10 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
         $mdDialog.show(answer).then( result => {
             $scope.confid = 'Confidential Mode';
+            localStorage.setItem("value",$scope.confid)
             $scope.confidentialTimer();
         });
-    }
+    };
 
     $scope.runScript = function (firstTime)
     {
@@ -257,6 +269,10 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             $scope.reset();
             $scope.zoomLink = "";
             $scope.showLM = true;
+            if(localStorage.getItem("value")) {
+                $scope.confid = localStorage.getItem("value");
+            }
+            else
             $scope.confid = 'Confidential Mode';
         }
 
@@ -393,7 +409,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         if($scope.confid === 'Confidential Mode') {
             $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
         }
-    }
+    };
 
     $scope.openQuestionnaireModal = function (appoint)
     {
@@ -407,7 +423,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 //backdrop: 'static',
                 resolve:
                     {
-                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus,'confidMode': $scope.confid};},
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus};},
+                        confidMode: function() {return $scope.confid}
                     }
             }).result.then(function(response)
         {
@@ -582,8 +599,9 @@ app.factory('callScript',function($http,$q)
             qtypeSelect = (inputs.qtype) ? "&qtype="+ inputs.qtype : "";
             qspecificType = (questionnaireType !="" && inputs.qtype != 'all')? "&qspecificType="+ questionnaireType :"";
             selectedDate = "&qselectedDate="+qdate + "&qselectedTime="+qtime;
+            offb = (inputs.offbutton) ? "&offbutton="+ inputs.offbutton : "";
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+"&clinic="+speciality).then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+offb+"&clinic="+speciality).then(function (response)
             {
                 let info = {};
                 info = response.data;

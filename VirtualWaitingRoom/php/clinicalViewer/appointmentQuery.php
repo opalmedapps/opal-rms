@@ -34,10 +34,12 @@ $qType = $_GET["qtype"] ?? NULL;
 $qspecificApp = $_GET["qspecificType"] ?? "NULL";
 $qDateInit = $_GET["qselectedDate"] ?? NULL;
 $qTime = $_GET["qselectedTime"] ?? NULL;
+$offbutton = $_GET["offbutton"]??NULL;
 
 $sDate = "$sDateInit $sTime";
 $eDate = "$eDateInit $eTime";
 $qDate = "$qDateInit $qTime";
+
 
 #query the database
 $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
@@ -225,7 +227,7 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
         }
     }
 
-    if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]==1)&&($qType ==="all" ||$answeredQuestionnaire)){
+    if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]==1||$offbutton == "OFF")&&($qType ==="all" ||$answeredQuestionnaire)){
         $listOfAppointments[] = [
             "fname" => $row["FirstName"],
             "lname" => $row["LastName"],

@@ -95,8 +95,9 @@ app.controller('main', function($scope,$location)
 {
     var pageParams = $location.search();
 
-	$scope.pid = pageParams.pid;
-	$scope.Ramq = pageParams.ramq;
+    $scope.pid = pageParams.pid;
+    $scope.Ramq = (pageParams.ramq === "null") ? "" : pageParams.ramq;
+
 });
 
 </script>

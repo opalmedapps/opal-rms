@@ -116,8 +116,11 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.updateSelectedResource;
 
-    if(!$scope.Ramq) {
+    if(!$scope.Ramq || $scope.Ramq === "null") {
         $scope.Ramq = $scope.pid;
+    }
+
+    if(!$scope.RamqExpiryDate || $scope.RamqExpiryDate === "null") {
         $scope.RamqExpiryDate = "0000";
     }
 

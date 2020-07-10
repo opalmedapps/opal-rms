@@ -13,23 +13,20 @@
 	<br>
 
 	<form ng-submit="createAddOn()">
-        <input type="hidden" name="ResourceCode" ng-value="selectedResource.code">
-        <input type="hidden" name="ResourceName" ng-value="selectedResource.description">
-
 		<table border="0" width="60%" padding="2">
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
-            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatientId" ng-model="pid" id="pid" required></td></tr>
-			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
-			<tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" name="RamqExpireDate" ng-model="RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
-			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatLastName" ng-model="last" id="last" required></td></tr>
-			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" name="PatFirstName" ng-model="first" id="first" required></td></tr>
+            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.pid" id="pid" required></td></tr>
+			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
+			<tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
+			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" required></td></tr>
+			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" required></td></tr>
 			<tr><td></td></td>
 
 			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
 
 			<tr><td><b>Appointment Code</b></td>
 			<td>
-			    <input type="text" list="AppointCode" name="AppointCode" ng-model="AppointCode" required>
+			    <input type="text" list="AppointCode" ng-model="pageFields.AppointCode" required>
 			    <datalist id="AppointCode">
 			    <option ng-repeat="appointment in loadedAppointments | filter:search" value="{{appointment}}"></option>
 			    </datalist>
@@ -47,8 +44,8 @@
 
 			<tr><td><b>Appointment Date/Time</b></td>
 			<td>
-			<input type="date" id="myDate" name="AppointDate" ng-model="AppointDate"/>
-			<input type="time" id="myTime" name="AppointTime" ng-model="AppointTime"/>
+			<input type="date" id="myDate" ng-model="pageFields.AppointDate"/>
+			<input type="time" id="myTime" ng-model="pageFields.AppointTime"/>
 			</td>
 			</tr>
 
@@ -106,22 +103,26 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
 	$scope.currentDateTime = new Date();
 
-	//Pre fill the form with the specified patient params from the AddOnOnc_PRE page
-	$scope.first = pageParams.first;
-	$scope.last = pageParams.last;
-	$scope.pid = pageParams.pid;
-	$scope.Ramq = pageParams.ramq;
-	$scope.RamqExpiryDate = pageParams.ramqExp;
-    $scope.speciality = $cookies.get("speciality");
+    //Pre fill the form with the specified patient params from the AddOnOnc_PRE page
+    $scope.pageFields = {
+        first: pageParams.first,
+        last: pageParams.last,
+        pid: pageParams.pid,
+        Ramq: pageParams.ramq,
+        RamqExpiryDate: pageParams.ramqExp,
+        speciality: $cookies.get("speciality"),
+        AppointDate: null,
+        AppointTime: null,
+        resourceCode: null,
+        resourceDescription: null
+    };
 
-    $scope.updateSelectedResource;
-
-    if(!$scope.Ramq || $scope.Ramq === "null") {
-        $scope.Ramq = $scope.pid;
+    if(!$scope.pageFields.Ramq || $scope.pageFields.Ramq === "null") {
+        $scope.pageFields.Ramq = $scope.pid;
     }
 
-    if(!$scope.RamqExpiryDate || $scope.RamqExpiryDate === "null") {
-        $scope.RamqExpiryDate = "0000";
+    if(!$scope.pageFields.RamqExpiryDate || $scope.pageFields.RamqExpiryDate === "null") {
+        $scope.pageFields.RamqExpiryDate = "0000";
     }
 
 	$scope.setDate = function()
@@ -146,8 +147,8 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 		var todayANDnow = today + " " + now;
 
         var date = new Date();
-        $scope.AppointDate = new Date(date.getFullYear(),date.getMonth(),date.getDate());
-        $scope.AppointTime = new Date(date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes());
+        $scope.pageFields.AppointDate = new Date(date.getFullYear(),date.getMonth(),date.getDate());
+        $scope.pageFields.AppointTime = new Date(date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes());
 		// document.getElementById('myDate').value = today;
         // document.getElementById('myTime').value = now;
 
@@ -156,10 +157,8 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.updateSelectedResource = resource => {
         resource = JSON.parse(resource);
-        $scope.selectedResource = {
-            code:  resource.code,
-            description: resource.description
-        }
+        $scope.pageFields.resourceCode = resource.code;
+        $scope.pageFields.resourceDescription = resource.description
     }
 
 	//load list of oncology resources
@@ -168,7 +167,7 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 		method: "GET",
 		params:
 		{
-			speciality: $scope.speciality
+			speciality: $scope.pageFields.speciality
 		}
 	}).then(function (response)
 	{
@@ -181,47 +180,48 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.createAddOn = function()
     {
-        if(!$scope.selectedResource) {
+        if(!$scope.pageFields.resourceCode) {
             alert("Please select a clinic");
             return;
         }
 
-        $http({
-            url: "/php/system/processAppointmentFromMedivisit.php",
-            method: "POST",
-            data: {
-                Action: "S12",
-                AppointCode: $scope.AppointCode,
-                AppointDate: $filter('date')($scope.AppointDate,"yyyy-MM-dd"),
-                AppointId: "ORMS"+$scope.pid+"-"+$scope.timestamp,
-                AppointSys: "InstantAddOn",
-                AppointTime: $filter('date')($scope.AppointTime,"HH:mm"),
-                CreationDate: $filter('date')($scope.currentDateTime,"yyyy-MM-dd HH:mm"),
-                PatFirstName: $scope.first,
-                PatLastName: $scope.last,
-                PatientId: $scope.pid,
-                Ramq: $scope.Ramq,
-                RamqExpireDate: $scope.RamqExpiryDate,
-                ResourceCode: $scope.selectedResource.code,
-                ResourceName: $scope.selectedResource.description,
-                SpecialityGroup: $scope.speciality,
-                Status: "Open"
-            }
-        })
-        .then(function (result)
-        {
-            $http({
-                url: "/php/system/checkInPatientAriaMedi.php",
-                method: "GET",
-                params: {
-                    CheckinVenue: "ADDED ON BY RECEPTION",
-                    PatientId: $scope.pid
-                }
-            });
+        //since we need to make a post request, simply navigating to another page won't work
+        //we need to create a form manually and submit it
+        let mapForm = document.createElement("form");
+        mapForm.method = "POST";
+        mapForm.action = "/php/system/processAppointmentFromAddOn.php";
 
-            alert(result.data);
-        })
-        .catch(result => {alert(result.data);});
+        let fields = {
+            Action: "S12",
+            AppointCode: $scope.pageFields.AppointCode,
+            AppointDate: $filter('date')($scope.pageFields.AppointDate,"yyyy-MM-dd"),
+            AppointId: "ORMS"+$scope.pageFields.pid+"-"+$scope.timestamp,
+            AppointSys: "InstantAddOn",
+            AppointTime: $filter('date')($scope.pageFields.AppointTime,"HH:mm"),
+            CreationDate: $filter('date')($scope.currentDateTime,"yyyy-MM-dd HH:mm"),
+            PatFirstName: $scope.pageFields.first,
+            PatLastName: $scope.pageFields.last,
+            PatientId: $scope.pageFields.pid,
+            Ramq: $scope.pageFields.Ramq,
+            RamqExpireDate: $scope.pageFields.RamqExpiryDate,
+            ResourceCode: $scope.pageFields.resourceCode,
+            ResourceName: $scope.pageFields.resourceDescription,
+            SpecialityGroup: $scope.pageFields.speciality,
+            Status: "Open"
+        };
+
+        for(let field in fields)
+        {
+            let mapInput = document.createElement("input");
+            mapInput.type = "text";
+            mapInput.name = field;
+            mapInput.value = fields[field];
+
+            mapForm.appendChild(mapInput);
+        }
+
+        document.body.appendChild(mapForm);
+        mapForm.submit();
     }
 });
 

@@ -69,7 +69,7 @@ class Appointment
                 AppointId               = VALUES(AppointId),
                 AppointIdIn             = VALUES(AppointIdIn),
                 AppointSys              = VALUES(AppointSys),
-                Status                  = VALUES(Status),
+                Status                  = CASE WHEN Status = 'Completed' THEN 'Completed' ELSE VALUES(Status) END,
                 MedivisitStatus         = VALUES(MedivisitStatus),
                 CreationDate            = VALUES(CreationDate),
                 ReferringPhysician      = VALUES(ReferringPhysician),

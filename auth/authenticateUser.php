@@ -27,9 +27,11 @@ rtrim($fieldString, '&');
 
 #make the request
 $ch = curl_init();
-curl_setopt($ch,CURLOPT_URL, $url);
-curl_setopt($ch,CURLOPT_POSTFIELDS,$fieldString);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt_array($ch,[
+    CURLOPT_URL             => $url,
+    CURLOPT_POSTFIELDS      => $fieldString,
+    CURLOPT_RETURNTRANSFER  => TRUE
+]);
 $requestResult = json_decode(curl_exec($ch),TRUE);
 curl_close($ch);
 

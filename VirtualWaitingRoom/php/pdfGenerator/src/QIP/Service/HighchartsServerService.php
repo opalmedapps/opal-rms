@@ -48,14 +48,15 @@ class HighchartsServerService
 //            $cfile = new \CURLFile($jsonPaths[$i],'application/json', $jsonPaths[$i]);
             $data = file_get_contents($jsonPaths[$i]);
             // set URL and other appropriate options
-            curl_setopt($curlArr[$i], CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($curlArr[$i], CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curlArr[$i], CURLOPT_POSTFIELDS, $data);
-            curl_setopt($curlArr[$i], CURLOPT_HTTPHEADER, [
+            curl_setopt_array($curlArr,[
+                CURLOPT_CUSTOMREQUEST   => "POST",
+                CURLOPT_RETURNTRANSFER  => true,
+                CURLOPT_POSTFIELDS      => $data,
+                CURLOPT_HTTPHEADER      => [
                     'Content-Type: application/json',
                     'Content-Length: ' . strlen($data)
                 ]
-            );
+            ]);
             //add the handles
             curl_multi_add_handle($master, $curlArr[$i]);
         }

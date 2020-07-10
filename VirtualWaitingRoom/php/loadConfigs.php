@@ -31,6 +31,7 @@ define("BASE_PATH",$configs["path"]["BASE_PATH"]."/VirtualWaitingRoom");
 //define the location of the checked in patients text file
 define("CHECKIN_FILE_PATH",BASE_PATH ."/checkin/checkinlist.txt");
 define("CHECKIN_FILE_URL", BASE_URL ."/checkin/checkinlist.txt");
+define("OPAL_NOTIFICATION_URL",$configs["opal"]["OPAL_NOTIFICATION_URL"]);
 
 //DB Settings
 define("MYSQL_HOST",$configs["database"]["ORMS_HOST"]);

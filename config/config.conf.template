@@ -43,6 +43,7 @@ QUESTIONNAIRE_PASSWORD          =
 
 [opal]
 OPAL_CHECKIN_URL                =
+OPAL_NOTIFICATION_URL           =
 
 [sms]
 SMS_LICENCE_KEY                 =

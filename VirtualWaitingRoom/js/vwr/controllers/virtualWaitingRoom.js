@@ -62,12 +62,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 	{
 		if($scope.checkinFile)
 		{
-			//turn on while working in dev
-			/*$http({
-				url: "php/updateCheckinFile.php",
-				method: "GET"
-			});*/
-
 			$http.get($scope.checkinFile).then(function(response)
 			{
 				//perform some quick processing
@@ -87,9 +81,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				method: "GET"
 			}).then(function(response)
 			{
-                $scope.checkinFile = response.data.replace(/("|\\)/g,"");
+                $scope.checkinFile = response.data.checkinFile;
                 $scope.checkinFile = $scope.checkinFile +"_"+ $scope.pageSettings.Speciality;
-				loadPatients();
+                loadPatients();
+
+                //also get the opal notification file here
+                $scope.opalNotificationUrl = response.data.opalNotificationUrl;
 			});
 		}
 	};
@@ -389,7 +386,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				//-----------------------------------------------------------------------
 				//for now, only RVH patients have opal
 				$http({
-					url: "http://172.26.120.179/opalAdmin/publisher/php/sendCallPatientNotification.php",
+					url: $scope.opalNotificationUrl,
 					method: "GET",
 					params:
 					{

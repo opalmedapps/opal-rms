@@ -26,11 +26,9 @@
 
 			<tr><td><b>Appointment Code</b></td>
 			<td>
-			    <input type="text" list="AppointCode" ng-model="pageFields.AppointCode" required>
-			    <datalist id="AppointCode">
-			    <option ng-repeat="appointment in loadedAppointments | filter:search" value="{{appointment}}"></option>
-			    </datalist>
-
+                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" ng-change="updateSelectedResource(userSelectedResource)" required>
+                    <option ng-repeat="appointment in loadedAppointments">{{appointment}}</option>
+                </select>
 			</td>
 			</tr>
 
@@ -180,6 +178,11 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     $scope.createAddOn = function()
     {
+        if(!$scope.pageFields.AppointCode) {
+            alert("Please select an appointment code");
+            return;
+        }
+
         if(!$scope.pageFields.resourceCode) {
             alert("Please select a clinic");
             return;

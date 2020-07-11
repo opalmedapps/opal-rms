@@ -126,17 +126,13 @@ function validateAppointmentInfo(array $appInfo): array
     #check if the action in Medivisit is a recognized one
     if(!preg_match("/^(S12|S14|S15|S17)$/",$appInfo["Action"])) throw new Exception("Unknown action");
 
-    #dates come in as YYYY/MM/DD
-    #change '/' to '-'
-    $appInfo["AppointDate"] = str_replace("/","-",$appInfo["AppointDate"]);
-    $appInfo["VisitDate"] = str_replace("/","-",$appInfo["VisitDate"]);
-    $appInfo["CreationDate"] = str_replace("/","-",$appInfo["CreationDate"]);
+    #make sure dates and times are in the right format
+    $appInfo["AppointDate"] = (new DateTime($appInfo["AppointDate"]))->format("Y-m-d");
+    $appInfo["VisitDate"] = (new DateTime($appInfo["VisitDate"]))->format("Y-m-d");
+    $appInfo["CreationDate"] = (new DateTime($appInfo["CreationDate"]))->format("Y-m-d H:i:s");
 
-    #time comes in as HH:MM
-    #add seconds to time
-    if(!empty($appInfo["AppointTime"])) $appInfo["AppointTime"] .= ":00";
-    if(!empty($appInfo["VisitTime"])) $appInfo["VisitTime"] .= ":00";
-    if(!empty($appInfo["CreationDate"])) $appInfo["CreationDate"] .= ":00";
+    $appInfo["AppointTime"] = (new DateTime($appInfo["AppointTime"]))->format("H:i:s");
+    $appInfo["VisitTime"] = (new DateTime($appInfo["VisitTime"]))->format("H:i:s");
 
     #ssn expiration dates come in as YYMM for quebec ramqs
     #other formats may come in as YYMMDD

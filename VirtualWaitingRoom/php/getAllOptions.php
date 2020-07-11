@@ -7,6 +7,7 @@ require("loadConfigs.php");
 
 //get webpage parameters
 $speciality = $_GET["speciality"];
+$clinicalArea = $_GET["clinicalArea"];
 
 $json = []; //json object to be returned
 
@@ -56,7 +57,7 @@ $query3 = $dbWRM->prepare("
         ExamRoom
     WHERE ExamRoom.Level = ?
 ");
-$query3->execute([$speciality]);
+$query3->execute([$clinicalArea]);
 
 // Process results
 while($row = $query3->fetch(PDO::FETCH_ASSOC))
@@ -73,7 +74,7 @@ $query4 = $dbWRM->prepare("
     WHERE
         IntermediateVenue.Level = ?
 ");
-$query4->execute([$speciality]);
+$query4->execute([$clinicalArea]);
 
 // Process results
 while($row = $query4->fetch(PDO::FETCH_ASSOC))

@@ -91,7 +91,8 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
 			method: "GET",
 			params:
 			{
-				speciality: $scope.speciality
+                speciality: $scope.speciality,
+                clinicalArea: $scope.clinicalArea
 			}
 		}).then(function (response)
 		{

@@ -179,7 +179,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				method: "GET",
 				params:
 				{
-					speciality: $scope.pageSettings.Speciality
+                    speciality: $scope.pageSettings.Speciality,
+					clinicalArea: $scope.pageSettings.ClinicalArea
 				}
 			}).then(function (response)
 			{

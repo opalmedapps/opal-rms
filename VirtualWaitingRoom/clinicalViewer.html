@@ -341,7 +341,9 @@
                 <tr ng-show="test.showMenu === 'Hide Menu'">
                     <td>
                         <p style="width: 200%" ><b>Answered in last</b>
-                            <input  style="width: 15%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).</b></p></td>
+                            <input  style="width: 15%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).                  </b></p></td>
+                    <td></td>
+                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.offbutton === 'ON') ? '#0062cc' : '', color: (inputs.offbutton === 'ON') ? 'white' : ''}" ng-click="OnOffButton()">{{inputs.offbutton}}</button></td>
                 </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>

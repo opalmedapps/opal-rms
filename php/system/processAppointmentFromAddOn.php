@@ -11,18 +11,18 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
-
 #process post request
 $postParams = getPostContents();
 $postParams = utf8_decode_recursive($postParams);
 
 $appointmentInfo = [];
 foreach($postParams as $key => $val) {
-    $appointmentInfo[$key] = !empty($postParams[$key]) ? $postParams[$key] : NULL;
+    $appointmentInfo[$key] = !empty($val) ? $val : NULL;
 }
 
 #call the importer script
+$url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
+
 $ch = curl_init();
 curl_setopt_array($ch,[
     CURLOPT_URL             => $url,

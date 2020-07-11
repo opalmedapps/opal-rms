@@ -87,8 +87,9 @@ my $sql = "
 		INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
 			AND Patient.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
 		INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
-			AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','RC WAITING ROOM','ORTHO WAITING ROOM','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','S1 WAITING ROOM','OPAL PHONE APP')
+			AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
 			AND PatientLocationMH.CheckinVenueName NOT LIKE '%Ortho%'
+            AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
 			$checkinCondition
 	WHERE
 		MediVisitAppointmentList.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'

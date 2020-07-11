@@ -41,41 +41,39 @@ $queryProfile = $dbWRM->prepare("
 //process results
 $queryProfile->execute([$profileId]);
 
-$rows = $queryProfile->fetchAll(PDO::FETCH_ASSOC);
+$row = $queryProfile->fetchAll(PDO::FETCH_ASSOC)[0] ?? NULL;
 
-if(count($rows) > 0)
-{
-	foreach($rows as &$row)
-	{
-		$json['ProfileSer'] = $row['ProfileSer'];
-		$json['ProfileId'] = $row['ProfileId'];
-		$json['Category'] = $row['Category'];
-		$json['Speciality'] = $row['Speciality'];
-		$json['ClinicalArea'] = $row['ClinicalArea'];
-		$json['FetchResourcesFromVenues'] = $row['FetchResourcesFromVenues'];
-		$json['FetchResourcesFromClinics'] = $row['FetchResourcesFromClinics'];
-		$json['ShowCheckedOutAppointments'] = $row['ShowCheckedOutAppointments'];
-		$json['WaitingRoom'] = "Unspecified Waiting Room";
-		$json['IntermediateVenues'] = [];
-		$json['TreatmentVenues'] = [];
-		$json['Resources'] = [];
-		$json['ExamRooms'] = [];
-		$json['Clinics'] = [];
-		$json['Appointments'] = [];
-		$json['ColumnsDisplayed'] = [];
-
-        //if there profile has no assigned clinical area, use the one provided by the user
-        //if the user provided a clinical area, use it
-        if($clinicalArea) $json['ClinicalArea'] = $clinicalArea;
-	}
+if($row === NULL) {
+    echo "{}";
+    exit;
 }
-else {die("{}");}
+
+$json['ProfileSer'] = $row['ProfileSer'];
+$json['ProfileId'] = $row['ProfileId'];
+$json['Category'] = $row['Category'];
+$json['Speciality'] = $row['Speciality'];
+$json['ClinicalArea'] = $row['ClinicalArea'];
+$json['FetchResourcesFromVenues'] = $row['FetchResourcesFromVenues'];
+$json['FetchResourcesFromClinics'] = $row['FetchResourcesFromClinics'];
+$json['ShowCheckedOutAppointments'] = $row['ShowCheckedOutAppointments'];
+$json['WaitingRoom'] = "WAITING ROOM";
+$json['IntermediateVenues'] = [];
+$json['TreatmentVenues'] = [];
+$json['Resources'] = [];
+$json['ExamRooms'] = [];
+$json['Clinics'] = [];
+$json['Appointments'] = [];
+$json['ColumnsDisplayed'] = [];
+
+//if there profile has no assigned clinical area, use the one provided by the user
+//if the user provided a clinical area, use it
+if($clinicalArea) $json['ClinicalArea'] = $clinicalArea;
 
 //if a location is specified, set the associated waiting room
-$json['WaitingRoom'] = $json['ClinicalArea'] ." WAITING ROOM";
+$json['WaitingRoom'] = strtoupper($json['ClinicalArea']) ." WAITING ROOM";
 
 //set the load order of the appointments on the vwr page depending the category
-$json['sortOrder'] = 'LasName'; //default
+$json['sortOrder'] = 'LastName'; //default
 if($json['Category'] == 'PAB' or $json['Category'] == 'Treatment Machine' or $json['Category'] == 'Physician')
 {
 	$json['sortOrder'] = ['ScheduledStartTime_hh','ScheduledStartTime_mm'];

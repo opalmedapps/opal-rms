@@ -1454,13 +1454,13 @@ sub CheckinPatient
   if($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3")
   {
     $CheckinVenue = 8225;
-    $CheckinVenueName = "D-RC WAITING ROOM";
+    $CheckinVenueName = "D RC WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
   }
   elsif($location eq "DS1_1" || $location eq "DS1_2")
   {
     $CheckinVenue = 8226;
-    $CheckinVenueName = "D-S1 WAITING ROOM";
+    $CheckinVenueName = "D S1 WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
   }
   # Orthopedics

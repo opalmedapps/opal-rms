@@ -3,7 +3,7 @@
 # live perl config file
 #----------------------------------------
 use strict;
-use v5.30;
+use v5.26;
 use lib "./";
 use lib "../../perl/system/modules";
 

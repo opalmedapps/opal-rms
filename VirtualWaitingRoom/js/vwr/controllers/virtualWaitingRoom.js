@@ -342,25 +342,30 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 			//-----------------------------------------------------------------------
 			// Message to screens - add this patient's details to our firebase
 			// First create a child object for this patient and then fill the data
-			//-----------------------------------------------------------------------
-			firebaseScreenRef.child(patient.Identifier).set(
-			{
-				FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
-				PseudoLastName: pseudoLastName,
-				PatientSer: patient.PatientSer,
-				Destination: destination,
-				PatientStatus: 'Called',
-				Appointment: patient.AppointmentName,
-				Resource: patient.ResourceName,
-				ScheduledActivitySer: patient.ScheduledActivitySer,
-				ScheduledActivitySystem: patient.CheckinSystem,
-				Timestamp: Firebase.ServerValue.TIMESTAMP
-			});
+            //-----------------------------------------------------------------------
 
-			$scope.logMessage("call_FB","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicalArea +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
+            //if the destination is a waiting room, don't put the appointment in firebase
+            if(!/WAITING ROOM/.test(destination.LocationId))
+            {
+                firebaseScreenRef.child(patient.Identifier).set(
+                {
+                    FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
+                    PseudoLastName: pseudoLastName,
+                    PatientSer: patient.PatientSer,
+                    Destination: destination,
+                    PatientStatus: 'Called',
+                    Appointment: patient.AppointmentName,
+                    Resource: patient.ResourceName,
+                    ScheduledActivitySer: patient.ScheduledActivitySer,
+                    ScheduledActivitySystem: patient.CheckinSystem,
+                    Timestamp: Firebase.ServerValue.TIMESTAMP
+                });
 
-			// Update the timestamp in the firebase array
-			firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+                $scope.logMessage("call_FB","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicalArea +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
+
+                // Update the timestamp in the firebase array
+                firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+            }
 
 			if(sendSMS)
 			{

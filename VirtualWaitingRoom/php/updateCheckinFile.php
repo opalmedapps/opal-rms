@@ -171,6 +171,22 @@ foreach($json as $speciality => $data)
     fclose($checkinlist);
 }
 
-#if(is_writable(CHECKIN_FILE_PATH)) {chmod(CHECKIN_FILE_PATH,0777);}
+#scan for the list of check in files. If any of them were not updated today, empty them
+$path = dirname(CHECKIN_FILE_PATH);
+$files = scandir($path);
+
+$files = array_diff($files,[".",".."]);
+
+foreach($files as $file)
+{
+    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file"))->format("Y-m-d");
+    $today = (new DateTime())->format("Y-m-d");
+
+    if($modDate === $today) continue;
+
+    $handle = fopen("$path/$file","w");
+    fwrite($handle,"[]");
+    fclose($handle);
+}
 
 ?>

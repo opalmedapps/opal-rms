@@ -166,6 +166,7 @@ class Patient
                 $this->$field = str_replace('"',"",$this->$field); #remove double quotes
                 $this->$field = preg_replace("/\n|\r/","",$this->$field); #remove new lines and tabs
                 $this->$field = preg_replace("/\s+/"," ",$this->$field); #remove multiple spaces
+                $this->$field = preg_replace("/^\s/","",$this->$field); #remove spaces at the start
                 $this->$field = preg_replace("/\s$/","",$this->$field); #remove space at the end
             }
         }

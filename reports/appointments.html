@@ -137,7 +137,19 @@
 					<label ng-model="inputs.arrived" class="btn btn-primary" ng-change="keepPatChecked('arrived')" uib-btn-checkbox>Checked in</label>
 					<label ng-model="inputs.notArrived" class="btn btn-primary" ng-change="keepPatChecked('notArrived')" uib-btn-checkbox>Not Checked in</label>
 				</div></td>
-			</tr>
+            </tr>
+
+            <tr>
+            <td><b>Source Status: </b></td>
+            <td>
+                <div class="btn-group">
+                    <label ng-model="inputs.mediAbsent" class="btn btn-primary" uib-btn-checkbox>Absent</label>
+                    <label ng-model="inputs.mediAddOn" class="btn btn-primary" uib-btn-checkbox>AddOn</label>
+                    <label ng-model="inputs.mediCancelled" class="btn btn-primary" uib-btn-checkbox>Cancelled</label>
+                    <label ng-model="inputs.mediPresent" class="btn btn-primary" uib-btn-checkbox>Present</label>
+                </div>
+            </td>
+            </tr>
 
 			<tr>
 			<td><b>Appointment Type: </b></td>
@@ -196,9 +208,6 @@
 			<th>Checkin Time</th>
 			<th>Status</th>
 			<th>Medivisit Status</th>
-			<th>Consult</th>
-			<th>Suivi</th>
-			<th>Procedure</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -215,9 +224,6 @@
 			<td>{{appoint.checkin}}</td>
 			<td>{{appoint.appStatus}}</td>
 			<td>{{appoint.mediStatus}}</td>
-			<td></td>
-			<td></td>
-			<td></td>
 			</tr>
 		</tbody>
 		</table>
@@ -310,7 +316,11 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
 			canc: false,
 			prog: true,
 			arrived: true,
-			notArrived: true,
+            notArrived: true,
+            mediAbsent: true,
+            mediAddOn: true,
+            mediCancelled: true,
+            mediPresent: true,
 			type: 'all',
 			specificType: {name: '',resources: []},
 		}
@@ -383,9 +393,13 @@ app.factory('callScript',function($http,$q)
 			arrived = "&arrived="+((inputs.arrived) ? 1:0);
 			notArrived = "&notArrived="+((inputs.notArrived) ? 1:0);
 			typeSelect = "&type="+inputs.type;
-			specificType = "&specificType="+inputs.specificType.name;
+            specificType = "&specificType="+inputs.specificType.name;
+            mediAbsent = "&mediAbsent="+((inputs.mediAbsent) ? 1:0);
+            mediAddOn = "&mediAddOn="+((inputs.mediAddOn) ? 1:0);
+            mediCancelled = "&mediCancelled="+((inputs.mediCancelled) ? 1:0);
+            mediPresent = "&mediPresent="+((inputs.mediPresent) ? 1:0);
 
-			$http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+prog+arrived+notArrived+typeSelect+specificType+"&clinic="+speciality+"&updateRamq=0").then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+prog+arrived+notArrived+typeSelect+specificType+mediAbsent+mediAddOn+mediCancelled+mediPresent+"&clinic="+speciality+"&updateRamq=0").then(function (response)
 			{
 				var info = {};
 				info = response.data;

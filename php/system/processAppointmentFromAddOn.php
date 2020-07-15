@@ -13,7 +13,6 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 #process post request
 $postParams = getPostContents();
-$postParams = utf8_decode_recursive($postParams);
 
 $appointmentInfo = [];
 foreach($postParams as $key => $val) {

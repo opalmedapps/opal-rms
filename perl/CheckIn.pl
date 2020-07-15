@@ -1492,74 +1492,18 @@ sub CheckinPatient
 
   # Patients for whom the next appointment is a blood test, should be sent to the test centre
   # and also checked into the test centre
-#   if($CheckInResource eq "NS - prise de sang/blood tests pre/post tx")
-#   {
-#     print "******** This patient has a blood test first ****************<br>" if $verbose;
+  if($CheckInResource eq "NS - prise de sang/blood tests pre/post tx")
+  {
+    print "******** This patient has a blood test first ****************<br>" if $verbose;
 
-#     # checking patient into test centre waiting room so that it is clear to all that they
-#     # are getting a blood test
-#     $CheckinVenue = 8227;
-#     $CheckinVenueName = "TEST CENTRE WAITING ROOM";
-#     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
+    # checking patient into test centre waiting room so that it is clear to all that they
+    # are getting a blood test
+    $CheckinVenue = 8227;
+    $CheckinVenueName = "TEST CENTRE WAITING ROOM";
+    print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
 
-#     $WaitingRoomWherePatientShouldWait = "TestCentre";
-#   }
-
-#   # Patients for whom the next appointment is an ortho appointment that needs an x-ray
-#   # should be sent to radiology to have the x-ray taken, if this is their first check
-#   # in for their ortho appointment. Thus, need to see if the patient has already checked
-#   # in for their ortho appointment and direct accordingly
-#   if($location =~ m/Ortho/i )
-#   {
-#     print "******** This patient is Ortho ****************<br>" if $verbose;
-#     print "******** checking if already checked in ****************<br>" if $verbose;
-#     # Simply check the PatientLocation table to see if they have already checked in
-
-#     my $sqlCheckIfCheckedIn =
-# 		"
-# 			SELECT DISTINCT
-# 				PatientLocationRevCount
-# 			FROM
-# 				PatientLocation
-# 			WHERE
-# 				PatientLocation.AppointmentSerNum = $MV_AppointmentSerNum[0]
-# 		";
-
-#     print "<p>sqlCheckIfCheckedIn: $sqlCheckIfCheckedIn<br>" if $verbose;
-
-#     my $query= $dbh_mysql->prepare($sqlCheckIfCheckedIn)
-#       #or die "Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr;
-#       or print CHECKINLOG "###$now, $location ERROR - Couldn't prepare sqlCheckIfCheckedIn statement: " . $dbh_mysql->errstr . "\n\n";
-
-#     $query->execute()
-#       #or die "Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr;
-#       or print CHECKINLOG "###$now, $location ERROR - Couldn't execute sqlCheckIfCheckedIn statement: " . $query->errstr . "\n\n";
-
-#     my @data = $query->fetchrow_array();
-
-#     # grab data from MySQL
-#     my $PatientLocationRevCount = $data[0];
-
-#     # No existing checkin - then send for X-ray
-#     #if($PatientLocationRevCount < 100)
-#     if( ($nextApptDescription =~ m/NP-XR/i || $nextApptDescription =~ m/RTFU-XR/i) && !$PatientLocationRevCount)
-#     {
-#       print "******** This patient should go for an x-ray ****************<br>" if $verbose;
-#       $CheckinVenue = 0;
-#       $CheckinVenueName = "SENT FOR X-RAY";
-#       print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
-#       $WaitingRoomWherePatientShouldWait = "RadiologyMGH";
-#     }
-#     elsif($PatientLocationRevCount) # patient already checked in so must be back from x-ray
-#     {
-#       print "******** This patient has already been to x-ray ****************<br>" if $verbose;
-#       $CheckinVenue = 0;
-#       $CheckinVenueName = "BACK FROM X-RAY/PHYSIO";
-#       print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
-#       $WaitingRoomWherePatientShouldWait = "OrthoWaitRoom";
-#     }
-
-#   }
+    $WaitingRoomWherePatientShouldWait = "TestCentre";
+  }
 
   ##########################################################################################
   # Check the patient in for all Medivisit appointments

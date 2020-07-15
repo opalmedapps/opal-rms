@@ -26,7 +26,7 @@
 
 			<tr><td><b>Appointment Code</b></td>
 			<td>
-                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" ng-change="updateSelectedResource(userSelectedResource)" required>
+                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" required>
                     <option ng-repeat="appointment in loadedAppointments">{{appointment}}</option>
                 </select>
 			</td>

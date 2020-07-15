@@ -42,6 +42,10 @@ my $clinic = param("clinic");
 my $appType = param("type");
 my $specificType = param("specificType");
 my $updateRamq = param("updateRamq");
+my $mediAbsent = param("mediAbsent");
+my $mediAddOn = param("mediAddOn");
+my $mediCancelled = param("mediCancelled");
+my $mediPresent = param("mediPresent");
 
 my $sDate = $sDateInit ." $sTime";
 my $eDate = $eDateInit ." $eTime";
@@ -237,6 +241,12 @@ while(my @data1 = $query1->fetchrow_array())
 
 		$createdToday = 1 if($creationTP eq $today);
 	}
+
+    #filter the appointment if the right flags are set;
+	next if(!$mediAbsent and $mediStatus{$ser} =~ /Absent/);
+	next if(!$mediAddOn and $mediStatus{$ser} =~ /Add-on/);
+	next if(!$mediCancelled and $mediStatus{$ser} =~ /Cancelled/);
+	next if(!$mediPresent and $mediStatus{$ser} =~ /Pr.sent/);
 
 	#encode the information in json format
 	if(($arrived and !$notArrived and $checkin{$ser})

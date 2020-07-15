@@ -61,10 +61,10 @@ $messages = array_map(function($x) {
 },$messages);
 
 //filter all non test phone numbers for now
-$messages = array_filter($messages,function($x) {
-    return ($x["From"] === "15147157890"
-		|| $x["From"] === "15144758943");
-});
+// $messages = array_filter($messages,function($x) {
+//     return ($x["From"] === "15147157890"
+// 		|| $x["From"] === "15144758943");
+// });
 
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message)
@@ -125,6 +125,16 @@ foreach($messages as $message)
     #check the patient into all of his appointments
     $checkInLocation = "CELL PHONE";
 
+    #check for a blood test appointment
+    $bloodTestApp = FALSE;
+    foreach($appointments as $app)
+    {
+        if($app["name"] === "NS - prise de sang/blood tests pre/post tx") {
+            $bloodTestApp = TRUE;
+            $checkInLocation = "TEST CENTRE WAITING ROOM";
+        }
+    }
+
     #check in the patient
     if($appointments === [])
     {
@@ -147,11 +157,21 @@ foreach($messages as $message)
 
     if($checkInResult < 300)
     {
-        if($language === "French") {
-            $returnString = "CUSM: Vous etes enregistrés pour vos rendez-vous:\n{$appointmentString}Vous recevrez un message quand vous serez appelés pour votre rendez-vous.";
+        if($bloodTestApp === TRUE) {
+            if($language === "French") {
+                $returnString = "CUSM: Les inscriptions via téléphone cellulaire ne sont pas disponibles pour les prises de sang. Dirigez-vous vers le Centre de prélèvement du Centre du cancer et prenez un billet.";
+            }
+            else {
+                $returnString = "MUHC: Cell phone check-in is not available for blood test appointments. Please go to the Blood Test Reception in the Cedars Cancer Centre and take a number.";
+            }
         }
         else {
-            $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
+            if($language === "French") {
+                $returnString = "CUSM: Vous etes enregistrés pour vos rendez-vous:\n{$appointmentString}Vous recevrez un message quand vous serez appelés pour votre rendez-vous.";
+            }
+            else {
+                $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
+            }
         }
 
         textPatient($message["From"],$message["To"],$returnString);

@@ -84,7 +84,6 @@ foreach my $ormsSer (keys $patients->%*)
 
     for($ormsData->{"appointments"}->@*)
     {
-        say Dumper($_);
         $queries->{"insertAppointment"}->execute(
             $newPatientSerNum,
             $_->{"Resource"},
@@ -103,6 +102,20 @@ foreach my $ormsSer (keys $patients->%*)
             $_->{"ReferringPhysician"},
             $_->{"LastUpdated"}
         ) or die("Query execution failed: ".$queries->{"insertAppointment"}->errstr);
+
+        my $newAppointmentSerNum = $dbhNew->{mariadb_insertid};
+
+        for($_->{"locations"})
+        {
+            $queries->{"insertLocation"}->execute(
+                $newAppointmentSerNum,
+                $_->{"PatientLocationRevCount"},
+                $_->{"CheckinVenueName"},
+                $_->{"ArrivalDateTime"},
+                $_->{"DichargeThisLocationDateTime"},
+                $_->{"IntendedAppointmentFlag"}
+            ) or die("Query execution failed: ".$queries->{"insertLocation"}->errstr);
+        }
     }
 
     for($ormsData->{"weights"}->@*)
@@ -190,6 +203,7 @@ sub prepareQueries
 
     my $queryAppointments = $dbhOld->prepare_cached("
         SELECT
+            MV.AppointSerNum,
             MV.Resource,
             MV.ResourceDescription,
             MV.ScheduledDateTime,
@@ -210,6 +224,27 @@ sub prepareQueries
         WHERE
             MV.PatientSerNum = ?
         ORDER BY MV.ScheduledDateTime
+    ") or die("Couldn't prepare statement: ". $dbhOld->errstr);
+
+    my $queryLocations = $dbhOld->prepare_cached("
+        SELECT
+            PatientLocationMH.PatientLocationRevCount,
+            CASE
+                WHEN PatientLocationMH.CheckinVenueName = 'DRC Waiting Room' THEN 'D RC WAITING ROOM'
+                WHEN PatientLocationMH.CheckinVenueName = 'RC Waiting Room' THEN 'D RC WAITING ROOM'
+                WHEN PatientLocationMH.CheckinVenueName = 'DS1 Waiting Room' THEN 'D S1 WAITING ROOM'
+                WHEN PatientLocationMH.CheckinVenueName = 'S1 Waiting Room' THEN 'D S1 WAITING ROOM'
+                ELSE PatientLocationMH.CheckinVenueName
+            END AS CheckinVenueName,
+            PatientLocationMH.ArrivalDateTime,
+            PatientLocationMH.DichargeThisLocationDateTime,
+            PatientLocationMH.IntendedAppointmentFlag
+        FROM
+            PatientLocationMH
+        WHERE
+            PatientLocationMH.AppointSerNum = ?
+            AND PatientLocationMH.CheckinVenueName NOT IN ('','unknown','Unspecified Waiting Room')
+        ORDER BY PatientLocationMH.PatientLocationRevCount
     ") or die("Couldn't prepare statement: ". $dbhOld->errstr);
 
     my $queryWeights = $dbhOld->prepare_cached("
@@ -266,6 +301,18 @@ sub prepareQueries
         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     ") or die("Couldn't prepare statement: ". $dbhNew->errstr);
 
+    my $insertLocation = $dbhNew->prepare_cached("
+        INSERT INTO PatientLocationMH(
+           AppointmentSerNum,
+           PatientLocationRevCount,
+           CheckinVenueName,
+           ArrivalDateTime,
+           DichargeThisLocationDateTime,
+           IntendedAppointmentFlag
+        )
+        VALUES(?,?,?,?,?,?)
+    ") or die("Couldn't prepare statement: ". $dbhNew->errstr);
+
     my $insertWeight = $dbhNew->prepare_cached("
         INSERT INTO PatientMeasurement(
             PatientSerNum,
@@ -284,9 +331,11 @@ sub prepareQueries
     return {
         "getPatientInfo" => $queryPatientInfo,
         "getAppointments" => $queryAppointments,
+        "getLocations"  => $queryLocations,
         "getWeights" => $queryWeights,
         "insertPatient" => $insertPatient,
         "insertAppointment" => $insertAppointment,
+        "insertLocation" => $insertLocation,
         "insertWeight" => $insertWeight
     }
 }
@@ -304,6 +353,12 @@ sub fetchDataInOrms
     #get data from appointment table
     $queries->{"getAppointments"}->execute($ormsSer) or die("Couldn't execute statement: ". $queries->{"getAppointments"}->errstr);
     $patient->{"appointments"} = $queries->{"getAppointments"}->fetchall_arrayref({});
+
+    for($patient->{"appointments"})
+    {
+        $queries->{"getLocations"}->execute($_->{"AppointSerNum"}) or die("Couldn't execute statement: ". $queries->{"getLocations"}->errstr);
+        $_->{"locations"} = $queries->{"getLocations"}->fetchall_arrayref({});
+    }
 
     #get data from measurement table
     $queries->{"getWeights"}->execute($ormsSer) or die("Couldn't execute statement: ". $queries->{"getWeights"}->errstr);

@@ -112,7 +112,7 @@ while(my @data = $query->fetchrow_array())
 	my $checkin = $data[9];
 	my $checkout = $data[10];
 	my $ven = $data[11];
-	$ven =~ s/WAITING ROOM|Waiting Room//;
+	# $ven =~ s/WAITING ROOM|Waiting Room//;
 	#$ven =~ s/ADDED ON BY RECEPTION/Add On/;
 
 	#record all venues a patient waited in

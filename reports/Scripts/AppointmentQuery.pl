@@ -168,7 +168,6 @@ my $sql1 = "
 		AND MV.ResourceDescription in (Select distinct CR.ResourceName from ClinicResources CR Where trim(CR.ResourceName) not in ('', 'null') $specialityFilter)
 		$appFilter
 		AND MV.Status != 'Deleted'
-		AND MV.ResourceDescription NOT LIKE '%blood%'
 		AND MV.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
 		$typeFilter
 	ORDER BY ScheduledDate,ScheduledTime";

@@ -1,5 +1,5 @@
 <html>
-<title>Room Occupancy Report</title>
+<title>Chemotherapy Durations Report</title>
 <img src='../../images/logo.png'>
 <body ng-app="myApp">
 <script src="../node_modules/jquery/dist/jquery.min.js"></script>
@@ -14,7 +14,6 @@
 <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="../node_modules/ui-bootstrap4/dist//ui-bootstrap-tpls.js"></script>
 <script src="../node_modules/angular-bowser/src/angular-bowser.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
@@ -89,13 +88,13 @@
 
 </style>
 
-<center><h1>MUHC Department of Radiation Oncology</h1></center><center><h2><u>Room Occupancy Report</u></h2></center>
+<center><h1>MUHC Department of Radiation Oncology</h1></center><center><h2><u>Chemotherapy Duration Report</u></h2></center>
 
 <div class="page" ng-controller="main">
 	<table border="0" width="50%" padding="5">
 		<tr>
 		<td valign="top"><b>Description:</b></td>
-		<td>Report to calculate the room usage for the Oncology Department.</td>
+		<td>Report to calculate the room occupation time for chemotherapy treatments in the date range. For each treatment, the report finds the time spent inside the first "TX AREA" room of the day.</td>
 		</tr>
 	</table>
 	<br>
@@ -115,15 +114,10 @@
 			</tr>
 
 			<tr><td><br></td></tr>
-
-			<tr>
-			<td colspan=2><b>Look for &nbsp;&nbsp;</b><select ng-model="period" name="AMPM"><option value="AM">AM</option><option value="PM">PM</option><option value="All">All</option></select><b> &nbsp;appointments</b></td>
-			<tr>
-
-			<tr><td><br></td></tr>
 			<tr>
 			<td></td><td><button type="submit">Submit</button></td>
 			</tr>
+
 		</table>
 	</form>
 
@@ -134,26 +128,44 @@
 				<td><b>Current Date: </b></td><td>{{today | date}}</td>
 			</tr>
 			<tr>
-				<td><b>Search Date: </b></td><td>{{sDateDisplay | date}} - {{eDateDisplay |date}} {{periodDisplay}}</td>
+				<td><b>Search Date: </b></td><td>{{sDateDisplay | date}} - {{eDateDisplay |date}} </td>
 			</tr>
 		</table>
 
 		<br>
 
-		<h1>Room Usage</h1>
+		<h1>Chemotherapy Treatment Duration</h1>
 		<table class='items' datatable="ng" dt-options="dtOptions">
 		<thead>
 			<tr>
-			<th>Room</th>
+			<th>Last Name</th>
+			<th>First Name</th>
+			<th>Patient Id</th>
+			<th>Clinic Code</th>
 			<th>Clinic</th>
-			<th>Number of Patients Seen</th>
+			<th>Appointment Code</th>
+			<th>Appointment Status</th>
+			<th>Scheduled Date</th>
+			<th>Room</th>
+			<th>Arrival</th>
+			<th>Discharge</th>
+			<th>Treatment Duration</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-repeat="row in tableData">
-			<td>{{row.Room}}</td>
-			<td>{{row.Appointment}}</td>
-			<td>{{row.Counts}}</td>
+			<td>{{row.LastName}}</td>
+			<td>{{row.FirstName}}</td>
+			<td>{{row.PatientId}}</td>
+			<td>{{row.Resource}}</td>
+			<td>{{row.ResourceDescription}}</td>
+			<td>{{row.AppointmentCode}}</td>
+			<td>{{row.Status}}</td>
+			<td>{{row.ScheduledDateTime}}</td>
+			<td>{{row.CheckinVenueName}}</td>
+			<td>{{row.ArrivalDateTime}}</td>
+			<td>{{row.DichargeThisLocationDateTime}}</td>
+			<td>{{row.Duration}}</td>
 			</tr>
 		</tbody>
 		</table>
@@ -161,18 +173,15 @@
 </div>
 
 <script>
-var app = angular.module('myApp',['datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngCookies']);
-app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScript,bowser)
+var app = angular.module('myApp',['datatables','datatables.buttons','ui.bootstrap','jlareau.bowser']);
+app.controller('main', function($scope,$filter,DTOptionsBuilder,callScript,bowser)
 {
 	$scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
-    if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
-
-    var speciality = $cookies.get("speciality");
+	if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
 
 	$scope.today = new Date();
 	$scope.sDate = new Date();
 	$scope.eDate = new Date();
-    $scope.period = 'All';
 
 	//add datatables settings
 	$scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -225,12 +234,11 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
 	{
 		$scope.sDateDisplay = $scope.sDate;
 		$scope.eDateDisplay = $scope.eDate;
-		if($scope.period != 'All') {$scope.periodDisplay = $scope.period;}
 
 		$scope.showDiv = false;
 		$scope.message = "Getting Data...";
 
-		callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.period,speciality).then(function (response)
+		callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate)).then(function (response)
 		{
 			$scope.tableData = response;
 
@@ -245,13 +253,13 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
 app.factory('callScript',function($http,$q)
 {
 	return {
-		getData: function(sDate,eDate,period,speciality)
+		getData: function(sDate,eDate)
 		{
 			var defer = $q.defer();
 
-			url = "./Scripts/RoomCount?"
+			url = "./Scripts/ChemoDurations?"
 
-			$http.get(url+"sDate="+sDate+"&eDate="+eDate+"&period="+period+"&speciality="+speciality).then(function (response)
+			$http.get(url+"sDate="+sDate+"&eDate="+eDate).then(function (response)
 			{
 				var info = {};
 				info = response.data;
@@ -265,6 +273,6 @@ app.factory('callScript',function($http,$q)
 
 <br>
 <hr>
-<center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+<center> Problems and bug reports to John Kildea<br> (jkildea@medphys.mcgill.ca)</center>
 </body>
 </html>

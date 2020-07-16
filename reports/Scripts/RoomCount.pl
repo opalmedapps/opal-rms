@@ -42,6 +42,7 @@ print $cgi->header('application/json');
 my $sDateInit = param("sDate");
 my $eDateInit = param("eDate");
 my $period = param("period");
+my $speciality = param("speciality");
 
 my $sDate = $sDateInit ." 00:00:00";
 my $eDate = $eDateInit ." 23:59:59";
@@ -88,17 +89,17 @@ my $sql = "
 			AND Patient.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
 		INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
 			AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
-			AND PatientLocationMH.CheckinVenueName NOT LIKE '%Ortho%'
             AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
 			$checkinCondition
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+            AND ClinicResources.Speciality = ?
 	WHERE
 		MediVisitAppointmentList.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
 		AND MediVisitAppointmentList.Status = 'Completed'
-		AND MediVisitAppointmentList.ResourceDescription != 'Oncologie Traitement - Glen'
-		AND MediVisitAppointmentList.ResourceDescription NOT LIKE '%blood%'";
+";
 
 my $query = $dbh->prepare_cached($sql) or die("Query could not be prepared: ".$dbh->errstr);
-$query->execute() or die("Query execution failed: ".$query->errstr);
+$query->execute($speciality) or die("Query execution failed: ".$query->errstr);
 
 #----------------------------------------
 #process data

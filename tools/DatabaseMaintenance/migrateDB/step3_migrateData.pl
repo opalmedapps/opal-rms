@@ -223,6 +223,7 @@ sub prepareQueries
                 AND ClinicResources.Speciality = 'Oncology'
         WHERE
             MV.PatientSerNum = ?
+            AND MV.Resource != 'CV-SIGN'
         ORDER BY MV.ScheduledDateTime
     ") or die("Couldn't prepare statement: ". $dbhOld->errstr);
 

@@ -36,8 +36,8 @@ my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
 #read input data
 my $patients = read_json("./data/rvhPatients.json");
 
-my $dbhOld = DBI->connect_cached("DBI:MariaDB:database=WaitRoomManagement;host=172.26.123.25",'ormsadm','aklw3hrq3asdf923k') or die("Can't connect");
-my $dbhNew = DBI->connect_cached("DBI:MariaDB:database=OrmsDev;host=172.26.123.25",'ormsadm','aklw3hrq3asdf923k') or die("Can't connect");
+my $dbhOld = DBI->connect_cached("DBI:MariaDB:database=;host=",'','') or die("Can't connect");
+my $dbhNew = DBI->connect_cached("DBI:MariaDB:database=;host=",'','') or die("Can't connect");
 my $queries = prepareQueries($dbhOld,$dbhNew);
 
 my $resources = getResourceList($dbhNew);

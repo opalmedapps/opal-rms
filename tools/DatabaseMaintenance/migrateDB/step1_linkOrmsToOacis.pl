@@ -41,7 +41,7 @@ my $ormsToOacis = read_json("./data/ormsToOacis.json");
 
 #custom connection
 use DBI;
-my $dbh = DBI->connect_cached("DBI:MariaDB:database=WaitRoomManagement;host=172.26.123.25",'ormsadm','aklw3hrq3asdf923k') or die("Can't connect");
+my $dbh = DBI->connect_cached("DBI:MariaDB:database=;host=",'','') or die("Can't connect");
 
 #get a list of all the patients in the database
 my $sqlPatientList = "

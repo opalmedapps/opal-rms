@@ -31,78 +31,62 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 if($profile['ProfileSer'] == -1)
 {
-	$sqlCreateProfile = "CALL SetupProfile('$profile[ProfileId]','$profile[Speciality]','$profile[ClinicalArea]');";
-
-	$queryCreateProfile = $dbWRM->query($sqlCreateProfile);
+    $queryCreateProfile = $dbWRM->prepare("CALL SetupProfile(?,?,?);");
+    $queryCreateProfile->execute([$profile["ProfileId"],$profile["Speciality"],$profile["ClinicalArea"]]);
 
 	//the subroutine returns the new profile's serial so we update ours
-	$row = $queryCreateProfile->fetch(PDO::FETCH_NUM);
+    $row = $queryCreateProfile->fetchAll(PDO::FETCH_NUM)[0];
+    $queryCreateProfile->closeCursor();
 	$profile['ProfileSer'] = $row[0];
 
-	$dbWRM = null; //close the db for the next part
 }
 
-//due to a PDO bug, two stored procedures cannot be used at the same time so we close and reopen the connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
-
 //insert the profile properties
-$sqlProperties = "
-	UPDATE Profile
-	SET
-		ProfileId = '$profile[ProfileId]',
-		Category = '$profile[Category]',
-		Speciality = '$profile[Speciality]',
-		ClinicalArea = '$profile[ClinicalArea]',
-		FetchResourcesFromVenues = $profile[FetchResourcesFromVenues],
-		FetchResourcesFromClinics = $profile[FetchResourcesFromClinics],
-		ShowCheckedOutAppointments = $profile[ShowCheckedOutAppointments]
-	WHERE Profile.ProfileSer = $profile[ProfileSer]";
-
-$queryProperties = $dbWRM->exec($sqlProperties);
-
-$dbWRM = null; //close the db for the next part
+$queryProperties = $dbWRM->prepare("
+    UPDATE Profile
+    SET
+        ProfileId = :profileId,
+        Category = :category,
+        Speciality = :speciality,
+        ClinicalArea = :clinicalArea,
+        FetchResourcesFromVenues = :fetchResourcesFromVenues,
+        FetchResourcesFromClinics = :fetchResourcesFromClinics,
+        ShowCheckedOutAppointments = :showCheckedOut
+    WHERE Profile.ProfileSer = :profileSer
+");
+$queryProperties->execute([
+    ":profileId"                    => $profile["ProfileId"],
+    ":category"                     => $profile["Category"],
+    ":speciality"                   => $profile["Speciality"],
+    ":clinicalArea"                 => $profile["ClinicalArea"],
+    ":fetchResourcesFromVenues"     => $profile["FetchResourcesFromVenues"],
+    ":fetchResourcesFromClinics"    => $profile["FetchResourcesFromClinics"],
+    ":showCheckedOut"               => $profile["ShowCheckedOutAppointments"],
+    ":profileSer"                   => $profile["ProfileSer"]
+]);
+$queryProperties->closeCursor();
 
 //insert the profile options
 
-//due to a PDO bug, two stored procedures cannot be used at the same time so we close and reopen the connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
-
 //first create an option string to give to the query
-$optionNameString = implode("|||",array_map(function ($obj)
-	{
-		return $obj['Name'];
-	},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
-$optionTypeString = implode("|||",array_map(function ($obj)
-	{
-		return $obj['Type'];
-	},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
+$optionNameString = implode("|||",array_map(function ($obj) {
+    return $obj['Name'];
+},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
+$optionTypeString = implode("|||",array_map(function ($obj) {
+    return $obj['Type'];
+},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
 
-if($optionNameString != '')
-{
-	$sqlOptions = "CALL UpdateProfileOptions('$profile[ProfileId]','$optionNameString','$optionTypeString')";
-
-	$queryOptions = $dbWRM->exec($sqlOptions);
-
-	$dbWRM = null; //close the db for the next part
-}
-
-//due to a PDO bug, two stored procedures cannot be used at the same time so we close and reopen the connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$queryOptions = $dbWRM->prepare("CALL UpdateProfileOptions(?,?,?)");
+$queryOptions->execute([$profile["ProfileId"],$optionNameString,$optionTypeString]);
+$queryOptions->closeCursor();
 
 //insert the profile columns
-$columnNameString = implode("|||",array_map(function ($obj)
-	{
+$columnNameString = implode("|||",array_map(function ($obj) {
 		return $obj['ColumnName'];
-	},$columns));
+},$columns));
 
-
-if($columnNameString != '')
-{
-	$sqlColumns = "CALL UpdateProfileColumns('$profile[ProfileId]','$columnNameString')";
-
-	$queryColumns = $dbWRM->exec($sqlColumns);
-}
-
-$dbWRM = null;
+$queryColumns = $dbWRM->prepare("CALL UpdateProfileColumns(?,?)");
+$queryColumns->execute([$profile["ProfileId"],$columnNameString]);
+$queryColumns->closeCursor();
 
 ?>

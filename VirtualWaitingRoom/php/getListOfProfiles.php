@@ -22,7 +22,10 @@ $sql = "
     FROM
         Profile
     WHERE
-        Profile.Speciality = ?";
+        Profile.Speciality = ?
+    ORDER BY
+        Profile.Category,
+        Profile.ProfileId";
 
 //process results
 $query = $dbh->prepare($sql);

@@ -31,18 +31,18 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //get the WRM resources
 $query2 = $dbWRM->prepare("
     SELECT DISTINCT
-        LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS ResourceDescription
+        ClinicResources.ResourceName
     FROM
-        MediVisitAppointmentList
-    INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
-        AND ClinicResources.Speciality = ?
+        ClinicResources
+    WHERE
+        ClinicResources.Speciality = ?
 ");
 $query2->execute([$speciality]);
 
 // Process results
 while($row = $query2->fetch(PDO::FETCH_ASSOC))
 {
-	$resources[] = $row['ResourceDescription'];
+	$resources[] = $row['ResourceName'];
 }
 
 //================================================================================

@@ -7,7 +7,7 @@ require("loadConfigs.php");
 
 #extract the webpage parameters
 $patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
-$patientIdMGH       = $_GET["patientIdMGH"] ?? NULL;
+$patientIdMGH       = $_GET["patientIdMGH"] ?? "";
 $user               = $_GET["user"] ?? NULL;
 
 #find the patient in ORMS

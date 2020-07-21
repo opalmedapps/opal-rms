@@ -41,7 +41,7 @@ my $ormsToOacis = read_json("./data/ormsToOacis.json");
 
 #custom connection
 use DBI;
-my $dbh = DBI->connect_cached("DBI:MariaDB:database=;host=",'','') or die("Can't connect");
+my $dbh = DBI->connect_cached("DBI:MariaDB:database=WaitRoomManagement;host=172.26.123.25",'ormsadm','aklw3hrq3asdf923k') or die("Can't connect");
 
 #get a list of all the patients in the database
 my $sqlPatientList = "
@@ -57,8 +57,9 @@ my $sqlPatientList = "
     WHERE
         Patient.PatientId NOT IN ('9999991','9999994','9999995','9999996','9999997','9999998','CCCC')
         AND Patient.PatientId NOT LIKE 'Opal%'
+        AND Patient.PatientId != ''
     ORDER BY Patient.LastName,Patient.FirstName,Patient.PatientId
-    LIMIT 100
+    -- LIMIT 100
 ";
 
 my $queryPatientList = $dbh->prepare($sqlPatientList) or die("Couldn't prepare statement: ". $dbh->errstr);
@@ -84,7 +85,6 @@ while(my $data = $queryPatientList->fetchrow_hashref)
     }
 
     #get the mrn type of the mrn stored in orms
-
     $patient->{"mrns"} = [grep { $_->{"mrn"} eq $data->{"PatientId"} } $patient->{"mrns"}->@*];
 
     if(scalar $patient->{"mrns"}->@* == 0)

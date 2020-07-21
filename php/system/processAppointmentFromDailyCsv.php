@@ -67,7 +67,7 @@ function processCsvFile($handle): array #$handle is stream
 
     while(($row = fgetcsv($handle)) !== FALSE)
     {
-        $row = array_map('utf8_encode',$headers);
+        $row = array_map('utf8_encode',$row);
         $data[] = array_combine($headers,$row);
     }
 

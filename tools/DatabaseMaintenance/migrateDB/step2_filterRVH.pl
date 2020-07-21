@@ -10,6 +10,7 @@
 
 use strict;
 #use warnings;
+use experimental "smartmatch";
 use v5.26;
 
 use File::JSON::Slurper qw(read_json write_json);
@@ -33,7 +34,6 @@ foreach my $ormsSer (keys $ormsToOacis->%*)
 
     next unless( "MR_PCS" ~~ $ormsToOacis->{$ormsSer}->{"mrnType"});
 
-    say $ormsSer;
     $rvhPatients->{$ormsSer} = $ormsToOacis->{$ormsSer};
 }
 

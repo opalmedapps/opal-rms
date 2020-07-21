@@ -116,7 +116,7 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
     };
 
     if(!$scope.pageFields.Ramq || $scope.pageFields.Ramq === "null") {
-        $scope.pageFields.Ramq = $scope.pid;
+        $scope.pageFields.Ramq = $scope.pageFields.pid;
     }
 
     if(!$scope.pageFields.RamqExpiryDate || $scope.pageFields.RamqExpiryDate === "null") {

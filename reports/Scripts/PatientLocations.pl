@@ -141,7 +141,7 @@ my $sql = "
 			INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
 				$specialityFilter
 		) AS UN
-	WHERE UN.PatientSerNum != 827
+	WHERE UN.PatientId != '9999996'
 	ORDER BY UN.ScheduledDate,UN.PatientId,UN.AppointmentSerNum,UN.PatientLocationRevCount";
 
 

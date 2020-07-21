@@ -120,7 +120,7 @@ function validateAppointmentInfo(array $appInfo): array
 {
     #if a param is just whitespace, set it to null
     foreach($appInfo as &$param) {
-        if(ctype_space($param)) $param = NULL;
+        if(ctype_space($param) || $param === "") $param = NULL;
     }
 
     #check if the action in Medivisit is a recognized one

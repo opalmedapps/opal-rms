@@ -44,14 +44,16 @@ class Patient
 
         $insertPatient = $dbh->prepare("
             INSERT INTO Patient(FirstName,LastName,SSN,SSNExpDate,PatientId)
-            VALUES (:fn,:ln,:ssn,:ssnExp,:patId)");
-        $insertPatient->bindValue(":fn",$this->firstName);
-        $insertPatient->bindValue(":ln",$this->lastName);
-        $insertPatient->bindValue(":ssn",$this->ssn);
-        $insertPatient->bindValue(":ssnExp",$this->ssnExpDate);
-        $insertPatient->bindValue(":patId",$this->patientId);
+            VALUES (:fn,:ln,:ssn,:ssnExp,:patId)"
+        );
 
-        $insertPatient->execute();
+        $insertPatient->execute([
+            ":fn"       => $this->firstName,
+            ":ln"       => $this->lastName,
+            ":ssn"      => $this->ssn,
+            ":ssnExp"   => $this->ssnExpDate,
+            ":patId"    => $this->patientId,
+        ]);
 
         $this->patientSer = $dbh->lastInsertId();
         if($this->patientSer === 0) {
@@ -90,7 +92,8 @@ class Patient
             ":ssn3" => $this->ssn,
             ":expDate1" => $this->ssnExpDate,
             ":expDate2" => $this->ssnExpDate,
-            ":serNum" => $this->patientSer]);
+            ":serNum" => $this->patientSer
+        ]);
     }
 
     /*
@@ -168,6 +171,8 @@ class Patient
                 $this->$field = preg_replace("/\s+/"," ",$this->$field); #remove multiple spaces
                 $this->$field = preg_replace("/^\s/","",$this->$field); #remove spaces at the start
                 $this->$field = preg_replace("/\s$/","",$this->$field); #remove space at the end
+
+                if(ctype_space($this->$field) || $this->$field === "") $this->$field = NULL;
             }
         }
 
@@ -183,6 +188,9 @@ class Patient
         #if the patient has no ramq, use the mrn as the ramq
         if($this->ssn === NULL) {
             $this->ssn = $this->patientId;
+            $this->ssnExpDate = "0000";
+        }
+        elseif($this->ssnExpDate === NULL) {
             $this->ssnExpDate = "0000";
         }
 

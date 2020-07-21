@@ -18,7 +18,7 @@ $sql = "
         Profile.ProfileSer,
         Profile.ProfileId,
         Profile.ClinicalArea,
-	    Profile.Category
+	    CASE WHEN Profile.Category = 'PAB' THEN 'PAB/Clerical/Nursing' ELSE Profile.Category END AS Category
     FROM
         Profile
     WHERE

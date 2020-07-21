@@ -6,11 +6,11 @@
 
   </head>
   <body ng-app="myApp" ng-controller="main" style="color: rgb(0, 0, 0); background-color: rgb(128,128,128); font-size:18px; font-family: Helvetica,Arial,sans-serif;" link="#0000ee" vlink="#551a8b" alink="#ee0000">
-  <center>
 
-
-  <table style="text-align: left; width: 1000px; background-color: rgb(255, 255, 255); font-size:24px;" border="0" cellpadding="2" cellspacing="10">
-  <tbody>
+<center>
+<div style="width: 1000px; background-color: rgb(255, 255, 255); font-size:24px;">
+    <table style="text-align: left; font-size:24px;" border="0" cellpadding="2" cellspacing="10">
+    <tbody>
 
     <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
@@ -20,7 +20,7 @@
     <td></td>
     </tr>
 
-      <tr style="font-family: Helvetica,Arial,sans-serif;">
+        <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
     <td style="vertical-align: center; background-color: rgb(0,0,255);">
         <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;">
@@ -28,9 +28,9 @@
         </span>
     </td>
     <td></td>
-      </tr>
+        </tr>
 
-      <tr style="font-family: Helvetica,Arial,sans-serif;">
+        <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
     <td style="vertical-align: center; background-color: rgb(255,255,255);">
         <span style="color: rgb(0,0,0);font-size:30px;">
@@ -38,34 +38,30 @@
         </span><br>
     </td>
     <td></td>
-      </tr>
-
-      <tr style="font-family: Helvetica,Arial,sans-serif;" align="center">
-    <td colspan="3" style="vertical-align: center; background-color: rgb(255,255,255);">
-        <table border="0" cellpadding="20">
-        <tbody><tr>
-            <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
-
-
-	<div ng-repeat="(category,profiles) in profileList">
-		<p style="text-align: left;padding-left: 25%;">{{category}}</p>
-		<ul>
-			<p ng-repeat="profile in profiles">
-				<a href="./virtualWaitingRoom?profile={{profile.ProfileId}}&clinicalArea={{clinicalArea}}">{{profile.ProfileId}}</a>
-			</p>
-		</ul>
-	</div>
-
-<br>
-<hr>
-<center> <a href="/">Main Page</a></center>
-
-
+        </tr>
     </tbody>
     </table>
 
-  </center>
+    <table style="width: 1000px; font-size:24px;">
+    <tr style="padding-bottom: 5px;">
+        <th style="text-align: center" ng-repeat="(category,profiles) in profileList"><span style="border-bottom: 1px solid black;">{{category}}</span></th>
+    </tr>
+    <tr><td><br></td></tr>
+    <tr>
+        <td style="text-align: center; vertical-align: baseline;" ng-repeat="(category,profiles) in profileList">
+            <p ng-repeat="profile in profiles">
+                <a href="./virtualWaitingRoom?profile={{profile.ProfileId}}&clinicalArea={{clinicalArea}}">{{profile.ProfileId}}</a>
+            </p>
+        </td>
+    </tr>
+    </table>
 
+    <div style="width: 1000px; background-color: rgb(255, 255, 255);">
+        <hr><center> <a href="/">Main Page</a></center>
+    </div>
+</div>
+
+</center>
 
 <script>
 var app = angular.module('myApp',['ngCookies']);
@@ -96,10 +92,7 @@ app.controller('main', function($scope,$location,$http,$cookies)
 			$scope.profileList[x.Category] = $scope.profileList[x.Category] || [];
 			$scope.profileList[x.Category].push(x);
 		});
-		console.log($scope.profileList);
-	});
-
-
+    });
 
 });
 

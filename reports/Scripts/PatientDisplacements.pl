@@ -93,7 +93,7 @@ my $sql = "
 				PatientLocation
 		) AS PatientLocations ON PatientLocations.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
 	WHERE
-		Patient.PatientSerNum != 827";
+		Patient.PatientId != '9999996'";
 
 my $query = $dbh->prepare_cached($sql) or die("Query could not be prepared: ".$dbh->errstr);
 $query->execute() or die("Query execution failed: ".$query->errstr);

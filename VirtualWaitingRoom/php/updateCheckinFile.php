@@ -100,7 +100,10 @@ $sqlWRM = "
 	WHERE
 		MediVisitAppointmentList.ScheduledDate = CURDATE()
 		AND MediVisitAppointmentList.Status IN ('Open','Completed','In Progress')
-    ORDER BY LastName
+    ORDER BY
+        Patient.LastName,
+        MediVisitAppointmentList.ScheduledDateTime,
+        MediVisitAppointmentList.AppointmentSerNum
 ";
 
 /* Process results */

@@ -1312,8 +1312,6 @@ sub CheckinPatient
             	AND ( MediVisitAppointmentList.ScheduledDateTime >= \'$startOfToday_mysql\' )
                 AND ( MediVisitAppointmentList.ScheduledDateTime < \'$endOfToday_mysql\' )
 		AND ( MediVisitAppointmentList.Status = 'Open' OR MediVisitAppointmentList.Status = 'In Progress')
-		AND MediVisitAppointmentList.ResourceDescription NOT LIKE \"%Dietetics%\"
-		AND MediVisitAppointmentList.ResourceDescription NOT LIKE \"%prise%\"
 
 		ORDER BY MediVisitAppointmentList.ScheduledDateTime
   ";

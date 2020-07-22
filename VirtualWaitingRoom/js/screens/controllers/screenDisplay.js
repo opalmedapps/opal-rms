@@ -56,9 +56,9 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
 
 	//define specific rooms that should display with a left arrow on the screen
 	//this is to guide the patient to the right area
-	// $scope.leftArrowLocations = ["RT TX ROOM 1","RT TX ROOM 2","RT TX ROOM 3","RT TX ROOM 4","RT TX ROOM 5","RT TX ROOM 6","CyberKnife"];
+	$scope.leftArrowLocations = ["RT TX ROOM 1","RT TX ROOM 2","RT TX ROOM 3","RT TX ROOM 4","RT TX ROOM 5","RT TX ROOM 6","CyberKnife"];
 
-    // $scope.rightArrowLocations = ["SS1 EXAM ROOM","SS2 EXAM ROOM","SS3 EXAM ROOM","SS4 EXAM ROOM","SS5 EXAM ROOM","SS6 EXAM ROOM","SS7 EXAM ROOM","SS8 EXAM ROOM","SS9 EXAM ROOM","SS10 EXAM ROOM","SS11 EXAM ROOM","SS12 EXAM ROOM","SS13 EXAM ROOM"];
+    $scope.rightArrowLocations = ["SS1 EXAM ROOM","SS2 EXAM ROOM","SS3 EXAM ROOM","SS4 EXAM ROOM","SS5 EXAM ROOM","SS6 EXAM ROOM","SS7 EXAM ROOM","SS8 EXAM ROOM","SS9 EXAM ROOM","SS10 EXAM ROOM","SS11 EXAM ROOM","SS12 EXAM ROOM","SS13 EXAM ROOM"];
 
     let firebaseSettings = await getFirebaseSettings();
 

@@ -19,7 +19,7 @@ use LoadConfigs;
 my $configs = LoadConfigs::getAllConfigs();
 
 #get the root orms folder
-our $BASEPATH = $configs->{"path"}->{"BASE_PATH"};
+our $BASEPATH = $configs->{"path"}->{"BASE_PATH"} ."/VirtualWaitingRoom";
 
 #set up some useful objects
 our $JSON = JSON->new;

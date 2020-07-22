@@ -96,6 +96,7 @@ while($row = $result->fetch())
     {
         $trueAppId = preg_replace("/Aria/","",$row["AppointId"]);
         $aria_checkin = "$ariaURL?appointmentId=$trueAppId&location=$CheckinVenue";
+        $aria_checkin = str_replace(' ','%20',$aria_checkin);
         file_get_contents($aria_checkin);
     }
 }

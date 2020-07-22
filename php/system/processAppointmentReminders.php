@@ -84,26 +84,6 @@ function textPatient(string $phoneNumber,string $returnMessage): void
     curl_exec($curl);
 }
 
-function getPatientPhoneNumber(string $mrn): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
-        SELECT
-            Patient.SMSAlertNum,
-            Patient.LanguagePreference
-        FROM
-            Patient
-        WHERE
-            Patient.PatientId = :mrn
-            AND Patient.SMSAlertNum != ''
-            AND Patient.SMSAlertNum IS NOT NULL
-        LIMIT 1
-    ");
-    $query->execute([":mrn" => $mrn]);
-
-    return $query->fetchAll()[0] ?? [];
-}
-
 function getAppointments(): array
 {
     $dbh = Config::getDatabaseConnection("ORMS");
@@ -117,7 +97,7 @@ function getAppointments(): array
             MediVisitAppointmentList.ScheduledTime AS time,
             MediVisitAppointmentList.ResourceDescription AS fullname,
             MediVisitAppointmentList.ResourceDescription AS name,
-            ClinicResource.Speciality AS speciality
+            ClinicResources.Speciality AS speciality
         FROM
             MediVisitAppointmentList
             INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
@@ -127,6 +107,18 @@ function getAppointments(): array
         WHERE
             MediVisitAppointmentList.Status = 'Open'
             AND MediVisitAppointmentList.ScheduledDate = CURDATE() + INTERVAL 1 DAY
+            AND MediVisitAppointmentList.AppointSys = 'Aria'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE 'NUTRITION%'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE '%On Hold%'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE '%Cancelled%'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE '%Portal Only%'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE '%Pt Booked%'
+            AND MediVisitAppointmentList.AppointmentCode NOT LIKE '%Waiting%'
+            AND (
+                MediVisitAppointmentList.AppointmentCode LIKE '.EB%'
+                OR MediVisitAppointmentList.AppointmentCode LIKE '.BX%'
+                OR MediVisitAppointmentList.AppointmentCode LIKE 'CT Sim%'
+            )
         ORDER BY
             MediVisitAppointmentList.ScheduledTime
     ");

@@ -96,7 +96,13 @@ function getAppointments(): array
             MediVisitAppointmentList.ScheduledDate AS date,
             MediVisitAppointmentList.ScheduledTime AS time,
             MediVisitAppointmentList.ResourceDescription AS fullname,
-            MediVisitAppointmentList.ResourceDescription AS name,
+            CASE
+                WHEN MediVisitAppointmentList.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
+                WHEN (MediVisitAppointmentList.AppointmentCode LIKE 'Consult%'
+                    OR MediVisitAppointmentList.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
+                WHEN MediVisitAppointmentList.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
+                ELSE MediVisitAppointmentList.AppointmentCode
+            END AS name,
             ClinicResources.Speciality AS speciality
         FROM
             MediVisitAppointmentList

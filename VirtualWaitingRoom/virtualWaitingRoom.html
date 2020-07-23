@@ -105,7 +105,6 @@
                                     <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
                                     <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
                                 </span>
-                                <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
                                 <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                                 <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
                             </span>
@@ -134,7 +133,6 @@
                                 <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
                                 <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
                             </span>
-                            <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
                             <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                             <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
                             <span   ng-switch-when="UndoCall" ng-switch="patient.AppointmentName">
@@ -176,7 +174,6 @@
                                 <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
                                 <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
                             </span>
-                            <span   ng-switch-when="PrimaryOncologist">{{patient.DoctorName}}</span>
                             <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                             <span   ng-switch-when="RemainingTime">{{patient.TimeRemaining}}</span>
                             <button ng-switch-when="SendForPhysio" ng-show="patient.VenueId != 'SENT FOR PHYSIO'" ng-click="sendToLocation(patient,'SENT FOR PHYSIO',true)" class="btn btn-default">Send for Physio</button>

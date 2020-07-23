@@ -67,7 +67,6 @@ $sqlWRM = "
 		hour(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_hh,
 		minute(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_mm,
 		PatientLocation.CheckinVenueName AS VenueId,
-		LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS DoctorName,
         Patient.PatientSerNum AS PatientSer,
         MediVisitAppointmentList.AppointSys AS CheckinSystem,
 		SUBSTRING(Patient.SSN,1,3) AS SSN,

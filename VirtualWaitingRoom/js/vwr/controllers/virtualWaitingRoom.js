@@ -497,48 +497,29 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 		// Check the patient in for his/her remaining appointments but for a venue
 		// that indicates that the current appointment is complete
 		// For now hardwire "VISIT COMPLETE"
-		if(patient.CheckinSystem != 'Aria')
-		{
-			$http({
-				url: "php/completeAppointment.php",
-				method: "GET",
-				params:
-				{
-					checkoutVenue: "VISIT COMPLETE",
-					patientIdRVH: patient.PatientIdRVH,
-					patientIdMGH: patient.PatientIdMGH,
-					scheduledActivitySer: patient.ScheduledActivitySer
-				}
-			}).then(function (response)
-			{
-				// Mark patient as CheckedOut on Firebase
-				firebaseScreenRef.child(patient.Identifier).update(
-				{
-					PatientStatus: "CheckedOut"
-				});
+        $http({
+            url: "php/completeAppointment.php",
+            method: "GET",
+            params:
+            {
+                checkoutVenue: "VISIT COMPLETE",
+                patientIdRVH: patient.PatientIdRVH,
+                patientIdMGH: patient.PatientIdMGH,
+                scheduledActivitySer: patient.ScheduledActivitySer
+            }
+        }).then(function (response)
+        {
+            // Mark patient as CheckedOut on Firebase
+            firebaseScreenRef.child(patient.Identifier).update(
+            {
+                PatientStatus: "CheckedOut"
+            });
 
-				$scope.logMessage("compl_mv","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location VISIT COMPLETE and patient status on firebase "+ $scope.pageSettings.ClinicalArea +" changed to CheckedOut");
+            $scope.logMessage("compl_mv","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location VISIT COMPLETE and patient status on firebase "+ $scope.pageSettings.ClinicalArea +" changed to CheckedOut");
 
-				// Update the metadata timestamp
-				firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
-			});
-		}
-		else
-		{
-			$scope.sendToLocation(patient,"VISIT COMPLETE",false);
-
-			// Mark patient as CheckedOut on Firebase
-			firebaseScreenRef.child(patient.Identifier).update(
-			{
-				PatientStatus: "CheckedOut"
-			});
-
-			$scope.logMessage("compl_aria","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" status has been updated to CheckedOut in firebase "+ $scope.pageSettings.ClinicalArea);
-
-			// Update the metadata timestamp
-			firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
-		}
-
+            // Update the metadata timestamp
+            firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
+        });
 	}
 
 	//function that checks an appointment name and determines whether the patient has to be weighed

@@ -1471,7 +1471,7 @@ sub CheckinPatient
   elsif($location =~ /Reception/)
   {
     $CheckinVenue = 0;
-    $CheckinVenueName = $location =~ s/Reception//r;
+    $CheckinVenueName = $location =~ s/ Reception//r;
     $CheckinVenueName = uc "$CheckinVenueName WAITING ROOM";
   }
   else

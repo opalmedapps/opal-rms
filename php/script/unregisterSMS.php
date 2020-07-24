@@ -22,32 +22,45 @@ if(empty($SMSAlertNum))
 // Create MySQL DB connection
 $dbh = Config::getDatabaseConnection("ORMS");
 
-// Check connection
-if (!$dbh) {
-    die("<br>Connection failed");
-}
-
 //====================================================================================
 // Remove the input phone number from to the ORMS db
 //====================================================================================
-$sqlSMS = "
-	UPDATE Patient
-	SET 	Patient.SMSAlertNum = NULL,
-		Patient.SMSSignupDate = NULL,
-		Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
-		Patient.LanguagePreference = NULL
-	WHERE Patient.SMSAlertNum = '$SMSAlertNum'
-  ";
 
-echo "SMS: $sqlSMS<br>";
+#check if any patients with the phone number exist
+$querySMS = $dbh->prepare("
+    SELECT
+        CONCAT(Patient.LastName ,', ',Patient.FirstName) AS Name,
+        Patient.PatientId AS MRN
+    FROM
+        Patient
+    WHERE
+        Patient.SMSAlertNum = ?
+");
+$querySMS->execute([$SMSAlertNum]);
 
-if ($dbh->query($sqlSMS)) {
-    echo "Record updated successfully<br>";
-} else {
-    echo "Error updating record: " .print_r($dbh->errorInfo());
-    exit("This record could not be updated. Please mark the patient's form and contact opal@muhc.mcgill.ca.<br>");
+$patients = $querySMS->fetchAll();
+
+if($patients === []) {
+    echo "No patient with number $SMSAlertNum could be found.";
+    exit;
 }
 
-echo "<br>";
+foreach($patients as $pat) {
+    echo "Removing number from $pat[Name] ($pat[MRN])<br>";
+}
+
+$updateSMS = $dbh->prepare("
+    UPDATE Patient
+    SET
+        Patient.SMSAlertNum = NULL,
+        Patient.SMSSignupDate = NULL,
+        Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
+        Patient.LanguagePreference = NULL
+    WHERE Patient.SMSAlertNum = ?
+");
+$updateSMS->execute([$SMSAlertNum]);
+
+echo "Number removed.";
+
 
 ?>

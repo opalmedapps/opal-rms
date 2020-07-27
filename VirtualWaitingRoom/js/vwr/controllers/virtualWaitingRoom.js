@@ -64,13 +64,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 		{
 			$http.get($scope.checkinFile).then(function(response)
 			{
-				//perform some quick processing
-				angular.forEach(response.data,function (patient)
-				{
-					patient.PatientIdRVH = patient.PatientIdRVH.replace(/'/g,"");
-					patient.PatientIdMGH = patient.PatientIdMGH.replace(/'/g,"");
-				});
-
 				$scope.checkins = response.data;
 			});
 		}
@@ -105,20 +98,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
 		firebaseScreenRef = new Firebase(FirebaseUrl); // firebase connection
 
-		firebaseScreenRef.authWithCustomToken($scope.pageSettings.FirebaseSecret, function(error, result)
-		{
-			if(error)
-			{
-				console.log("Authentication Failed!", error);
-			}
-			/*
-			else
-			{
-				console.log("Authenticated successfully with payload:", result.auth);
-				console.log("Auth expires at:", new Date(result.expires * 1000));
-			}
-			*/
-		});
+		firebaseScreenRef.authWithCustomToken($scope.pageSettings.FirebaseSecret,()=>{});
 
 		$scope.screenRows = $firebaseObject(firebaseScreenRef);
 
@@ -191,7 +171,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				$scope.allAppointments = options.Appointments;
 
 				$scope.resourceLoadingEnabled = 1;
-			});
+            });
 
             //make sure we have the right waiting room
             $scope.pageSettings.WaitingRoom = "BACK TO WAITING ROOM";

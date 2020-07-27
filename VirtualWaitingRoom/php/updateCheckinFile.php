@@ -98,7 +98,7 @@ $sqlWRM = "
 			)
 	WHERE
 		MediVisitAppointmentList.ScheduledDate = CURDATE()
-		AND MediVisitAppointmentList.Status IN ('Open','Completed','In Progress')
+        AND MediVisitAppointmentList.Status IN ('Open','Completed','In Progress')
     ORDER BY
         Patient.LastName,
         MediVisitAppointmentList.ScheduledDateTime,
@@ -152,9 +152,24 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
 		) $row["QStatus"] = "red-circle";
 	}
 
-	//certain fields must be marked as strings (or json encode will convert them to int)
-	$row['PatientIdRVH'] = '\''. $row['PatientIdRVH'] .'\'';
-	$row['PatientIdMGH'] = '\''. $row['PatientIdMGH'] .'\'';
+    //set certain fields to int
+    foreach([
+        "ArrivalDateTime_hh",
+        "ArrivalDateTime_mm",
+        "ScheduledStartTime_hh",
+        "ScheduledStartTime_mm",
+        "TimeRemaining",
+        "WaitTime",
+        "DAYOFBIRTH",
+        "MONTHOFBIRTH",
+        "BSA",
+        "Height",
+        "Weight",
+        "OpalPatient",
+        "PatientSer",
+        "ScheduledActivitySer"] as $x) {
+        $row[$x] = (int) $row[$x];
+    }
 
 	$json[$row["Speciality"]][] = $row;
 }
@@ -166,7 +181,7 @@ foreach($json as $speciality => $data)
 {
     //encode the data to JSON
     $data = utf8_encode_recursive($data);
-    $data = json_encode($data,JSON_NUMERIC_CHECK);
+    $data = json_encode($data);
 
     $checkinlist = fopen(CHECKIN_FILE_PATH ."_$speciality", "w") or die("Unable to open checkinlist file!");
     fwrite($checkinlist,$data);

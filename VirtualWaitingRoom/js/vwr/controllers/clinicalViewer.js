@@ -416,9 +416,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         var modalInstance = $uibModal.open(
             {
                 animation: true,
-                templateUrl: './js/vwr/templates/questionnaireLegacyModal.htm',
-                controller: questionnaireLegacyModalController,
-                windowClass: 'questionnaireLegacyModal',
+                templateUrl: './js/vwr/templates/questionnaireModal.htm',
+                controller: questionnaireModalController,
+                windowClass: 'questionnaireModal',
                 //size: 'lg',
                 //backdrop: 'static',
                 resolve:

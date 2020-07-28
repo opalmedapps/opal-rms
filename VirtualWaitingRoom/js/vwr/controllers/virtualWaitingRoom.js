@@ -795,12 +795,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 		var modalInstance = $uibModal.open(
 		{
 			animation: true,
-			templateUrl: 'js/vwr/templates/questionnaireLegacyModal.htm',
-			controller: questionnaireLegacyModalController,
-			windowClass: 'questionnaireLegacyModal',
-			//templateUrl: 'js/vwr/templates/questionnaireModal.htm',
-			//controller: questionnaireModalController,
-			//windowClass: 'questionnaireModal',
+			templateUrl: 'js/vwr/templates/questionnaireModal.htm',
+			controller: questionnaireModalController,
+			windowClass: 'questionnaireModal',
 			size: 'lg',
 			//backdrop: 'static',
 			resolve:

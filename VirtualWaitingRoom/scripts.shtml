@@ -41,7 +41,6 @@
 <script src="js/vwr/controllers/selectorModal.js"></script>
 <script src="js/vwr/controllers/callModal.js"></script>
 <script src="js/vwr/controllers/questionnaireModal.js"></script>
-<script src="js/vwr/controllers/questionnaireLegacyModal.js"></script>
 <script src="js/vwr/controllers/weightModal.js"></script>
 <script src="js/vwr/controllers/formModal.js"></script>
 <script src="js/vwr/controllers/registerSMSModal.js"></script>

@@ -82,7 +82,28 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 $scope.opalNotificationUrl = response.data.opalNotificationUrl;
 			});
 		}
-	};
+    };
+
+    //=================================================
+    // Get any images that will be needed
+    //=================================================
+    $scope.opalLogo = "";
+    toDataURL("./images/opal_logo.png", dataUrl => {$scope.opalLogo = dataUrl;});
+
+    function toDataURL(url, callback)
+    {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            callback(reader.result);
+          }
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.send();
+    }
 
 	//=========================================================================
 	// Set the firebase connection

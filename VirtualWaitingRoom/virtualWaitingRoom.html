@@ -111,17 +111,20 @@
                         </span>
                         <span ng-switch-when="NotCheckedIn" ng-switch="column.ColumnName">
                             <span   ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>
-                            <span   ng-switch-when="CallPatient" ng-switch="patient.AppointmentName">
-                                <span ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
+                            <span   ng-switch-when="CallPatient" ng-switch="isZoomAppointment(patient.AppointmentName)">
+                                <span ng-switch-when="true" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
                                     <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
                                     <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
                                 </span>
                             </span>
                             <span   ng-switch-when="CellPhoneNumber">
                                 <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
-                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="['TV-NP','TV-FU','TCC/TCR','PHONE','FOLLOW UP TELEMED MORE/30 DAYS','FOLLOW UP TELEMED LESS/30 DAYS','CONSULT RETURN TELEMED','CONSULT NEW TELEMED'].includes(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
                             </span>
                             <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
+                            <span   ng-switch-when="CompleteAppointment">
+                                <button ng-show="isZoomAppointment(patient.AppointmentName)" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
+                            </span>
                             <span   ng-switch-when="CurrentLocation">
                                 <div style="display:inline-flex;height:34px;">
                                     <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
@@ -135,16 +138,16 @@
                             </span>
                             <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                             <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
-                            <span   ng-switch-when="UndoCall" ng-switch="patient.AppointmentName">
-                                <button ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
+                            <span   ng-switch-when="UndoCall" ng-switch="isZoomAppointment(patient.AppointmentName)">
+                                <button ng-switch-when="true" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
                             </span>
                         </span>
                         <span ng-switch-default ng-switch="column.ColumnName">
                             <span   ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>
                             <span   ng-switch-when="ArrivalTime">{{patient.ArrivalDateTime_hh}}:{{'0'+patient.ArrivalDateTime_mm | limitTo:-2}}</span>
                             <button ng-switch-when="AssignRoom" ng-show="screenRows.hasOwnProperty(patient.Identifier)" ng-click="openCallModal(patient,'ASSIGN EXAM ROOM')" ng-class="checkIfPatientInExamRoom(patient) ? 'btn btn-success green-button' : 'btn btn-danger'">{{checkIfPatientInExamRoom(patient) ? patient.VenueId : 'Assign Exam Room'}}</button>
-                            <span   ng-switch-when="CallPatient" ng-switch="patient.AppointmentName">
-                                <span ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
+                            <span   ng-switch-when="CallPatient" ng-switch="isZoomAppointment(patient.AppointmentName)">
+                                <span ng-switch-when="true" ng-show="patient.SMSAlertNum && pageSettings.zoomLink">
                                     <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
                                     <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
                                 </span>
@@ -155,10 +158,10 @@
                             </span>
                             <span   ng-switch-when="CellPhoneNumber">
                                 <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
-                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="['TV-NP','TV-FU','TCC/TCR','PHONE','FOLLOW UP TELEMED MORE/30 DAYS','FOLLOW UP TELEMED LESS/30 DAYS','CONSULT RETURN TELEMED','CONSULT NEW TELEMED'].includes(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                                <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
                             </span>
                             <span   ng-switch-when="CompleteAppointment">
-                                <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called' || patient.VenueId == 'VISIT COMPLETE' || wasZoomLinkSent(patient)" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
+                                <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called' || patient.VenueId == 'VISIT COMPLETE' || isZoomAppointment(patient.AppointmentName)" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
                                 <span ng-show="screenRows[patient.Identifier].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
                             </span>
                             <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
@@ -184,8 +187,8 @@
                             </span>
                             <button ng-switch-when="SendForXray" ng-show="patient.VenudId != 'SENT FOR X-RAY'" ng-click="sendToLocation(patient,'SENT FOR X-RAY',true)" class="btn btn-warning">Send for X-Ray</button>
                             <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
-                            <span   ng-switch-when="UndoCall" ng-switch="patient.AppointmentName">
-                                <button ng-switch-when="TV-NP|TV-FU|TCC/TCR|PHONE|FOLLOW UP TELEMED MORE/30 DAYS|FOLLOW UP TELEMED LESS/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED" ng-switch-when-separator="|" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
+                            <span   ng-switch-when="UndoCall" ng-switch="isZoomAppointment(patient.AppointmentName)">
+                                <button ng-switch-when="true" ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
                                 <button ng-switch-default ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
                             </span>
                             <span   ng-switch-when="WaitingTime">{{patient.WaitTime}}</span>

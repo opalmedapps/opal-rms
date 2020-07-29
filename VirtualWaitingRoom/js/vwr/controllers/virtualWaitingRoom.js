@@ -919,6 +919,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         });
     }
 
+    $scope.isZoomAppointment = function(appointmentName)
+    {
+        return /TV-NP|TV-FU|TCC\/TCR|PHONE|FOLLOW UP TELEMED MORE\/30 DAYS|FOLLOW UP TELEMED LESS\/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED/.test(appointmentName);
+    }
+
     $scope.openZoomLink = function()
     {
         $window.open($scope.pageSettings.zoomLink,"_blank");
@@ -928,6 +933,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     {
         return $scope.screenRows["zoomLinkSent"].hasOwnProperty(patient.Identifier);
     }
+
+    //misc functions
 
     $scope.pageSettings.SelectedRowTypes = {
         CheckedIn: true,
@@ -944,7 +951,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         return 3;
     }
 
-    //misc functions
     $scope.determineRowClass = function(patient)
     {
         let cssClass = [];

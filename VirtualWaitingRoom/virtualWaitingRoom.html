@@ -97,7 +97,7 @@
                                 <span   ng-switch-when="CurrentLocation">
                                     <div style="display:inline-flex;height:34px;">
                                         <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
-                                        <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img>
+                                        <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img>
                                     </div>
                                 </span>
                                 <span   ng-switch-when="PatientName">
@@ -128,7 +128,7 @@
                             <span   ng-switch-when="CurrentLocation">
                                 <div style="display:inline-flex;height:34px;">
                                     <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
-                                    <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img>
+                                    <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img>
                                 </div>
                             </span>
                             <span   ng-switch-when="PatientName">

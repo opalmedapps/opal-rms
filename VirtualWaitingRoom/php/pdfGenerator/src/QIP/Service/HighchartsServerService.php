@@ -48,7 +48,7 @@ class HighchartsServerService
 //            $cfile = new \CURLFile($jsonPaths[$i],'application/json', $jsonPaths[$i]);
             $data = file_get_contents($jsonPaths[$i]);
             // set URL and other appropriate options
-            curl_setopt_array($curlArr,[
+            curl_setopt_array($curlArr[$i],[
                 CURLOPT_CUSTOMREQUEST   => "POST",
                 CURLOPT_RETURNTRANSFER  => true,
                 CURLOPT_POSTFIELDS      => $data,

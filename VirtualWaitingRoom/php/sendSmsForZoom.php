@@ -53,7 +53,8 @@ $fields = [
     "LicenseKey" => $SMS_licencekey,
     "To" => [$smsAlertNum],
     "Concatenate" => TRUE,
-    "UseMMS" => FALSE
+    "UseMMS" => FALSE,
+    "IsUnicode" => TRUE
 ];
 
 $curl = curl_init();

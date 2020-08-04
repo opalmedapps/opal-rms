@@ -15,10 +15,11 @@ $SMS_licencekey = $smsSettings["SMS_LICENCE_KEY"];
 $SMS_gatewayURL = $smsSettings["SMS_GATEWAY_URL"];
 
 // Extract the webpage parameters
-$PatientId		= $_GET["PatientId"] ?? '';
-$Ramq 			= $_GET["Ramq"] ?? '';
-$SMSAlertNum		= $_GET["SMSAlertNum"] ?? '';
-$LanguagePreference	= $_GET["LanguagePreference"] ?? '';
+$PatientId          = $_GET["PatientId"] ?? '';
+$Ramq               = $_GET["Ramq"] ?? '';
+$SMSAlertNum        = $_GET["SMSAlertNum"] ?? '';
+$LanguagePreference = $_GET["LanguagePreference"] ?? '';
+$Speciality         = $_GET["Speciality"];
 
 if( empty($PatientId) || empty($Ramq) || empty($SMSAlertNum) || empty($LanguagePreference) )
 {
@@ -112,16 +113,9 @@ echo "<br>";
 //====================================================================================
 // Confirmation Message Creation
 //====================================================================================
-if($LanguagePreference == "English")
-{
-  $message = "MUHC: You are registered for SMS notifications. To unsubscribe, please inform the reception. To check-in for an appointment, reply to this number with \"arrive\".";
-}
-else
-{
-  #$message = "CUSM - Centre du cancer des c&agrave;dres: vous &ecirc;tes enregistr&eacute;(e) pour recevoir des notifications par message texte pour vos rendez-vous. Pour vous d&eacute;sabonner, veuillez en informer la r&eacute;ception en tout temps. [On ne peut r&eacute;pondre &agrave; ce num&eacute;ro]";
+$messageList = getPossibleSmsMessages();
 
-  $message = "CUSM: l'inscription pour les notifications est confirmée. Pour vous désabonner, veuillez informer la réception. Pour enregistrer pour un rendez-vous, répondez à ce numéro avec \"arrive\".";
-}
+$message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"];
 
 //====================================================================================
 // Sending
@@ -131,7 +125,8 @@ $fields = [
     "LicenseKey" => $SMS_licencekey,
     "To" => [$SMSAlertNum],
     "Concatenate" => TRUE,
-    "UseMMS" => FALSE
+    "UseMMS" => FALSE,
+    "IsUnicode" => TRUE
 ];
 
 $curl = curl_init();
@@ -146,5 +141,86 @@ $response = curl_exec($curl);
 // $headers = curl_getinfo($curl);
 
 echo "Message should have been sent...";
+
+function getPossibleSmsMessages(): array
+{
+    $dbh = Config::getDatabaseConnection("ORMS");
+    $query = $dbh->prepare("
+        SELECT
+            Speciality
+            ,Type
+            ,Event
+            ,Language
+            ,Message
+        FROM
+            SmsMessage
+        ORDER BY
+            Speciality,Type,Event,Language
+    ");
+    $query->execute();
+
+    $messages = $query->fetchAll();
+    $messages = ArrayUtilB::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
+    $messages = ArrayUtilB::convertSingleElementArraysRecursive($messages);
+
+    return utf8_encode_recursive($messages);
+}
+
+class ArrayUtilB
+{
+    public static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
+    {
+        $groupedArr = [];
+        foreach($arr as $assoc)
+        {
+            $keyVal = $assoc[$key];
+            if(!array_key_exists("$keyVal",$groupedArr)) $groupedArr["$keyVal"] = [];
+
+            if($keepKey === FALSE) unset($assoc[$key]);
+            $groupedArr["$keyVal"][] = $assoc;
+        }
+
+        ksort($groupedArr);
+        return $groupedArr;
+    }
+
+    #recursive version of groupArrayByKey that repeats the grouping process for each input key
+    public static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
+    {
+        $key = array_shift($keys);
+        if($keys === NULL) return $arr;
+
+        $groupedArr = self::groupArrayByKey($arr,"$key");
+
+        if($keys !== [])
+        {
+            foreach($groupedArr as &$subArr) {
+                $subArr = self::groupArrayByKeyRecursive($subArr,...$keys);
+            }
+        }
+
+        return $groupedArr;
+    }
+
+    public static function convertSingleElementArraysRecursive($arr)
+    {
+        if(gettype($arr) === "array")
+        {
+            foreach($arr as &$val) $val = self::convertSingleElementArraysRecursive($val);
+
+            if(self::checkIfArrayIsAssoc($arr) === FALSE && count($arr) === 1) {
+                $arr = $arr[0];
+            }
+        }
+
+        return $arr;
+    }
+
+    public static function checkIfArrayIsAssoc(array $arr): bool
+    {
+        return array_keys($arr) !== range(0,count($arr)-1);
+    }
+
+}
 
 ?>

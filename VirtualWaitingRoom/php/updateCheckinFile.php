@@ -162,13 +162,17 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
         "WaitTime",
         "DAYOFBIRTH",
         "MONTHOFBIRTH",
-        "BSA",
-        "Height",
-        "Weight",
         "OpalPatient",
         "PatientSer",
         "ScheduledActivitySer"] as $x) {
         $row[$x] = (int) $row[$x];
+    }
+
+    foreach([
+        "BSA",
+        "Height",
+        "Weight"] as $x) {
+        $row[$x] = (float) $row[$x];
     }
 
 	$json[$row["Speciality"]][] = $row;

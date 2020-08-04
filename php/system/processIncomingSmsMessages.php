@@ -207,7 +207,8 @@ function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string 
         "From" => $sourcePhoneNumber,
         "To" => [$targetPhoneNumber],
         "Concatenate" => TRUE,
-        "UseMMS" => FALSE
+        "UseMMS" => FALSE,
+        "IsUnicode" => TRUE
     ];
 
     $curl = curl_init();

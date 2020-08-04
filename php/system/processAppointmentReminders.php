@@ -78,7 +78,8 @@ function textPatient(string $phoneNumber,string $returnMessage): void
         "LicenseKey" => $licence,
         "To" => [$phoneNumber],
         "Concatenate" => TRUE,
-        "UseMMS" => FALSE
+        "UseMMS" => FALSE,
+        "IsUnicode" => TRUE
     ];
 
     $curl = curl_init();

@@ -115,7 +115,7 @@ echo "<br>";
 //====================================================================================
 $messageList = getPossibleSmsMessages();
 
-$message = $messageList["Oncology"]["GENERAL"]["REGISTRATION"][$language]["Message"];
+$message = $messageList["Oncology"]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"];
 
 //====================================================================================
 // Sending
@@ -125,7 +125,8 @@ $fields = [
     "LicenseKey" => $SMS_licencekey,
     "To" => [$SMSAlertNum],
     "Concatenate" => TRUE,
-    "UseMMS" => FALSE
+    "UseMMS" => FALSE,
+    "IsUnicode" => TRUE
 ];
 
 $curl = curl_init();

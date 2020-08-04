@@ -13,13 +13,13 @@ $smsSettings = Config::getConfigs("sms");
 
 $SMS_licencekey = $smsSettings["SMS_LICENCE_KEY"];
 $SMS_gatewayURL = $smsSettings["SMS_GATEWAY_URL"];
-$speciality = $smsSettings[""];
 
 // Extract the webpage parameters
-$PatientId		= $_GET["PatientId"] ?? '';
-$Ramq 			= $_GET["Ramq"] ?? '';
-$SMSAlertNum		= $_GET["SMSAlertNum"] ?? '';
-$LanguagePreference	= $_GET["LanguagePreference"] ?? '';
+$PatientId          = $_GET["PatientId"] ?? '';
+$Ramq               = $_GET["Ramq"] ?? '';
+$SMSAlertNum        = $_GET["SMSAlertNum"] ?? '';
+$LanguagePreference = $_GET["LanguagePreference"] ?? '';
+$Speciality         = $_GET["Speciality"];
 
 if( empty($PatientId) || empty($Ramq) || empty($SMSAlertNum) || empty($LanguagePreference) )
 {
@@ -115,7 +115,7 @@ echo "<br>";
 //====================================================================================
 $messageList = getPossibleSmsMessages();
 
-$message = $messageList["Oncology"]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"];
+$message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"];
 
 //====================================================================================
 // Sending

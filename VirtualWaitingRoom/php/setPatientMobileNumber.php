@@ -10,6 +10,7 @@ $patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
 $patientIdMGH       = $_GET["patientIdMGH"] ?? NULL;
 $smsAlertNum        = $_GET["phoneNumber"] ?? NULL;
 $languagePreference = $_GET["language"] ?? NULL;
+$speciality         = $_GET["speciality"] ?? NULL;
 
 #find the patient in ORMS
 $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
@@ -67,11 +68,18 @@ $querySMS->execute([
     ":pSer"     => $patSer
 ]);
 
+#print a message and close the connection so that the client does not wait
+ob_start();
 echo "Record updated successfully<br>";
+header('Connection: close');
+header('Content-Length: '.ob_get_length());
+ob_end_flush();
+ob_flush();
+flush();
 
 #change the sms message depending on the language preference and clinic
 $messageList = getPossibleSmsMessages();
-$message = $messageList["Oncology"]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
+$message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
 
 #send sms
 $SMS_licencekey = SMS_licencekey;

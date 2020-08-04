@@ -32,7 +32,8 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
                 patientIdRVH: patient.PatientIdRVH,
                 patientIdMGH: patient.PatientIdMGH,
                 phoneNumber: $scope.patient.enteredNumber,
-                language: $scope.patient.selectedLanguage
+                language: $scope.patient.selectedLanguage,
+                speciality: $scope.patient.Speciality
             }
         }).then(function (response)
         {
@@ -46,4 +47,3 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
     }
 
 }
-

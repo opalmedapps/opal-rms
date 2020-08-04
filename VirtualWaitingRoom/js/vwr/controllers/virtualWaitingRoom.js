@@ -497,13 +497,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 	{
 		// Check the patient in for his/her remaining appointments but for a venue
 		// that indicates that the current appointment is complete
-		// For now hardwire "VISIT COMPLETE"
         $http({
             url: "php/completeAppointment.php",
             method: "GET",
             params:
             {
-                checkoutVenue: "VISIT COMPLETE",
+                checkoutVenue: "BACK TO WAITING ROOM",
                 patientIdRVH: patient.PatientIdRVH,
                 patientIdMGH: patient.PatientIdMGH,
                 scheduledActivitySer: patient.ScheduledActivitySer
@@ -516,7 +515,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 PatientStatus: "CheckedOut"
             });
 
-            $scope.logMessage("compl_mv","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location VISIT COMPLETE and patient status on firebase "+ $scope.pageSettings.ClinicalArea +" changed to CheckedOut");
+            $scope.logMessage("compl_mv","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location BACK TO WAITING ROOM and patient status on firebase "+ $scope.pageSettings.ClinicalArea +" changed to CheckedOut");
 
             // Update the metadata timestamp
             firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -629,7 +628,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
 		//if we current only have on location selected, simply check the patient into that location without opening the modal
 		//intermediate and treatment venues can hold infinite people so we don't need to check if anyone else is checked into the room
-		//exam rooms however can only hold one person, so if there are other patients checked into it, we put the other patients into the 'VISIT COMPLETE' room
+		//exam rooms however can only hold one person, so if there are other patients checked into it, we put the other patients into the 'BACK TO WAITING ROOM' room
 
 		//look at the types of selected location to see what type of situation we are dealing with
 		var situation =
@@ -665,7 +664,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 		{
 			//if we only have one location selected, we can automatically call the patient to that location without opening the modal
 			//however, if the selected location is an exam room, we have to check if its occupied
-			//if it is, we sent the occupying patient to the 'VISIT COMPLETE' room
+			//if it is, we sent the occupying patient to the 'BACK TO WAITING ROOM' room
 
 			if(situation == "VENUE ONLY")
 			{
@@ -688,9 +687,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 						|| (occupyingPatient.PatientIdMGH != "Nobody" && occupyingPatient.PatientIdMGH != patient.PatientIdMGH)
 					)
 					{
-						$scope.logMessage("force_remove_exam_only","General","Function call on Patient "+ occupyingPatient.PatientIdRVH +"/"+ occupyingPatient.PatientIdMGH +" and location VISIT COMPLETE");
+						$scope.logMessage("force_remove_exam_only","General","Function call on Patient "+ occupyingPatient.PatientIdRVH +"/"+ occupyingPatient.PatientIdMGH +" and location BACK TO WAITING ROOM");
 
-						$scope.sendToLocation(occupyingPatient,"VISIT COMPLETE",false);
+						$scope.sendToLocation(occupyingPatient,"BACK TO WAITING ROOM",false);
 
 						//for each appointment the occupying patient has, find it in the checkin list and remove it from FB
 						angular.forEach($scope.checkins,function (matchingPatient)
@@ -738,9 +737,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				{
 					if(id.PatientIdRVH != patient.PatientIdRVH && id.PatientIdMGH != patient.PatientIdMGH)
 					{
-						$scope.logMessage("force_remove","General","Function call on Patient "+ id.PatientIdRVH +"/"+ id.PatientIdMGH +" and location VISIT COMPLETE");
+						$scope.logMessage("force_remove","General","Function call on Patient "+ id.PatientIdRVH +"/"+ id.PatientIdMGH +" and location BACK TO WAITING ROOM");
 
-						$scope.sendToLocation({PatientIdRVH: id.PatientIdRVH,PatientIdMGH: id.PatientIdMGH},"VISIT COMPLETE",false);
+						$scope.sendToLocation({PatientIdRVH: id.PatientIdRVH,PatientIdMGH: id.PatientIdMGH},"BACK TO WAITING ROOM",false);
 
 						//for each appointment the occupying patient has, find it in the checkin list and remove it from FB
 						angular.forEach($scope.checkins,function (matchingPatient)

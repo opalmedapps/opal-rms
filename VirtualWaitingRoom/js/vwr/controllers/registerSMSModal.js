@@ -13,7 +13,7 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
     else {
         $scope.patient.enteredNumber = "";
     }
-    $scope.patient.selectedLanguage = "French";
+    $scope.patient.selectedLanguage = patient.LanguagePreference;
 
     $scope.patient.phoneNumberIsValid = false;
 

@@ -70,11 +70,11 @@ if(empty($SMSAlertNum))
 //====================================================================================
 if($LanguagePreference == "English")
 {
-	$message = "MUHC - Cedars Cancer Centre: Please go to $room_EN for your appointment. You will be seen shortly. ";
+	$message = "MUHC - Cedars Cancer Centre: Please go to $room_EN for your appointment. You will be seen shortly.";
 }
 else
 {
-	$message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $to_FR $room_FR pour votre rendez-vous. Vous serez vu par votre équipe sous peu.";
+    $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $to_FR $room_FR pour votre rendez-vous. Votre équipe vou verra sous peu.";
 }
 
 //====================================================================================
@@ -85,7 +85,8 @@ $fields = [
     "LicenseKey" => $SMS_licencekey,
     "To" => [$SMSAlertNum],
     "Concatenate" => TRUE,
-    "UseMMS" => FALSE
+    "UseMMS" => FALSE,
+    "IsUnicode" => TRUE
 ];
 
 $curl = curl_init();

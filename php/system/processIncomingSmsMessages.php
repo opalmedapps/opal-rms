@@ -60,17 +60,15 @@ $messages = array_map(function($x) {
     return $x;
 },$messages);
 
-//filter all non test phone numbers for now
-// $messages = array_filter($messages,function($x) {
-//     return ($x["From"] === "15147157890"
-// 		|| $x["From"] === "15144758943");
-// });
-
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message)
 {
     logData($message["ReceivedDateStr"],$message["From"],NULL,$message["Payload"],NULL,"SMS received");
 }
+
+#get default messages
+$messageList = getPossibleSmsMessages();
+$checkInLocation = "CELL PHONE";
 
 #process messages
 foreach($messages as $message)
@@ -94,16 +92,14 @@ foreach($messages as $message)
     $patientMrn = $patientData["PatientId"];
     $language = $patientData["LanguagePreference"];
 
-    #check if the message is equal to the check in keyword ARRIVE
-
     #sleep first to make sure the previous text message had time to be sent
     sleep(2);
 
+    #check if the message is equal to the check in keyword ARRIVE
     #if it's not, send a message to the patient instructing them how to use the service
     if(strtoupper($message["Payload"]) !== "ARRIVE")
     {
-        if($language === "French") $returnString = "CUSM: Pour vous enregister pour votre rendez-vous, svp repondez \"arrive\". Aucune autre message à ce numéro sera lu.";
-        else $returnString = "MUHC: To check-in for an appointment, please reply with the word \"arrive\". No other messages are accepted.";
+        $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
 
         textPatient($message["From"],$message["To"],$returnString);
         logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
@@ -112,38 +108,12 @@ foreach($messages as $message)
     }
 
     #get the patients next appointments for the day
-    $appointments = getOrmsAppointments($patientSer);
-    usort($appointments,function($x,$y) {
-        return $x["time"] <=> $y["time"];
-    });
+    $appointments = getAppointmentList($patientSer);
 
-    $appointmentString = array_reduce($appointments,function($acc,$x) use($language) {
-        if($language === "French") return $acc . "$x[name] à $x[time]\n";
-        else return $acc . "$x[name] at $x[time]\n";
-    },"");
-
-    #check the patient into all of his appointments
-    $checkInLocation = "CELL PHONE";
-
-    #check for a blood test appointment
-    $bloodTestApp = FALSE;
-    foreach($appointments as $app)
-    {
-        if($app["name"] === "NS - prise de sang/blood tests pre/post tx") {
-            $bloodTestApp = TRUE;
-            $checkInLocation = "TEST CENTRE WAITING ROOM";
-        }
-    }
-
-    #check in the patient
+    #if there are no appointments, the check in was a failure
     if($appointments === [])
     {
-        if($language === "French") {
-            $returnString = "CUSM: Il n’a pas été possible de vous enregistrer pour votre rendez-vous. Si vous avez un rendez-vous aujourd'hui, veuillez vous diriger à la réception pour vous enregistrer.";
-        }
-        else {
-            $returnString = "MUHC: Problem checking in for your appointment(s). If you have an appointment today, please go to the reception to complete the check-in process.";
-        }
+        $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
         textPatient($message["From"],$message["To"],$returnString);
         logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
@@ -151,51 +121,83 @@ foreach($messages as $message)
         continue;
     }
 
+    #sort the appointments by speciality and type into a string to insert in the sms message
+    #also generate the combined message to send in case the patient has multiple types of appointments
+    $appointmentsSorted = ArrayUtilB::groupArrayByKeyRecursive($appointments,"Speciality","Type");
+
+    $appointmentString = "";
+    foreach($appointmentsSorted as $speciality => $v)
+    {
+        foreach($v as $type => $apps)
+        {
+            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$language]["Message"];
+
+            $appListString = array_reduce($apps,function($acc,$x) use($language) {
+                if($language === "French") return $acc . "$x[name] à $x[time]\n";
+                else return $acc . "$x[name] at $x[time]\n";
+            },"");
+
+            $appointmentString = preg_replace("/<app>/",$appListString,$appointmentString);
+            $appointmentString .= "\n\n----------------\n\n";
+        }
+    }
+    $appointmentString = preg_replace("/\n\n----------------\n\n$/","",$appointmentString); #remove last newline
+
+    #check the patient into all of his appointments
     $checkInRequest = new HttpRequestB($checkInScriptLocation,["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]);
     $checkInRequest->executeRequest();
     $checkInResult = $checkInRequest->getRequestHeaders()["http_code"];
 
     if($checkInResult < 300)
     {
-        if($bloodTestApp === TRUE) {
-            if($language === "French") {
-                $returnString = "CUSM: Les inscriptions via téléphone cellulaire ne sont pas disponibles pour les prises de sang. Dirigez-vous vers le Centre de prélèvement du Centre du cancer et prenez un billet.";
-            }
-            else {
-                $returnString = "MUHC: Cell phone check-in is not available for blood test appointments. Please go to the Blood Test Reception in the Cedars Cancer Centre and take a number.";
-            }
-        }
-        else {
-            if($language === "French") {
-                $returnString = "CUSM: Vous etes enregistrés pour vos rendez-vous:\n{$appointmentString}Vous recevrez un message quand vous serez appelés pour votre rendez-vous.";
-            }
-            else {
-                $returnString = "MUHC: You have checked in for your appointment(s):\n{$appointmentString}You will receive a message when you are called.";
-            }
-        }
-
-        textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
+        textPatient($message["From"],$message["To"],$appointmentString);
+        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$appointmentString,"Success");
     }
     else
     {
-        if($language === "French") {
-            $returnString = "CUSM: Il n’a pas été possible de vous enregistrer pour votre rendez-vous. Si vous avez un rendez-vous aujourd'hui, veuillez vous diriger à la réception pour vous enregistrer.";
-        }
-        else {
-            $returnString = "MUHC: Problem checking in for your appointment(s). If you have an appointment today, please go to the reception to complete the check-in process.";
-        }
+        $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
         textPatient($message["From"],$message["To"],$returnString);
         logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Error");
     }
-
 }
 
 #functions
 
+/* messages are classified by speciality, type, and event:
+    speciality is the speciality group the message is used in
+    type is subcategory of the speciality group and is used to link the appointment code to a message
+    event indicates when the message should be sent out (during check in, as a reminder, etc)
+*/
+function getPossibleSmsMessages(): array
+{
+    $dbh = Config::getDatabaseConnection("ORMS");
+    $query = $dbh->prepare("
+        SELECT
+            Speciality
+            ,Type
+            ,Event
+            ,Language
+            ,Message
+        FROM
+            SmsMessage
+        ORDER BY
+            Speciality,Type,Event,Language
+    ");
+    $query->execute();
+
+    $messages = $query->fetchAll();
+    $messages = ArrayUtilB::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
+    $messages = ArrayUtilB::convertSingleElementArraysRecursive($messages);
+
+    return utf8_encode_recursive($messages);
+}
+
 function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string $returnMessage): void
 {
+    #don't send anything is the message is empty
+    if($returnMessage === "") return;
+
     $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
     $url = Config::getConfigs("sms")["SMS_GATEWAY_URL"];
 
@@ -205,7 +207,8 @@ function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string 
         "From" => $sourcePhoneNumber,
         "To" => [$targetPhoneNumber],
         "Concatenate" => TRUE,
-        "UseMMS" => FALSE
+        "UseMMS" => FALSE,
+        "IsUnicode" => TRUE
     ];
 
     $curl = curl_init();
@@ -219,28 +222,43 @@ function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string 
     curl_exec($curl);
 }
 
-function getOrmsAppointments(string $pSer): array
+function getAppointmentList(string $pSer): array
 {
     $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
         SELECT
             MV.AppointmentSerNum AS id,
-            MV.ResourceDescription AS name,
+            CASE
+                WHEN MV.AppointSys = 'Aria' THEN
+                    CASE
+                        WHEN MV.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
+                        WHEN (MV.AppointmentCode LIKE 'Consult%'
+                            OR MV.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
+                        WHEN MV.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
+                        ELSE MV.AppointmentCode
+                    END
+                ELSE MV.ResourceDescription
+            END AS name,
             MV.ScheduledDate AS date,
-            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time
+            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
+            SmsAppointment.Speciality,
+            SmsAppointment.Type
         FROM
             MediVisitAppointmentList MV
+            INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            INNER JOIN SmsAppointment ON SmsAppointment.AppointmentCode = MV.AppointmentCode
+                AND SmsAppointment.Speciality = ClinicResources.Speciality
         WHERE
             MV.PatientSerNum = :pSer
             AND MV.ScheduledDate = CURDATE()
-            AND MV.Status = 'Open'"
-    );
+            AND MV.Status = 'Open'
+        ORDER BY MV.ScheduledTime
+    ");
     $query->execute([":pSer" => $pSer]);
 
-    return $query->fetchAll();
+    return utf8_encode_recursive($query->fetchAll());
 }
 
-#classes
 function logData(string $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
 {
     $dbh = Config::getDatabaseConnection("ORMS");
@@ -276,6 +294,8 @@ function getPatientInfo(string $phoneNumber): ?array
 
     return $query->fetchAll()[0] ?? NULL;
 }
+
+#classes
 
 #Handles making http requests
 class HttpRequestB
@@ -344,6 +364,44 @@ class ArrayUtilB
         ksort($groupedArr);
         return $groupedArr;
     }
+
+    #recursive version of groupArrayByKey that repeats the grouping process for each input key
+    public static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
+    {
+        $key = array_shift($keys);
+        if($keys === NULL) return $arr;
+
+        $groupedArr = self::groupArrayByKey($arr,"$key");
+
+        if($keys !== [])
+        {
+            foreach($groupedArr as &$subArr) {
+                $subArr = self::groupArrayByKeyRecursive($subArr,...$keys);
+            }
+        }
+
+        return $groupedArr;
+    }
+
+    public static function convertSingleElementArraysRecursive($arr)
+    {
+        if(gettype($arr) === "array")
+        {
+            foreach($arr as &$val) $val = self::convertSingleElementArraysRecursive($val);
+
+            if(self::checkIfArrayIsAssoc($arr) === FALSE && count($arr) === 1) {
+                $arr = $arr[0];
+            }
+        }
+
+        return $arr;
+    }
+
+    public static function checkIfArrayIsAssoc(array $arr): bool
+    {
+        return array_keys($arr) !== range(0,count($arr)-1);
+    }
+
 }
 
 ?>

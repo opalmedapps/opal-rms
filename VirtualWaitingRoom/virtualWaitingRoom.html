@@ -155,7 +155,7 @@
                                 <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
                             </span>
                             <span   ng-switch-when="CompleteAppointment">
-                                <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called' || patient.VenueId == 'BACK TO WAITING ROOM'" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
+                                <button ng-show="screenRows[patient.Identifier].PatientStatus === 'Called' || patient.VenueId === 'BACK TO WAITING ROOM' || patient.VenueId === 'TEST CENTRE WAITING ROOM'" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
                                 <span ng-show="screenRows[patient.Identifier].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
                             </span>
                             <span   ng-switch-when="ClinicName">{{patient.ResourceName}}</span>

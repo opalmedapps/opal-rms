@@ -30,7 +30,7 @@
 }
 
 .location-room {
-	font-size: 44px;
+	font-size: 55px;
 	height: 50%;
 }
 
@@ -48,8 +48,8 @@
 
 /* ticker css*/
 .ticker1 {
- height: 70px;
- width: 6000px;
+ height: 70px;	
+ width: 6000px;	
  position: relative;
  background: black;
 }
@@ -65,13 +65,14 @@
  /* Starting position */
  transform:translateX(100%);
 
- /* Apply animation to this element */
+ /* Apply animation to this element */	
  animation: ticker1 50s linear infinite;
 }
 
 /* Move it (define the animation) */
-@keyframes ticker1
-{
+@keyframes ticker1 
+{ 
  0%   {  transform: translateX(50%);  }
- 100% {  transform: translateX(-100%); }
+ 100% {  transform: translateX(-100%); } 
 }
+

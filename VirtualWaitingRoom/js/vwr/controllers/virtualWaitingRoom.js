@@ -391,14 +391,19 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				// Opal app or not. The php script will take care of whether the patient
 				// has a phone and Opal or not...
 				//-----------------------------------------------------------------------
-				//for now, only RVH patients have opal
+                //for now, only RVH patients have opal
+                let correctSerNum = patient.ScheduledActivitySer;
+                if(patient.CheckinSystem === "Aria") {
+                    correctSerNum = patient.AppointmentId.replace(/MEDIAria/,"");
+                }
+
 				$http({
 					url: $scope.opalNotificationUrl,
 					method: "GET",
 					params:
 					{
 						patientid: patient.PatientIdRVH,
-						appointment_ariaser: patient.ScheduledActivitySer,
+						appointment_ariaser: correctSerNum,
 						room_FR: destination.VenueFR,
 						room_EN: destination.VenueEN
 					}

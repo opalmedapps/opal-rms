@@ -1496,8 +1496,8 @@ sub CheckinPatient
 
     # checking patient into test centre waiting room so that it is clear to all that they
     # are getting a blood test
-    $CheckinVenue = 8227;
-    $CheckinVenueName = "TEST CENTRE WAITING ROOM";
+    #$CheckinVenue = 8227;
+    #$CheckinVenueName = "TEST CENTRE WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
 
     $WaitingRoomWherePatientShouldWait = "TestCentre";

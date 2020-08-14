@@ -1,0 +1,101 @@
+%Appointments Template for Aria Chart Level Document
+\documentclass[12pt]{article}
+\textheight=8.0in
+\textwidth=8.0in
+\topmargin=-1.0in
+\raggedbottom
+\oddsidemargin=-2.0cm
+\evensidemargin=2.0cm
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage[table]{xcolor}
+\usepackage{eso-pic}
+\usepackage{afterpage}
+\usepackage{lastpage}
+
+\renewcommand{\headheight}{1.0in}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+\setlength{\headwidth}{\textwidth}
+\fancyhead[R]{\large\textbf{Liste des poids et tailles du patient}}
+\fancyhead[C]{\includegraphics[height=0.53in]{@@@logoImg@@@}\\}
+
+\fancyfoot[R]{Page \thepage~de \pageref{LastPage}} %page number on right
+\fancyfoot[C]{} %blank central footer
+
+\lfoot{\textbf{FMU-4183 Source :} ARIA(REV 2018/08/24) \\
+\hfill\\
+\footnotesize{Si une version papier de ce document est re\c{c}ue aux archives, avec ou sans notes manuscrites, en statut pr\'{e}liminaire ou final, \textbf{il ne sera pas num\'{e}ris\'{e}}.  Les corrections doivent \^{e}tre faites dans le document pr\'{e}liminaire ou via l'addendum si le document est final.\\
+\hfill\\
+If a printout of this document is received in Medical Records, with or without handwritten notes, whether it is preliminary or final, \textbf{it will not be scanned}.  Corrections must be done in the preliminary document or via an addendum if the document is final.}
+} %document info on left
+\pagestyle{fancy}
+
+\definecolor{light-gray}{gray}{0.95}
+\definecolor{dark-gray}{gray}{0.8}
+\definecolor{light-blue}{rgb}{0,0,0.99}
+\definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
+
+%\AddToShipoutPicture{\AtTextUpperLeft{\textbf{@@@lname@@@, @@@fname@@@ (RVH-@@@patientIdRVH@@@)}}}
+
+\begin{document}
+
+\begin{minipage}{0.65\textwidth}
+\hspace{-0.22in} Derni\`{e}re mise \`{a} jour : \textbf{\color{black}{@@@now@@@}}\\
+\bigskip
+
+\vspace{-0.22in}
+\hspace{-0.22in} Ce document est mis \`{a} jour automatiquement \`{a} la suite de la mise \`{a} jour du poids ou de le taille du patient dans le syst\`{e}me ORMS-Aria.
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\begin{flushright}
+\includegraphics[height=0.8in]{@@@barCodeImg@@@}
+\end{flushright}
+\end{minipage}
+
+\begin{center}
+%\textbf{@@@lname@@@, @@@fname@@@ (RVH-@@@patientIdRVH@@@)}
+%\newline
+%\includegraphics[height=4.3in]{@@@outputWeightFile@@@.png}
+\end{center}
+\vspace{-0.3in}
+
+\normalsize
+\rowcolors{1}{light-gray}{dark-gray}
+{\renewcommand{\arraystretch}{1.5}%row padding
+\begin{longtable}
+{
+    |p{0.2\linewidth}
+    |p{0.16\linewidth}
+    |p{0.155\linewidth}
+    |p{0.15\linewidth}
+    |p{0.15\linewidth}
+    |p{0.15\linewidth}
+    |
+}
+%\multicolumn{6}{l}{\textbf{@@@lname@@@, @@@fname@@@ (RVH-@@@patientIdRVH@@@)}}\\
+%\multicolumn{6}{l}{\textbf{LastName, FirstName (RVH-PatientId)}}\\
+%\multicolumn{6}{l}{\color{white}{ placeholder text }}\\
+\hline
+\rowcolor{babyblueeyes}
+    \textbf{Date et heure de la mesure}
+    &\textbf{Poids}
+    &\textbf{Taille}
+    &\textbf{Surface \newline Corporelle}
+    &\textbf{Num\'{e}ro \newline du RDV}\\
+\multicolumn{6}{l}{\textbf{WEIGHTS CURRENTLY NOT AVAILABLE}}\\
+\hline
+\endhead
+\hline
+\hline
+
+\end{longtable}}
+
+\noindent{\textbf{\color{red}The medical information provided by this application (Opal/ORMS) is provided as an
+information resource only, and should not be used or relied on for any final diagnostic,
+prescription or treatment purposes. You, the healthcare provider, must validate the
+information prior to making any clinical decision or prescribing any treatment.}}
+
+\end{document}

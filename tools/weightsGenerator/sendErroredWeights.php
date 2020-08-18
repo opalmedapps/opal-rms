@@ -69,6 +69,7 @@ foreach($listOfPatients as $noZeroesMrn)
     if(file_exists("$baseFilename.pdf")) unlink("$baseFilename.pdf");
     if(file_exists("$baseFilename.xml")) unlink("$baseFilename.xml");
 
+    echo "$noZeroesMrn\n";
 }
 
 #functions

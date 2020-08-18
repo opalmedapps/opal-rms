@@ -263,6 +263,17 @@ say $aptOut "
 	\\normalsize
 	\\rowcolors{1}{light-gray}{dark-gray}
 	{\\renewcommand{\\arraystretch}{1.5}%row padding
+
+    \\hfill\\\\
+    \\hfill\\\\
+    \\hfill\\\\
+    \\hfill\\\\
+
+    \\noindent{\\textbf{\\color{red}The medical information provided by this application (Opal/ORMS) is provided as an
+    information resource only, and should not be used or relied on for any final diagnostic,
+    prescription or treatment purposes. You, the healthcare provider, must validate the
+    information prior to making any clinical decision or prescribing any treatment.}}
+
 	\\begin{longtable}
 	{
 		|p{0.2\\linewidth}

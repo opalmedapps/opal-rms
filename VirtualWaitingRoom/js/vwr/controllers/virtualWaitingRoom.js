@@ -538,7 +538,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 				{
 					return "Already Taken";
 				}
-				else if(/(CON-GP|FU-AD-CHM-GP|FU-ORL-TX-GP|FU-SD-CHM-GP|FUSD-CHM-GP|HCONSULT|HFU-AD-CHM|HFU-ORL-TX|HFU-SD-CHM|CONSULT NEW OUT LFTU|FOLLOW UP OUT LTFU)/.test(patient.AppointmentName))
+				else if(/(CON-GP|FU-AD-CHM-GP|FU-ORL-TX-GP|FU-SD-CHM-GP|FUSD-CHM-GP|HCONSULT|HFU-AD-CHM|HFU-ORL-TX|HFU-SD-CHM|CONSULT NEW OUT LFTU|FOLLOW UP OUT LTFU|H|HW|W)/.test(patient.AppointmentName))
 				{
 					return "Yes";
 				}

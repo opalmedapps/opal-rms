@@ -97,7 +97,7 @@ foreach($messages as $message)
 
     #check if the message is equal to the check in keyword ARRIVE
     #if it's not, send a message to the patient instructing them how to use the service
-    if(strtoupper($message["Payload"]) !== "ARRIVE")
+    if(!preg_match("/ARRIVE|ARRIVÉ/",mb_strtoupper($message["Payload"])))
     {
         $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
 

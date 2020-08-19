@@ -160,9 +160,25 @@ $sql = "
         MV.ScheduledTime";
 
 
-
-
 $query = $dbh->prepare($sql);
+
+$opalFilter2 = "";
+if($OPAL==NULL) $opalFilter .= "WHERE Patient.SMSAlertNum IS NOT NULL";
+if($SMS==NULL) $opalFilter .= "WHERE Patient.OpalPatient = 1";
+
+$sql2 = "SELECT  Patient.FirstName,
+        Patient.LastName,
+        Patient.PatientId,
+        Patient.SSN,
+        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
+        Patient.OpalPatient,
+        Patient.SMSAlertNum
+ FROM Patient
+ $opalFilter2
+ ORDER BY
+        Patient.PatientId";
+
+$query2 = $dbh->prepare($sql2);
 
 //if ($appFilter !== "") $query->bindValue(":resDesc", $specificApp);
 //if ($cappFilter !== "") $query->bindValue(":appCode", $cspecificApp);
@@ -172,6 +188,7 @@ $query->bindValue(":eDate", $eDate);
 $query->execute();
 
 $listOfAppointments = [];
+$pIDlist = [];
 
 while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
     #filter apppointments on whether the patient checked in for it
@@ -227,6 +244,10 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
         }
     }
 
+    if(!in_array($row["PatientId"], $pIDlist)){
+        array_push($pIDlist,$row["PatientId"]);
+    }
+
     if(($appdType ==="all" || in_array( $row["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]==1||$offbutton == "OFF")&&($qType ==="all" ||$answeredQuestionnaire)){
         $listOfAppointments[] = [
             "fname" => $row["FirstName"],
@@ -254,6 +275,67 @@ while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
         ];
     }
 }
+
+$query2->execute();
+while ($row2 = $query2->fetch(PDO::FETCH_ASSOC)) {
+    $queryOpal->execute(array(":uid" => $row2["PatientId"],":qDate" => $qDate,":uid2" => $row2["PatientId"]));
+    $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
+
+    $row2["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
+    $row2["QuestionnaireName"] = !empty($resultOpal["QuestionnaireName"]) ? $resultOpal["QuestionnaireName"] : "";
+    if($row2["SMSAlertNum"]) $row2["SMSAlertNum"] = substr($row2["SMSAlertNum"],0,3) ."-". substr($row2["SMSAlertNum"],3,3) ."-". substr($row2["SMSAlertNum"],6,4);
+
+    $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
+    $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
+    $row2["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
+
+    if(
+        ($lastCompleted !== NULL && $row2["LastQuestionnaireReview"] === NULL)
+        ||
+        (
+            ($lastCompleted !== NULL && $row2["LastQuestionnaireReview"] !== NULL)
+            && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($row2["LastQuestionnaireReview"]))->getTimestamp()
+        )
+    ) $row2["QStatus"] = "red-circle";
+
+    $answeredQuestionnaire = False;
+    $queryOpal2->execute(array(":uid" => $row2["PatientId"]));
+    while ($questionnaireName = $queryOpal2->fetch(PDO::FETCH_ASSOC)){
+        if(in_array( $questionnaireName["QuestionnaireName"],explode(",",$qspecificApp))){
+            $answeredQuestionnaire = true;
+            break;
+        }
+    }
+
+
+    if(($appdType ==="all" || in_array( $row2["Diagnosis"],explode(",",$dspecificApp))) && ($resultOpal["RecentAnswered"]==1||$offbutton == "OFF")&&($qType ==="all" ||$answeredQuestionnaire) && (!in_array($row2["PatientId"], $pIDlist))){
+        $listOfAppointments[] = [
+            "fname" => $row2["FirstName"],
+            "lname" => $row2["LastName"],
+            "pID" => $row2["PatientId"],
+            "ssn" => [
+                "num" => $row2["SSN"],
+                "expDate" => $row2["ssnExp"] ?? NULL,
+                "expired" => $ramqExpired,
+            ],
+            "appName" => $row2["ResourceDescription"],
+            "appClinic" => $row2["Resource"],
+            "appType" => $row2["AppointmentCode"],
+            "appStatus" => $row2["Status"],
+            "appDay" => $row2["ScheduledDate"],
+            "appTime" => $row2["ScheduledTime"],
+            "checkin" => NULL,
+            "createdToday" => NULL,
+            "referringPhysician" => $row2["ReferringPhysician"],
+            "mediStatus" => $row2["MedivisitStatus"],
+            "diagnosis" => $row2["Diagnosis"],
+            "QStatus" => $row2["QStatus"],
+            "opalpatient" =>$row2["OpalPatient"],
+            "SMSAlertNum" => $row2["SMSAlertNum"],
+        ];
+    }
+}
+
 
 $listOfAppointments = utf8_encode_recursive($listOfAppointments);
 echo json_encode($listOfAppointments);

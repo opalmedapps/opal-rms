@@ -116,7 +116,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }
         else{
             $scope.confid = 'Nominal Mode';
-            sessionStorage.setItem("value",$scope.confid)
+            localStorage.setItem("value",$scope.confid)
         }
     };
 
@@ -258,7 +258,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
         $mdDialog.show(answer).then( result => {
             $scope.confid = 'Confidential Mode';
-            sessionStorage.setItem("value",$scope.confid)
+            localStorage.setItem("value",$scope.confid)
             $scope.confidentialTimer();
         });
     };
@@ -269,8 +269,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             $scope.reset();
             $scope.zoomLink = "";
             $scope.showLM = true;
-            if(sessionStorage.getItem("value")) {
-                $scope.confid = sessionStorage.getItem("value");
+            if(localStorage.getItem("value")) {
+                $scope.confid = localStorage.getItem("value");
             }
             else
             $scope.confid = 'Confidential Mode';
@@ -399,9 +399,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         document.addEventListener("mousemove", $scope.resetConfidTimer, false);
         document.addEventListener("keypress", $scope.resetConfidTimer, false);
         document.addEventListener("touchmove", $scope.resetConfidTimer, false);
-        if($scope.confid === 'Confidential Mode') {
-            $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
-        }
+        $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
 
     };
 

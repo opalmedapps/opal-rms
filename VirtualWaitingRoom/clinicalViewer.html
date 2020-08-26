@@ -51,11 +51,10 @@
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/angular-datatables/dist/css/angular-datatables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/jquery-ui-dist/jquery-ui.min.css">
-
+<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
 <link rel="stylesheet" href="./node_modules/ui-select/dist/select.min.css">
 <link rel="stylesheet" href="./node_modules/angular-material/angular-material.min.css">
 <link rel="stylesheet" href="./css/select2.css">
-<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
 
 
 
@@ -224,6 +223,9 @@
         </table>
 
 
+        <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
+
+
             <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
 
                 <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
@@ -360,7 +362,6 @@
                 </tr>
 
             </table>
-
     </form>
 
 
@@ -396,30 +397,30 @@
             </tr>
         </table>
         <br>
-        <table class='table patient-list' datatable="ng" dt-options="dtOptions">
+        <table class='items' datatable="ng" dt-options="dtOptions">
             <thead>
-            <tr style="background-color: #d9edf7; font-size: 15px">
-                <th style="text-align: center;">Patient Information (Name, ID, RAMQ)</th>
-                <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">Opal/SMS</th>
-                <th ng-class="(clinicsUsed)? 'textStyleRed': ''" style="text-align: center;">Clinic/Treatment</th>
+            <tr>
+                <th>Patient Information (Name, ID, RAMQ)</th>
+                <th ng-class="(opalUsed) ? 'textStyleRed': ''">Opal/SMS</th>
+                <th ng-class="(clinicsUsed)? 'textStyleRed': ''" >Clinic/Treatment</th>
                 <th>Code</th>
-                <th ng-class="(codeUsed) ? 'textStyleRed': ''" style="text-align: center;">App. Code</th>
+                <th ng-class="(codeUsed) ? 'textStyleRed': ''">App. Code</th>
                 <!--th ng-if="!sameDate">Scheduled Date</--th-->
-                <th style="text-align: center;">Scheduled Time</th>
-                <th style="text-align: center;">Checkin Time</th>
-                <th style="text-align: center;">Status</th>
-                <th style="text-align: center;">Medivisit Status</th>
-                <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''" style="text-align: center;">Diagnosis</th>
-                <th style="text-align: center;">Call Patient</th>
-                <th style="text-align: center;">Questionnaires</th>
+                <th>Scheduled Time</th>
+                <th>Checkin Time</th>
+                <th>Status</th>
+                <th>Medivisit Status</th>
+                <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''">Diagnosis</th>
+                <th>Call Patient</th>
+                <th>Questionnaires</th>
 
             </tr>
             </thead>
-            <tbody >
+            <tbody>
             <tr ng-repeat="appoint in tableData">
                 <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td>
-                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
+                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>

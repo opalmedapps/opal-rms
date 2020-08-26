@@ -55,11 +55,13 @@ $sqlOpal = "
             Q.RecentAnswered
         FROM
             (SELECT P.PatientId, D.DiagnosisCode
-             from Patient P INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
-             WHERE P.PatientId = :uid
-             ORDER BY D.LastUpdated DESC) DP,
-             DiagnosisCode DC,
-             DiagnosisTranslation DT,
+             from Patient P 
+             INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
+             AND P.PatientId = :uid
+             ORDER BY D.LastUpdated DESC
+             LIMIT 1) DP
+             INNER JOIN DiagnosisCode DC ON DC.DiagnosisCode = DP.DiagnosisCode
+             INNER JOIN  DiagnosisTranslation DT ON DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum,
             (SELECT
                 Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
                 CASE
@@ -74,11 +76,8 @@ $sqlOpal = "
                 Patient
                 INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
                     AND Questionnaire.CompletedFlag = 1
-            WHERE
-                Patient.PatientId = :uid2) Q
-        WHERE DC.DiagnosisCode = DP.DiagnosisCode
-        AND DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
-        ORDER BY Q.QuestionnaireCompletionDate DESC
+                    AND Patient.PatientId = :uid2
+                    LIMIT 1) Q
     LIMIT 1";
 
 $queryOpal = $dbOpal->prepare($sqlOpal);
@@ -88,9 +87,9 @@ $sqlOpal2 = "
             FROM
                 Patient
                 INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
-                    AND Questionnaire.CompletedFlag = 1
+                AND Questionnaire.CompletedFlag = 1
                 Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Questionnaire.QuestionnaireControlSerNum 
-            WHERE Patient.PatientId = :uid";
+                AND Patient.PatientId = :uid";
 
 $queryOpal2 = $dbOpal->prepare($sqlOpal2);
 

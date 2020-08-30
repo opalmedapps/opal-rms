@@ -41,6 +41,7 @@ my $images 		= $systemPaths->{'IMAGE_URL'};
 my $SMS_url		= "$systemPaths->{'BASE_PATH'}/php/script/sendSMSCheckedIn.php";
 my $logfile_location 	= "$systemPaths->{'LOG_PATH'}/kiosk";
 my $logging = 1; # Log data to a text file
+my $adtConnected = 0;
 my $PhotoStatus;
 my $PilotStatus;
 my $ReloadFinal = 6; # 10 second to reload the final screen
@@ -452,11 +453,11 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     my $message_EN = "MUHC - Cedars Cancer Centre: You are checked in for your appointment(s).";
     my $message_FR = "CUSM - Centre du cancer des Cèdres: Votre(vos) rendez-vous est(sont) enregistré(s)";
 
-    if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
-    {
-	$message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
-	$message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
-    }
+    # if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
+    # {
+	# $message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
+	# $message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
+    # }
 
     my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
     my $response = `$SMS_message`;
@@ -479,11 +480,11 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     my $message_EN = "MUHC - Cedars Cancer Centre: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
     my $message_FR = "CUSM - Centre du cancer des Cèdres: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
 
-    if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
-    {
-	$message_EN = "MGH - Orthopedics: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
-	$message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
-    }
+    # if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
+    # {
+	# $message_EN = "MGH - Orthopedics: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
+	# $message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
+    # }
 
     my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
     my $response = `$SMS_message`;
@@ -534,75 +535,81 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     {
       $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
       $MainMessage_en 		= "Please go to the reception";
-      $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
-      $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
+    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
+        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
+        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
       #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
       $log_message 		= "$PatientId, $location, $subMessage_en";
 
     }
     # destination is TestCentre and checkin location is upstairs
-    elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
-    {
-      $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-      $MainMessage_en 		= "You are Checked In";
-      $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre pr&eacute;l&egrave;vement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr Autrement, veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.";
-      $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please check in at the Test Centre Reception</b>.</span> $Aptinfo_en Otherwise, please have a seat in the waiting room. Your name will appear on the TV screens when you are called.";
-      #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr";
-      #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Please checkin at the Test Centre Reception</b>.</span> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+    # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
+    # {
+    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en 		= "You are Checked In";
+    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre pr&eacute;l&egrave;vement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr Autrement, veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.";
+    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please check in at the Test Centre Reception</b>.</span> $Aptinfo_en Otherwise, please have a seat in the waiting room. Your name will appear on the TV screens when you are called.";
+    #   #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr";
+    #   #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Please checkin at the Test Centre Reception</b>.</span> $Aptinfo_en";
+    #   $log_message 		= "$PatientId, $location, $subMessage_en";
 
-    }
+    # }
     # destination is TestCentre and checkin location is downstairs
-    elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3"))
-    {
-      $MainMessage_fr 		= "Centre de pr&eacute;l&egrave;vement";
-      $MainMessage_en 		= "Test Centre";
-      $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre prélèvement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
-      $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please checkin at the Test Centre Reception</b> <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+    # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3"))
+    # {
+    #   $MainMessage_fr 		= "Centre de pr&eacute;l&egrave;vement";
+    #   $MainMessage_en 		= "Test Centre";
+    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre prélèvement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
+    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please checkin at the Test Centre Reception</b> <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
+    #   $log_message 		= "$PatientId, $location, $subMessage_en";
 
-    }
+    # }
     # destination is downstairs but checkin location is upstairs
     elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DS1" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
     {
       $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
       $MainMessage_en 		= "You are Checked In";
-      $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en bas au sous-sol</b>.</span> $Aptinfo_fr";
-      $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>downstairs on level S1</b>.</span> $Aptinfo_en";
+    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en bas au sous-sol</b>.</span> $Aptinfo_fr";
+        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>downstairs on level S1</b>.</span> $Aptinfo_en";
+        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       $log_message 		= "$PatientId, $location, $subMessage_en";
 
     }
     # destination is OrthoWaitRoom and checkin location is Ortho_1 or Ortho_2
-    elsif($PhotoStatus == 1 && $DestinationWaitingRoom  eq "OrthoWaitRoom" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
-    {
-      $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-      $MainMessage_en 		= "You are Checked In";
-      #$MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-      #$MainMessage_en 		= "Please go to the reception";
-      #$subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. <span style=\"background-color: #ffff00\">Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.</span><br> $Aptinfo_fr";
-      #$subMessage_en 		= "Please have a seat in the waiting room. <span style=\"background-color: #ffff00\">Your name will appear on the TV screens when you are called.</span><br> $Aptinfo_en";
-      $subMessage_fr 		= "Veuillez vous pr&eacute;senter &agrave la <span style=\"background-color: #ffff00\">r&eacute;ception</span> pour compl&eacute;ter votre enregistrement.<br> $Aptinfo_fr";
-      $subMessage_en 		= "Please go to the <span style=\"background-color: #ffff00\">reception</span> to complete the check-in process.<br> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+    # elsif($PhotoStatus == 1 && $DestinationWaitingRoom  eq "OrthoWaitRoom" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
+    # {
+    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en 		= "You are Checked In";
+    #   #$MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
+    #   #$MainMessage_en 		= "Please go to the reception";
+    #   #$subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. <span style=\"background-color: #ffff00\">Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.</span><br> $Aptinfo_fr";
+    #   #$subMessage_en 		= "Please have a seat in the waiting room. <span style=\"background-color: #ffff00\">Your name will appear on the TV screens when you are called.</span><br> $Aptinfo_en";
+    #   $subMessage_fr 		= "Veuillez vous pr&eacute;senter &agrave la <span style=\"background-color: #ffff00\">r&eacute;ception</span> pour compl&eacute;ter votre enregistrement.<br> $Aptinfo_fr";
+    #   $subMessage_en 		= "Please go to the <span style=\"background-color: #ffff00\">reception</span> to complete the check-in process.<br> $Aptinfo_en";
+    #   $log_message 		= "$PatientId, $location, $subMessage_en";
 
-    }
+    # }
     # destination is RadiologyMGH and checkin location is Ortho_1 or Ortho_2
-    elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "RadiologyMGH" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
-    {
-      $MainMessage_fr 		= "Radiographie";
-      $MainMessage_en 		= "Go for X-ray";
-      $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez-vous enregistrer au C5-163 pour la radiographie.</span> &Agrave votre retour, veuillez <u>repasser votre carte</u>. ";
-      $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please register at C5-163 for an X-ray.</span> Afterwards, please come back here and <u>check-in again</u>. ";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+    # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "RadiologyMGH" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
+    # {
+    #   $MainMessage_fr 		= "Radiographie";
+    #   $MainMessage_en 		= "Go for X-ray";
+    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez-vous enregistrer au C5-163 pour la radiographie.</span> &Agrave votre retour, veuillez <u>repasser votre carte</u>. ";
+    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please register at C5-163 for an X-ray.</span> Afterwards, please come back here and <u>check-in again</u>. ";
+    #   $log_message 		= "$PatientId, $location, $subMessage_en";
 
-    }
+    # }
     elsif($PilotStatus == 1 && $PhotoStatus == 1) # destination is same as checkin location
     {
       $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
       $MainMessage_en 		= "You are Checked In";
-      $subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br> $Aptinfo_fr";
-      $subMessage_en 		= "Please have a seat in the waiting room. Your name will appear on the TV screens when you are called.<br> $Aptinfo_en";
+    #   $subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br> $Aptinfo_fr";
+        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en 		= "Please have a seat in the waiting room. Your name will appear on the TV screens when you are called.<br> $Aptinfo_en";
+        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       $log_message 		= "$PatientId, $location, $subMessage_en";
 
       # Estimated waiting time option
@@ -1191,35 +1198,39 @@ sub findPatient
   my $RAMQCardExpired = 0;
 
   #call the hospital ADT to check if the ramq is expired
-  my $ramqInfo = HospitalADT->getRamqInformation($PatientSSN);
-
-  if($verbose)
+  if($adtConnected == 1)
   {
-	print "Ramq function status: $ramqInfo->{'Status'}<br>";
-	print "Ramq function message: $ramqInfo->{'Message'}<br>";
+    my $ramqInfo = HospitalADT->getRamqInformation($PatientSSN);
+
+    if($verbose)
+    {
+        print "Ramq function status: $ramqInfo->{'Status'}<br>";
+        print "Ramq function message: $ramqInfo->{'Message'}<br>";
+    }
+
+    #if an error is produced, we count the ramq as valid since the patient, probably doesn't have a ramq yet
+    if($ramqInfo->{'Status'} =~ /Valid|Error/)
+    {
+        #likewise, if the patient has no MRN, they probably don't have a ramq
+        if(!$ramqInfo->{'Mrns'} or $ramqInfo->{'Mrns'} =~ /$mrnType/)
+        {
+        $RAMQCardExpired = 0;
+
+        #update the WRM db with the valid ramq expiration date if the current one in the WRM db is expired
+        my $result = HospitalADT->updateRamqInWRM($PatientSSN);
+        print "$result<br>" if $verbose;
+        }
+        else
+        {
+            $RAMQCardExpired = 1;
+        }
+    }
+    else
+    {
+        $RAMQCardExpired = 1;
+    }
   }
 
-  #if an error is produced, we count the ramq as valid since the patient, probably doesn't have a ramq yet
-  if($ramqInfo->{'Status'} =~ /Valid|Error/)
-  {
-	#likewise, if the patient has no MRN, they probably don't have a ramq
-	if(!$ramqInfo->{'Mrns'} or $ramqInfo->{'Mrns'} =~ /$mrnType/)
-	{
-	  $RAMQCardExpired = 0;
-
-	  #update the WRM db with the valid ramq expiration date if the current one in the WRM db is expired
-	  my $result = HospitalADT->updateRamqInWRM($PatientSSN);
-	  print "$result<br>" if $verbose;
-	}
-	else
-	{
-		$RAMQCardExpired = 1;
-	}
-  }
-  else
-  {
-	$RAMQCardExpired = 1;
-  }
   print "Is ramq expired? : $RAMQCardExpired<br>" if $verbose;
 
 

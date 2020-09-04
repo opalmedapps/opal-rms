@@ -44,9 +44,9 @@ my $logging = 1; # Log data to a text file
 my $adtConnected = 0;
 my $PhotoStatus;
 my $PilotStatus;
-my $ReloadFinal = 6; # 10 second to reload the final screen
+my $ReloadFinal = 11; # 10 second to reload the final screen
 #my $ReloadMid = 3; # 3 seconds to display the patient name by default
-my $ReloadMid = 8; # 8 seconds to display the patient name by default - Measles
+my $ReloadMid = 4; # 8 seconds to display the patient name by default - Measles
 
 my $ariaSettings = LoadConfigs::GetConfigs("aria");
 my $ariaCheckinUrl = $ariaSettings->{"ARIA_CHECKIN_URL"};
@@ -453,6 +453,8 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     my $message_EN = "MUHC - Cedars Cancer Centre: You are checked in for your appointment(s).";
     my $message_FR = "CUSM - Centre du cancer des Cèdres: Votre(vos) rendez-vous est(sont) enregistré(s)";
 
+    $middleMessage_image = "";
+
     # if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
     # {
 	# $message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
@@ -536,7 +538,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
       $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
       $MainMessage_en 		= "Please go to the reception";
     #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
-        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
     #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
         $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
@@ -569,12 +571,14 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     # destination is downstairs but checkin location is upstairs
     elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DS1" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
     {
-      $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-      $MainMessage_en 		= "You are Checked In";
+    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en 		= "You are Checked In";
+        $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
+        $MainMessage_en 		= "You are Checked In";
     #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en bas au sous-sol</b>.</span> $Aptinfo_fr";
-        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
     #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>downstairs on level S1</b>.</span> $Aptinfo_en";
-        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
+        $subMessage_en      = "<span style=\"background-color: yellow\">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       $log_message 		= "$PatientId, $location, $subMessage_en";
 
     }
@@ -607,9 +611,9 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
       $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
       $MainMessage_en 		= "You are Checked In";
     #   $subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br> $Aptinfo_fr";
-        $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
     #   $subMessage_en 		= "Please have a seat in the waiting room. Your name will appear on the TV screens when you are called.<br> $Aptinfo_en";
-        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
+        $subMessage_en      = "<span style=\"background-color: yellow\">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       $log_message 		= "$PatientId, $location, $subMessage_en";
 
       # Estimated waiting time option

@@ -11,18 +11,18 @@ $csvFile = (getopt(null,["file:"]))["file"];
 
 #csv file must have been created today, otherwise send an error
 #however, if its the weekend, don't send an error
-// $modDate = (new DateTime())->setTimestamp(filemtime($csvFile))->format("Y-m-d");
-// $today = (new DateTime())->format("Y-m-d");
+$modDate = (new DateTime())->setTimestamp(filemtime($csvFile))->format("Y-m-d");
+$today = (new DateTime())->format("Y-m-d");
 
-// if($modDate !== $today)
-// {
-//     if(date('D') == 'Sat' || date('D') == 'Sun') {
-//         exit;
-//     }
-//     else {
-//         throw new Exception("CSV file was not updated today");
-//     }
-// }
+if($modDate !== $today)
+{
+    if(date('D') == 'Sat' || date('D') == 'Sun') {
+        exit;
+    }
+    else {
+        throw new Exception("CSV file was not updated today");
+    }
+}
 
 $fileHandle = fopen($csvFile,"r");
 

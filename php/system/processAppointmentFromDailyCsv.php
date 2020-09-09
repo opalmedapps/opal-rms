@@ -63,11 +63,11 @@ function processCsvFile($handle): array #$handle is stream
     $headers = fgetcsv($handle);
 
     #csv file is encoded in iso-8859-1 so we need to change it to utf8
-    $headers = array_map('utf8_encode',$headers);
+    // $headers = array_map('utf8_encode',$headers);
 
     while(($row = fgetcsv($handle)) !== FALSE)
     {
-        $row = array_map('utf8_encode',$row);
+        // $row = array_map('utf8_encode',$row);
         $data[] = array_combine($headers,$row);
     }
 

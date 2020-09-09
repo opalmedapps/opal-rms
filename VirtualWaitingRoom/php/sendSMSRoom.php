@@ -16,11 +16,8 @@ $room_EN = $_GET["room_EN"];
 
 // If "salle" then a la Salle
 
-$room_MF = substr($room_FR,0,5);
-
-echo "room $room_MF<br>";
 $to_FR = "au";
-if($room_MF == "Salle")
+if(preg_match("/^(Salle|Porte)/",$room_FR))
 {
 	$to_FR = "à la";
 }
@@ -74,7 +71,7 @@ if($LanguagePreference == "English")
 }
 else
 {
-    $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $to_FR $room_FR pour votre rendez-vous. Votre équipe vou verra sous peu.";
+    $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $to_FR $room_FR pour votre rendez-vous. Votre équipe vous verra sous peu.";
 }
 
 //====================================================================================

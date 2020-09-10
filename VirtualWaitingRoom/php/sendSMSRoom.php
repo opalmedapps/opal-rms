@@ -17,7 +17,7 @@ $room_EN = $_GET["room_EN"];
 // If "salle" then a la Salle
 
 $to_FR = "au";
-if(preg_match("/^(Salle|Porte)/",$room_FR))
+if(preg_match("/^(Salle|Porte|Réception)/",$room_FR))
 {
 	$to_FR = "à la";
 }

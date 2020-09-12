@@ -3,12 +3,9 @@
 # live version of config
 ###################################################
 
-require __DIR__."/../../php/AutoLoader.php";
+require __DIR__."../../../vendor/autoload.php";
 
-//set all error reporting on for security purposes
-error_reporting(E_ALL);
-
-date_default_timezone_set("America/Montreal");
+use Orms\Config;
 
 //except Undefined index errors since every $_GET[] statement throws it to the screen
 //unless someone wants to rewrite all $_GET[] statements in all the scripts

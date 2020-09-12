@@ -3,6 +3,8 @@
 
 require __DIR__."/../php/AutoLoader.php";
 
+use Orms\Config;
+
 $dbh = Config::getDatabaseConnection("ORMS");
 $query = $dbh->prepare("
     SELECT

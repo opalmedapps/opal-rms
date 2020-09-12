@@ -4,7 +4,9 @@
 #---------------------------------------------------------------------------------------------------------------
 
 #load global configs
-include_once("SystemLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode("Non POST requests not supported");

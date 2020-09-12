@@ -1,5 +1,9 @@
 <?php
 
+namespace ORMS;
+
+use Orms\Config;
+
 class Patient
 {
     #definition of a Patient

@@ -1,6 +1,8 @@
 <?php declare(strict_types = 1);
 
-require_once __DIR__ ."/SystemLoader.php";
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 $checkInScriptLocation = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php";
 $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];

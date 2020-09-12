@@ -3,7 +3,9 @@
 // php code to insert patients' cell phone numbers and languqge preferences
 // into ORMS
 //====================================================================================
-include_once("ScriptLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');

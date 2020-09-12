@@ -1,6 +1,8 @@
 <?php declare(strict_types = 1);
 
-require_once __DIR__ ."/SystemLoader.php";
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 #get the list of aria appointments to process
 #group appointments by patient
@@ -156,7 +158,7 @@ function getAppointments(): array
             INNER JOIN SmsAppointment ON SmsAppointment.AppointmentCode = MV.AppointmentCode
                 AND SmsAppointment.Speciality = ClinicResources.Speciality
         WHERE
-        MV.Status = 'Open'
+            MV.Status = 'Open'
             AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY
         ORDER BY
             Patient.PatientId,

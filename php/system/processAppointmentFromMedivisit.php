@@ -4,7 +4,11 @@
 #---------------------------------------------------------------------------------------------------------------
 
 #load global configs
-include_once("SystemLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
+use Orms\Patient;
+use Orms\Appointment;
 
 $systemSite = Config::getConfigs("orms")["SITE"];
 

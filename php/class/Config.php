@@ -1,5 +1,7 @@
 <?php
 
+namespace ORMS;
+
 Config::init();
 
 class Config

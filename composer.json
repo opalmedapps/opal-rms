@@ -1,0 +1,8 @@
+{
+    "name": "opal/orms",
+    "description": "",
+    "autoload": {
+        "psr-4": {"Orms\\": "php/class/"},
+        "files": ["php/GlobalFunctions.php"]
+    }
+}

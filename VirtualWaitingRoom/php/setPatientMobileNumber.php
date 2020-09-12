@@ -5,6 +5,8 @@
 //====================================================================================
 require("loadConfigs.php");
 
+use Orms\Config;
+
 #extract the webpage parameters
 $patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
 $patientIdMGH       = $_GET["patientIdMGH"] ?? NULL;

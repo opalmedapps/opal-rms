@@ -1,5 +1,10 @@
 <?php
 
+namespace ORMS;
+
+use Orms\Config;
+use Orms\Patient;
+
 class Appointment
 {
 

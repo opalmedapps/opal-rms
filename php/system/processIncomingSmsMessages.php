@@ -3,73 +3,36 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Sms;
 
-$checkInScriptLocation = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php";
-$licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
+$checkInScriptUrl = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php";
 
 #get all the message that we received since the last time we checked
-$curl = curl_init();
-curl_setopt_array($curl,[
-    CURLOPT_URL             => "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages",
-    CURLOPT_POST            => TRUE,
-    CURLOPT_POSTFIELDS      => json_encode(["LicenseKey" => $licence, "UnreadMessagesOnly" => TRUE]),
-    CURLOPT_RETURNTRANSFER  => TRUE,
-    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
-]);
-$messages = json_decode(curl_exec($curl),TRUE);
 
-#messages have the following structure:
-#the values are either string or NULL
-/*
-Array
-    (
-        [Attachments]
-        [From]
-        [IncomingMessageID]
-        [OutgoingMessageID]
-        [Payload]
-        [ReceivedDate] => "/Date(1590840267010-0700)/" //.NET DataContractJsonSerializer format
-        [Subject]
-        [To]
-        [Udh]
-    )
-*/
+//find way to get timestamp of last run
+$lastRun = getLastRun();
+$currentRun = new DateTime();
 
-#order messages in chronological order (also sorts into the correct order messages split into chunks)
-usort($messages,function($x,$y) {
-    return $x["IncomingMessageID"] <=> $y["IncomingMessageID"];
-});
-
-#long messages are received in chunks so piece together the full message
-$messages = ArrayUtilB::groupArrayByKey($messages,"OutgoingMessageID");
-$messages = array_map(function($x) {
-    $msg = array_reduce($x,function($acc,$y) {
-        return $acc . $y["Payload"];
-    },"");
-
-    $x = array_merge(...$x);
-    $x["Payload"] = $msg;
-
-    #also convert the received utc timestamp into the local one
-    #timezone isn't really utc; it actually has an offset
-    $timestampWithOffset = preg_replace("/[^0-9 -]/","",$x["ReceivedDate"]);
-    $timestamp = (int) (substr($timestampWithOffset,0,-5)/1000);
-    $tzOffset = (new DateTime("",new DateTimeZone(substr($timestampWithOffset,-5))))->getOffset();
-    $utcTime = (new DateTime("@$timestamp"))->modify("$tzOffset second");
-
-    $x["ReceivedDateStr"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()))->format("Y-m-d H:i:s");
-
-    return $x;
-},$messages);
+$messages = Sms::getReceivedMessages($lastRun);
 
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message)
 {
-    logData($message["ReceivedDateStr"],$message["From"],NULL,$message["Payload"],NULL,"SMS received");
+    logMessageData($message->timeReceived,$message->fromNumber,NULL,$message->body,NULL,"SMS received");
 }
 
+#filter all messages that were sent over 10 minutes ago
+$messages = array_filter($messages,function($message) use($lastRun){
+    if($message->timeReceived < $lastRun->modify("-10 minutes")) {
+        logMessageData($message->timeReceived,$message->fromNumber,NULL,$message->body,NULL,"SMS expired");
+        return 0;
+    }
+
+    return 1;
+});
+
 #get default messages
-$messageList = getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 $checkInLocation = "CELL PHONE";
 
 #process messages
@@ -77,7 +40,7 @@ foreach($messages as $message)
 {
     #sanitize the phone number
     #the number might have a 1 in front of it; remove it
-    $number = $message["From"];
+    $number = $message->fromNumber;
     if(strlen($number) === 11 && $number[0] === "1") $number = substr($number,1);
 
     #find the patient associated with the phone number
@@ -86,7 +49,7 @@ foreach($messages as $message)
     #return nothing if the patient doesn't exist and skip
     if($patientData === NULL)
     {
-        logData($message["ReceivedDateStr"],$message["From"],NULL,$message["Payload"],NULL,"Patient not found");
+        logMessageData($message->timeReceived,$message->fromNumber,NULL,$message->body,NULL,"Patient not found");
         continue;
     }
 
@@ -99,12 +62,12 @@ foreach($messages as $message)
 
     #check if the message is equal to the check in keyword ARRIVE
     #if it's not, send a message to the patient instructing them how to use the service
-    if(!preg_match("/ARRIVE|ARRIVÉ/",mb_strtoupper($message["Payload"])))
+    if(!preg_match("/ARRIVE|ARRIVÉ/",mb_strtoupper($message->body)))
     {
         $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
 
-        textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
+        Sms::sendSms($message->fromNumber,$returnString,$message->toNumber);
+        logMessageData($message->timeReceived,$message->fromNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
     }
@@ -117,15 +80,15 @@ foreach($messages as $message)
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Success");
+        Sms::sendSms($message->fromNumber,$returnString,$message->toNumber);
+        logMessageData($message->timeReceived,$message->fromNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
     }
 
     #sort the appointments by speciality and type into a string to insert in the sms message
     #also generate the combined message to send in case the patient has multiple types of appointments
-    $appointmentsSorted = ArrayUtilB::groupArrayByKeyRecursive($appointments,"Speciality","Type");
+    $appointmentsSorted = ArrayUtil::groupArrayByKeyRecursive($appointments,"Speciality","Type");
 
     $appointmentString = "";
     foreach($appointmentsSorted as $speciality => $v)
@@ -146,83 +109,30 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------\n\n$/","",$appointmentString); #remove last newline
 
     #check the patient into all of his appointments
-    $checkInRequest = new HttpRequestB($checkInScriptLocation,["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]);
-    $checkInRequest->executeRequest();
-    $checkInResult = $checkInRequest->getRequestHeaders()["http_code"];
+    $checkInRequest = curl_init("$checkInScriptUrl?".http_build_query(["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]));
+    curl_setopt_array($checkInRequest,[
+        CURLOPT_RETURNTRANSFER => TRUE
+    ]);
+    curl_exec($checkInRequest);
+    $checkInResult = curl_getinfo($checkInRequest)["http_code"];
 
     if($checkInResult < 300)
     {
-        textPatient($message["From"],$message["To"],$appointmentString);
-        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$appointmentString,"Success");
+        Sms::sendSms($message->fromNumber,$appointmentString,$message->toNumber);
+        logMessageData($message->timeReceived,$message->fromNumber,$patientSer,$message->body,$appointmentString,"Success");
     }
     else
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        textPatient($message["From"],$message["To"],$returnString);
-        logData($message["ReceivedDateStr"],$message["From"],$patientSer,$message["Payload"],$returnString,"Error");
+        Sms::sendSms($message->fromNumber,$returnString,$message->toNumber);
+        logMessageData($message->timeReceived,$message->fromNumber,$patientSer,$message->body,$returnString,"Error");
     }
 }
 
+setLastRun($currentRun);
+
 #functions
-
-/* messages are classified by speciality, type, and event:
-    speciality is the speciality group the message is used in
-    type is subcategory of the speciality group and is used to link the appointment code to a message
-    event indicates when the message should be sent out (during check in, as a reminder, etc)
-*/
-function getPossibleSmsMessages(): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
-        SELECT
-            Speciality
-            ,Type
-            ,Event
-            ,Language
-            ,Message
-        FROM
-            SmsMessage
-        ORDER BY
-            Speciality,Type,Event,Language
-    ");
-    $query->execute();
-
-    $messages = $query->fetchAll();
-    $messages = ArrayUtilB::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
-    $messages = ArrayUtilB::convertSingleElementArraysRecursive($messages);
-
-    return utf8_encode_recursive($messages);
-}
-
-function textPatient(string $targetPhoneNumber,string $sourcePhoneNumber,string $returnMessage): void
-{
-    #don't send anything is the message is empty
-    if($returnMessage === "") return;
-
-    $licence = Config::getConfigs("sms")["SMS_LICENCE_KEY"];
-    $url = Config::getConfigs("sms")["SMS_GATEWAY_URL"];
-
-    $fields = [
-        "Body" => $returnMessage,
-        "LicenseKey" => $licence,
-        "From" => $sourcePhoneNumber,
-        "To" => [$targetPhoneNumber],
-        "Concatenate" => TRUE,
-        "UseMMS" => FALSE,
-        "IsUnicode" => TRUE
-    ];
-
-    $curl = curl_init();
-    curl_setopt_array($curl,[
-        CURLOPT_URL             => $url,
-        CURLOPT_POST            => TRUE,
-        CURLOPT_POSTFIELDS      => json_encode($fields),
-        CURLOPT_RETURNTRANSFER  => TRUE,
-        CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
-    ]);
-    curl_exec($curl);
-}
 
 function getAppointmentList(string $pSer): array
 {
@@ -261,7 +171,7 @@ function getAppointmentList(string $pSer): array
     return utf8_encode_recursive($query->fetchAll());
 }
 
-function logData(string $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
+function logMessageData(string $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
 {
     $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
@@ -297,113 +207,41 @@ function getPatientInfo(string $phoneNumber): ?array
     return $query->fetchAll()[0] ?? NULL;
 }
 
-#classes
-
-#Handles making http requests
-class HttpRequestB
+function getLastRun(): DateTime
 {
-    //private resource $curlObj;
-    private $curlObj;
+    $dbh = Config::getDatabaseConnection("ORMS");
+    $query = $dbh->prepare("
+        SELECT
+            LastReceivedSmsFetch
+        FROM
+            Cron
+        WHERE
+            System = 'ORMS'
+    ");
+    $query->execute();
 
-    public function __construct(string $url,array $requestFields = [],string $type = "GET")
-    {
-        if($type === "GET")
-        {
-            #if no fields have been provided, then it's assumed that they have already been inserted in the url
-            $completedUrl = ($requestFields === []) ? $url : $url."?".http_build_query($requestFields);
-
-            $this->curlObj = curl_init($completedUrl);
-            curl_setopt_array($this->curlObj,[
-                CURLOPT_RETURNTRANSFER => TRUE
-            ]);
-        }
-        elseif($type === "POST")
-        {
-            $this->curlObj = curl_init($url);
-            curl_setopt_array($this->curlObj,[
-                CURLOPT_POSTFIELDS => http_build_query($requestFields),
-                CURLOPT_RETURNTRANSFER => TRUE
-            ]);
-        }
-        else throw new \Exception("Request must be of type GET or POST");
+    $lastRun = $query->fetchAll()[0]["LastReceivedSmsFetch"] ?? NULL;
+    if($lastRun === NULL) {
+        $lastRun = new DateTime((new DateTime())->format("Y-m-d")); #start of today
+    }
+    else {
+        $lastRun = new DateTime($lastRun);
     }
 
-    #executes the curl request and returns the output
-    #if the execution failed or an empty string is received, returns NULL
-    public function executeRequest(): ?string
-    {
-        return curl_exec($this->curlObj) ?: NULL;
-    }
-
-    #get the headers currently stored in the curl object
-    #will be empty if called before executeRequest
-    public function getRequestHeaders(): array
-    {
-        return curl_getinfo($this->curlObj);
-    }
-
-    #close the curl object handle
-    public function closeConnection(): void
-    {
-        curl_close($this->curlObj);
-    }
+    return $lastRun;
 }
 
-class ArrayUtilB
+function setLastRun(DateTime $timestamp): void
 {
-    public static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
-    {
-        $groupedArr = [];
-        foreach($arr as $assoc)
-        {
-            $keyVal = $assoc[$key];
-            if(!array_key_exists("$keyVal",$groupedArr)) $groupedArr["$keyVal"] = [];
-
-            if($keepKey === FALSE) unset($assoc[$key]);
-            $groupedArr["$keyVal"][] = $assoc;
-        }
-
-        ksort($groupedArr);
-        return $groupedArr;
-    }
-
-    #recursive version of groupArrayByKey that repeats the grouping process for each input key
-    public static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
-    {
-        $key = array_shift($keys);
-        if($keys === NULL) return $arr;
-
-        $groupedArr = self::groupArrayByKey($arr,"$key");
-
-        if($keys !== [])
-        {
-            foreach($groupedArr as &$subArr) {
-                $subArr = self::groupArrayByKeyRecursive($subArr,...$keys);
-            }
-        }
-
-        return $groupedArr;
-    }
-
-    public static function convertSingleElementArraysRecursive($arr)
-    {
-        if(gettype($arr) === "array")
-        {
-            foreach($arr as &$val) $val = self::convertSingleElementArraysRecursive($val);
-
-            if(self::checkIfArrayIsAssoc($arr) === FALSE && count($arr) === 1) {
-                $arr = $arr[0];
-            }
-        }
-
-        return $arr;
-    }
-
-    public static function checkIfArrayIsAssoc(array $arr): bool
-    {
-        return array_keys($arr) !== range(0,count($arr)-1);
-    }
-
+    $dbh = Config::getDatabaseConnection("ORMS");
+    $query = $dbh->prepare("
+        UPDATE Cron
+        SET
+           LastReceivedSmsFetch = ?
+        WHERE
+            System = 'ORMS'
+    ");
+    $query->execute($timestamp->format("Y-m-d H:i:s"));
 }
 
 ?>

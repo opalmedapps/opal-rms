@@ -4,7 +4,7 @@ namespace ORMS;
 
 use PDO;
 
-Config::init();
+Config::__init();
 
 class Config
 {
@@ -12,7 +12,7 @@ class Config
 	private static $configs;
 
 	#class constructor
-	public static function init()
+	public static function __init()
 	{
 		#load the config file
 		self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/config.conf",true);

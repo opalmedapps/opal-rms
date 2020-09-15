@@ -4,5 +4,9 @@
     "autoload": {
         "psr-4": {"Orms\\": "php/class/"},
         "files": ["php/GlobalFunctions.php"]
+    },
+    "require": {
+        "twilio/sdk": "^6.10",
+        "guzzlehttp/guzzle": "^7.0"
     }
 }

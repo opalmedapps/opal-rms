@@ -2,6 +2,8 @@
 
 namespace ORMS;
 
+use PDO;
+
 Config::init();
 
 class Config

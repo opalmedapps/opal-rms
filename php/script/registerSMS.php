@@ -115,7 +115,11 @@ echo "<br>";
 //====================================================================================
 $messageList = getPossibleSmsMessages();
 
-$message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"];
+$message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"] ?? NULL;
+
+if($message === NULL) {
+    exit("Registration message not defined");
+}
 
 //====================================================================================
 // Sending

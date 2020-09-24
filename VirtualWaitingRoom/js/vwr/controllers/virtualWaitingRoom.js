@@ -943,7 +943,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
     $scope.isZoomAppointment = function(appointmentName)
     {
-        return /TV-NP|TV-FU|TCC\/TCR|PHONE|FOLLOW UP TELEMED MORE\/30 DAYS|FOLLOW UP TELEMED LESS\/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED|INTRA TREAT TELEMED/.test(appointmentName);
+        return /TV-NP|TV-NP-FAM|TV-FU|TV-FU-FAM|TCC\/TCR|PHONE|FOLLOW UP TELEMED MORE\/30 DAYS|FOLLOW UP TELEMED LESS\/30 DAYS|CONSULT RETURN TELEMED|CONSULT NEW TELEMED|INTRA TREAT TELEMED/.test(appointmentName);
     }
 
     $scope.openZoomLink = function()

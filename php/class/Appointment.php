@@ -1,7 +1,8 @@
 <?php
 
-namespace ORMS;
+namespace Orms;
 
+use \Exception;
 use Orms\Config;
 use Orms\Patient;
 

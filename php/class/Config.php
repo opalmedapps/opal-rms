@@ -1,6 +1,6 @@
 <?php
 
-namespace ORMS;
+namespace Orms;
 
 use PDO;
 

@@ -60,7 +60,7 @@ $patients = array_map(function($x) use ($messageList) {
 #send sms to patient
 foreach($patients as $pat)
 {
-    if($message !== "") {
+    if($pat["appString"] !== "") {
         Sms::sendSms($pat["phoneNumber"],$pat["appString"]);
     }
     logReminderData($pat["mrn"],$pat["phoneNumber"],$pat["appString"],$pat["appSer"],$pat["appName"]);

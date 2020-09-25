@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace ORMS;
+namespace Orms;
 
 use \DateTime;
-use ORMS\Config;
+use Orms\Config;
 
 class Logger
 {

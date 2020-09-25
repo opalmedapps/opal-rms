@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace ORMS;
+namespace Orms;
 
 class ArrayUtil
 {

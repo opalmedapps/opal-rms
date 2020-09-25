@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace ORMS;
+namespace Orms;
 
 use DateTime;
 use Exception;
@@ -40,10 +40,12 @@ class Sms
             ]);
 
             $messageId = $sentSms->sid;
+            $dateSent = $sentSms->dateSent;
             $result = "SUCCESS";
         }
         catch(\Exception $e) {
             $messageId = NULL;
+            $dateSent = new DateTime();
             $result = "FAILURE";
         }
 
@@ -54,8 +56,8 @@ class Sms
             "Twilio",
             "SENT",
             $message,
-            $sentSms->dateSent,
-            "SUCCESS"
+            $dateSent,
+            $result
         );
 
         return ($result === "SUCCESS");

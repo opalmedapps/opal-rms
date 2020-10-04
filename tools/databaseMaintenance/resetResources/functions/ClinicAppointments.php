@@ -3,22 +3,34 @@
 #extracts all appointment codes from the appointment table and inserts them into a new table
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+use Orms\Config;
+
+ClinicAppointments::__init();
+
 class ClinicAppointments
 {
-    static function regenerateClinicApp()
+    private static PDO $dbh;
+
+    public static function __init(): void
     {
+        self::$dbh = Config::getDatabaseConnection("ORMS");
+    }
+
+    static function regenerateClinicApp(): void
+    {
+        self::$dbh->beginTransaction();
+
         self::_createAppointmentCodeTable();
         self::_updateAppointmentTable();
         self::_insertAppointmentCodes();
         self::_relinkAppointments();
+
+        self::$dbh->commit();
     }
 
-    private static function _createAppointmentCodeTable()
+    private static function _createAppointmentCodeTable(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             CREATE TABLE `AppointmentCode` (
                 `AppointmentCodeId` INT NOT NULL AUTO_INCREMENT,
                 `AppointmentCode` VARCHAR(50) NOT NULL,
@@ -31,38 +43,28 @@ class ClinicAppointments
             COLLATE='latin1_swedish_ci'
             ;
         ");
-
-        $dbh->commit();
     }
 
-    private static function _updateAppointmentTable()
+    private static function _updateAppointmentTable(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
             ADD COLUMN `AppointmentCodeId` INT NOT NULL AFTER `AppointmentCode`;
         ");
-
-        $dbh->commit();
     }
 
-    private static function _insertAppointmentCodes()
+    private static function _insertAppointmentCodes(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $queryCodes = $dbh->prepare("
+        $queryCodes = self::$dbh->prepare("
             SELECT DISTINCT
                 MV.AppointmentCode
                 ,CR.Speciality
             FROM MediVisitAppointmentList MV
             INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum;
         ");
-        $codes = $queryCodes->fetchAll();
+        $codes = $queryCodes->fetchAll() ?: [];
 
-        $insertCodes = $dbh->prepare("
+        $insertCodes = self::$dbh->prepare("
             INSERT INTO ClinicResources(AppointmentCode,Speciality)
             VALUES(:code,:spec);
         ");
@@ -72,22 +74,17 @@ class ClinicAppointments
                 ":spec" => $code["Speciality"],
             ]);
         }
-
-        $dbh->commit();
     }
 
-    private static function _relinkAppointments()
+    private static function _relinkAppointments(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
             SET MV.AppointmentCodeSer = 0
             WHERE 1;
         ");
 
-       $dbh->query("
+       self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
             INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             INNER JOIN AppointmentCode AC ON AC.AppointmentCode = MV.AppointmentCode
@@ -97,8 +94,6 @@ class ClinicAppointments
             WHERE
                 MV.AppointmentCodeSer = 0;
         ");
-
-        $dbh->commit();
     }
 
 }

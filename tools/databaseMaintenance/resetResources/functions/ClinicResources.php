@@ -3,45 +3,52 @@
 #loads all clinic resources from the ORMS appointment list and re-inserts them into the database
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+use Orms\Config;
+
+ClinicResources::__init();
+
 class ClinicResources
 {
-    static function regenerateClinicResources()
+    private static PDO $dbh;
+
+    public static function __init(): void
     {
+        self::$dbh = Config::getDatabaseConnection("ORMS");
+    }
+
+    static function regenerateClinicResources(): void
+    {
+        self::$dbh->beginTransaction();
+
         self::_backupAndUpdateResourceTable();
         self::_insertClinicResources();
         self::_relinkAppointments();
         self::_cleanup();
+
+        self::$dbh->commit();
     }
 
-    private static function _backupAndUpdateResourceTable()
+    private static function _backupAndUpdateResourceTable(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             CREATE TABLE COPY_ClinicResources
             SELECT * FROM ClinicResources
         ");
 
-        $dbh->query("
+        self::$dbh->query("
             TRUNCATE TABLE ClinicResources;
         ");
 
-        $dbh->query("
+        self::$dbh->query("
             ALTER TABLE `ClinicResources`
             CHANGE COLUMN `ClinicResourcesSerNum` `ClinicResourcesSerNum` INT(11) NOT NULL AUTO_INCREMENT FIRST
             ADD COLUMN `ResourceCode` VARCHAR(200) NOT NULL AFTER `ClinicResourcesSerNum`;
         ");
-
-        $dbh->commit();
     }
 
-    private static function _insertClinicResources()
+    private static function _insertClinicResources(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $queryClinicCodes = $dbh->prepare("
+        $queryClinicCodes = self::$dbh->prepare("
             SELECT DISTINCT
                 MV.Resource
                 ,MV.ResourceDescription
@@ -49,9 +56,9 @@ class ClinicResources
             FROM MediVisitAppointmentList MV
             INNER JOIN COPY_ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum;
         ");
-        $codes = $queryClinicCodes->fetchAll();
+        $codes = $queryClinicCodes->fetchAll() ?: [];
 
-        $insertClinicCodes = $dbh->prepare("
+        $insertClinicCodes = self::$dbh->prepare("
             INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality)
             VALUES(:code,:desc,:spec);
         ");
@@ -62,22 +69,17 @@ class ClinicResources
                 ":spec" => $code["Speciality"],
             ]);
         }
-
-        $dbh->commit();
     }
 
-    private static function _relinkAppointments()
+    private static function _relinkAppointments(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
             SET MV.ClinicResourcesSerNum = NULL
             WHERE 1;
         ");
 
-        $updateSerNum = $dbh->query("
+        $updateSerNum = self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
             SET
                 MV.ClinicResourcesSerNum = (
@@ -92,20 +94,13 @@ class ClinicResources
             WHERE
                 MV.ClinicResourcesSerNum IS NULL;
         ");
-
-        $dbh->commit();
     }
 
-    private static function _cleanup()
+    private static function _cleanup(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
             DROP TABLE COPY_ClinicResources;
         ");
-
-        $dbh->commit();
     }
 }
 

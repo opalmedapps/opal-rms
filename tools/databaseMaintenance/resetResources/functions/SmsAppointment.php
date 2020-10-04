@@ -3,62 +3,57 @@
 #modify sms appointment table to support appointment code + resource code combination
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+use Orms\Config;
+
+SmsAppointment::__init();
+
 class SmsAppointment
 {
-    static function createSmsFeatureTable()
+    private static PDO $dbh;
+
+    public static function __init(): void
     {
+        self::$dbh = Config::getDatabaseConnection("ORMS");
+    }
+
+    static function createSmsFeatureTable(): void
+    {
+        self::$dbh->beginTransaction();
+
         self::_replaceSmsAppointmentTable();
         self:: _generateCrossList();
         self::_updateMessagesTable();
         self::_linkSmsTables();
+
+        self::$dbh->commit();
     }
 
-    private static function _replaceSmsAppointmentTable()
+    private static function _replaceSmsAppointmentTable(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
 
         ");
-
-        $dbh->commit();
     }
 
-    private static function _generateCrossList()
+    private static function _generateCrossList(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
 
         ");
-
-        $dbh->commit();
     }
 
-    private static function _updateMessagesTable()
+    private static function _updateMessagesTable(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
 
         ");
-
-        $dbh->commit();
     }
 
-    private static function _linkSmsTables()
+    private static function _linkSmsTables(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
-        $dbh->beginTransaction();
-
-        $dbh->query("
+        self::$dbh->query("
 
         ");
-
-        $dbh->commit();
     }
 }
 

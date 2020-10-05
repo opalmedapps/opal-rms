@@ -110,10 +110,6 @@ $qSQLQR->closeCursor();
 //the return string, will be in JSON format
 $jstring = [];
 
-usort($allRowQR,function($a,$b) {
-    return $b["FullDateTimeAnswered"] <=> $a["FullDateTimeAnswered"];
-});
-
 //output the html as a string so that it can be parsed in the controller and then injected in the DOM
 
 $wsPatientQuestionnaireSerNum = -1;

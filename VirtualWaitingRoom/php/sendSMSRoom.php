@@ -5,8 +5,7 @@
 //====================================================================================
 require("loadConfigs.php");
 
-$SMS_licencekey = SMS_licencekey;
-$SMS_gatewayURL = SMS_gatewayURL;
+use Orms\Sms;
 
 // Extract the webpage parameters
 $patientIdRVH = $_GET["patientIdRVH"];
@@ -26,35 +25,31 @@ if(preg_match("/^(Salle|Porte|Réception)/",$room_FR))
 // Database
 //====================================================================================
 // Create MySQL DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 //====================================================================================
 // SMS Number
 //====================================================================================
 # Get patient's phone number from their ID
-$sqlPhone = "
-	SELECT
-		Patient.SMSAlertNum,
-		Patient.LanguagePreference
-	FROM
-		Patient
-	WHERE
-		Patient.PatientId = '$patientIdRVH'
-		AND Patient.PatientId_MGH = '$patientIdMGH'";
+$queryPhone = $dbh->prepare("
+    SELECT
+        Patient.SMSAlertNum,
+        Patient.LanguagePreference
+    FROM
+        Patient
+    WHERE
+        Patient.PatientId = :patIdRVH
+        AND Patient.PatientId_MGH = :patIdMGH
+");
+$queryPhone->execute([
+    ":patIdRVH" => $patientIdRVH,
+    ":patIdMGH" => $patientIdMGH
+]);
 
-/* Process results */
-$queryPhone = $dbWRM->query($sqlPhone);
+$row = $queryPhone->fetch(PDO::FETCH_ASSOC)[0];
 
-$SMSAlertNum;
-$LanguagePreference = "";
-$message = "";
-
-$row = $queryPhone->fetch(PDO::FETCH_ASSOC);
-
-$SMSAlertNum = $row["SMSAlertNum"];
-$LanguagePreference = $row["LanguagePreference"];
-
-$dbWRM = null;
+$SMSAlertNum = $row["SMSAlertNum"] ?? NULL;
+$LanguagePreference = $row["LanguagePreference"] ?? NULL;
 
 if(empty($SMSAlertNum))
 {
@@ -77,24 +72,7 @@ else
 //====================================================================================
 // Sending
 //====================================================================================
-$fields = [
-    "Body" => $message,
-    "LicenseKey" => $SMS_licencekey,
-    "To" => [$SMSAlertNum],
-    "Concatenate" => TRUE,
-    "UseMMS" => FALSE,
-    "IsUnicode" => TRUE
-];
-
-$curl = curl_init();
-curl_setopt_array($curl,[
-    CURLOPT_URL             => $SMS_gatewayURL,
-    CURLOPT_POST            => TRUE,
-    CURLOPT_POSTFIELDS      => json_encode($fields),
-    CURLOPT_RETURNTRANSFER  => TRUE,
-    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
-]);
-curl_exec($curl);
+Sms::sendSms($SMSAlertNum,$message);
 
 echo "<br>message should have been sent...<br>";
 

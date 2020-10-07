@@ -3,12 +3,9 @@
 # live version of config
 ###################################################
 
-require __DIR__."/../../php/AutoLoader.php";
+require __DIR__."../../../vendor/autoload.php";
 
-//set all error reporting on for security purposes
-error_reporting(E_ALL);
-
-date_default_timezone_set("America/Montreal");
+use Orms\Config;
 
 //except Undefined index errors since every $_GET[] statement throws it to the screen
 //unless someone wants to rewrite all $_GET[] statements in all the scripts
@@ -74,9 +71,7 @@ $QUESTIONNAIRE_OPTIONS = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_EMULATE_PREPARES => true];
 
-//Variables for SMS messages
-define( "SMS_licencekey",$configs["sms"]["SMS_LICENCE_KEY"]);
-define( "SMS_gatewayURL", $configs["sms"]["SMS_GATEWAY_URL"]);
+//Variables for firebase
 
 define( "FIREBASE_URL",$configs["vwr"]["FIREBASE_URL"]);
 define( "FIREBASE_SECRET",$configs["vwr"]["FIREBASE_SECRET"]);

@@ -12,6 +12,7 @@ config/
 node_modules/
 vendor/
 package-lock.json
+composer.lock
 
 #ignore slave modules
 ormsscheduler/

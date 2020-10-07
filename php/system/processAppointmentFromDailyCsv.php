@@ -4,7 +4,9 @@
 #---------------------------------------------------------------------------------------------------------------
 
 #load global configs
-include_once("SystemLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 #get csv file name from command line arguments
 $csvFile = (getopt(null,["file:"]))["file"];

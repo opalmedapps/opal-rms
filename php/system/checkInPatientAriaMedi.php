@@ -2,7 +2,9 @@
 //====================================================================================
 // php code to check a patient into all appointments
 //====================================================================================
-include_once("SystemLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 $conn = Config::getDatabaseConnection("ORMS");
 

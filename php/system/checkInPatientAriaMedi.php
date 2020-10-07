@@ -73,7 +73,7 @@ while($row = $result->fetch())
     #$MV_PatientId	= $row["PatientId"];
     $MV_PatientFirstName	= $row["FirstName"];
     $MV_PatientLastName	= $row["LastName"];
-    #$MV_ScheduledStartTime= $row["ScheduledStartTime"];
+    $MV_ScheduledStartTime= $row["ScheduledDateTime"];
     $MV_ApptDescription	= $row["AppointmentCode"];
     $MV_Resource		= $row["ResourceDescription"];
     $MV_AptTimeSinceMidnight= $row["AptTimeSinceMidnight"];
@@ -111,7 +111,7 @@ if($PushNotification == 1)
     $opalCheckinURL = "$opalCheckinURL?PatientId=$PatientId";
     $opalCheckinURL = str_replace(' ', '%20', $opalCheckinURL);
 
-    $response = file_get_contents($opalCheckinURL);
+    $response = file_get_contents($opalCheckinURL) ?: "";
 
     if(strpos($response, 'Error')){
     $response = ['error' => $response];

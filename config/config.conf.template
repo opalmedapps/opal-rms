@@ -47,7 +47,8 @@ OPAL_NOTIFICATION_URL           =
 
 [sms]
 SMS_LICENCE_KEY                 =
-SMS_GATEWAY_URL                 =
+SMS_TOKEN                       =
+REGISTERED_LONG_CODES[]         =
 
 [vwr]
 FIREBASE_URL                    =

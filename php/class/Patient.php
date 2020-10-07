@@ -1,5 +1,10 @@
 <?php
 
+namespace Orms;
+
+use \Exception;
+use Orms\Config;
+
 class Patient
 {
     #definition of a Patient

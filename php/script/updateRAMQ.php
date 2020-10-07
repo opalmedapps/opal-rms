@@ -1,9 +1,11 @@
 <?php
-//==================================================================================== 
-// php code to update a RAMQ expiration date in the WaitRoomManagement db 
-//==================================================================================== 
+//====================================================================================
+// php code to update a RAMQ expiration date in the WaitRoomManagement db
+//====================================================================================
 
-include_once("ScriptLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Variables to be used throughout
 #$configs = new Config();
@@ -29,7 +31,7 @@ $verbose		= $_GET["verbose"] ?? '';
 
 $Caller 		= $_SERVER['REMOTE_ADDR'] ?? '';
 
-if($verbose) 
+if($verbose)
 {
   echo "Entering Verbose Mode..........<p/>";
   echo "Caller is: $Caller<p/>";
@@ -65,7 +67,7 @@ $update_patient_sql = "
 				LastUpdatedUserIP = '$Caller'
 			WHERE
 				Patient.PatientSerNum = $PatientSerNum
-";	
+";
 if($verbose ){echo "update_patient_sql: $update_patient_sql<br>";}
 if($dbh->query($update_patient_sql))
 {
@@ -78,5 +80,3 @@ else
 }
 
 ?>
-
-

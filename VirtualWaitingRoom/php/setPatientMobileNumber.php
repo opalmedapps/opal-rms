@@ -5,6 +5,10 @@
 //====================================================================================
 require("loadConfigs.php");
 
+use Orms\Config;
+use Orms\Sms;
+use Orms\ArrayUtil;
+
 #extract the webpage parameters
 $patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
 $patientIdMGH       = $_GET["patientIdMGH"] ?? NULL;
@@ -13,7 +17,8 @@ $languagePreference = $_GET["language"] ?? NULL;
 $speciality         = $_GET["speciality"] ?? NULL;
 
 #find the patient in ORMS
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
+
 $queryOrms = $dbh->prepare("
     SELECT
         Patient.PatientSerNum
@@ -46,7 +51,7 @@ if($smsAlertNum === "")
             PatientSerNum = :pSer"
     );
     $querySMS->execute([
-        ":pSer"     => $patSer
+        ":pSer" => $patSer
     ]);
 
     exit("Record updated successfully<br>");
@@ -78,113 +83,10 @@ ob_flush();
 flush();
 
 #change the sms message depending on the language preference and clinic
-$messageList = getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 $message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
 
 #send sms
-$SMS_licencekey = SMS_licencekey;
-$SMS_gatewayURL = SMS_gatewayURL;
-
-$fields = [
-    "Body" => $message,
-    "LicenseKey" => $SMS_licencekey,
-    "To" => [$smsAlertNum],
-    "Concatenate" => TRUE,
-    "UseMMS" => FALSE,
-    "IsUnicode" => TRUE
-];
-
-$curl = curl_init();
-curl_setopt_array($curl,[
-    CURLOPT_URL             => $SMS_gatewayURL,
-    CURLOPT_POST            => true,
-    CURLOPT_POSTFIELDS      => json_encode($fields),
-    CURLOPT_RETURNTRANSFER  => true,
-    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
-]);
-curl_exec($curl);
-
-
-
-function getPossibleSmsMessages(): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
-        SELECT
-            Speciality
-            ,Type
-            ,Event
-            ,Language
-            ,Message
-        FROM
-            SmsMessage
-        ORDER BY
-            Speciality,Type,Event,Language
-    ");
-    $query->execute();
-
-    $messages = $query->fetchAll();
-    $messages = ArrayUtilB::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
-    $messages = ArrayUtilB::convertSingleElementArraysRecursive($messages);
-
-    return utf8_encode_recursive($messages);
-}
-
-class ArrayUtilB
-{
-    public static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
-    {
-        $groupedArr = [];
-        foreach($arr as $assoc)
-        {
-            $keyVal = $assoc[$key];
-            if(!array_key_exists("$keyVal",$groupedArr)) $groupedArr["$keyVal"] = [];
-
-            if($keepKey === FALSE) unset($assoc[$key]);
-            $groupedArr["$keyVal"][] = $assoc;
-        }
-
-        ksort($groupedArr);
-        return $groupedArr;
-    }
-
-    #recursive version of groupArrayByKey that repeats the grouping process for each input key
-    public static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
-    {
-        $key = array_shift($keys);
-        if($keys === NULL) return $arr;
-
-        $groupedArr = self::groupArrayByKey($arr,"$key");
-
-        if($keys !== [])
-        {
-            foreach($groupedArr as &$subArr) {
-                $subArr = self::groupArrayByKeyRecursive($subArr,...$keys);
-            }
-        }
-
-        return $groupedArr;
-    }
-
-    public static function convertSingleElementArraysRecursive($arr)
-    {
-        if(gettype($arr) === "array")
-        {
-            foreach($arr as &$val) $val = self::convertSingleElementArraysRecursive($val);
-
-            if(self::checkIfArrayIsAssoc($arr) === FALSE && count($arr) === 1) {
-                $arr = $arr[0];
-            }
-        }
-
-        return $arr;
-    }
-
-    public static function checkIfArrayIsAssoc(array $arr): bool
-    {
-        return array_keys($arr) !== range(0,count($arr)-1);
-    }
-
-}
+Sms::sendSms($smsAlertNum,$message);
 
 ?>

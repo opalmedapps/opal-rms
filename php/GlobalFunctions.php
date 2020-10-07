@@ -3,10 +3,8 @@
 # Collection of global functions
 #########################################
 
-function say($inputString = "")
-{
-	echo $inputString ."\n";
-}
+error_reporting(E_ALL);
+date_default_timezone_set("America/Montreal");
 
 function getPostContents()
 {

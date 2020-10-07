@@ -2,7 +2,9 @@
 //====================================================================================
 // php code to check a Medivisit patient into Mysql
 //====================================================================================
-include_once("SystemLoader.php");
+require __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Create DB connection
 $conn = Config::getDatabaseConnection("ORMS");

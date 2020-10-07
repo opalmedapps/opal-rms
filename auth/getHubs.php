@@ -1,7 +1,9 @@
 <?php
 #get all speciality groups and TV hubs from the ORMS db
 
-require __DIR__."/../php/AutoLoader.php";
+require __DIR__."/../vendor/autoload.php";
+
+use Orms\Config;
 
 $dbh = Config::getDatabaseConnection("ORMS");
 $query = $dbh->prepare("

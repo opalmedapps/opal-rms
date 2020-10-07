@@ -1,5 +1,11 @@
 <?php
 
+namespace Orms;
+
+use \Exception;
+use Orms\Config;
+use Orms\Patient;
+
 class Appointment
 {
 

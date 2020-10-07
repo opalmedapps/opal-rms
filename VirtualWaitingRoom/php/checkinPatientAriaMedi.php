@@ -4,6 +4,8 @@
 //====================================================================================
 require("loadConfigs.php");
 
+use Orms\Config;
+
 $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 // Extract the webpage parameters

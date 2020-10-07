@@ -6,6 +6,9 @@
 #====================================================================================
 require("loadConfigs.php");
 
+use Orms\Config;
+use Orms\Sms;
+
 # Extract the webpage parameters
 
 $patientIdRVH = $_GET["patientIdRVH"];
@@ -14,7 +17,8 @@ $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 
 #find the patient in ORMS
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
+
 $queryOrms = $dbh->prepare("
     SELECT
         Patient.SMSAlertNum,
@@ -35,7 +39,9 @@ $patInfo = $queryOrms->fetchAll()[0] ?? NULL;
 if($patInfo === NULL) exit("Patient not found");
 
 #create the message in the patient's prefered language
+$smsAlertNum = $patInfo["SMSAlertNum"];
 $language = $patInfo["LanguagePreference"];
+
 if($language === "French") {
     $message = "Teleconsultation CUSM: $zoomLink. Clickez sur le lien pour connecter avec $resName";
 }
@@ -44,28 +50,7 @@ else {
 }
 
 #send sms
-$SMS_licencekey = SMS_licencekey;
-$SMS_gatewayURL = SMS_gatewayURL;
-$smsAlertNum	= $patInfo["SMSAlertNum"];
-
-$fields = [
-    "Body" => $message,
-    "LicenseKey" => $SMS_licencekey,
-    "To" => [$smsAlertNum],
-    "Concatenate" => TRUE,
-    "UseMMS" => FALSE,
-    "IsUnicode" => TRUE
-];
-
-$curl = curl_init();
-curl_setopt_array($curl,[
-    CURLOPT_URL             => $SMS_gatewayURL,
-    CURLOPT_POST            => TRUE,
-    CURLOPT_POSTFIELDS      => json_encode($fields),
-    CURLOPT_RETURNTRANSFER  => TRUE,
-    CURLOPT_HTTPHEADER      => ["Content-Type: application/json","Accept: application/json"]
-]);
-curl_exec($curl);
+Sms::sendSms($smsAlertNum,$message);
 
 echo "message should have been sent...";
 

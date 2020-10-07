@@ -113,7 +113,6 @@ finally
     logRequest($appointmentInfo);
 }
 
-exit;
 
 ###################################
 # Functions

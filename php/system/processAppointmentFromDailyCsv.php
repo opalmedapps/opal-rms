@@ -9,11 +9,11 @@ require __DIR__."/../../vendor/autoload.php";
 use Orms\Config;
 
 #get csv file name from command line arguments
-$csvFile = (getopt(null,["file:"]))["file"];
+$csvFile = (getopt("",["file:"]))["file"] ?: "";
 
 #csv file must have been created today, otherwise send an error
 #however, if its the weekend, don't send an error
-$modDate = (new DateTime())->setTimestamp(filemtime($csvFile))->format("Y-m-d");
+$modDate = (new DateTime())->setTimestamp(filemtime($csvFile) ?: 0)->format("Y-m-d");
 $today = (new DateTime())->format("Y-m-d");
 
 if($modDate !== $today)
@@ -51,8 +51,6 @@ foreach($appointments as $app)
 }
 curl_close($ch);
 
-exit;
-
 ###################################
 # Functions
 ###################################
@@ -62,12 +60,12 @@ function processCsvFile($handle): array #$handle is stream
 {
     $data = [];
 
-    $headers = fgetcsv($handle);
+    $headers = fgetcsv($handle) ?: [];
 
     #csv file is encoded in iso-8859-1 so we need to change it to utf8
     // $headers = array_map('utf8_encode',$headers);
 
-    while(($row = fgetcsv($handle)) !== FALSE)
+    while(($row = fgetcsv($handle) ?? []) !== FALSE)
     {
         // $row = array_map('utf8_encode',$row);
         $data[] = array_combine($headers,$row);

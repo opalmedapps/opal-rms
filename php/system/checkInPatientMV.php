@@ -24,10 +24,10 @@ if (!$conn) {
 #---------------------------------------------------------------------------------------------
 # First, check for an existing entry in the patient location table for this appointment
 #---------------------------------------------------------------------------------------------
-$PatientLocationSerNum;
-$PatientLocationRevCount;
-$CheckinVenueName;
-$ArrivalDateTime;
+$PatientLocationSerNum = NULL;
+$PatientLocationRevCount = NULL;
+$CheckinVenueName = NULL;
+$ArrivalDateTime = NULL;
 
 $sqlMV_checkCheckin = "
   SELECT DISTINCT
@@ -57,11 +57,6 @@ if ($result->rowCount() > 0) {
     }
 } else {
     echo "Patient not already checked in for this appointment... proceeding to check in";
-
-    $PatientLocationSerNum = NULL;
-    $PatientLocationRevCount = NULL;
-    $CheckinVenueName = NULL;
-    $ArrivalDateTime = NULL;
 }
 
 echo "PatientLocationSerNum: $PatientLocationSerNum<br>";

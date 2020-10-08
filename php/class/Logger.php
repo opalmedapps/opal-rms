@@ -20,7 +20,7 @@ class Logger
     {
         $dbh = Config::getDatabaseConnection("LOGS");
         $query = $dbh->prepare("
-            INSERT INTO SmsLog(
+            REPLACE INTO SmsLog(
                 SmsTimestamp
                 ,Result
                 ,Action

@@ -6,8 +6,7 @@
 require("loadConfigs.php");
 
 use Orms\Config;
-use Orms\Sms;
-use Orms\ArrayUtil;
+use Orms\Sms\SmsInterface;
 
 #extract the webpage parameters
 $patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
@@ -83,10 +82,10 @@ ob_flush();
 flush();
 
 #change the sms message depending on the language preference and clinic
-$messageList = Sms::getPossibleSmsMessages();
+$messageList = SmsInterface::getPossibleSmsMessages();
 $message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
 
 #send sms
-Sms::sendSms($smsAlertNum,$message);
+SmsInterface::sendSms($smsAlertNum,$message);
 
 ?>

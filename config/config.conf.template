@@ -46,8 +46,15 @@ OPAL_CHECKIN_URL                =
 OPAL_NOTIFICATION_URL           =
 
 [sms]
-SMS_LICENCE_KEY                 =
-SMS_TOKEN                       =
+enabled                         =
+
+[twilio]
+LICENCE_KEY                     =
+TOKEN                           =
+REGISTERED_LONG_CODES[]         =
+
+[cdyne]
+LICENCE_KEY                     =
 REGISTERED_LONG_CODES[]         =
 
 [vwr]

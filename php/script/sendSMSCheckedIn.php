@@ -6,7 +6,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 
 // Extract the command line parameters
 $opts = getopt("",["PatientId:","message_FR:","message_EN:"]);
@@ -54,7 +54,7 @@ $message = ($LanguagePreference === "English") ? $message_EN : $message_FR;
 //====================================================================================
 // Sending
 //====================================================================================
-Sms::sendSms($SMSAlertNum,$message);
+SmsInterface::sendSms($SMSAlertNum,$message);
 
 echo "Message should have been sent...";
 

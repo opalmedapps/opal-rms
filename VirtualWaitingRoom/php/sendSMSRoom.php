@@ -5,7 +5,7 @@
 //====================================================================================
 require("loadConfigs.php");
 
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 
 // Extract the webpage parameters
 $patientIdRVH = $_GET["patientIdRVH"];
@@ -72,7 +72,7 @@ else
 //====================================================================================
 // Sending
 //====================================================================================
-Sms::sendSms($SMSAlertNum,$message);
+SmsInterface::sendSms($SMSAlertNum,$message);
 
 echo "<br>message should have been sent...<br>";
 

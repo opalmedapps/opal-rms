@@ -24,7 +24,7 @@ class ArrayUtil
     static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
-        if($keys === NULL) return $arr;
+        if($key === NULL) return $arr;
 
         $groupedArr = self::groupArrayByKey($arr,"$key");
 
@@ -42,7 +42,7 @@ class ArrayUtil
     static function groupArrayByKeyRecursiveKeepKeys(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
-        if($keys === NULL) return $arr;
+        if($key === NULL) return $arr;
 
         $groupedArr = self::groupArrayByKey($arr,"$key",TRUE);
 

@@ -7,10 +7,6 @@ require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 
-// Variables to be used throughout
-#$configs = new Config();
-$PatientSerNun;
-
 // Create DB connection
 $dbh = Config::getDatabaseConnection("ORMS");
 

@@ -46,7 +46,7 @@ $queryPhone->execute([
     ":patIdMGH" => $patientIdMGH
 ]);
 
-$row = $queryPhone->fetch(PDO::FETCH_ASSOC)[0];
+$row = $queryPhone->fetchAll(PDO::FETCH_ASSOC)[0];
 
 $SMSAlertNum = $row["SMSAlertNum"] ?? NULL;
 $LanguagePreference = $row["LanguagePreference"] ?? NULL;

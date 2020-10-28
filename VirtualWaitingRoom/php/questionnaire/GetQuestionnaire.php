@@ -2,11 +2,12 @@
 //php script to return questionnaire data
 //was converted to a function
 
-function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum)
+function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstID)
 {
 	// Patient ID $wsPatientID
 	// Report Name $wsrptID
 	// Questionnaire Sequence Number $wsQuestionnaireSerNum
+	// Unique report ID (QuestionSerNum in the DB)
 
 	// Exit if either Patient ID, Report ID, or Questionnaire ID is empty
 	if ( (strlen(trim($wsPatientID)) == 0) or (strlen(trim($wsrptID)) == 0) or (strlen(trim($wsQuestionnaireSerNum)) == 0) ) {
@@ -27,7 +28,7 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum)
 		die;
 	}
 
-	$sql = "CALL getQuestionNameAndAnswer('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase')";
+	$sql = "CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')";
 
 	//fetch table rows from mysql db
 	/*$sql = "select

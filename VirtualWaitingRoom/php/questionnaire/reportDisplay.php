@@ -97,12 +97,14 @@ $qSQLSeries = $connection->query($wsSQLSeries);*/
 #echo $wsReportID;
 $qSQLSeries = $connection->query("CALL queryQuestions('$wsReportID')");
 
+$wsSeriesID = []; //unique id to select questions when the question texts are identical
 $wsSeries = [];
 $wsSeriesFR = [];
 $wsRowCounter = 0;
 
 while ($rowSQLSeries = $qSQLSeries->fetch(PDO::FETCH_ASSOC))
 {
+	$wsSeriesID[$wsRowCounter] = $rowSQLSeries['QuestionnaireQuestionSerNum'];
 	$wsSeries[$wsRowCounter] = $rowSQLSeries['QuestionText_EN'];
 	$wsSeriesFR[$wsRowCounter] = $rowSQLSeries['QuestionText_FR'];
 	$wsRowCounter = $wsRowCounter + 1;
@@ -165,7 +167,7 @@ for ($x = 0; $x < count($wsSeries); $x++)
 	};
 
 
-	$questionAnswers = GetQuestionnaireData($wsPatientID,$wsSeries[$x],$wsReportID);
+	$questionAnswers = GetQuestionnaireData($wsPatientID,$wsSeries[$x],$wsReportID,$wsSeriesID[$x]);
 	$lastValue = end($questionAnswers);
 	$lastValue = $lastValue[1];
 

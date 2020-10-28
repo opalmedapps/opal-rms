@@ -132,6 +132,16 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 				}
 			}).then(function (response) {
 					$scope.selectedQuestionnaire.questions = response.data;
+					//Slider questions werent displaying so on request I'm adding a hotfix
+					//The slider questions were not being displayed in charts because
+					//charts doesnt like strings, and we have to have 0  & 10 be strings for some reason, so I'm manually removing them here.
+					//I think this goes without saying, but this requires a more long term solution in the future...
+					angular.forEach($scope.selectedQuestionnaire.questions.qData, function(val, key)
+					{
+					if(typeof val.series[0].data[0][1] === 'string' || val.series[0].data[0][1] instanceof String){
+						val.series[0].data[0][1] = parseInt(val.series[0].data[0][1].split(" ",1)[0]);
+					} 
+					});
 					$scope.selectedQuestionnaireIsChart = true;
 
 					//$scope.$apply();

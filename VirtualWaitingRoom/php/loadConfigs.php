@@ -34,6 +34,7 @@ define("OPAL_NOTIFICATION_URL",$configs["opal"]["OPAL_NOTIFICATION_URL"]);
 define("MYSQL_HOST",$configs["database"]["ORMS_HOST"]);
 define("MYSQL_PORT",$configs["database"]["ORMS_PORT"]);
 define("WAITROOM_DB",$configs["database"]["ORMS_DB"]);
+define("LOG_DB",$configs["database"]["LOG_DB"]);
 define("MYSQL_USERNAME",$configs["database"]["ORMS_USERNAME"]);
 define("MYSQL_PASSWORD",$configs["database"]["ORMS_PASSWORD"]);
 
@@ -55,6 +56,14 @@ define("QUESTIONNAIRE_PASSWORD",$configs["database"]["QUESTIONNAIRE_PASSWORD"]);
 define("WRM_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". WAITROOM_DB);
 define("OPAL_CONNECT","mysql:host=". OPAL_HOST .";port=". OPAL_PORT .";dbname=". OPAL_DB);
 define("QUESTIONNIARE_CONNECT","mysql:host=". QUESTIONNAIRE_HOST .";port=". QUESTIONNAIRE_PORT .";dbname=". QUESTIONNAIRE_DB);
+define("LOG_CONNECT","mysql:host=". MYSQL_HOST .";port=". MYSQL_PORT .";dbname=". LOG_DB);
+
+//Alert type setting
+define("ORMS_DATABASE_ERROR",$configs["alert"]["TYPE1_ERROR"]);
+define("OPAL_DATABASE_ERROR",$configs["alert"]["TYPE2_ERROR"]);
+define("ORMS_CRON_ERROR",$configs["alert"]["TYPE3_ERROR"]);
+define("ORMS_CRON_ERROR",$configs["alert"]["TYPE4_ERROR"]);
+define("OTHER_ERROR",$configs["alert"]["TYPE5_ERROR"]);
 
 $WRM_OPTIONS = [
 	PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

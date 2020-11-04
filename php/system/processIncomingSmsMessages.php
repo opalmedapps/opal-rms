@@ -14,6 +14,7 @@ $checkInScriptUrl = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkIn
 $lastRun = getLastRun();
 $currentRun = new DateTime();
 
+setLastRun($currentRun);
 $messages = SmsInterface::getReceivedMessages($lastRun);
 
 #log all received messages immediately in case the script dies in the middle of processing
@@ -23,8 +24,8 @@ foreach($messages as $message)
 }
 
 #filter all messages that were sent over 10 minutes ago
-$messages = array_filter($messages,function($message) use($lastRun){
-    if($message->timeReceived < $lastRun->modify("-10 minutes")) {
+$messages = array_filter($messages,function($message) use($currentRun){
+    if($message->timeReceived < $currentRun->modify("-10 minutes")) {
         logMessageData($message->timeReceived,$message->clientNumber,NULL,$message->body,NULL,"SMS expired");
         return 0;
     }
@@ -126,7 +127,7 @@ foreach($messages as $message)
     }
 }
 
-setLastRun($currentRun);
+
 
 #functions
 

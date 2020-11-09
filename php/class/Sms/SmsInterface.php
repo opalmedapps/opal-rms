@@ -4,17 +4,27 @@ namespace Orms\Sms;
 
 use DateTime;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Orms\Config;
 use Orms\Sms\{SmsTwilio,SmsCdyne};
 use Orms\ArrayUtil;
 use Orms\Logger;
+use PDOException;
 
 SmsInterface::__init();
 
 class SmsInterface
 {
+    /**
+     * @var array<string[]>
+     */
     private static array $availableNumbers = [];
 
+    /**
+     *
+     * @return void
+     * @throws Exception
+     */
     static function __init(): void
     {
         $smsConfigs = Config::getConfigs("sms");
@@ -29,7 +39,16 @@ class SmsInterface
         self::$availableNumbers["Cdyne"] = $cdyneConfigs["REGISTERED_LONG_CODES"];
     }
 
-    static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): bool
+    /**
+     *
+     * @param string $clientNumber
+     * @param string $message
+     * @param string|null $serviceNumber
+     * @return void
+     * @throws GuzzleException
+     * @throws PDOException
+     */
+    static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): void
     {
         #by default, we send sms using Twilio
         if($serviceNumber === NULL) {
@@ -38,27 +57,39 @@ class SmsInterface
 
         $provider = NULL;
         $messageId = NULL;
+        $result = NULL;
 
-        if(in_array($serviceNumber,self::$availableNumbers["Twilio"],TRUE))
+        try
         {
-            $provider = "Twilio";
-            try {
+            if(in_array($serviceNumber,self::$availableNumbers["Twilio"],TRUE))
+            {
+                $provider = "Twilio";
                 $messageId = SmsTwilio::sendSms($clientNumber,$message,$serviceNumber);
             }
-            catch(Exception $e) {}
-
-        }
-        elseif(in_array($serviceNumber,self::$availableNumbers["Cdyne"],TRUE))
-        {
-            $provider = "Cdyne";
-            try {
+            elseif(in_array($serviceNumber,self::$availableNumbers["Cdyne"],TRUE))
+            {
+                $provider = "Cdyne";
                 $messageId = SmsCdyne::sendSms($clientNumber,$message,$serviceNumber);
             }
-            catch(Exception $e) {}
-        }
+            else {
+                throw new Exception("Unknown sms provider");
+            }
 
-        if($provider === NULL) {
-            throw new Exception("Unknown sms provider");
+            $result = "SUCCESS";
+        }
+        catch(Exception $e)
+        {
+            $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
+            $result = "FAILURE : {$e->getMessage()}";
+        }
+        finally
+        {
+            #it might be possible to generate no message id when sending an sms (cdyne) so we have to generate one
+            if($messageId === NULL)
+            {
+                $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
+                $result = "FAILURE : Couldn't generate a messageId";
+            }
         }
 
         Logger::LogSms(
@@ -69,14 +100,16 @@ class SmsInterface
             "SENT",
             $message,
             new DateTime(),
-            $messageId ? "SUCCESS" : "FAILURE"
+            $result
         );
-
-        return $messageId ? TRUE : FALSE;
     }
 
     /**
-     * @return array<SmsReceivedMessage>
+     *
+     * @param DateTime $timestamp
+     * @return SmsReceivedMessage[]
+     * @throws GuzzleException
+     * @throws PDOException
      */
     static function getReceivedMessages(DateTime $timestamp): array
     {
@@ -105,6 +138,11 @@ class SmsInterface
         return $messages;
     }
 
+    /**
+     *
+     * @return array<string[]>
+     * @throws PDOException
+     */
     /* messages are classified by speciality, type, and event:
         speciality is the speciality group the message is used in
         type is subcategory of the speciality group and is used to link the appointment code to a message

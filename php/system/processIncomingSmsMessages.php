@@ -127,8 +127,6 @@ foreach($messages as $message)
     }
 }
 
-
-
 #functions
 
 function getAppointmentList(string $pSer): array

@@ -6,9 +6,11 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Orms\Config;
 use Orms\ArrayUtil;
 use Orms\Sms\SmsReceivedMessage;
+use RuntimeException;
 
 SmsCdyne::__init();
 
@@ -18,8 +20,15 @@ class SmsCdyne
     private static string $getUnreadMessagesUrl = "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages";
     private static string $licence;
     private static Client $client;
+    /**
+     * @var string[]
+     */
     private static array $availableNumbers = [];
 
+    /**
+     *
+     * @return void
+     */
     static function __init(): void
     {
         $configs = Config::getConfigs("cdyne");
@@ -29,37 +38,42 @@ class SmsCdyne
         self::$availableNumbers = $configs["REGISTERED_LONG_CODES"];
     }
 
+    /**
+     *
+     * @param string $clientNumber
+     * @param string $message
+     * @param string|null $serviceNumber
+     * @return null|string
+     * @throws GuzzleException
+     * @throws RuntimeException
+     */
     static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): ?string
     {
         if($serviceNumber === NULL) {
             $serviceNumber = self::$availableNumbers[array_rand(self::$availableNumbers)];
         }
 
-        try
-        {
-            $sentSms = self::$client->request("POST",self::$sendMessageUrl,[
-                "json" => [
-                    "Body"          => $message,
-                    "LicenseKey"    => self::$licence,
-                    "From"          => $serviceNumber,
-                    "To"            => [$clientNumber],
-                    "Concatenate"   => TRUE,
-                    "UseMMS"        => FALSE,
-                    "IsUnicode"     => TRUE
-                ]
-            ])->getBody()->getContents();
-            $sentSms = json_decode($sentSms,TRUE)[0];
+        $sentSms = self::$client->request("POST",self::$sendMessageUrl,[
+            "json" => [
+                "Body"          => $message,
+                "LicenseKey"    => self::$licence,
+                "From"          => $serviceNumber,
+                "To"            => [$clientNumber],
+                "Concatenate"   => TRUE,
+                "UseMMS"        => FALSE,
+                "IsUnicode"     => TRUE
+            ]
+        ])->getBody()->getContents();
+        $sentSms = json_decode($sentSms,TRUE)[0];
 
-            $messageId = $sentSms["MessageID"] ?? NULL;
-        }
-        catch(Exception $e)
-        {
-            $messageId = NULL;
-        }
-
-        return $messageId;
+        return $sentSms["MessageID"] ?? NULL;
     }
 
+    /**
+     *
+     * @return SmsReceivedMessage[]
+     * @throws GuzzleException
+     */
     static function getReceivedMessages(): array
     {
         try

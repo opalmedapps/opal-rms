@@ -20,3 +20,6 @@ tools/KioskStatus/
 
 #ignore lock files
 smsReceiver.lock
+
+#ignore log files
+php-error.log

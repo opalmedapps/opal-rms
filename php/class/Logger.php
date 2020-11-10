@@ -1,23 +1,38 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms;
 
 use \DateTime;
 use Orms\Config;
+use PDOException;
 
 class Logger
 {
-    #logs sent or received sms
-    static function LogSms(string $clientNumber
-                          ,string $serviceNumber
-                          ,?string $messageId
-                          ,string $service
-                          ,string $action
-                          ,string $message
-                          ,DateTime $timestamp
-                          ,string $result
-    ): void
-    {
+    /**
+     *
+     * @param string $clientNumber
+     * @param string $serviceNumber
+     * @param string $messageId
+     * @param string $service
+     * @param string $action
+     * @param string $message
+     * @param DateTime $timestamp
+     * @param string $result
+     * @return void
+     * @throws PDOException
+     */
+    static function LogSms(
+        string $clientNumber,
+        string $serviceNumber,
+        string $messageId,
+        string $service,
+        string $action,
+        string $message,
+        DateTime $timestamp,
+        string $result
+    ): void {
         $dbh = Config::getDatabaseConnection("LOGS");
         $query = $dbh->prepare("
             REPLACE INTO SmsLog(
@@ -52,5 +67,4 @@ class Logger
             ":message"     => $message
         ]);
     }
-
 }

@@ -5,6 +5,7 @@ namespace Orms\Sms;
 use DateTime;
 use Orms\Config;
 use Orms\Sms\SmsReceivedMessage;
+use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Client;
 
 SmsTwilio::__init();
@@ -12,8 +13,15 @@ SmsTwilio::__init();
 class SmsTwilio
 {
     private static Client $client;
+    /**
+     * @var string[]
+     */
     private static array $availableNumbers = [];
 
+    /**
+     *
+     * @return void
+     */
     static function __init(): void
     {
         $configs = Config::getConfigs("twilio");
@@ -22,6 +30,14 @@ class SmsTwilio
         self::$availableNumbers = $configs["REGISTERED_LONG_CODES"];
     }
 
+    /**
+     *
+     * @param string $clientNumber
+     * @param string $message
+     * @param string|null $serviceNumber
+     * @return string
+     * @throws TwilioException
+     */
     static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): string
     {
         if($serviceNumber === NULL) {
@@ -36,9 +52,13 @@ class SmsTwilio
         return $sentSms->sid;
     }
 
+    /**
+     *
+     * @param DateTime $timestamp
+     * @return SmsReceivedMessage[]
+     */
     static function getReceivedMessages(DateTime $timestamp): array
     {
-
         $messages = [];
 
         foreach(self::$availableNumbers as $number)
@@ -55,6 +75,9 @@ class SmsTwilio
             return $x->direction === "inbound";
         });
 
+         /**
+         * @psalm-suppress UndefinedPropertyAssignment
+         */
         $messages = array_map(function($x) {
             #remove plus sign from phone numbers
             #also remove international code client phone number because it might have been entered into the ORMS system without it
@@ -71,7 +94,7 @@ class SmsTwilio
             );
         },$messages);
 
-        usort($messages,function($a,$b) {
+        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
             return $a->timeReceived <=> $b->timeReceived;
         });
 

@@ -39,9 +39,7 @@ class ClinicAppointments
                 `Active` TINYINT NOT NULL DEFAULT 1,
                 PRIMARY KEY (`AppointmentCodeId`),
                 UNIQUE INDEX `AppointmentCode` (`AppointmentCode`, `Speciality`)
-            )
-            COLLATE='latin1_swedish_ci'
-            ;
+            );
         ");
     }
 
@@ -55,7 +53,7 @@ class ClinicAppointments
 
     private static function _insertAppointmentCodes(): void
     {
-        $queryCodes = self::$dbh->prepare("
+        $queryCodes = self::$dbh->query("
             SELECT DISTINCT
                 MV.AppointmentCode
                 ,CR.Speciality
@@ -65,7 +63,7 @@ class ClinicAppointments
         $codes = $queryCodes->fetchAll() ?: [];
 
         $insertCodes = self::$dbh->prepare("
-            INSERT INTO ClinicResources(AppointmentCode,Speciality)
+            INSERT INTO AppointmentCode(AppointmentCode,Speciality)
             VALUES(:code,:spec);
         ");
         foreach($codes as $code) {
@@ -80,7 +78,7 @@ class ClinicAppointments
     {
         self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
-            SET MV.AppointmentCodeSer = 0
+            SET MV.AppointmentCodeId = 0
             WHERE 1;
         ");
 
@@ -92,7 +90,7 @@ class ClinicAppointments
             SET
                 MV.AppointmentCodeId = AC.AppointmentCodeId
             WHERE
-                MV.AppointmentCodeSer = 0;
+                MV.AppointmentCodeId = 0;
         ");
     }
 

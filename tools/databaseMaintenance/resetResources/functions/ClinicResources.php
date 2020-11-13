@@ -23,7 +23,6 @@ class ClinicResources
         self::_backupAndUpdateResourceTable();
         self::_insertClinicResources();
         self::_relinkAppointments();
-        self::_cleanup();
 
         self::$dbh->commit();
     }
@@ -31,24 +30,24 @@ class ClinicResources
     private static function _backupAndUpdateResourceTable(): void
     {
         self::$dbh->query("
-            CREATE TABLE COPY_ClinicResources
-            SELECT * FROM ClinicResources
+            CREATE TEMPORARY TABLE COPY_ClinicResources
+                SELECT * FROM ClinicResources;
         ");
 
         self::$dbh->query("
-            TRUNCATE TABLE ClinicResources;
+            DELETE FROM ClinicResources;
         ");
 
         self::$dbh->query("
             ALTER TABLE `ClinicResources`
-            CHANGE COLUMN `ClinicResourcesSerNum` `ClinicResourcesSerNum` INT(11) NOT NULL AUTO_INCREMENT FIRST
+            CHANGE COLUMN `ClinicResourcesSerNum` `ClinicResourcesSerNum` INT(11) NOT NULL AUTO_INCREMENT FIRST,
             ADD COLUMN `ResourceCode` VARCHAR(200) NOT NULL AFTER `ClinicResourcesSerNum`;
         ");
     }
 
     private static function _insertClinicResources(): void
     {
-        $queryClinicCodes = self::$dbh->prepare("
+        $queryClinicCodes = self::$dbh->query("
             SELECT DISTINCT
                 MV.Resource
                 ,MV.ResourceDescription
@@ -75,11 +74,11 @@ class ClinicResources
     {
         self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
-            SET MV.ClinicResourcesSerNum = NULL
+            SET MV.ClinicResourcesSerNum = 0
             WHERE 1;
         ");
 
-        $updateSerNum = self::$dbh->query("
+        self::$dbh->query("
             UPDATE MediVisitAppointmentList MV
             SET
                 MV.ClinicResourcesSerNum = (
@@ -88,18 +87,11 @@ class ClinicResources
                     FROM
                         ClinicResources
                     WHERE
-                        ClinicResources.ResourceName = :name
-                        AND ClinicResources.ResourceDescription = :desc
+                        ClinicResources.ResourceCode = MV.Resource
+                        AND ClinicResources.ResourceName = MV.ResourceDescription
                 )
             WHERE
-                MV.ClinicResourcesSerNum IS NULL;
-        ");
-    }
-
-    private static function _cleanup(): void
-    {
-        self::$dbh->query("
-            DROP TABLE COPY_ClinicResources;
+                MV.ClinicResourcesSerNum = 0;
         ");
     }
 }

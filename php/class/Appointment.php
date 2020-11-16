@@ -209,7 +209,7 @@ class Appointment
             WHERE
                 ClinicResourcesSerNum = :clin
                 AND AppointmentCodeId = :app
-                AND Specaility = :spec
+                AND Speciality = :spec
         ");
 
         $queryAppId->execute([

@@ -41,7 +41,8 @@ class ClinicResources
         self::$dbh->query("
             ALTER TABLE `ClinicResources`
             CHANGE COLUMN `ClinicResourcesSerNum` `ClinicResourcesSerNum` INT(11) NOT NULL AUTO_INCREMENT FIRST,
-            ADD COLUMN `ResourceCode` VARCHAR(200) NOT NULL AFTER `ClinicResourcesSerNum`;
+            ADD COLUMN `ResourceCode` VARCHAR(200) NOT NULL AFTER `ClinicResourcesSerNum`,
+            ADD COLUMN `SourceSystem` VARCHAR(50) NOT NULL AFTER `Speciality`;
         ");
     }
 
@@ -51,21 +52,30 @@ class ClinicResources
             SELECT DISTINCT
                 MV.Resource
                 ,MV.ResourceDescription
+                ,MV.AppointSys
                 ,CR.Speciality
-            FROM MediVisitAppointmentList MV
-            INNER JOIN COPY_ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum;
+            FROM
+                MediVisitAppointmentList MV
+            INNER JOIN
+                COPY_ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            WHERE
+                MV.AppointSys != 'InstantAddOn'
+            ORDER BY
+                MV.AppointSys
+                ,MV.Resource;
         ");
         $codes = $queryClinicCodes->fetchAll() ?: [];
 
         $insertClinicCodes = self::$dbh->prepare("
-            INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality)
-            VALUES(:code,:desc,:spec);
+            INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
+            VALUES(:code,:desc,:spec,:sys);
         ");
         foreach($codes as $code) {
             $insertClinicCodes->execute([
                 ":code" => $code["Resource"],
                 ":desc" => $code["ResourceDescription"],
                 ":spec" => $code["Speciality"],
+                ":sys"  => $code["AppointSys"]
             ]);
         }
     }
@@ -83,15 +93,17 @@ class ClinicResources
             SET
                 MV.ClinicResourcesSerNum = (
                     SELECT
-                        ClinicResources.ClinicResourcesSerNum
+                        CR.ClinicResourcesSerNum
                     FROM
-                        ClinicResources
+                        ClinicResources CR
                     WHERE
-                        ClinicResources.ResourceCode = MV.Resource
-                        AND ClinicResources.ResourceName = MV.ResourceDescription
+                        CR.ResourceCode = MV.Resource
+                        AND CR.ResourceName = MV.ResourceDescription
+                        AND CR.SourceSystem = MV.AppointSys
                 )
             WHERE
-                MV.ClinicResourcesSerNum = 0;
+                MV.ClinicResourcesSerNum = 0
+                AND MV.AppointSys != 'InstantAddOn'
         ");
     }
 }

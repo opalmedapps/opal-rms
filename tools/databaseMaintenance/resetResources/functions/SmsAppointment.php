@@ -38,6 +38,7 @@ class SmsAppointment
                 `ClinicResourcesSerNum` INT NOT NULL,
                 `AppointmentCodeId` INT NOT NULL,
                 `Speciality` VARCHAR(50) NOT NULL,
+                `SourceSystem` VARCHAR(50) NOT NULL,
                 `Type` VARCHAR(50) NULL DEFAULT NULL,
                 `Active` TINYINT(4) NOT NULL DEFAULT 0,
                 `LastUpdated` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
@@ -57,23 +58,29 @@ class SmsAppointment
                 CR.ClinicResourcesSerNum
                 ,AC.AppointmentCodeId
                 ,CR.Speciality
+                ,CR.SourceSystem
             FROM
                 MediVisitAppointmentList MV
                 INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                 INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-            ORDER BY CR.ClinicResourcesSerNum, AC.AppointmentCodeId
+            WHERE
+                MV.AppointSys != 'InstantAddOn'
+            ORDER BY
+                CR.ClinicResourcesSerNum,
+                AC.AppointmentCodeId
         ");
         $codes = $queryCodes->fetchAll() ?: [];
 
         $insertCodes = self::$dbh->prepare("
-            INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality)
-            VALUES(:res,:app,:spec);
+            INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality,SourceSystem)
+            VALUES(:res,:app,:spec,:sys);
         ");
         foreach($codes as $code) {
             $insertCodes->execute([
-                ":res" => $code["ClinicResourcesSerNum"],
-                ":app" => $code["AppointmentCodeId"],
+                ":res"  => $code["ClinicResourcesSerNum"],
+                ":app"  => $code["AppointmentCodeId"],
                 ":spec" => $code["Speciality"],
+                ":sys"  => $code["SourceSystem"]
             ]);
         }
     }

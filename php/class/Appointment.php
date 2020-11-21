@@ -8,7 +8,6 @@ use Orms\Patient;
 
 class Appointment
 {
-
     #definition of an Appointment
     private $patient             = NULL; #Patient object
     private $appointmentCode     = NULL;
@@ -47,7 +46,7 @@ class Appointment
         $appCodeId = $this->_getAppointmentCodeId("INSERT_IF_NULL");
 
         #check if an sms entry exists for the appointment
-        $this->_verifySmsAppointment($clinicSer,$appCodeId,$this->specialityGroup);
+        $this->_verifySmsAppointment($clinicSer,$appCodeId);
 
         $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
 
@@ -139,7 +138,8 @@ class Appointment
                 PatientSerNum = :patSer
                 AND ScheduledDateTime = :schDateTime
                 AND Resource = :res
-                AND AppointmentCode = :appCode");
+                AND AppointmentCode = :appCode"
+        );
 
         $deleteAppointment->execute([
             ":patSer" => $patientSer,
@@ -180,12 +180,13 @@ class Appointment
         if($clinicSer === NULL && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
-                INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,ClinicScheduleSerNum)
-                VALUES(:resCode,:resName,:spec,NULL)
+                INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
+                VALUES(:resCode,:resName,:spec,:sys)
             ")->execute([
                 ":resCode" => $this->resource,
                 ":resName" => $this->resourceDesc,
-                ":spec" => $this->specialityGroup,
+                ":spec"    => $this->specialityGroup,
+                ":sys"     => $this->system
             ]);
 
             $clinicSer = $dbh->lastInsertId();
@@ -195,53 +196,6 @@ class Appointment
         }
 
         return $clinicSer;
-    }
-
-    private function _verifySmsAppointment(int $clinicSer,int $appointmentCodeId,string $speciality): void
-    {
-        $dbh = Config::getDatabaseConnection("ORMS");
-
-        $queryAppId = $dbh->prepare("
-            SELECT
-                SmsAppointmentId
-            FROM
-                SmsAppointment
-            WHERE
-                ClinicResourcesSerNum = :clin
-                AND AppointmentCodeId = :app
-                AND Speciality = :spec
-        ");
-
-        $queryAppId->execute([
-            ":clin" => $clinicSer,
-            ":app" => $appointmentCodeId,
-            ":spec" => $speciality
-        ]);
-
-        $appId = $queryAppId->fetchAll()[0]["SmsAppointmentId"] ?? NULL;
-
-        if($appId === NULL)
-        {
-            $dbh->prepare("
-                INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality)
-                VALUES(:clin,:app,:spec)
-            ")->execute([
-                ":clin" => $clinicSer,
-                ":app" => $appointmentCodeId,
-                ":spec" => $speciality
-            ]);
-
-            $emails = Config::getConfigs("alert")["EMAIL"] ?? [];
-
-            $recepient = implode(",",$emails);
-            $subject = "ORMS - New appointment type Detected";
-            $message = "New appointment type detected: {$this->resourceDesc} ({$this->resource}) with {$this->appointmentCode} in the {$this->specialityGroup} speciality group.";
-            $headers = [
-                "From" => "opal@muhc.mcgill.ca"
-            ];
-
-            mail($recepient,$subject,$message,$headers);
-        }
     }
 
     private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): ?int
@@ -268,11 +222,12 @@ class Appointment
         if($appId === NULL && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
-                INSERT INTO AppointmentCode(AppointmentCode,Speciality)
-                VALUES(:code,:spec)
+                INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
+                VALUES(:code,:spec,:sys)
             ")->execute([
                 ":code" => $this->appointmentCode,
                 ":spec" => $this->specialityGroup,
+                ":sys"  => $this->system
             ]);
 
             $appId = $dbh->lastInsertId();
@@ -282,6 +237,63 @@ class Appointment
         }
 
         return $appId;
+    }
+
+    private function _verifySmsAppointment(int $clinicSer,int $appointmentCodeId): void
+    {
+        #add-ons are created from existing appointment types
+        #however, there is no restriction on the frontend that the add-on is a valid one
+        #so we disable inserting sms appointments for add-ons
+        if($this->system === "ADD-ON") {
+            return;
+        }
+
+        $dbh = Config::getDatabaseConnection("ORMS");
+
+        $queryAppId = $dbh->prepare("
+            SELECT
+                SmsAppointmentId
+            FROM
+                SmsAppointment
+            WHERE
+                ClinicResourcesSerNum = :clin
+                AND AppointmentCodeId = :app
+                AND Speciality = :spec
+                AND SourceSystem = :sys
+        ");
+
+        $queryAppId->execute([
+            ":clin" => $clinicSer,
+            ":app"  => $appointmentCodeId,
+            ":spec" => $this->specialityGroup,
+            ":sys"  => $this->system
+        ]);
+
+        $appId = $queryAppId->fetchAll()[0]["SmsAppointmentId"] ?? NULL;
+
+        if($appId === NULL)
+        {
+            $dbh->prepare("
+                INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality,SourceSystem)
+                VALUES(:clin,:app,:spec,:sys)
+            ")->execute([
+                ":clin" => $clinicSer,
+                ":app"  => $appointmentCodeId,
+                ":spec" => $this->specialityGroup,
+                ":sys"  => $this->system
+            ]);
+
+            $emails = Config::getConfigs("alert")["EMAIL"] ?? [];
+
+            $recepient = implode(",",$emails);
+            $subject = "ORMS - New appointment type Detected";
+            $message = "New appointment type detected: {$this->resourceDesc} ({$this->resource}) with {$this->appointmentCode} in the {$this->specialityGroup} speciality group from system {$this->system}.";
+            $headers = [
+                "From" => "opal@muhc.mcgill.ca"
+            ];
+
+            mail($recepient,$subject,$message,$headers);
+        }
     }
 
     #returns the serial num of the Patient object inside the Appointment

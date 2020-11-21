@@ -35,8 +35,9 @@ class ClinicAppointments
                 `AppointmentCodeId` INT NOT NULL AUTO_INCREMENT,
                 `AppointmentCode` VARCHAR(50) NOT NULL,
                 `Speciality` VARCHAR(50) NOT NULL,
-                `LastModified` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+                `SourceSystem` VARCHAR(50) NOT NULL,
                 `Active` TINYINT NOT NULL DEFAULT 1,
+                `LastModified` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
                 PRIMARY KEY (`AppointmentCodeId`),
                 UNIQUE INDEX `AppointmentCode` (`AppointmentCode`, `Speciality`)
             );
@@ -56,20 +57,28 @@ class ClinicAppointments
         $queryCodes = self::$dbh->query("
             SELECT DISTINCT
                 MV.AppointmentCode
+                ,MV.AppointSys
                 ,CR.Speciality
-            FROM MediVisitAppointmentList MV
-            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum;
+            FROM
+                MediVisitAppointmentList MV
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            WHERE
+                MV.AppointSys != 'InstantAddOn'
+            ORDER BY
+                MV.AppointSys
+                ,MV.AppointmentCode
         ");
         $codes = $queryCodes->fetchAll() ?: [];
 
         $insertCodes = self::$dbh->prepare("
-            INSERT INTO AppointmentCode(AppointmentCode,Speciality)
-            VALUES(:code,:spec);
+            INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
+            VALUES(:code,:spec,:sys);
         ");
         foreach($codes as $code) {
             $insertCodes->execute([
                 ":code" => $code["AppointmentCode"],
                 ":spec" => $code["Speciality"],
+                ":sys"  => $code["AppointSys"]
             ]);
         }
     }

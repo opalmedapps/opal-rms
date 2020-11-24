@@ -244,7 +244,7 @@ class Appointment
         #add-ons are created from existing appointment types
         #however, there is no restriction on the frontend that the add-on is a valid one
         #so we disable inserting sms appointments for add-ons
-        if($this->system === "ADD-ON") {
+        if($this->system === "InstantAddOn") {
             return;
         }
 

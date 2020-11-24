@@ -81,7 +81,7 @@ function getAppointments(): array
             Patient.LanguagePreference AS language,
             MV.AppointmentSerNum AS appSer,
             MV.ScheduledDate AS date,
-            MV.ScheduledTime AS time,
+            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
             MV.ResourceDescription AS fullname,
             CASE
                 WHEN MV.AppointSys = 'Aria' THEN

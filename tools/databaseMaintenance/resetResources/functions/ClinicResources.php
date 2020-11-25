@@ -103,7 +103,6 @@ class ClinicResources
                 )
             WHERE
                 MV.ClinicResourcesSerNum = 0
-                AND MV.AppointSys != 'InstantAddOn'
         ");
     }
 }

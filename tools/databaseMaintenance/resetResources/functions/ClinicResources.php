@@ -48,6 +48,13 @@ class ClinicResources
 
     private static function _insertClinicResources(): void
     {
+        #some add-ons have a trailing newline (which they shouldn't have...)
+        self::$dbh->query("
+            UPDATE MediVisitAppointmentList MV
+            SET
+                MV.Resource = TRIM(TRAILING '\n' FROM MV.Resource)
+        ");
+
         $queryClinicCodes = self::$dbh->query("
             SELECT DISTINCT
                 MV.Resource
@@ -86,6 +93,25 @@ class ClinicResources
             UPDATE MediVisitAppointmentList MV
             SET MV.ClinicResourcesSerNum = 0
             WHERE 1;
+        ");
+
+        #some appointments (addons) have a non-existant resource (ie not in Medivisit) so remove them
+        self::$dbh->query("
+            DELETE MediVisitAppointmentList
+            FROM MediVisitAppointmentList
+            LEFT JOIN ClinicResources CR ON CR.ResourceCode = MediVisitAppointmentList.Resource
+                AND CR.ResourceName = MediVisitAppointmentList.ResourceDescription
+            WHERE
+                CR.ResourceCode IS NULL
+                AND MediVisitAppointmentList.AppointSys = 'InstantAddOn'
+        ");
+
+        self::$dbh->query("
+            DELETE FROM PatientLocation WHERE PatientLocation.AppointmentSerNum NOT IN (SELECT MV.AppointmentSerNum FROM MediVisitAppointmentList MV);
+        ");
+
+        self::$dbh->query("
+            DELETE FROM PatientLocationMH WHERE PatientLocationMH.AppointmentSerNum NOT IN (SELECT MV.AppointmentSerNum FROM MediVisitAppointmentList MV);
         ");
 
         self::$dbh->query("

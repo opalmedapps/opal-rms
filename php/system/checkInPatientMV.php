@@ -49,11 +49,10 @@ $result = $conn->query($sqlMV_checkCheckin);
 if ($result->rowCount() > 0) {
     // output data of each row
     while($row = $result->fetch()) {
-
-       	$PatientLocationSerNum	= $row["PatientLocationSerNum"];
-    	$PatientLocationRevCount= $row["PatientLocationRevCount"];
-    	$CheckinVenueName	= $row["CheckinVenueName"];
-    	$ArrivalDateTime	= $row["ArrivalDateTime"];
+        $PatientLocationSerNum      = $row["PatientLocationSerNum"];
+        $PatientLocationRevCount    = $row["PatientLocationRevCount"];
+        $CheckinVenueName           = $row["CheckinVenueName"];
+        $ArrivalDateTime            = $row["ArrivalDateTime"];
     }
 } else {
     echo "Patient not already checked in for this appointment... proceeding to check in";
@@ -70,11 +69,11 @@ echo "ArrivalDateTime: $ArrivalDateTime<br>";
 #---------------------------------------------------------------------------------------------
 if($PatientLocationSerNum)
 {
-	echo "inserting into MH table";
-	$sql_insert_previousCheckin= "INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime) VALUES ('$PatientLocationSerNum','$PatientLocationRevCount','$AppointmentSerNum','$CheckinVenueName','$ArrivalDateTime')";
-	echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
+    echo "inserting into MH table";
+    $sql_insert_previousCheckin= "INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime) VALUES ('$PatientLocationSerNum','$PatientLocationRevCount','$AppointmentSerNum','$CheckinVenueName','$ArrivalDateTime')";
+    echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
 
-	$result = $conn->query($sql_insert_previousCheckin);
+    $result = $conn->query($sql_insert_previousCheckin);
 }
 
 #---------------------------------------------------------------------------------------------
@@ -89,11 +88,11 @@ echo "sql_insert_newCheckin: $sql_insert_newCheckin<br>";
 
 if($conn->query($sql_insert_newCheckin))
 {
-      	$CheckinStatus = "OK";
+    $CheckinStatus = "OK";
 }
 else
 {
-      	$CheckinStatus = "Unable to check in";
+    $CheckinStatus = "Unable to check in";
 }
 
 echo "CheckinStatus: $CheckinStatus... ";
@@ -101,12 +100,12 @@ echo "CheckinStatus: $CheckinStatus... ";
 # if there was an existing entry in the patient location table, delete it now
 if($PatientLocationSerNum)
 {
-      	echo "deleting existing entry in PatientLocation table<br>";
-      	$sql_delete_previousCheckin= "DELETE FROM PatientLocation WHERE PatientLocationSerNum=$PatientLocationSerNum";
+    echo "deleting existing entry in PatientLocation table<br>";
+    $sql_delete_previousCheckin= "DELETE FROM PatientLocation WHERE PatientLocationSerNum=$PatientLocationSerNum";
 
-	$result = $conn->query($sql_delete_previousCheckin);
+    $result = $conn->query($sql_delete_previousCheckin);
 
-      	echo "deleted...<b>";
+    echo "deleted...<b>";
 }
 
 ?>

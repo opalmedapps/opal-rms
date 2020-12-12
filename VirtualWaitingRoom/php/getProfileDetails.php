@@ -24,19 +24,19 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //get profile
 //==================================
 $queryProfile = $dbWRM->prepare("
-	SELECT
-		Profile.ProfileSer,
-		Profile.ProfileId,
-		Profile.Category,
-		Profile.Speciality,
-		Profile.ClinicalArea,
-		Profile.FetchResourcesFromVenues,
-		Profile.FetchResourcesFromClinics,
-		Profile.ShowCheckedOutAppointments
-	FROM
-		Profile
-	WHERE
-		Profile.ProfileId = ?"
+    SELECT
+        Profile.ProfileSer,
+        Profile.ProfileId,
+        Profile.Category,
+        Profile.Speciality,
+        Profile.ClinicalArea,
+        Profile.FetchResourcesFromVenues,
+        Profile.FetchResourcesFromClinics,
+        Profile.ShowCheckedOutAppointments
+    FROM
+        Profile
+    WHERE
+        Profile.ProfileId = ?"
 );
 //process results
 $queryProfile->execute([$profileId]);
@@ -76,78 +76,78 @@ $json['WaitingRoom'] = strtoupper($json['ClinicalArea']) ." WAITING ROOM";
 $json['sortOrder'] = 'LastName'; //default
 if($json['Category'] == 'PAB' or $json['Category'] == 'Treatment Machine' or $json['Category'] == 'Physician')
 {
-	$json['sortOrder'] = ['ScheduledStartTime_hh','ScheduledStartTime_mm'];
+    $json['sortOrder'] = ['ScheduledStartTime_hh','ScheduledStartTime_mm'];
 }
 else if($json['Category'] == 'Pharmacy')
 {
-	$json['sortOrder'] = 'LastName';
+    $json['sortOrder'] = 'LastName';
 }
 
 //==========================================================
 //get the profile columns
 //==========================================================
 $sqlColumns = "
-	SELECT
-		ProfileColumnDefinition.ColumnName,
-		ProfileColumnDefinition.DisplayName,
-		ProfileColumnDefinition.Glyphicon,
-		ProfileColumns.Position
-	FROM
-		ProfileColumns
-		INNER JOIN ProfileColumnDefinition ON ProfileColumnDefinition.ProfileColumnDefinitionSer = ProfileColumns.ProfileColumnDefinitionSer
-	WHERE
-		ProfileColumns.ProfileSer = $json[ProfileSer]
-		AND ProfileColumns.Position >= 0
-		AND ProfileColumns.Active = 1
-	ORDER BY
-		ProfileColumns.Position";
+    SELECT
+        ProfileColumnDefinition.ColumnName,
+        ProfileColumnDefinition.DisplayName,
+        ProfileColumnDefinition.Glyphicon,
+        ProfileColumns.Position
+    FROM
+        ProfileColumns
+        INNER JOIN ProfileColumnDefinition ON ProfileColumnDefinition.ProfileColumnDefinitionSer = ProfileColumns.ProfileColumnDefinitionSer
+    WHERE
+        ProfileColumns.ProfileSer = $json[ProfileSer]
+        AND ProfileColumns.Position >= 0
+        AND ProfileColumns.Active = 1
+    ORDER BY
+        ProfileColumns.Position";
 //process results
 $queryColumns = $dbWRM->query($sqlColumns);
 
 while($row = $queryColumns->fetch(PDO::FETCH_ASSOC))
 {
-	$json['ColumnsDisplayed'][] = $row;
+    $json['ColumnsDisplayed'][] = $row;
 }
 
 //=======================================================
 //next get the profile options
 //=======================================================
 $sqlOptions = "
-	SELECT
-		ProfileOptions.Options,
-		ProfileOptions.Type
-	FROM
-		ProfileOptions
-	WHERE
-		ProfileOptions.ProfileSer = '$json[ProfileSer]'
-	ORDER BY ProfileOptions.Options";
+    SELECT
+        ProfileOptions.Options,
+        ProfileOptions.Type
+    FROM
+        ProfileOptions
+    WHERE
+        ProfileOptions.ProfileSer = '$json[ProfileSer]'
+    ORDER BY ProfileOptions.Options";
 
 //process results
 $queryOptions = $dbWRM->query($sqlOptions);
 
 while($row = $queryOptions->fetch(PDO::FETCH_ASSOC))
 {
-	if($row['Type'] == 'Appointment') {$appointments[] = $row['Options'];}
-	else if($row['Type'] == 'IntermediateVenue')
-	{
-		$intermediateVenues[] = $row['Options'];
-		$json['IntermediateVenues'][] = $row;
-	}
-	else if($row['Type'] == 'TreatmentVenue')
-	{
-		$treatmentVenues[] = $row['Options'];
-		$json['TreatmentVenues'][] = $row;
-	}
-	else if($row['Type'] == 'ExamRoom')
-	{
-		$examRooms[] = $row['Options'];
-		$json['ExamRooms'][] = $row;
-	}
-	else if($row['Type'] == 'Resource') {$resources[] = $row['Options'];}
-	else if($row['Type'] == 'Clinic')
-	{
-		$clinics[] = $row['Options'];
-	}
+    if($row['Type'] == 'Appointment') {$appointments[] = $row['Options'];}
+    else if($row['Type'] == 'IntermediateVenue')
+    {
+        $intermediateVenues[] = $row['Options'];
+        $json['IntermediateVenues'][] = $row;
+    }
+    else if($row['Type'] == 'TreatmentVenue')
+    {
+        $treatmentVenues[] = $row['Options'];
+        $json['TreatmentVenues'][] = $row;
+    }
+    else if($row['Type'] == 'ExamRoom')
+    {
+        $examRooms[] = $row['Options'];
+        $json['ExamRooms'][] = $row;
+    }
+    else if($row['Type'] == 'Resource') {$resources[] = $row['Options'];}
+    else if($row['Type'] == 'Clinic')
+    {
+        $clinics[] = $row['Options'];
+    }
 }
 
 //=============================================================
@@ -155,141 +155,141 @@ while($row = $queryOptions->fetch(PDO::FETCH_ASSOC))
 //=============================================================
 if($ignoreAutoResources != 1)
 {
-	//we only get exam rooms/resources from clinics that are "active"
-	$rightNow = date("D-H");
-	$rightNow = explode("-",$rightNow); //index 0 is the week day, index 1 the time (hour)
+    //we only get exam rooms/resources from clinics that are "active"
+    $rightNow = date("D-H");
+    $rightNow = explode("-",$rightNow); //index 0 is the week day, index 1 the time (hour)
 
-	if($rightNow[1] < 12) {$rightNow[1] = 'AM';}
-	else {$rightNow[1] = 'PM';}
+    if($rightNow[1] < 12) {$rightNow[1] = 'AM';}
+    else {$rightNow[1] = 'PM';}
 
-	//if the profile has an intermediate venue (probably because its a profile meant to be used at a specific location), we get all associated resources and exam rooms
-	//however, we only do this if the profile autofetch feature is on
-	if($json['FetchResourcesFromVenues'] and ($intermediateVenues or $treatmentVenues))
-	{
-		$interVenueList = implode("','",$intermediateVenues+$treatmentVenues);
+    //if the profile has an intermediate venue (probably because its a profile meant to be used at a specific location), we get all associated resources and exam rooms
+    //however, we only do this if the profile autofetch feature is on
+    if($json['FetchResourcesFromVenues'] and ($intermediateVenues or $treatmentVenues))
+    {
+        $interVenueList = implode("','",$intermediateVenues+$treatmentVenues);
 
-		//get associated exam rooms from venues
-		$sqlExamRooms = "
-			SELECT DISTINCT
-				ExamRoom.AriaVenueId
-			FROM
-				IntermediateVenue
-				INNER JOIN ExamRoom ON ExamRoom.IntermediateVenueSerNum = IntermediateVenue.IntermediateVenueSerNum
-			WHERE
-				IntermediateVenue.AriaVenueId IN ('$interVenueList')";
+        //get associated exam rooms from venues
+        $sqlExamRooms = "
+            SELECT DISTINCT
+                ExamRoom.AriaVenueId
+            FROM
+                IntermediateVenue
+                INNER JOIN ExamRoom ON ExamRoom.IntermediateVenueSerNum = IntermediateVenue.IntermediateVenueSerNum
+            WHERE
+                IntermediateVenue.AriaVenueId IN ('$interVenueList')";
 
-		$queryExamRooms = $dbWRM->query($sqlExamRooms);
+        $queryExamRooms = $dbWRM->query($sqlExamRooms);
 
-		while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
-		{
-			$examRooms[] = $row['AriaVenueId'];
-		}
+        while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
+        {
+            $examRooms[] = $row['AriaVenueId'];
+        }
 
-		//get associated resources from venues
+        //get associated resources from venues
 
-		//in the database, all most resources for the TX areas are associated with TX AREA A even though they should also be associated to other areas
-		//so we have to convert some of the intermediate venues
-		$convertedVenues = [];
-		foreach($intermediateVenues+$treatmentVenues as $val)
-		{
-			$convertedVenues[] = $val;
-		}
+        //in the database, all most resources for the TX areas are associated with TX AREA A even though they should also be associated to other areas
+        //so we have to convert some of the intermediate venues
+        $convertedVenues = [];
+        foreach($intermediateVenues+$treatmentVenues as $val)
+        {
+            $convertedVenues[] = $val;
+        }
 
-		foreach($convertedVenues as &$val)
-		{
-			if($val == 'TX AREA B'
-				|| $val == 'TX AREA C'
-				|| $val == 'TX AREA D'
-				|| $val == 'TX AREA E'
-				|| $val == 'TX AREA F'
-				|| $val == 'TX AREA G'
-				|| $val == 'TX AREA H'
-				|| $val == 'TX AREA U'
-				|| $val == 'pharmacy'
-				|| $val == 'PodA'
-				|| $val == 'PodB'
-				|| $val == 'PodC')
-			{$val = 'TX AREA A';}
-		}
+        foreach($convertedVenues as &$val)
+        {
+            if($val == 'TX AREA B'
+                || $val == 'TX AREA C'
+                || $val == 'TX AREA D'
+                || $val == 'TX AREA E'
+                || $val == 'TX AREA F'
+                || $val == 'TX AREA G'
+                || $val == 'TX AREA H'
+                || $val == 'TX AREA U'
+                || $val == 'pharmacy'
+                || $val == 'PodA'
+                || $val == 'PodB'
+                || $val == 'PodC')
+            {$val = 'TX AREA A';}
+        }
 
-		$sqlResources = "
-			SELECT DISTINCT
-				ClinicResources.ResourceName
-			FROM
-				ClinicResources
-				INNER JOIN ClinicSchedule ON ClinicSchedule.ClinicScheduleSerNum = ClinicResources.ClinicScheduleSerNum
-					AND ClinicSchedule.Day = '$rightNow[0]'
-					AND ClinicSchedule.AMPM = '$rightNow[1]'
-				INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
-				INNER JOIN IntermediateVenue ON IntermediateVenue.IntermediateVenueSerNum = ExamRoom.IntermediateVenueSerNum
-					AND IntermediateVenue.AriaVenueId IN ('". implode("','",$convertedVenues) ."')
-			WHERE
-				ClinicResources.Speciality = '$json[Speciality]'";
+        $sqlResources = "
+            SELECT DISTINCT
+                ClinicResources.ResourceName
+            FROM
+                ClinicResources
+                INNER JOIN ClinicSchedule ON ClinicSchedule.ClinicScheduleSerNum = ClinicResources.ClinicScheduleSerNum
+                    AND ClinicSchedule.Day = '$rightNow[0]'
+                    AND ClinicSchedule.AMPM = '$rightNow[1]'
+                INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
+                INNER JOIN IntermediateVenue ON IntermediateVenue.IntermediateVenueSerNum = ExamRoom.IntermediateVenueSerNum
+                    AND IntermediateVenue.AriaVenueId IN ('". implode("','",$convertedVenues) ."')
+            WHERE
+                ClinicResources.Speciality = '$json[Speciality]'";
 
-		$queryResources = $dbWRM->query($sqlResources);
+        $queryResources = $dbWRM->query($sqlResources);
 
-		while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
-		{
-			$resources[] = $row['ResourceName'];
-		}
-	}
+        while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
+        {
+            $resources[] = $row['ResourceName'];
+        }
+    }
 
-	//same thing for clinics
-	//if the FetchResourcesFromClinic is on we get exam rooms and resources associated with the clinics
-	if($json['FetchResourcesFromClinics'] and $clinics)
-	{
-		//get associated exam rooms from clinics
-		$sqlExamRooms = "
-			SELECT DISTINCT
-				ExamRoom.AriaVenueId
-			FROM
-				ClinicSchedule
-				INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
-			WHERE
-				ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
-				AND ClinicSchedule.Day = '$rightNow[0]'
-				AND ClinicSchedule.AMPM = '$rightNow[1]'";
+    //same thing for clinics
+    //if the FetchResourcesFromClinic is on we get exam rooms and resources associated with the clinics
+    if($json['FetchResourcesFromClinics'] and $clinics)
+    {
+        //get associated exam rooms from clinics
+        $sqlExamRooms = "
+            SELECT DISTINCT
+                ExamRoom.AriaVenueId
+            FROM
+                ClinicSchedule
+                INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
+            WHERE
+                ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
+                AND ClinicSchedule.Day = '$rightNow[0]'
+                AND ClinicSchedule.AMPM = '$rightNow[1]'";
 
-		$queryExamRooms = $dbWRM->query($sqlExamRooms);
+        $queryExamRooms = $dbWRM->query($sqlExamRooms);
 
-		while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
-		{
-			$examRooms[] = $row['AriaVenueId'];
-		}
+        while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
+        {
+            $examRooms[] = $row['AriaVenueId'];
+        }
 
-		//get associated resources from clinics
-		$sqlResources = "
-			SELECT DISTINCT
-				ClinicResources.ResourceName
-			FROM
-				ClinicSchedule
-				INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-			WHERE
-				ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
-				AND ClinicSchedule.Day = '$rightNow[0]'
-				AND ClinicSchedule.AMPM = '$rightNow[1]'";
+        //get associated resources from clinics
+        $sqlResources = "
+            SELECT DISTINCT
+                ClinicResources.ResourceName
+            FROM
+                ClinicSchedule
+                INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
+            WHERE
+                ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
+                AND ClinicSchedule.Day = '$rightNow[0]'
+                AND ClinicSchedule.AMPM = '$rightNow[1]'";
 
-		$queryResources = $dbWRM->query($sqlResources);
+        $queryResources = $dbWRM->query($sqlResources);
 
-		while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
-		{
-			$resources[] = $row['ResourceName'];
-		}
-	}
+        while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
+        {
+            $resources[] = $row['ResourceName'];
+        }
+    }
 
 
-	//filter, uniquify and sort arrays
-	$resources = array_filter(array_unique($resources));
-	sort($resources);
+    //filter, uniquify and sort arrays
+    $resources = array_filter(array_unique($resources));
+    sort($resources);
 
-	$intermediateVenues = array_filter(array_unique($intermediateVenues));
-	sort($intermediateVenues);
+    $intermediateVenues = array_filter(array_unique($intermediateVenues));
+    sort($intermediateVenues);
 
-	$treatmentVenues = array_filter(array_unique($treatmentVenues));
-	sort($treatmentVenues);
+    $treatmentVenues = array_filter(array_unique($treatmentVenues));
+    sort($treatmentVenues);
 
-	$examRooms = array_filter(array_unique($examRooms));
-	sort($examRooms);
+    $examRooms = array_filter(array_unique($examRooms));
+    sort($examRooms);
 
 }
 
@@ -297,31 +297,31 @@ if($ignoreAutoResources != 1)
 $json['Resources'] = [];
 foreach($resources as $val)
 {
-	$json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
+    $json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
 }
 
 $json['Appointments'] = [];
 foreach($appointments as $val)
 {
-	$json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
+    $json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
 }
 
 $json['Locations'] = [];
 foreach($intermediateVenues as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
 }
 foreach($treatmentVenues as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
 }
 foreach($examRooms as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
 }
 foreach($clinics as $val)
 {
-	$json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
+    $json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
 }
 
 //get firebase settings

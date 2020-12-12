@@ -11,7 +11,7 @@ use Orms\Config;
 header('Content-Type:text/html; charset=UTF-8');
 
 // Extract the webpage parameters
-$SMSAlertNum		= $_GET["SMSAlertNum"] ?? '';
+$SMSAlertNum = $_GET["SMSAlertNum"] ?? '';
 
 if(empty($SMSAlertNum))
 {

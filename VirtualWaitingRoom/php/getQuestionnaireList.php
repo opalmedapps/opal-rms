@@ -33,7 +33,7 @@ $queryQList = $dbWRM->query($sqlQList);
 
 while($row = $queryQList->fetch(PDO::FETCH_ASSOC))
 {
-	$json[] = $row;
+    $json[] = $row;
 }
 
 //get individual questionnaire answers

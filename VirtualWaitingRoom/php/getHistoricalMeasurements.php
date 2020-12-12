@@ -16,37 +16,37 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //run query
 //==================================
 $sql = "
-	SELECT
-		PatientMeasurement.Date,
-		PatientMeasurement.Height,
-		PatientMeasurement.Weight,
-		PatientMeasurement.BSA,
-		PatientMeasurement.PatientId
-	FROM
-	(
-		SELECT
-			PatientMeasurement.Date,
-			PatientMeasurement.PatientSer,
-			MAX(PatientMeasurement.Time) AS Lastest,
-			MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
-		FROM
-			PatientMeasurement
-			INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
-				AND Patient.PatientId = '$patientIdRVH'
-				AND Patient.PatientId_MGH = '$patientIdMGH'
-		GROUP BY
-			PatientMeasurement.Date
-	) AS PM
-	INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
-		AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
-	ORDER BY PatientMeasurement.Date";
+    SELECT
+        PatientMeasurement.Date,
+        PatientMeasurement.Height,
+        PatientMeasurement.Weight,
+        PatientMeasurement.BSA,
+        PatientMeasurement.PatientId
+    FROM
+    (
+        SELECT
+            PatientMeasurement.Date,
+            PatientMeasurement.PatientSer,
+            MAX(PatientMeasurement.Time) AS Lastest,
+            MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
+        FROM
+            PatientMeasurement
+            INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
+                AND Patient.PatientId = '$patientIdRVH'
+                AND Patient.PatientId_MGH = '$patientIdMGH'
+        GROUP BY
+            PatientMeasurement.Date
+    ) AS PM
+    INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
+        AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
+    ORDER BY PatientMeasurement.Date";
 
 //process results
 $query = $dbWRM->query($sql);
 
 while($row = $query->fetch(PDO::FETCH_ASSOC))
 {
-	$json[] = $row;
+    $json[] = $row;
 }
 
 //encode and return the json object

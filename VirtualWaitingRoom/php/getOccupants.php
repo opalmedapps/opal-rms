@@ -15,13 +15,13 @@ $checkinVenue = $_GET["checkinVenue"];
 
 if($checkinVenue)
 {
-	$checkinVenue_list = explode(",", $checkinVenue);
-	$checkinVenue_list = "'" . implode("','", $checkinVenue_list) . "'";
+    $checkinVenue_list = explode(",", $checkinVenue);
+    $checkinVenue_list = "'" . implode("','", $checkinVenue_list) . "'";
 }
 else
 {
-	echo "[]";
-	exit;
+    echo "[]";
+    exit;
 }
 
 $json = [];
@@ -30,26 +30,26 @@ $json = [];
 # Now, get the Medivisit checkins from MySQL
 #-------------------------------------------------------------------------------------
 $sqlWRM = "
-	SELECT DISTINCT
-		Venues.AriaVenueId AS LocationId,
-		PatientLocation.ArrivalDateTime,
-		COALESCE(Patient.PatientId,'Nobody') AS PatientIdRVH,
-		COALESCE(Patient.PatientId_MGH,'Nobody') AS PatientIdMGH
-	FROM
-	(
-		SELECT IntermediateVenue.AriaVenueId
-		FROM IntermediateVenue
-		WHERE  IntermediateVenue.AriaVenueId IN ($checkinVenue_list)
-		UNION
-		SELECT ExamRoom.AriaVenueId
-		FROM ExamRoom
-		WHERE  ExamRoom.AriaVenueId IN ($checkinVenue_list)
-	) AS Venues
-	LEFT JOIN PatientLocation ON PatientLocation.CheckinVenueName = Venues.AriaVenueId
-	LEFT JOIN MediVisitAppointmentList ON MediVisitAppointmentList.AppointmentSerNum = PatientLocation.AppointmentSerNum
-	LEFT JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
-	WHERE
-		(DATE(PatientLocation.ArrivalDateTime) = CURDATE() OR PatientLocation.ArrivalDateTime IS NULL)";
+    SELECT DISTINCT
+        Venues.AriaVenueId AS LocationId,
+        PatientLocation.ArrivalDateTime,
+        COALESCE(Patient.PatientId,'Nobody') AS PatientIdRVH,
+        COALESCE(Patient.PatientId_MGH,'Nobody') AS PatientIdMGH
+    FROM
+    (
+        SELECT IntermediateVenue.AriaVenueId
+        FROM IntermediateVenue
+        WHERE  IntermediateVenue.AriaVenueId IN ($checkinVenue_list)
+        UNION
+        SELECT ExamRoom.AriaVenueId
+        FROM ExamRoom
+        WHERE  ExamRoom.AriaVenueId IN ($checkinVenue_list)
+    ) AS Venues
+    LEFT JOIN PatientLocation ON PatientLocation.CheckinVenueName = Venues.AriaVenueId
+    LEFT JOIN MediVisitAppointmentList ON MediVisitAppointmentList.AppointmentSerNum = PatientLocation.AppointmentSerNum
+    LEFT JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
+    WHERE
+        (DATE(PatientLocation.ArrivalDateTime) = CURDATE() OR PatientLocation.ArrivalDateTime IS NULL)";
 
 # Remove last two lines so that rooms show up regardless of date - this would be necessary
 # if rooms are left open at the end of the day. However a cron job at midnight should checkout
@@ -65,7 +65,7 @@ $queryWRM = $dbWRM->query($sqlWRM);
 // output data of each row
 while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
 {
-	$json[] = $row;
+    $json[] = $row;
 }
 
 $json = utf8_encode_recursive($json);

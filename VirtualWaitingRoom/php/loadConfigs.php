@@ -11,11 +11,11 @@ use Orms\Config;
 //unless someone wants to rewrite all $_GET[] statements in all the scripts
 function handleNoticeError($errno,$errstr,$errfile,$errline)
 {
-	if(strpos($errstr,'Notice: Undefined index') !== false)
-	{
-		return false; //don't call the php standard error handler
-	}
-	else {return true;} //call the standard error handler
+    if(strpos($errstr,'Notice: Undefined index') !== false)
+    {
+        return false; //don't call the php standard error handler
+    }
+else {return true;} //call the standard error handler
 }
 set_error_handler('handleNoticeError', E_NOTICE);
 
@@ -57,11 +57,11 @@ define("OPAL_CONNECT","mysql:host=". OPAL_HOST .";port=". OPAL_PORT .";dbname=".
 define("QUESTIONNIARE_CONNECT","mysql:host=". QUESTIONNAIRE_HOST .";port=". QUESTIONNAIRE_PORT .";dbname=". QUESTIONNAIRE_DB);
 
 $WRM_OPTIONS = [
-	PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-	PDO::ATTR_EMULATE_PREPARES => true];
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_EMULATE_PREPARES => true];
 
 $ARIA_OPTIONS = [
-	PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 
 $OPAL_OPTIONS = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -79,11 +79,11 @@ define( "FIREBASE_SECRET",$configs["vwr"]["FIREBASE_SECRET"]);
 //Initialize the data logging function
 function LOG_MESSAGE($identifier,$type,$message)
 {
-	$callingScript = basename($_SERVER['SCRIPT_FILENAME']);
+    $callingScript = basename($_SERVER['SCRIPT_FILENAME']);
 
-	chdir(BASE_PATH."/perl");
-	exec("./logMessage.pl 'filename=$callingScript&identifier=$identifier&type=$type&message=$message'");
-	chdir("../php");
+    chdir(BASE_PATH."/perl");
+    exec("./logMessage.pl 'filename=$callingScript&identifier=$identifier&type=$type&message=$message'");
+    chdir("../php");
 }
 
 ?>

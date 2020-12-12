@@ -116,7 +116,7 @@ function getAppointments(): array
 
     #filter if a reminder was already sent for this appointment
     $appointments = array_filter($query->fetchAll(),function($x) {
-	    return checkIfReminderAlreadySent($x["appSer"]);
+        return checkIfReminderAlreadySent($x["appSer"]);
     });
 
     return utf8_encode_recursive($appointments);

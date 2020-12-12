@@ -24,18 +24,18 @@ $checkinVenueName;
 $arrivalDateTime;
 
 $sqlMV_checkCheckin = "
-	SELECT DISTINCT
-		PatientLocation.PatientLocationSerNum,
-		PatientLocation.PatientLocationRevCount,
-		PatientLocation.CheckinVenueName,
-		PatientLocation.ArrivalDateTime,
-		PatientLocation.IntendedAppointmentFlag,
-		PatientLocationMH.PatientLocationSerNum AS MHSerNum
-	FROM
-		PatientLocation
-		LEFT JOIN PatientLocationMH ON PatientLocationMH.PatientLocationSerNum = PatientLocation.PatientLocationSerNum
-	WHERE
-		PatientLocation.AppointmentSerNum = $appointmentSerNum";
+    SELECT DISTINCT
+        PatientLocation.PatientLocationSerNum,
+        PatientLocation.PatientLocationRevCount,
+        PatientLocation.CheckinVenueName,
+        PatientLocation.ArrivalDateTime,
+        PatientLocation.IntendedAppointmentFlag,
+        PatientLocationMH.PatientLocationSerNum AS MHSerNum
+    FROM
+        PatientLocation
+        LEFT JOIN PatientLocationMH ON PatientLocationMH.PatientLocationSerNum = PatientLocation.PatientLocationSerNum
+    WHERE
+        PatientLocation.AppointmentSerNum = $appointmentSerNum";
 
 //echo "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>";
 
@@ -46,20 +46,20 @@ $rows = $query->fetchAll(PDO::FETCH_ASSOC);
 
 if(count($rows) > 0)
 {
-	// output data of each row
-	foreach($rows as &$row)
-	{
-		$patientLocationSerNum = $row["PatientLocationSerNum"];
-		$patientLocationRevCount = $row["PatientLocationRevCount"];
-		$checkinVenueName = $row["CheckinVenueName"];
-		$arrivalDateTime = $row["ArrivalDateTime"];
-		$intendedFlag = $row["IntendedAppointmentFlag"];
-		$mhSerNum = $row["MHSerNum"];
-	}
+    // output data of each row
+    foreach($rows as &$row)
+    {
+        $patientLocationSerNum = $row["PatientLocationSerNum"];
+        $patientLocationRevCount = $row["PatientLocationRevCount"];
+        $checkinVenueName = $row["CheckinVenueName"];
+        $arrivalDateTime = $row["ArrivalDateTime"];
+        $intendedFlag = $row["IntendedAppointmentFlag"];
+        $mhSerNum = $row["MHSerNum"];
+    }
 }
 else
 {
-	echo "Patient not already checked in for this appointment... proceeding to check in";
+    echo "Patient not already checked in for this appointment... proceeding to check in";
 }
 
 echo "PatientLocationSerNum: $patientLocationSerNum<br>";
@@ -74,14 +74,14 @@ echo "ArrivalDateTime: $arrivalDateTime<br>";
 #---------------------------------------------------------------------------------------------
 if($patientLocationSerNum and !$mhSerNum)
 {
-	echo "inserting into MH table";
-	$sql_insert_previousCheckin = "
-			INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime,IntendedAppointmentFlag)
-			VALUES ('$patientLocationSerNum','$patientLocationRevCount','$appointmentSerNum','$checkinVenueName','$arrivalDateTime','$intendedFlag')";
+    echo "inserting into MH table";
+    $sql_insert_previousCheckin = "
+        INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime,IntendedAppointmentFlag)
+        VALUES ('$patientLocationSerNum','$patientLocationRevCount','$appointmentSerNum','$checkinVenueName','$arrivalDateTime','$intendedFlag')";
 
-	//echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
+    //echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
 
-	$result = $dbWRM->query($sql_insert_previousCheckin);
+    $result = $dbWRM->query($sql_insert_previousCheckin);
 }
 
 #---------------------------------------------------------------------------------------------
@@ -91,8 +91,8 @@ if($patientLocationSerNum and !$mhSerNum)
 #---------------------------------------------------------------------------------------------
 $patientLocationRevCount++;
 $sql_insert_newCheckin = "
-	INSERT INTO PatientLocation(PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime,IntendedAppointmentFlag)
-	VALUES ('$patientLocationRevCount','$appointmentSerNum','$checkinVenue',NOW(),'$intendedAppointment')";
+    INSERT INTO PatientLocation(PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime,IntendedAppointmentFlag)
+    VALUES ('$patientLocationRevCount','$appointmentSerNum','$checkinVenue',NOW(),'$intendedAppointment')";
 
 //echo "sql_insert_newCheckin: $sql_insert_newCheckin<br>";
 
@@ -100,11 +100,11 @@ $dbWRM->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT);
 
 if($dbWRM->query($sql_insert_newCheckin))
 {
-	$checkinStatus = "OK";
+    $checkinStatus = "OK";
 }
 else
 {
-	$checkinStatus = "Unable to check in";
+    $checkinStatus = "Unable to check in";
 }
 
 $dbWRM->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
@@ -114,14 +114,14 @@ echo "CheckinStatus: $checkinStatus... ";
 # if there was an existing entry in the patient location table, delete it now
 if($patientLocationSerNum)
 {
-	echo "deleting existing entry in PatientLocation table<br>";
-	$sql_delete_previousCheckin = "
-		DELETE FROM PatientLocation
-		WHERE PatientLocationSerNum = $patientLocationSerNum";
+    echo "deleting existing entry in PatientLocation table<br>";
+    $sql_delete_previousCheckin = "
+        DELETE FROM PatientLocation
+        WHERE PatientLocationSerNum = $patientLocationSerNum";
 
-	$result = $dbWRM->query($sql_delete_previousCheckin);
+    $result = $dbWRM->query($sql_delete_previousCheckin);
 
-	echo "deleted...<b>";
+    echo "deleted...<b>";
 }
 
 // Close the MySQL connection

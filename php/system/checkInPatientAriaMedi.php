@@ -13,10 +13,10 @@ $ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
 
 // Extract the webpage parameters
 $PushNotification   = 0; # default of zero
-$CheckinVenue 		= !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
-$PatientId		    = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
-$PushNotification	= !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
-$verbose		    = !empty($_GET["verbose"]) ? $_GET["verbose"] : NULL;
+$CheckinVenue       = !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
+$PatientId          = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
+$PushNotification   = !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
+$verbose            = !empty($_GET["verbose"]) ? $_GET["verbose"] : NULL;
 
 if ($verbose) echo "Verbose Mode<br>";
 
@@ -70,15 +70,15 @@ $result = $conn->query($sqlApptMedivisit);
 // output data of each row
 while($row = $result->fetch())
 {
-    #$MV_PatientId	= $row["PatientId"];
-    $MV_PatientFirstName	= $row["FirstName"];
-    $MV_PatientLastName	= $row["LastName"];
-    $MV_ScheduledStartTime= $row["ScheduledDateTime"];
-    $MV_ApptDescription	= $row["AppointmentCode"];
-    $MV_Resource		= $row["ResourceDescription"];
-    $MV_AptTimeSinceMidnight= $row["AptTimeSinceMidnight"];
-    $MV_AppointmentSerNum = $row["AppointmentSerNum"];
-    $MV_Status		= $row["Status"];
+    #$MV_PatientId = $row["PatientId"];
+    $MV_PatientFirstName        = $row["FirstName"];
+    $MV_PatientLastName         = $row["LastName"];
+    $MV_ScheduledStartTime      = $row["ScheduledDateTime"];
+    $MV_ApptDescription         = $row["AppointmentCode"];
+    $MV_Resource                = $row["ResourceDescription"];
+    $MV_AptTimeSinceMidnight    = $row["AptTimeSinceMidnight"];
+    $MV_AppointmentSerNum       = $row["AppointmentSerNum"];
+    $MV_Status                  = $row["Status"];
 
     if ($verbose) echo "<br> MV appt: $MV_ApptDescription at $MV_ScheduledStartTime with $MV_Resource<br>";
 

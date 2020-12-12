@@ -22,7 +22,7 @@ $dbh = Config::getDatabaseConnection("ORMS");
 $queryOrms = $dbh->prepare("
     SELECT
         Patient.SMSAlertNum,
-	Patient.LanguagePreference
+    Patient.LanguagePreference
     FROM
         Patient
     WHERE

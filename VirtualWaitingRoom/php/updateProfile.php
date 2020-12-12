@@ -18,9 +18,9 @@ $profile['TreatmentVenues'] = [];
 
 foreach($profile['Locations'] as $loc)
 {
-	if($loc['Type'] == 'ExamRoom') {$profile['ExamRooms'][] = $loc;}
-	if($loc['Type'] == 'IntermediateVenue') {$profile['IntermediateVenues'][] = $loc;}
-	if($loc['Type'] == 'TreatmentVenue') {$profile['TreatmentVenues'][] = $loc;}
+    if($loc['Type'] == 'ExamRoom') {$profile['ExamRooms'][] = $loc;}
+    if($loc['Type'] == 'IntermediateVenue') {$profile['IntermediateVenues'][] = $loc;}
+    if($loc['Type'] == 'TreatmentVenue') {$profile['TreatmentVenues'][] = $loc;}
 }
 
 //connect to db
@@ -34,10 +34,10 @@ if($profile['ProfileSer'] == -1)
     $queryCreateProfile = $dbWRM->prepare("CALL SetupProfile(?,?,?);");
     $queryCreateProfile->execute([$profile["ProfileId"],$profile["Speciality"],$profile["ClinicalArea"]]);
 
-	//the subroutine returns the new profile's serial so we update ours
+    //the subroutine returns the new profile's serial so we update ours
     $row = $queryCreateProfile->fetchAll(PDO::FETCH_NUM)[0];
     $queryCreateProfile->closeCursor();
-	$profile['ProfileSer'] = $row[0];
+    $profile['ProfileSer'] = $row[0];
 
 }
 
@@ -82,7 +82,7 @@ $queryOptions->closeCursor();
 
 //insert the profile columns
 $columnNameString = implode("|||",array_map(function ($obj) {
-		return $obj['ColumnName'];
+    return $obj['ColumnName'];
 },$columns));
 
 $queryColumns = $dbWRM->prepare("CALL UpdateProfileColumns(?,?)");

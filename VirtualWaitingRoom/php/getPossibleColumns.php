@@ -32,7 +32,7 @@ $query->execute([$speciality]);
 
 while($row = $query->fetch(PDO::FETCH_ASSOC))
 {
-	$json[] = $row;
+    $json[] = $row;
 }
 
 //encode and return the json object

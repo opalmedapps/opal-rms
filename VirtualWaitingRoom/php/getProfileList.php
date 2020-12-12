@@ -16,25 +16,25 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //get profiles
 //==================================
 $sql = "
-	SELECT
-		Profile.ProfileSer,
-		Profile.ProfileId,
-		Profile.ClinicalArea
-	FROM
-		Profile
-	WHERE
-		Profile.Category = '$category'
-		AND Profile.Speciality = '$speciality'";
+    SELECT
+        Profile.ProfileSer,
+        Profile.ProfileId,
+        Profile.ClinicalArea
+    FROM
+        Profile
+    WHERE
+        Profile.Category = '$category'
+        AND Profile.Speciality = '$speciality'";
 
 if(!$category && !$speciality)
 {
-	$sql = "
-		SELECT
-			Profile.ProfileSer,
-			Profile.ProfileId,
-			Profile.ClinicalArea
-		FROM
-			Profile";
+    $sql = "
+        SELECT
+            Profile.ProfileSer,
+            Profile.ProfileId,
+            Profile.ClinicalArea
+        FROM
+            Profile";
 }
 
 //process results
@@ -42,7 +42,7 @@ $query = $dbWRM->query($sql);
 
 while($row = $query->fetch(PDO::FETCH_ASSOC))
 {
-	$json[] = $row;
+    $json[] = $row;
 }
 
 //encode and return the json object

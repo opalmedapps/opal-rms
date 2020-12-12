@@ -18,7 +18,7 @@ $room_EN = $_GET["room_EN"];
 $to_FR = "au";
 if(preg_match("/^(Salle|Porte|Réception)/",$room_FR))
 {
-	$to_FR = "à la";
+    $to_FR = "à la";
 }
 
 //====================================================================================
@@ -53,8 +53,8 @@ $LanguagePreference = $row["LanguagePreference"] ?? NULL;
 
 if(empty($SMSAlertNum))
 {
-	echo "No SMS alert phone number so will not attempt to send";
-	exit;
+    echo "No SMS alert phone number so will not attempt to send";
+    exit;
 }
 
 //====================================================================================
@@ -62,7 +62,7 @@ if(empty($SMSAlertNum))
 //====================================================================================
 if($LanguagePreference == "English")
 {
-	$message = "MUHC - Cedars Cancer Centre: Please go to $room_EN for your appointment. You will be seen shortly.";
+    $message = "MUHC - Cedars Cancer Centre: Please go to $room_EN for your appointment. You will be seen shortly.";
 }
 else
 {

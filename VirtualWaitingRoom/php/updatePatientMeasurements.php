@@ -17,13 +17,13 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 //first check if the patient exists in the WRM db
 $sqlPatientExists = "
-	SELECT
-		Patient.PatientSerNum
-	FROM
-		Patient
-	WHERE
-		Patient.PatientId = '$patientIdRVH'
-		AND Patient.PatientId_MGH = '$patientIdMGH'";
+    SELECT
+        Patient.PatientSerNum
+    FROM
+        Patient
+    WHERE
+        Patient.PatientId = '$patientIdRVH'
+        AND Patient.PatientId_MGH = '$patientIdMGH'";
 
 $queryPatientExists = $dbWRM->query($sqlPatientExists);
 
@@ -33,8 +33,8 @@ $patientSer = $row[0]['PatientSerNum'] ?? NULL;
 if(!$patientSer) {echo "No patient serial!"; exit;}
 
 $sqlWeightInsert = "
-	INSERT INTO PatientMeasurement (PatientSer,Date,Time,Height,Weight,BSA,AppointmentId,PatientId)
-		VALUES ($patientSer,CURDATE(),CURTIME(),$height,$weight,$bsa,'$appointmentId','$patientIdRVH')";
+    INSERT INTO PatientMeasurement (PatientSer,Date,Time,Height,Weight,BSA,AppointmentId,PatientId)
+    VALUES ($patientSer,CURDATE(),CURTIME(),$height,$weight,$bsa,'$appointmentId','$patientIdRVH')";
 
 $queryWeightInsert = $dbWRM->exec($sqlWeightInsert);
 

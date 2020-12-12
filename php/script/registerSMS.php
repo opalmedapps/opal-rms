@@ -39,9 +39,9 @@ $dbh = Config::getDatabaseConnection("ORMS");
 //====================================================================================
 // first check that the patient exists in ORMS
 $queryPatient = $dbh->prepare("
-	SELECT Patient.LastName
-	FROM Patient
-	WHERE  Patient.PatientId = :mrn
+    SELECT Patient.LastName
+    FROM Patient
+    WHERE  Patient.PatientId = :mrn
 ");
 $queryPatient->execute([":mrn" => $PatientId]);
 

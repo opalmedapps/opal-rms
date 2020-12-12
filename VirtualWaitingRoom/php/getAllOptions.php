@@ -42,7 +42,7 @@ $query2->execute([$speciality]);
 // Process results
 while($row = $query2->fetch(PDO::FETCH_ASSOC))
 {
-	$resources[] = $row['ResourceName'];
+    $resources[] = $row['ResourceName'];
 }
 
 //================================================================================
@@ -62,7 +62,7 @@ $query3->execute([$clinicalArea]);
 // Process results
 while($row = $query3->fetch(PDO::FETCH_ASSOC))
 {
-	$examRooms[] = $row['AriaVenueId'];
+    $examRooms[] = $row['AriaVenueId'];
 }
 
 //get all possible intermediate venues for the speciality
@@ -109,16 +109,16 @@ $query6->execute([$speciality]);
 //process results
 while($row = $query6->fetch(PDO::FETCH_ASSOC))
 {
-	$appointments[] = $row['AppointmentCode'];
+    $appointments[] = $row['AppointmentCode'];
 }
 
 //get all clinics
 $sql7 = "
-	SELECT DISTINCT
-		LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
-	FROM
-		ClinicSchedule
-		INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
+    SELECT DISTINCT
+        LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
+    FROM
+        ClinicSchedule
+        INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
 ";
 
 $query7 = $dbWRM->query($sql7);
@@ -126,7 +126,7 @@ $query7 = $dbWRM->query($sql7);
 //process results
 while($row = $query7->fetch(PDO::FETCH_ASSOC))
 {
-	$clinics[] = $row['ClinicName'];
+    $clinics[] = $row['ClinicName'];
 }
 
 //====================================================
@@ -156,33 +156,33 @@ sort($clinics);
 $json['Resources'] = [];
 foreach($resources as $val)
 {
-	$json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
+    $json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
 }
 
 $json['Appointments'] = [];
 foreach($appointments as $val)
 {
-	$json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
+    $json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
 }
 
 $json['Locations'] = [];
 foreach($intermediateVenues as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
 }
 foreach($treatmentVenues as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
 }
 foreach($examRooms as $val)
 {
-	$json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
+    $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
 }
 
 $json['Clinics'] = [];
 foreach($clinics as $val)
 {
-	$json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
+    $json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
 }
 
 //return results in json format

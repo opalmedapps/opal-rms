@@ -11,9 +11,9 @@ use Orms\Sms\SmsInterface;
 // Extract the command line parameters
 $opts = getopt("",["PatientId:","message_FR:","message_EN:"]);
 
-$PatientId		= $opts["PatientId"] ?? '';
-$message_FR		= $opts["message_FR"] ?? '';
-$message_EN		= $opts["message_EN"] ?? '';
+$PatientId  = $opts["PatientId"] ?? '';
+$message_FR = $opts["message_FR"] ?? '';
+$message_EN = $opts["message_EN"] ?? '';
 
 //====================================================================================
 // Database

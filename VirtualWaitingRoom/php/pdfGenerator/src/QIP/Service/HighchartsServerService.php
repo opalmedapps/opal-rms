@@ -126,7 +126,7 @@ class HighchartsServerService
             "lineWidth" => 3,
             "marker" => [
                 "radius" => 8
-			],
+            ],
             "showInLegend" => false,
             "data" => null,
             "yAxis" => null,

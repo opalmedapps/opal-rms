@@ -4,14 +4,14 @@
 $wsPatientID = filter_var($_GET['ID'], FILTER_SANITIZE_STRING);
 // Exit if Patient ID is empty
 if (strlen(trim($wsPatientID)) == 0) {
-	die;
+    die;
 }
 
 // Get Report ID
 $wsReportID = filter_var($_GET['rptID'], FILTER_SANITIZE_STRING);
 // Exit if Report ID is empty
 if (strlen(trim($wsReportID)) == 0) {
-	die;
+    die;
 }
 
 // Get Export Flag
@@ -19,7 +19,7 @@ if (strlen(trim($wsReportID)) == 0) {
 $wsExportFlag = 0;
 // Set value to 0 if Export Flag is empty
 if (strlen(trim($wsExportFlag)) == 0) {
-	$wsExportFlag=0;
+    $wsExportFlag=0;
 }
 
 // generate a non chart report

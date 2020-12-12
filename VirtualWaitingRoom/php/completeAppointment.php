@@ -11,9 +11,9 @@ $checkoutVenue = $_GET["checkoutVenue"];
 $patientIdRVH = $_GET["patientIdRVH"];
 $patientIdMGH = $_GET["patientIdMGH"];
 $appointmentSerNum = $_GET["scheduledActivitySer"];
-$final = $_GET["final"];	# if this is the final checkout of the day, then
-				# the patient should not be checked in to his/her
-				# remaining appointments
+$final = $_GET["final"]; # if this is the final checkout of the day, then
+                         # the patient should not be checked in to his/her
+                         # remaining appointments
 
 //======================================================================================
 // Check the patient out of this Medivisit appointment
@@ -25,15 +25,15 @@ $checkinVenueName;
 $arrivalDateTime;
 
 $sqlMV_checkCheckin = "
-	SELECT DISTINCT
-		PatientLocation.PatientLocationSerNum,
-		PatientLocation.PatientLocationRevCount,
-		PatientLocation.CheckinVenueName,
-		PatientLocation.ArrivalDateTime
-	FROM
-		PatientLocation
-	WHERE
-		PatientLocation.AppointmentSerNum = $appointmentSerNum";
+    SELECT DISTINCT
+        PatientLocation.PatientLocationSerNum,
+        PatientLocation.PatientLocationRevCount,
+        PatientLocation.CheckinVenueName,
+        PatientLocation.ArrivalDateTime
+    FROM
+        PatientLocation
+    WHERE
+        PatientLocation.AppointmentSerNum = $appointmentSerNum";
 
 /* Process results */
 $result = $dbWRM->query($sqlMV_checkCheckin);
@@ -42,18 +42,18 @@ $rows = $result->fetchAll(PDO::FETCH_ASSOC);
 
 if(count($rows) > 0)
 {
-	// output data of each row
-	foreach($rows as &$row)
-	{
-		$patientLocationSerNum = $row["PatientLocationSerNum"];
-		$patientLocationRevCount = $row["PatientLocationRevCount"];
-		$checkinVenueName = $row["CheckinVenueName"];
-		$arrivalDateTime = $row["ArrivalDateTime"];
-	}
+    // output data of each row
+    foreach($rows as &$row)
+    {
+        $patientLocationSerNum = $row["PatientLocationSerNum"];
+        $patientLocationRevCount = $row["PatientLocationRevCount"];
+        $checkinVenueName = $row["CheckinVenueName"];
+        $arrivalDateTime = $row["ArrivalDateTime"];
+    }
 }
 else
 {
-	die("Doesn't seem like the patient is checked in...");
+    die("Doesn't seem like the patient is checked in...");
 }
 
 
@@ -78,8 +78,8 @@ $result = $dbWRM->query($sql_closeApt);
 # Exit now without checking in for further appointments if $Final was called
 if($final == 1)
 {
-	$dbWRM = null;
-	exit(0);
+    $dbWRM = null;
+    exit(0);
 }
 
 //#############################################################################################

@@ -81,7 +81,7 @@ function getAppointments(): array
             Patient.LanguagePreference AS language,
             MV.AppointmentSerNum AS appSer,
             MV.ScheduledDate AS date,
-            MV.ScheduledTime AS time,
+            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
             MV.ResourceDescription AS fullname,
             CASE
                 WHEN MV.AppointSys = 'Aria' THEN
@@ -94,16 +94,17 @@ function getAppointments(): array
                     END
                 ELSE MV.ResourceDescription
             END AS name,
-            ClinicResources.Speciality AS speciality,
-            SmsAppointment.Type as type
+            SA.Speciality AS speciality,
+            SA.Type as type
         FROM
             MediVisitAppointmentList MV
             INNER JOIN Patient ON Patient.PatientSerNum = MV.PatientSerNum
                 AND Patient.SMSAlertNum != ''
                 AND Patient.SMSAlertNum IS NOT NULL
-            INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            INNER JOIN SmsAppointment ON SmsAppointment.AppointmentCode = MV.AppointmentCode
-                AND SmsAppointment.Speciality = ClinicResources.Speciality
+            INNER JOIN SmsAppointment SA ON SA.AppointmentCodeId = MV.AppointmentCodeId
+                AND SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                AND SA.Active = 1
+                AND SA.Type IS NOT NULL
         WHERE
             MV.Status = 'Open'
             AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY

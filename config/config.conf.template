@@ -12,6 +12,9 @@ IMAGE_PATH                      =
 IMAGE_URL                       =
 LOG_PATH                        =
 
+[alert]
+EMAIL[]                         =
+
 [database]
 ORMS_TYPE                       =
 ORMS_HOST                       =

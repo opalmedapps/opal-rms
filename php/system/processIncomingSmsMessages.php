@@ -148,13 +148,15 @@ function getAppointmentList(string $pSer): array
             END AS name,
             MV.ScheduledDate AS date,
             TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
-            SmsAppointment.Speciality,
-            SmsAppointment.Type
+            SA.Speciality,
+            SA.Type
         FROM
             MediVisitAppointmentList MV
-            INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            INNER JOIN SmsAppointment ON SmsAppointment.AppointmentCode = MV.AppointmentCode
-                AND SmsAppointment.Speciality = ClinicResources.Speciality
+            INNER JOIN SmsAppointment SA ON SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                AND SA.AppointmentCodeId = MV.AppointmentCodeId
+                AND SA.Speciality = ClinicResources.Speciality
+                AND SA.Active = 1
+                AND SA.Type IS NOT NULL
         WHERE
             MV.PatientSerNum = :pSer
             AND MV.ScheduledDate = CURDATE()

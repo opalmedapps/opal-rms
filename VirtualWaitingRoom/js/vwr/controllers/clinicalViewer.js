@@ -116,7 +116,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }
         else{
             $scope.confid = 'Nominal Mode';
-            localStorage.setItem("value",$scope.confid)
+            sessionStorage.setItem("value",$scope.confid)
         }
     };
 
@@ -137,8 +137,44 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         else $scope.inputs.offbutton = 'OFF';
 
         $scope.inputchange();
-    }
+    };
 
+
+    $scope.qDisableButton = function(){
+        if ($scope.inputs.qfilterdisable){
+            $scope.inputs.qfilterdisable = false;
+        }
+        else $scope.inputs.qfilterdisable = true;
+
+        $scope.inputchange();
+    };
+
+    $scope.dDisableButton = function(){
+        if ($scope.inputs.dfilterdisable){
+            $scope.inputs.dfilterdisable= false;
+        }
+        else $scope.inputs.dfilterdisable = true;
+
+        $scope.inputchange();
+    };
+    $scope.aDisableButton = function(){
+        if ($scope.inputs.afilterdisable){
+            $scope.inputs.afilterdisable= false;
+        }
+        else $scope.inputs.afilterdisable = true;
+
+        $scope.inputchange();
+    };
+
+
+
+    $scope.AndOrButton = function(){
+        if ($scope.inputs.andbutton === 'And'){
+            $scope.inputs.andbutton = 'Or';
+        }
+        else $scope.inputs.andbutton = 'And';
+        $scope.inputchange();
+    };
 
     $scope.reset = function (resetPressed)
     {
@@ -162,6 +198,10 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 dtype: 'all',
                 qtype: 'all',
                 offbutton: 'ON',
+                andbutton: 'And',
+                afilterdisable: false,
+                qfilterdisable: false,
+                dfilterdisable: false,
                 /*specificType: {name: ''},
                 cspecificType: {name: ''},
                 dspecificType: {name: ''},*/
@@ -258,7 +298,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
         $mdDialog.show(answer).then( result => {
             $scope.confid = 'Confidential Mode';
-            localStorage.setItem("value",$scope.confid)
+            sessionStorage.setItem("value",$scope.confid)
             $scope.confidentialTimer();
         });
     };
@@ -269,8 +309,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             $scope.reset();
             $scope.zoomLink = "";
             $scope.showLM = true;
-            if(localStorage.getItem("value")) {
-                $scope.confid = localStorage.getItem("value");
+            if(sessionStorage.getItem("value")) {
+                $scope.confid = sessionStorage.getItem("value");
             }
             else
             $scope.confid = 'Confidential Mode';
@@ -371,7 +411,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate),$scope.inputs,speciality).then(function (response)
         {
             $scope.tableData = response;
-
             //filter all blood test appointments
             $scope.tableData = $scope.tableData.filter(function(app) {
                 return !/blood/.test(app.appName);
@@ -393,13 +432,14 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             $scope.confidentialTimer();
         });
     };
-
     $scope.confidentialTimer = function(){
         document.addEventListener("mousedown", $scope.resetConfidTimer, false);
         document.addEventListener("mousemove", $scope.resetConfidTimer, false);
         document.addEventListener("keypress", $scope.resetConfidTimer, false);
         document.addEventListener("touchmove", $scope.resetConfidTimer, false);
-        $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
+        if($scope.confid === 'Confidential Mode') {
+            $scope.timeout = window.setTimeout($scope.confidentialMode, 120000);
+        }
 
     };
 
@@ -423,8 +463,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 //backdrop: 'static',
                 resolve:
                     {
-                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus};},
-                        confidMode: function() {return $scope.confid}
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus,'LastQuestionnaireReview':appoint.LastReview,};},
+                        //confidMode: function() {return $scope.confid}
                     }
             }).result.then(function(response)
         {
@@ -561,6 +601,7 @@ app.factory('callScript',function($http,$q)
             var clinics = "";
             for (i = 0; i < inputs.selectedclinics.length; i++) {
                 clinics += "\"" +inputs.selectedclinics[i].Name + "\"";
+                if(clinics.length > 5300)break;
                 if(i< inputs.selectedclinics.length-1) clinics += ",";
             }
             var codes = "";
@@ -600,9 +641,25 @@ app.factory('callScript',function($http,$q)
             qspecificType = (questionnaireType !="" && inputs.qtype != 'all')? "&qspecificType="+ questionnaireType :"";
             selectedDate = "&qselectedDate="+qdate + "&qselectedTime="+qtime;
             offb = (inputs.offbutton) ? "&offbutton="+ inputs.offbutton : "";
+            andb = (inputs.andbutton) ? "&andbutton="+ inputs.andbutton : "";
+            afilter = (inputs.afilterdisable) ? "&afilter=1": "";
+            qfilter = (inputs.qfilterdisable) ? "&qfilter=1": "";
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+offb+"&clinic="+speciality).then(function (response)
-            {
+            if(inputs.dfilterdisable){
+                dtypeSelect = "&dtype=all";
+                opal = "&opal=1";
+                SMS = "&SMS=1";
+            }
+            if(inputs.qfilterdisable){
+                qtypeSelect = "&qtype=all";
+                offb = "&offbutton=OFF";
+                andb = "&andbutton=Add";
+            }
+
+
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&clinic="+speciality).then(function (response){
+
+
                 let info = {};
                 info = response.data;
                 defer.resolve(info);

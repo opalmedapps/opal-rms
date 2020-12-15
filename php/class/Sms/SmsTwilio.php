@@ -81,8 +81,8 @@ class SmsTwilio
         $messages = array_map(function($x) {
             #remove plus sign from phone numbers
             #also remove international code client phone number because it might have been entered into the ORMS system without it
-            $x->from = preg_replace("/^\+1/","",$x->from);
-            $x->to = preg_replace("/^\+/","",$x->to);
+            $x->from = preg_replace("/^\+1/","",$x->from) ?? "";
+            $x->to = preg_replace("/^\+/","",$x->to) ?? "";
 
             return new SmsReceivedMessage(
                 $x->sid,

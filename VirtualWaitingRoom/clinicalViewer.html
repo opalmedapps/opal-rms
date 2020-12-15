@@ -51,10 +51,11 @@
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/angular-datatables/dist/css/angular-datatables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="./node_modules/jquery-ui-dist/jquery-ui.min.css">
-<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
+
 <link rel="stylesheet" href="./node_modules/ui-select/dist/select.min.css">
 <link rel="stylesheet" href="./node_modules/angular-material/angular-material.min.css">
 <link rel="stylesheet" href="./css/select2.css">
+<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
 
 
 
@@ -223,9 +224,6 @@
         </table>
 
 
-        <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
-
-
             <table border="0" style="table-layout:fixed;width:90%;" padding="5" >
 
                 <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
@@ -233,7 +231,7 @@
                 </tr>
                 <tr ng-if="test.showMenu  === 'Hide Menu'"><td><br></td></tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <tr ng-show="test.showMenu === 'Hide Menu'&&!inputs.afilterdisable">
                     <td><b>From Date: </b></td>
                     <td><input type="date" ng-model="sDate" ng-change="inputchange()" required></td>
                     <td><b>To Date: </b></td>
@@ -242,14 +240,14 @@
 
                 </tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <tr ng-show="test.showMenu === 'Hide Menu'&&!inputs.afilterdisable">
                     <td><b>Starting From (Scheduled Time): </b></td>
                     <td><input type="time" ng-model="sTime" ng-change="inputchange()" required></td>
                     <td><b>Ending At: </b></td>
                     <td><input type="time" ng-model="eTime" ng-change="inputchange()" required></td>
                 </tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <tr ng-show="test.showMenu === 'Hide Menu'&&!inputs.afilterdisable">
                     <td><b>Appointment Status: </b></td>
                     <td>
                         <div class="btn-group">
@@ -265,7 +263,7 @@
                         </div></td>
                 </tr>
 
-                <tr ng-show="test.showMenu  === 'Hide Menu'">
+                <tr ng-show="test.showMenu  === 'Hide Menu'&&!inputs.afilterdisable">
                     <td><b>Clinic Name: </b></td>
                     <td>
                         <div class="btn-group">
@@ -278,7 +276,7 @@
                         <div ng-show="inputs.type == 'specific'" class = "option-holder" style="width: 500px">
                             <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
-                <tr ng-show="test.showMenu  === 'Hide Menu'">
+                <tr ng-show="test.showMenu  === 'Hide Menu' &&!inputs.afilterdisable">
                     <td><b>Clinic Code: </b></td>
                     <td>
                         <div class="btn-group">
@@ -292,39 +290,29 @@
                             <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
-                    <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Filter</font></th>
-                </tr>
-                <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
                 <tr ng-show="test.showMenu === 'Hide Menu'">
-                    <td><b>Opal/SMS Status: </b></td>
-                    <td>
-                        <div class="btn-group">
-                            <label ng-model="inputs.opal" class="btn btn-primary" ng-change="keepOpalChecked('opal')" uib-btn-checkbox>Opal</label>
-                            <label ng-model="inputs.SMS" class="btn btn-primary" ng-change="keepOpalChecked('SMS')" uib-btn-checkbox>SMS</label>
-                        </div></td>
+
+
+                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.afilterdisable) ? '#0062cc' : '', color: (inputs.afilterdisable) ? 'white' : ''}" ng-click="aDisableButton()">Disable</button></td>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'&&!inputs.afilterdisable">
+
+                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.andbutton === 'And') ? '#0062cc' : '', color: (inputs.andbutton === 'And') ? 'white' : ''}" ng-click="AndOrButton()">And</button>
+                    <button type="button" class= "btn btn-sr" ng-style="{background: (inputs.andbutton === 'Or') ? '#0062cc' : '', color: (inputs.andbutton === 'Or') ? 'white' : ''}" ng-click="AndOrButton()">Or</button></td>
+
+                    <td style ="color: red">
+                        <div ng-show="inputs.andbutton === 'And'"><b>Note:</b> All patients who satisfies both the appointment filter and the questionnaire filter will be shown under this mode.</div>
+                        <div ng-show="inputs.andbutton === 'Or'"><b>Note:</b> All patients who satisfies either the appointment filter or the questionnaire filter will be shown under this mode.</div>
+                    </td>
                 </tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'">
-                    <td><b>Diagnosis: </b></td>
-                    <td>
-                        <div class="btn-group">
-                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
-                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
-                                   ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
-                        </div></td>
-                    <td style="display:inline-flex;vertical-align:bottom;">
-                        <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
-                        <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
-                            <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
-                </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
                     <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Questionnaire Filter</font></th>
                 </tr>
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
 
-                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <tr ng-show="test.showMenu === 'Hide Menu'&& !inputs.qfilterdisable">
                     <td><b>Questionnaire Name: </b></td>
                     <td>
                         <div class="btn-group">
@@ -338,12 +326,45 @@
                             <span ng-repeat="loc in inputs.selectedQuestionnaire"><mark>{{loc.Name}}</mark> </span></div></td>
 
                 </tr>
-                <tr ng-show="test.showMenu === 'Hide Menu'">
+                <tr ng-show="test.showMenu === 'Hide Menu'&& !inputs.qfilterdisable">
                     <td>
-                        <p style="width: 200%" ><b>Answered in last</b>
-                            <input  style="width: 15%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).                  </b></p></td>
-                    <td></td>
-                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.offbutton === 'ON') ? '#0062cc' : '', color: (inputs.offbutton === 'ON') ? 'white' : ''}" ng-click="OnOffButton()">{{inputs.offbutton}}</button></td>
+                        <p style="width: 200%"><b>Answered in last</b>
+                            <input  style="width: 15%"  type="number" ng-model="inputs.selectedHourNumber" ng-change="inputchange()" > <b>hour(s).&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</b>
+                    <button type="button" class= "btn btn-sr" ng-style="{background: (inputs.offbutton === 'ON') ? '#0062cc' : '', color: (inputs.offbutton === 'ON') ? 'white' : ''}" ng-click="OnOffButton()">{{inputs.offbutton}}
+                    </button></p></td>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'">
+                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.qfilterdisable) ? '#0062cc' : '', color: (inputs.qfilterdisable) ? 'white' : ''}" ng-click="qDisableButton()">Disable</button></td>
+                </tr>
+
+                <tr ng-show="test.showMenu === 'Hide Menu'" bgcolor=#1D0886 fgcolor=#FFFFFF>
+                    <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Additional Filter</font></th>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'&& !inputs.dfilterdisable">
+                    <td><b>Opal/SMS Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.opal" class="btn btn-primary" ng-change="inputchange()" uib-btn-checkbox>Opal</label>
+                            <label ng-model="inputs.SMS" class="btn btn-primary" ng-change="inputchange()" uib-btn-checkbox>SMS</label>
+                        </div></td>
+                </tr>
+
+                <tr ng-show="test.showMenu === 'Hide Menu'&& !inputs.dfilterdisable">
+                    <td><b>Diagnosis: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
+                            <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
+                                   ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
+                        </div></td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
+                        <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
+                            <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
+                </tr>
+                <tr ng-show="test.showMenu === 'Hide Menu'">
+                    <td><button type="button" class= "btn btn-sr" ng-style="{background: (inputs.dfilterdisable) ? '#0062cc' : '', color: (inputs.dfilterdisable) ? 'white' : ''}" ng-click="dDisableButton()">Disable</button></td>
                 </tr>
 
                 <tr ng-show="test.showMenu === 'Hide Menu'"><td><br></td></tr>
@@ -362,6 +383,7 @@
                 </tr>
 
             </table>
+
     </form>
 
 
@@ -397,30 +419,40 @@
             </tr>
         </table>
         <br>
-        <table class='items' datatable="ng" dt-options="dtOptions">
+        <table class='table patient-list' datatable="ng" dt-options="dtOptions">
             <thead>
-            <tr>
-                <th>Patient Information (Name, ID, RAMQ)</th>
-                <th ng-class="(opalUsed) ? 'textStyleRed': ''">Opal/SMS</th>
-                <th ng-class="(clinicsUsed)? 'textStyleRed': ''" >Clinic/Treatment</th>
+            <tr style="background-color: #d9edf7; font-size: 15px">
+
+                <th style="text-align: center;">Patient Information (Name, ID)</th>
+                <!--th style="text-align: center;">Patient Information (Name, ID, RAMQ)</th-->
+
+                <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">Opal/SMS</th>
+                <th ng-class="(clinicsUsed)? 'textStyleRed': ''" style="text-align: center;">Clinic/Treatment</th>
                 <th>Code</th>
-                <th ng-class="(codeUsed) ? 'textStyleRed': ''">App. Code</th>
+                <th ng-class="(codeUsed) ? 'textStyleRed': ''" style="text-align: center;">App. Code</th>
                 <!--th ng-if="!sameDate">Scheduled Date</--th-->
-                <th>Scheduled Time</th>
-                <th>Checkin Time</th>
-                <th>Status</th>
-                <th>Medivisit Status</th>
-                <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''">Diagnosis</th>
-                <th>Call Patient</th>
-                <th>Questionnaires</th>
+                <th style="text-align: center;">Scheduled Time</th>
+                <th style="text-align: center;">Checkin Time</th>
+                <th style="text-align: center;">Status</th>
+                <th style="text-align: center;">Medivisit Status</th>
+                <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''" style="text-align: center;">Diagnosis</th>
+                <th style="text-align: center;">Call Patient</th>
+                <th style="text-align: center;">Questionnaires</th>
 
             </tr>
             </thead>
-            <tbody>
+            <tbody >
             <tr ng-repeat="appoint in tableData">
-                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</div>
-                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td>
-                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+
+                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}},{{appoint.ssn.num}}</div>
+                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td-->
+                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}</div>
+                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************</div></td>
+
+                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</div>
+                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></--td-->
+
+                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>

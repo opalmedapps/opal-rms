@@ -286,7 +286,7 @@ class Appointment
             $emails = Config::getConfigs("alert")["EMAIL"] ?? [];
 
             $recepient = implode(",",$emails);
-            $subject = "ORMS - New appointment type Detected";
+            $subject = "ORMS - New appointment type detected";
             $message = "New appointment type detected: {$this->resourceDesc} ({$this->resource}) with {$this->appointmentCode} in the {$this->specialityGroup} speciality group from system {$this->system}.";
             $headers = [
                 "From" => "opal@muhc.mcgill.ca"

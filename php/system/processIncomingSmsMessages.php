@@ -154,7 +154,6 @@ function getAppointmentList(string $pSer): array
             MediVisitAppointmentList MV
             INNER JOIN SmsAppointment SA ON SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                 AND SA.AppointmentCodeId = MV.AppointmentCodeId
-                AND SA.Speciality = ClinicResources.Speciality
                 AND SA.Active = 1
                 AND SA.Type IS NOT NULL
         WHERE

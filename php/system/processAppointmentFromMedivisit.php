@@ -129,6 +129,15 @@ function validateAppointmentInfo(array $appInfo): array
     #check if the action in Medivisit is a recognized one
     if(!preg_match("/^(S12|S14|S15|S17)$/",$appInfo["Action"])) throw new Exception("Unknown action");
 
+    #make sure we have a complete datetime, either for a visit or an appointment
+    if(
+        ($appInfo["AppointDate"] === NULL || $appInfo["AppointTime"] === NULL)
+        &&
+        ($appInfo["VisitDate"] === NULL || $appInfo["VisitTime"] === NULL)
+    ) {
+        throw new Exception("Incomplete datetime");
+    }
+
     #make sure dates and times are in the right format
     $appInfo["AppointDate"] = (new DateTime($appInfo["AppointDate"]))->format("Y-m-d");
     $appInfo["VisitDate"] = (new DateTime($appInfo["VisitDate"]))->format("Y-m-d");

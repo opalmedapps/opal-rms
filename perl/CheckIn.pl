@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------
 # PERL-CGI- script to check a patient in
 #
-# Input parameters: 	various
+# Input parameters: various
 #------------------------------------------------------------------------
 # Declarations/initialisations
 #------------------------------------------------------------------------
@@ -36,10 +36,10 @@ use Data::Dumper;
 #------------------------------------------------------------------------
 my $systemPaths = LoadConfigs::GetConfigs("path");
 
-my $checkin_script 	= "$systemPaths->{'BASE_URL'}/perl/CheckIn.pl";
-my $images 		= $systemPaths->{'IMAGE_URL'};
-my $SMS_url		= "$systemPaths->{'BASE_PATH'}/php/script/sendSMSCheckedIn.php";
-my $logfile_location 	= "$systemPaths->{'LOG_PATH'}/kiosk";
+my $checkin_script = "$systemPaths->{'BASE_URL'}/perl/CheckIn.pl";
+my $images = $systemPaths->{'IMAGE_URL'};
+my $SMS_url = "$systemPaths->{'BASE_PATH'}/php/script/sendSMSCheckedIn.php";
+my $logfile_location = "$systemPaths->{'LOG_PATH'}/kiosk";
 my $logging = 1; # Log data to a text file
 my $adtConnected = 0;
 my $PhotoStatus;
@@ -69,13 +69,13 @@ print "Content-type: text/html\n\n";
 # PatientSerNum is the MySQL PatientSerNum (standin for Medivisit) of the patient that is being checked in
 #------------------------------------------------------------------------
 my $verbose = 0;
-my $verbose 		= param("verbose");
-my $location		= param("location");
-my $PatientId		= param("PatientId");
-my $PatientSer		= param("PatientSer");
-my $PatientSerNum	= param("PatientSerNum");
-my $PhotoStatus		= param("PhotoStatus");
-my $PilotStatus		= param("PilotStatus");
+my $verbose         = param("verbose");
+my $location        = param("location");
+my $PatientId       = param("PatientId");
+my $PatientSer      = param("PatientSer");
+my $PatientSerNum   = param("PatientSerNum");
+my $PhotoStatus     = param("PhotoStatus");
+my $PilotStatus     = param("PilotStatus");
 
 my $verboselink;
 
@@ -195,27 +195,27 @@ print "Today is: $DayOfWeek_Text ($MorningAfternoon) - now: $now<br>" if $verbos
 #------------------------------------------------------------------------
 # Colours for the webpage
 #------------------------------------------------------------------------
-my $red 	= "rgb(255,	0,	0)";
-my $green 	= "rgb(34,	139,	34)";
-my $blue	= "rgb(0,	0,	255)";
-my $black 	= "rgb(0,	0,	0)";
-my $white 	= "rgb(255,	255,	255)";
-my $gray 	= "rgb(128,	128, 	128)";
-my $lightgray 	= "rgb(224,	224,	224)";
-my $paleblue 	= "rgb(173,	216,	230)";
-my $palered	= "rgb(240,	128,	128)";
-my $palegreen 	= "rgb(152,	251,	152)";
-my $darkgreen 	= "rgb(51,	153,	51)";
-my $mghred	= "rgb(162,	53,	96)";
-#my $darkgreen 	= "rgb(0,	102, 	0)";
+my $red         = "rgb(255,0,0)";
+my $green       = "rgb(34,139,34)";
+my $blue        = "rgb(0,0,255)";
+my $black       = "rgb(0,0,0)";
+my $white       = "rgb(255,255,255)";
+my $gray        = "rgb(128,128, 128)";
+my $lightgray   = "rgb(224,224,224)";
+my $paleblue    = "rgb(173,216,230)";
+my $palered     = "rgb(240,128,128)";
+my $palegreen   = "rgb(152,251,152)";
+my $darkgreen   = "rgb(51,153,51)";
+my $mghred      = "rgb(162,53,96)";
+#my $darkgreen   = "rgb(0,102, 0)";
 
 
 # Variable for arrows
 my $arrows = 1;
 
 # Message goes at the top
-my $message_txtcolor 		= $black;
-my $message_bgcolor 		= $darkgreen;
+my $message_txtcolor    = $black;
+my $message_bgcolor     = $darkgreen;
 
 
 # Ortho kiosks: The kiosk outside is Ortho_1 and inside is Ortho_2
@@ -230,31 +230,31 @@ if($location =~ m/Reception/i)
 }
 
 
-my $message_txtcolor 		= $white;
+my $message_txtcolor = $white;
 
-my $MainMessage_fr 			= "Enregistrement";
-my $MainMessage_en 			= "Check in";
+my $MainMessage_fr = "Enregistrement";
+my $MainMessage_en = "Check in";
 
 # Appointment details go below the message
-my $subMessage_bgcolor 	= $white;
-my $subMessage_txtcolor 	= $black;
-#my $subMessage_fr 		= "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Veuillez tenir votre carte &agrave environ 10 cm du lecteur.</font></b></span></center>";
-# my $subMessage_fr 		= "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> </center>";
+my $subMessage_bgcolor = $white;
+my $subMessage_txtcolor = $black;
+#my $subMessage_fr = "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Veuillez tenir votre carte &agrave environ 10 cm du lecteur.</font></b></span></center>";
+# my $subMessage_fr = "<center>Veuillez scanner votre carte soleil pour vous enregistrer.<br> </center>";
 my $subMessage_fr           = "<center>Veuillez entrer le numero de dossier medical du patient pour l'enregistrer <br></center>";
-#my $subMessage_en 		= "<center>Please scan your medicare card to check in.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Please hold card about 10 cm from scanner.</font></b></span></center>";
-# my $subMessage_en 		= "<center>Please scan your medicare card to check in.<br> </center>";
+#my $subMessage_en = "<center>Please scan your medicare card to check in.<br> <span style=\"background-color: #FFFFE0\"><b><font color='red'>Please hold card about 10 cm from scanner.</font></b></span></center>";
+# my $subMessage_en = "<center>Please scan your medicare card to check in.<br> </center>";
 my $subMessage_en       = "<center>Please enter the patient MRN to check in <br></center>";
 my $log_message;
 
 # Appointment details go below the message
-my $middleMessage_bgcolor 	= $white;
-my $middleMessage_txtcolor 	= $black;
+my $middleMessage_bgcolor   = $white;
+my $middleMessage_txtcolor  = $black;
 
 # Instructions are found to the left of the photo
-my $middleMessage_bgcolor 	= $white;
-my $middleMessage_txtcolor 	= $black;
-my $middleMessage_fr 		= "";
-my $middleMessage_en 		= "";
+my $middleMessage_bgcolor   = $white;
+my $middleMessage_txtcolor  = $black;
+my $middleMessage_fr        = "";
+my $middleMessage_en        = "";
 
 
 # Use a refresh to continuously refresh the page - this ensures that Google Chrome does not crash the page thinking it
@@ -267,7 +267,7 @@ $shortline = "" if $location =~ m/Reception/i;
 
 my $middleMessage_image = "<img border=\"$flashBorder\" width=\"614\" src=\"$images/animation.gif\">";
 $middleMessage_image = "<img border=\"$flashBorder\" width=\"214\" src=\"$images/animation.gif\">" if $location =~ m/Reception/i;
-$log_message 		= "default message, $location, $subMessage_en";
+$log_message = "default message, $location, $subMessage_en";
 
 # Waiting Room details
 my $DestinationWaitingRoom;
@@ -275,15 +275,15 @@ my $DestinationWaitingRoom;
 #------------------------------------------------------------------------
 # Set the location - can be done using location barcodes (DRC_1, DS1_1, DRC_2)
 #------------------------------------------------------------------------
-my $DRC_1 	= "<img src=\"$images/DRC_1_Alone.gif\">";
-my $DRC_2 	= "<img src=\"$images/DRC_2_Alone.gif\">";
-my $DRC_3 	= "<img src=\"$images/DRC_3_Alone.gif\">";
+my $DRC_1 = "<img src=\"$images/DRC_1_Alone.gif\">";
+my $DRC_2 = "<img src=\"$images/DRC_2_Alone.gif\">";
+my $DRC_3 = "<img src=\"$images/DRC_3_Alone.gif\">";
 
-my $DS1_1 	= "<img src=\"$images/DS1_1_Alone.gif\">";
-my $DS1_2 	= "<img src=\"$images/DS1_2_Alone.gif\">";
+my $DS1_1 = "<img src=\"$images/DS1_1_Alone.gif\">";
+my $DS1_2 = "<img src=\"$images/DS1_2_Alone.gif\">";
 
-my $Ortho_1 	= "<img src=\"$images/Ortho_1_Alone.gif\">";
-my $Ortho_2 	= "<img src=\"$images/Ortho_2_Alone.gif\">";
+my $Ortho_1 = "<img src=\"$images/Ortho_1_Alone.gif\">";
+my $Ortho_2 = "<img src=\"$images/Ortho_2_Alone.gif\">";
 
 my $location_image;
 $location_image = $DRC_1 if $location eq "DRC_1";
@@ -360,56 +360,56 @@ if( $PatientId && (!$PatientSer && !$PatientSerNum) )
   if($PatientSer eq "NULL" && $PatientSerNum eq "NULL")
   {
     # Tell the patient to go to the reception since he/she has not been located
-    #$message_bgcolor 		= $darkgreen;
-    $message_txtcolor 		= $white;
-    $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-    $MainMessage_en 		= "Please go to the reception";
-    $subMessage_fr 		= "Impossible de vous enregistrer en ce moment";
-    $subMessage_en 		= "Unable to check you in at this time";
-    $middleMessage_fr 		= "<b></b>";
-    $middleMessage_en 		= "<b></b>";
-    $arrows 			= 1;
-    $DestinationWaitingRoom	= "reception";
-    #$middleMessage_image 	= "<img src=\"$images/reception_alone.png\">";
-    $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-    $middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+    #$message_bgcolor   = $darkgreen;
+    $message_txtcolor   = $white;
+    $MainMessage_fr     = "V&eacute;rifier &agrave la r&eacute;ception";
+    $MainMessage_en     = "Please go to the reception";
+    $subMessage_fr      = "Impossible de vous enregistrer en ce moment";
+    $subMessage_en      = "Unable to check you in at this time";
+    $middleMessage_fr   = "<b></b>";
+    $middleMessage_en   = "<b></b>";
+    $arrows             = 1;
+    $DestinationWaitingRoom = "reception";
+    #$middleMessage_image   = "<img src=\"$images/reception_alone.png\">";
+    $middleMessage_image    = "<img src=\"$images/Reception_generic.png\">";
+    $middleMessage_image    = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
     # reload to the default page after 20 seconds
     $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-    $log_message 		= "$PatientId, $location, $subMessage_en";
+    $log_message = "$PatientId, $location, $subMessage_en";
   }
   # Expired RAMQ - send to admitting
   elsif($RAMQExpired eq 1)
   {
      # Tell the patient to go to the reception since he/she has not been located
-     #$message_bgcolor 		= $darkgreen;
-     $message_txtcolor 		= $white;
-     $MainMessage_fr 		= "Carte d'h&ocirc;pital expir&eacute;e";
-     $MainMessage_en 		= "Hospital Card Expired";
+     #$message_bgcolor  = $darkgreen;
+     $message_txtcolor  = $white;
+     $MainMessage_fr    = "Carte d'h&ocirc;pital expir&eacute;e";
+     $MainMessage_en    = "Hospital Card Expired";
 
-     $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">Veuillez vous rendre au bureau des admissions &agrave; <b>C RC.0046</b> pour renouveler votre carte d'h&ocirc;pital.</span><br>";
-     $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">Veuillez vous rendre au bureau des admissions &agrave; <b>L6-130</b> pour renouveler votre carte d'h&ocirc;pital.</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
-     #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">V&eacute;rifier &agrave la r&eacute;ception</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     $subMessage_fr = "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">Veuillez vous rendre au bureau des admissions &agrave; <b>C RC.0046</b> pour renouveler votre carte d'h&ocirc;pital.</span><br>";
+     $subMessage_fr = "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">Veuillez vous rendre au bureau des admissions &agrave; <b>L6-130</b> pour renouveler votre carte d'h&ocirc;pital.</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     #$subMessage_fr = "<span style=\"background-color: #ff0000\">Impossible de vous enregistrer en ce moment.</span> <span style=\"background-color: #ffff00\">V&eacute;rifier &agrave la r&eacute;ception</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
-     $subMessage_en 		= "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to Admitting at <b>C RC.0046</b> to renew your hospital card.</span><br>";
-     $subMessage_en 		= "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to Admitting at <b>L6-130</b> to renew your hospital card.</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
-     #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to the reception</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     $subMessage_en = "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to Admitting at <b>C RC.0046</b> to renew your hospital card.</span><br>";
+     $subMessage_en = "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to Admitting at <b>L6-130</b> to renew your hospital card.</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     #$subMessage_en = "<span style=\"background-color: #ff0000\">Unable to check you in at this time.</span> <span style=\"background-color: #ffff00\">Please go to the reception</span><br>" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
-     $middleMessage_fr 		= "<b></b>";
-     $middleMessage_en 		= "<b></b>";
-     $arrows 			= 1;
-     $DestinationWaitingRoom	= "MGH_Admissions";
-     #$middleMessage_image 	= "<img src=\"$images/reception_alone.png\">";
-     $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-     $middleMessage_image 	= "<img width=\"614\" src=\"$images/RV_Admissions.png\">";
-     $middleMessage_image 	= "<img width=\"614\" src=\"$images/MGH_Admissions.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
-     #$middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     $middleMessage_fr  = "<b></b>";
+     $middleMessage_en  = "<b></b>";
+     $arrows            = 1;
+     $DestinationWaitingRoom = "MGH_Admissions";
+     #$middleMessage_image  = "<img src=\"$images/reception_alone.png\">";
+     $middleMessage_image    = "<img src=\"$images/Reception_generic.png\">";
+     $middleMessage_image    = "<img width=\"614\" src=\"$images/RV_Admissions.png\">";
+     $middleMessage_image    = "<img width=\"614\" src=\"$images/MGH_Admissions.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+     #$middleMessage_image = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
      # reload to the default page after 20 seconds
      $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-     $log_message 		= "$PatientId, $location, $subMessage_en";
+     $log_message = "$PatientId, $location, $subMessage_en";
   }
   else # We have a PatientSer, so a patient has been found
   {
@@ -422,10 +422,10 @@ if( $PatientId && (!$PatientSer && !$PatientSerNum) )
     $subMessage_fr = "R&eacute;cuperation de donn&eacute;es <span style=\"background-color: #ffff00\">$PatientDisplayName<span>";
     $subMessage_en = "Retrieving information for <span style=\"background-color: #ffff00\">$PatientDisplayName</span>";
     $middleMessage_image = "<img src=\"$images/Measles.png\"><p>"; #waiting.gif
-    $arrows 			= 0;
+    $arrows = 0;
     $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"$ReloadMid\; URL=$checkin_script?PatientId=$PatientId&PatientSer=$PatientSer&PatientSerNum=$PatientSerNum&location=$location&verbose=$verbose\">";
 
-    $log_message 		= "$PatientId, $location, $subMessage_en";
+    $log_message = "$PatientId, $location, $subMessage_en";
   }
 
   # print the screen
@@ -457,8 +457,8 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 
     # if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
     # {
-	# $message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
-	# $message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
+    # $message_EN = "MGH - Orthopedics: You are checked in for your appointment(s).";
+    # $message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
     # }
 
     my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
@@ -484,8 +484,8 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 
     # if($location eq "Ortho_1" || $location eq "Ortho_2"|| $location eq "ReceptionOrtho")
     # {
-	# $message_EN = "MGH - Orthopedics: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
-	# $message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
+    # $message_EN = "MGH - Orthopedics: Unable to check-in for one or more of your appointment(s). Please go to a reception.";
+    # $message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
     # }
 
     my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
@@ -514,16 +514,16 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
   # if checked in fine, report success by saying "Checked In" and give time of appointment
   if($CheckinStatus eq "OK" && $ScheduledStartTime_en)
   {
-    #$message_bgcolor 		= $green;
-    $message_txtcolor 		= $white;
+    #$message_bgcolor         = $green;
+    $message_txtcolor         = $white;
 
     # Check the patient destination and give appropriate directions - generally, tell the patient to go to a waiting room
     print "TreatmentRoom: $TreatmentRoom" if $verbose;
 #    if ($TreatmentRoom =~ m/TB_/i || $TreatmentRoom =~ m/STX_/i)
 #    {
-#      $subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur l'&eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br/><b>Rendez-vous :</b> $Appt_type_fr ($ScheduledStartTime_fr)";
-#      $subMessage_en 		= "Please have a seat in the waiting room. Your name will appear on the screen when you are called.<br/><b>Appointment:</b> $Appt_type_en ($ScheduledStartTime_en)";
-#      $log_message 		= "$PatientId, $location, $subMessage_en";
+#      $subMessage_fr         = "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur l'&eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br/><b>Rendez-vous :</b> $Appt_type_fr ($ScheduledStartTime_fr)";
+#      $subMessage_en         = "Please have a seat in the waiting room. Your name will appear on the screen when you are called.<br/><b>Appointment:</b> $Appt_type_en ($ScheduledStartTime_en)";
+#      $log_message         = "$PatientId, $location, $subMessage_en";
 #    }
     my $Aptinfo_en;
     my $Aptinfo_fr;
@@ -535,201 +535,201 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     # destination is upstairs but checkin location is downstairs
     if($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DRC" && ($location eq "DS1_1" || $location eq "DS1_2"))
     {
-      $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-      $MainMessage_en 		= "Please go to the reception";
-    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
-        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
-    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
+      $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+      $MainMessage_en         = "Please go to the reception";
+    #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
+        $subMessage_fr         = "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en         = "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
         $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
-      #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
-      #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+      #$subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
+      #$subMessage_en         = "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
+      $log_message         = "$PatientId, $location, $subMessage_en";
 
     }
     # destination is TestCentre and checkin location is upstairs
     # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
     # {
-    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-    #   $MainMessage_en 		= "You are Checked In";
-    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre pr&eacute;l&egrave;vement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr Autrement, veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.";
-    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please check in at the Test Centre Reception</b>.</span> $Aptinfo_en Otherwise, please have a seat in the waiting room. Your name will appear on the TV screens when you are called.";
-    #   #$subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr";
-    #   #$subMessage_en 		= "<span style=\"background-color: #ff0000\">Please checkin at the Test Centre Reception</b>.</span> $Aptinfo_en";
-    #   $log_message 		= "$PatientId, $location, $subMessage_en";
+    #   $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en         = "You are Checked In";
+    #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre pr&eacute;l&egrave;vement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr Autrement, veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.";
+    #   $subMessage_en         = "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please check in at the Test Centre Reception</b>.</span> $Aptinfo_en Otherwise, please have a seat in the waiting room. Your name will appear on the TV screens when you are called.";
+    #   #$subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement.</span> $Aptinfo_fr";
+    #   #$subMessage_en         = "<span style=\"background-color: #ff0000\">Please checkin at the Test Centre Reception</b>.</span> $Aptinfo_en";
+    #   $log_message         = "$PatientId, $location, $subMessage_en";
 
     # }
     # destination is TestCentre and checkin location is downstairs
     # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "TestCentre" && ($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3"))
     # {
-    #   $MainMessage_fr 		= "Centre de pr&eacute;l&egrave;vement";
-    #   $MainMessage_en 		= "Test Centre";
-    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre prélèvement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
-    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please checkin at the Test Centre Reception</b> <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
-    #   $log_message 		= "$PatientId, $location, $subMessage_en";
+    #   $MainMessage_fr         = "Centre de pr&eacute;l&egrave;vement";
+    #   $MainMessage_en         = "Test Centre";
+    #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Si vous n'avez pas encore fait votre prélèvement sanguin, veuillez enregistr&eacute;r &agrave; la reception du Centre de pr&eacute;l&egrave;vement <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
+    #   $subMessage_en         = "<span style=\"background-color: #ff0000\">If you did not already have your blood test, please checkin at the Test Centre Reception</b> <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
+    #   $log_message         = "$PatientId, $location, $subMessage_en";
 
     # }
     # destination is downstairs but checkin location is upstairs
     elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DS1" && ($location eq "DRC_1" || $location eq "DRC_2" || $location eq "DRC_3"))
     {
-    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-    #   $MainMessage_en 		= "You are Checked In";
-        $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-        $MainMessage_en 		= "You are Checked In";
-    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en bas au sous-sol</b>.</span> $Aptinfo_fr";
-        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
-    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>downstairs on level S1</b>.</span> $Aptinfo_en";
+    #   $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en         = "You are Checked In";
+        $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+        $MainMessage_en         = "You are Checked In";
+    #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en bas au sous-sol</b>.</span> $Aptinfo_fr";
+        $subMessage_fr         = "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en         = "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>downstairs on level S1</b>.</span> $Aptinfo_en";
         $subMessage_en      = "<span style=\"background-color: yellow\">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+      $log_message         = "$PatientId, $location, $subMessage_en";
 
     }
     # destination is OrthoWaitRoom and checkin location is Ortho_1 or Ortho_2
     # elsif($PhotoStatus == 1 && $DestinationWaitingRoom  eq "OrthoWaitRoom" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
     # {
-    #   $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-    #   $MainMessage_en 		= "You are Checked In";
-    #   #$MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-    #   #$MainMessage_en 		= "Please go to the reception";
-    #   #$subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. <span style=\"background-color: #ffff00\">Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.</span><br> $Aptinfo_fr";
-    #   #$subMessage_en 		= "Please have a seat in the waiting room. <span style=\"background-color: #ffff00\">Your name will appear on the TV screens when you are called.</span><br> $Aptinfo_en";
-    #   $subMessage_fr 		= "Veuillez vous pr&eacute;senter &agrave la <span style=\"background-color: #ffff00\">r&eacute;ception</span> pour compl&eacute;ter votre enregistrement.<br> $Aptinfo_fr";
-    #   $subMessage_en 		= "Please go to the <span style=\"background-color: #ffff00\">reception</span> to complete the check-in process.<br> $Aptinfo_en";
-    #   $log_message 		= "$PatientId, $location, $subMessage_en";
+    #   $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+    #   $MainMessage_en         = "You are Checked In";
+    #   #$MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+    #   #$MainMessage_en         = "Please go to the reception";
+    #   #$subMessage_fr         = "Veuillez prendre place dans la salle d'attente. <span style=\"background-color: #ffff00\">Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.</span><br> $Aptinfo_fr";
+    #   #$subMessage_en         = "Please have a seat in the waiting room. <span style=\"background-color: #ffff00\">Your name will appear on the TV screens when you are called.</span><br> $Aptinfo_en";
+    #   $subMessage_fr         = "Veuillez vous pr&eacute;senter &agrave la <span style=\"background-color: #ffff00\">r&eacute;ception</span> pour compl&eacute;ter votre enregistrement.<br> $Aptinfo_fr";
+    #   $subMessage_en         = "Please go to the <span style=\"background-color: #ffff00\">reception</span> to complete the check-in process.<br> $Aptinfo_en";
+    #   $log_message         = "$PatientId, $location, $subMessage_en";
 
     # }
     # destination is RadiologyMGH and checkin location is Ortho_1 or Ortho_2
     # elsif($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "RadiologyMGH" && ($location eq "Ortho_1" || $location eq "Ortho_2"))
     # {
-    #   $MainMessage_fr 		= "Radiographie";
-    #   $MainMessage_en 		= "Go for X-ray";
-    #   $subMessage_fr 		= "<span style=\"background-color: #ff0000\">Veuillez-vous enregistrer au C5-163 pour la radiographie.</span> &Agrave votre retour, veuillez <u>repasser votre carte</u>. ";
-    #   $subMessage_en 		= "<span style=\"background-color: #ff0000\">Please register at C5-163 for an X-ray.</span> Afterwards, please come back here and <u>check-in again</u>. ";
-    #   $log_message 		= "$PatientId, $location, $subMessage_en";
+    #   $MainMessage_fr         = "Radiographie";
+    #   $MainMessage_en         = "Go for X-ray";
+    #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez-vous enregistrer au C5-163 pour la radiographie.</span> &Agrave votre retour, veuillez <u>repasser votre carte</u>. ";
+    #   $subMessage_en         = "<span style=\"background-color: #ff0000\">Please register at C5-163 for an X-ray.</span> Afterwards, please come back here and <u>check-in again</u>. ";
+    #   $log_message         = "$PatientId, $location, $subMessage_en";
 
     # }
     elsif($PilotStatus == 1 && $PhotoStatus == 1) # destination is same as checkin location
     {
-      $MainMessage_fr 		= "Vous &ecirc;tes enregistr&eacute;";
-      $MainMessage_en 		= "You are Checked In";
-    #   $subMessage_fr 		= "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br> $Aptinfo_fr";
-        $subMessage_fr 		= "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
-    #   $subMessage_en 		= "Please have a seat in the waiting room. Your name will appear on the TV screens when you are called.<br> $Aptinfo_en";
+      $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+      $MainMessage_en         = "You are Checked In";
+    #   $subMessage_fr         = "Veuillez prendre place dans la salle d'attente. Votre nom appara&icirc;tra sur les &eacute;crans lorsqu'il sera temps d'&ecirc;tre vu.<br> $Aptinfo_fr";
+        $subMessage_fr         = "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
+    #   $subMessage_en         = "Please have a seat in the waiting room. Your name will appear on the TV screens when you are called.<br> $Aptinfo_en";
         $subMessage_en      = "<span style=\"background-color: yellow\">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+      $log_message         = "$PatientId, $location, $subMessage_en";
 
       # Estimated waiting time option
-      #$subMessage_fr 		= "<b>Rendez-vous :</b> $Appt_type_fr<br><b>Horaire pr&eacutevu :</b> $ScheduledStartTime_fr <b>Horaire r&eacutevis&eacute :</b> $ScheduledStartTime_en<br><b>Temps d'attente estim&eacute :</b> <span style=\"background-color: #ffff00\">20 mins &agrave partir de maintenant</span><br><b>Message :</b> <span style=\"background-color: #FF6666\">bla bla bla</span>";
+      #$subMessage_fr         = "<b>Rendez-vous :</b> $Appt_type_fr<br><b>Horaire pr&eacutevu :</b> $ScheduledStartTime_fr <b>Horaire r&eacutevis&eacute :</b> $ScheduledStartTime_en<br><b>Temps d'attente estim&eacute :</b> <span style=\"background-color: #ffff00\">20 mins &agrave partir de maintenant</span><br><b>Message :</b> <span style=\"background-color: #FF6666\">bla bla bla</span>";
 
-      #$subMessage_en 		= "<b>Appointment:</b> $Appt_type_en<br><b>Scheduled:</b> $ScheduledStartTime_en<br><b>Expected:</b> <span style=\"background-color: #ffff00\">$ScheduledStartTime_en</span><br><b>Estimated wait:</b> <span style=\"background-color: #ffff00\">20 mins from now</span><br><b>Message :</b><span style=\"background-color: #FF6666\"> bla bla bla</span>";
+      #$subMessage_en         = "<b>Appointment:</b> $Appt_type_en<br><b>Scheduled:</b> $ScheduledStartTime_en<br><b>Expected:</b> <span style=\"background-color: #ffff00\">$ScheduledStartTime_en</span><br><b>Estimated wait:</b> <span style=\"background-color: #ffff00\">20 mins from now</span><br><b>Message :</b><span style=\"background-color: #FF6666\"> bla bla bla</span>";
     }
     elsif($PilotStatus == 1 && $PhotoStatus == 0) # No photo in Aria (Note, patient has successfully checked in)
     {
       # Tell the patient to go to the reception for photo
-      #$message_bgcolor 		= $darkgreen;
-      $message_txtcolor 	= $white;
-      $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-      $MainMessage_en 		= "Please go to the reception";
-      $subMessage_fr 		= "Veuillez vous pr&eacute;senter &agrave la r&eacute;ception <span style=\"background-color: #FFFFE0\"><b><font color='red'><b>pour que l'on vous prenne en photo.</font></b></span>";
-      $subMessage_en 		= "Please go to the reception <span style=\"background-color: #FFFFE0\"><b><font color='red'>to have your photo taken.</font></b></span><b></b>";
-      $middleMessage_fr 	= "<b></b>";
-      $middleMessage_en 	= "<b></b>";
-      $arrows 			= 1;
-      $DestinationWaitingRoom	= "reception";
-      #$middleMessage_image 	= "<img src=\"$images/reception_alone.png\">";
-      $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-      $middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+      #$message_bgcolor         = $darkgreen;
+      $message_txtcolor     = $white;
+      $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+      $MainMessage_en         = "Please go to the reception";
+      $subMessage_fr         = "Veuillez vous pr&eacute;senter &agrave la r&eacute;ception <span style=\"background-color: #FFFFE0\"><b><font color='red'><b>pour que l'on vous prenne en photo.</font></b></span>";
+      $subMessage_en         = "Please go to the reception <span style=\"background-color: #FFFFE0\"><b><font color='red'>to have your photo taken.</font></b></span><b></b>";
+      $middleMessage_fr     = "<b></b>";
+      $middleMessage_en     = "<b></b>";
+      $arrows             = 1;
+      $DestinationWaitingRoom    = "reception";
+      #$middleMessage_image     = "<img src=\"$images/reception_alone.png\">";
+      $middleMessage_image     = "<img src=\"$images/Reception_generic.png\">";
+      $middleMessage_image     = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
       # reload to the default page after 20 seconds
       $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+      $log_message         = "$PatientId, $location, $subMessage_en";
     }
     else # Not in the medivisit pilot, although successfully checked in
     {
       # Tell the patient to go to the reception
-      #$message_bgcolor 		= $darkgreen;
-      $message_txtcolor 	= $white;
-      $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-      $MainMessage_en 		= "Please go to the reception";
-      $subMessage_fr 		= "Veuillez vous pr&eacute;senter &agrave la r&eacute;ception";
-      $subMessage_en 		= "Please go to the reception";
-      $middleMessage_fr 	= "<b></b>";
-      $middleMessage_en 	= "<b></b>";
-      $arrows 			= 1;
-      $DestinationWaitingRoom	= "reception";
-      #$middleMessage_image 	= "<img src=\"$images/reception_alone.png\">";
-      $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-      $middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+      #$message_bgcolor         = $darkgreen;
+      $message_txtcolor     = $white;
+      $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+      $MainMessage_en         = "Please go to the reception";
+      $subMessage_fr         = "Veuillez vous pr&eacute;senter &agrave la r&eacute;ception";
+      $subMessage_en         = "Please go to the reception";
+      $middleMessage_fr     = "<b></b>";
+      $middleMessage_en     = "<b></b>";
+      $arrows             = 1;
+      $DestinationWaitingRoom    = "reception";
+      #$middleMessage_image     = "<img src=\"$images/reception_alone.png\">";
+      $middleMessage_image     = "<img src=\"$images/Reception_generic.png\">";
+      $middleMessage_image     = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
       # reload to the default page after 20 seconds
       $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-      $log_message 		= "$PatientId, $location, $subMessage_en";
+      $log_message         = "$PatientId, $location, $subMessage_en";
     }
-    $arrows 			= 1;
+    $arrows             = 1;
 
     print "Waiting room symbol: $DestinationWaitingRoom<br>" if $verbose;
 
     if($DestinationWaitingRoom eq "DS1")
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      $middleMessage_image 		= "<img src=\"$images/salle_DS1.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      $middleMessage_image         = "<img src=\"$images/salle_DS1.png\">";
     }
     if($DestinationWaitingRoom eq "DRC")
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      #$middleMessage_image 		= "<img src=\"$images/salle_DRC.png\">";
-      $middleMessage_image 		= "<img width=\"700\" src=\"$images/DRC_medivisit.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      #$middleMessage_image         = "<img src=\"$images/salle_DRC.png\">";
+      $middleMessage_image         = "<img width=\"700\" src=\"$images/DRC_medivisit.png\">";
     }
 
     if($DestinationWaitingRoom =~ m/TB_/i || $DestinationWaitingRoom =~ m/STX_/i)
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      $middleMessage_image 		= "<img src=\"$images/$DestinationWaitingRoom.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      $middleMessage_image         = "<img src=\"$images/$DestinationWaitingRoom.png\">";
     }
 
     if($DestinationWaitingRoom eq "TestCentre")
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      $middleMessage_image 		= "<img src=\"$images/$DestinationWaitingRoom.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      $middleMessage_image         = "<img src=\"$images/$DestinationWaitingRoom.png\">";
     }
 
     if($DestinationWaitingRoom eq "RadiologyMGH")
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      $middleMessage_image 		= "<img width=\"614\" src=\"$images/$DestinationWaitingRoom.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      $middleMessage_image         = "<img width=\"614\" src=\"$images/$DestinationWaitingRoom.png\">";
     }
     if($DestinationWaitingRoom eq "OrthoWaitRoom")
     {
-      $middleMessage_fr 		= "";
-      $middleMessage_en 		= "";
-      $middleMessage_image 		= "<img width=\"614\" src=\"$images/$DestinationWaitingRoom.png\">";
+      $middleMessage_fr         = "";
+      $middleMessage_en         = "";
+      $middleMessage_image         = "<img width=\"614\" src=\"$images/$DestinationWaitingRoom.png\">";
     }
 
   }
   elsif( $CheckinStatus ne "OK" || !$Appt_type_en) # No appointment found - send to the reception
   {
-    #$message_bgcolor 		= $darkgreen;
-    $message_txtcolor 		= $white;
-    $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-    $MainMessage_en 		= "Please go to the reception";
-    $subMessage_fr 		= "Impossible de vous enregistrer en ce moment";
-    $subMessage_en 		= "Unable to check you in at this time";
-    $middleMessage_fr 		= "<b></b>";
-    $middleMessage_en 		= "<b></b>";
-    $arrows 			= 1;
-    $DestinationWaitingRoom	= "reception";
-    $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-    $middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+    #$message_bgcolor         = $darkgreen;
+    $message_txtcolor         = $white;
+    $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+    $MainMessage_en         = "Please go to the reception";
+    $subMessage_fr         = "Impossible de vous enregistrer en ce moment";
+    $subMessage_en         = "Unable to check you in at this time";
+    $middleMessage_fr         = "<b></b>";
+    $middleMessage_en         = "<b></b>";
+    $arrows             = 1;
+    $DestinationWaitingRoom    = "reception";
+    $middleMessage_image     = "<img src=\"$images/Reception_generic.png\">";
+    $middleMessage_image     = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
     # reload to the default page after 20 seconds
     $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-    $log_message 		= "$PatientId, $location, $subMessage_en";
+    $log_message         = "$PatientId, $location, $subMessage_en";
   }
 
   # set the resulting webpage to reload to the default page after 20 seconds so that the next patient can check in
@@ -755,23 +755,23 @@ close CHECKINLOG;
 #------------------------------------------------------------------------
 sub sendToReception
 {
-    #$message_bgcolor 		= $darkgreen;
-    $message_txtcolor 		= $white;
-    $MainMessage_fr 		= "V&eacute;rifier &agrave la r&eacute;ception";
-    $MainMessage_en 		= "Please go to the reception";
-    $subMessage_fr 		= "Impossible de vous enregistrer en ce moment";
-    $subMessage_en 		= "Unable to check you in at this time";
-    $middleMessage_fr 		= "<b></b>";
-    $middleMessage_en 		= "<b></b>";
-    $arrows 			= 1;
-    $DestinationWaitingRoom	= "reception";
-    $middleMessage_image 	= "<img src=\"$images/Reception_generic.png\">";
-    $middleMessage_image 	= "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
+    #$message_bgcolor         = $darkgreen;
+    $message_txtcolor         = $white;
+    $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
+    $MainMessage_en         = "Please go to the reception";
+    $subMessage_fr         = "Impossible de vous enregistrer en ce moment";
+    $subMessage_en         = "Unable to check you in at this time";
+    $middleMessage_fr         = "<b></b>";
+    $middleMessage_en         = "<b></b>";
+    $arrows             = 1;
+    $DestinationWaitingRoom    = "reception";
+    $middleMessage_image     = "<img src=\"$images/Reception_generic.png\">";
+    $middleMessage_image     = "<img width=\"614\" src=\"$images/Reception_Ortho.png\">" if ($location eq "Ortho_1" || $location eq "Ortho_2");
 
     # reload to the default page after 20 seconds
     $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"20\; URL=$checkin_script?location=$location&verbose=$verbose\">";
 
-    $log_message 		= "Problem detected - sending to reception - $PatientId, $location, $subMessage_en";
+    $log_message         = "Problem detected - sending to reception - $PatientId, $location, $subMessage_en";
 
 
     # set the resulting webpage to reload to the default page after 20 seconds so that the next patient can check in
@@ -801,16 +801,16 @@ sub printUI
   }
 
   # General stuff
-  my $whitespace 		= "<font color = \"white\">space</font>";
+  my $whitespace         = "<font color = \"white\">space</font>";
 
-  my $whitespace_verbose 	= "<a href=\"$checkin_script?verbose=$verboselink\"><font color = \"$verboseColor\">space</font></a>";
-  my $whitespace_DRC_1		= "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_1\"><font color = \"$verboseColor\">DRC_1</font></a>";
-  my $whitespace_DRC_2		= "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_2\"><font color = \"$verboseColor\">DRC_2</font></a>";
-  my $whitespace_DRC_3		= "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_3\"><font color = \"$verboseColor\">DRC_3</font></a>";
-  my $whitespace_DS1_1		= "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_1\"><font color = \"$verboseColor\">DS1_1</font></a>";
-  my $whitespace_DS1_2		= "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_2\"><font color = \"$verboseColor\">DS1_2</font></a>";
-  my $whitespace_Ortho_1		= "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_1\"><font color = \"$verboseColor\">Ortho_1</font></a>";
-  my $whitespace_Ortho_2		= "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_2\"><font color = \"$verboseColor\">Ortho_2</font></a>";
+  my $whitespace_verbose     = "<a href=\"$checkin_script?verbose=$verboselink\"><font color = \"$verboseColor\">space</font></a>";
+  my $whitespace_DRC_1        = "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_1\"><font color = \"$verboseColor\">DRC_1</font></a>";
+  my $whitespace_DRC_2        = "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_2\"><font color = \"$verboseColor\">DRC_2</font></a>";
+  my $whitespace_DRC_3        = "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_3\"><font color = \"$verboseColor\">DRC_3</font></a>";
+  my $whitespace_DS1_1        = "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_1\"><font color = \"$verboseColor\">DS1_1</font></a>";
+  my $whitespace_DS1_2        = "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_2\"><font color = \"$verboseColor\">DS1_2</font></a>";
+  my $whitespace_Ortho_1        = "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_1\"><font color = \"$verboseColor\">Ortho_1</font></a>";
+  my $whitespace_Ortho_2        = "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_2\"><font color = \"$verboseColor\">Ortho_2</font></a>";
   my $whitespace_ReceptionRC = "<a href=\"$checkin_script?verbose=$verboselink&location=ReceptionRC\"><font color = \"$verboseColor\">Reception - RC</font></a>";
   my $whitespace_ReceptionS1 = "<a href=\"$checkin_script?verbose=$verboselink&location=ReceptionS1\"><font color = \"$verboseColor\">Reception - S1</font></a>";
   my $whitespace_ReceptionOrtho = "<a href=\"$checkin_script?verbose=$verboselink&location=ReceptionOrtho\"><font color = \"$verboseColor\">Reception - Ortho</font></a>";
@@ -823,9 +823,9 @@ sub printUI
   <head>
     <title>Patient Check In</title>
   <script>
-  	window.onload = function() {
-  	document.getElementById(\"CheckinBox\").focus();
-	};
+      window.onload = function() {
+      document.getElementById(\"CheckinBox\").focus();
+    };
   </script>
   $reload
   </head>
@@ -847,11 +847,11 @@ sub printUI
   print "
     <tr><td colspan=\"5\"><img src=\"$images/topline.png\"</td></tr>
     <tr style=\"font-family: Helvetica,Arial,sans-serif;\">
- 	<td>$whitespace_DRC_1</td>
-	<td style=\"vertical-align: center; align: center; background-color: rgb(255, 255, 255);\">
-	  <center>$whitespace_Ortho_1<img src=\"$images/logo.png\" alt=\"MUHC logo\" border=\"$border\">$whitespace_Ortho_2 <br> <font size=\"1\"> $whitespace_ReceptionRC $whitespace_ReceptionS1 $whitespace_ReceptionOrtho</font></center>
-	</td>
- 	<td>$location_image</td>
+     <td>$whitespace_DRC_1</td>
+    <td style=\"vertical-align: center; align: center; background-color: rgb(255, 255, 255);\">
+      <center>$whitespace_Ortho_1<img src=\"$images/logo.png\" alt=\"MUHC logo\" border=\"$border\">$whitespace_Ortho_2 <br> <font size=\"1\"> $whitespace_ReceptionRC $whitespace_ReceptionS1 $whitespace_ReceptionOrtho</font></center>
+    </td>
+     <td>$location_image</td>
     </tr>
   ";
 
@@ -860,13 +860,13 @@ sub printUI
   #------------------------------------------------------------------------
   print "
       <tr style=\"font-family: Helvetica,Arial,sans-serif;\">
- 	<td>$whitespace_DRC_2</td>
-	<td style=\"vertical-align: center; background-color: $message_bgcolor;\">
-	  <span style=\"font-weight: bold; color: $message_txtcolor; font-size:60px;\">
-			<center>$MainMessage_fr</center>
-	  </span>
-	</td>
-	<td>$whitespace_DS1_1</td>
+     <td>$whitespace_DRC_2</td>
+    <td style=\"vertical-align: center; background-color: $message_bgcolor;\">
+      <span style=\"font-weight: bold; color: $message_txtcolor; font-size:60px;\">
+            <center>$MainMessage_fr</center>
+      </span>
+    </td>
+    <td>$whitespace_DS1_1</td>
       </tr>
   ";
 
@@ -875,14 +875,14 @@ sub printUI
   #------------------------------------------------------------------------
   print "
       <tr style=\"font-family: Helvetica,Arial,sans-serif;\">
-   	<td>$whitespace_DRC_3</td>
-  	<td style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
-	  <span style=\"color: $middleMessage_txtcolor;font-size:30px;\">
-			$subMessage_fr
-	  </span><br>
-	  <!--<img src=\"$images/line_horizontal.png\">-->
-	</td>
-	<td>$whitespace_DS1_2</td>
+       <td>$whitespace_DRC_3</td>
+      <td style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
+      <span style=\"color: $middleMessage_txtcolor;font-size:30px;\">
+            $subMessage_fr
+      </span><br>
+      <!--<img src=\"$images/line_horizontal.png\">-->
+    </td>
+    <td>$whitespace_DS1_2</td>
       </tr>
   ";
 
@@ -896,95 +896,95 @@ sub printUI
   # location = DRC_1
   if($location eq "DRC_1")
   {
-    $direction = "right" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "hereRC" 	if $DestinationWaitingRoom eq "DRC";
-    $direction = "down" 	if $DestinationWaitingRoom eq "DS1";
+    $direction = "right"     if $DestinationWaitingRoom eq "reception";
+    $direction = "hereRC"     if $DestinationWaitingRoom eq "DRC";
+    $direction = "down"     if $DestinationWaitingRoom eq "DS1";
 
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_1";
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_2";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_3";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_4";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_5";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_6";
-    $direction = "hereRC" 	if $DestinationWaitingRoom eq "TestCentre";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "hereRC"     if $DestinationWaitingRoom eq "TestCentre";
   }
 
   # location = DRC_2
   if($location eq "DRC_2")
   {
-    $direction = "left" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "hereRC" 	if $DestinationWaitingRoom eq "DRC";
-    $direction = "down" 	if $DestinationWaitingRoom eq "DS1";
+    $direction = "left"     if $DestinationWaitingRoom eq "reception";
+    $direction = "hereRC"     if $DestinationWaitingRoom eq "DRC";
+    $direction = "down"     if $DestinationWaitingRoom eq "DS1";
 
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_1";
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_2";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_3";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_4";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_5";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_6";
-    $direction = "up_left" 	if $DestinationWaitingRoom eq "TestCentre";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "up_left"     if $DestinationWaitingRoom eq "TestCentre";
   }
 
   # location = DRC_3
   if($location eq "DRC_3")
   {
-    $direction = "left" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "left" 	if $DestinationWaitingRoom eq "DRC";
-    $direction = "down" 	if $DestinationWaitingRoom eq "DS1";
+    $direction = "left"     if $DestinationWaitingRoom eq "reception";
+    $direction = "left"     if $DestinationWaitingRoom eq "DRC";
+    $direction = "down"     if $DestinationWaitingRoom eq "DS1";
 
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_1";
-    $direction = "down" 	if $DestinationWaitingRoom eq "STX_2";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_3";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_4";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_5";
-    $direction = "down" 	if $DestinationWaitingRoom eq "TB_6";
-    $direction = "right" 	if $DestinationWaitingRoom eq "TestCentre";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "down"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "down"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "right"     if $DestinationWaitingRoom eq "TestCentre";
   }
 
   # location = DS1_1
   if($location eq "DS1_1")
   {
-    $direction = "up" 		if $DestinationWaitingRoom eq "DRC";
-    $direction = "here" 	if $DestinationWaitingRoom eq "DS1";
-    $direction = "right" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "here" 	if $DestinationWaitingRoom eq "STX_1";
-    $direction = "here" 	if $DestinationWaitingRoom eq "STX_2";
-    $direction = "here" 	if $DestinationWaitingRoom eq "TB_3";
-    $direction = "here" 	if $DestinationWaitingRoom eq "TB_4";
-    $direction = "here" 	if $DestinationWaitingRoom eq "TB_5";
-    $direction = "here" 	if $DestinationWaitingRoom eq "TB_6";
-    $direction = "up" 		if $DestinationWaitingRoom eq "TestCentre";
+    $direction = "up"         if $DestinationWaitingRoom eq "DRC";
+    $direction = "here"     if $DestinationWaitingRoom eq "DS1";
+    $direction = "right"     if $DestinationWaitingRoom eq "reception";
+    $direction = "here"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "here"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "here"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "here"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "here"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "here"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "up"         if $DestinationWaitingRoom eq "TestCentre";
   }
 
   # location = DS1_2
   if($location eq "DS1_2")
   {
-    $direction = "up" 		if $DestinationWaitingRoom eq "DRC";
-    $direction = "left" 	if $DestinationWaitingRoom eq "DS1";
-    $direction = "left" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "left" 	if $DestinationWaitingRoom eq "STX_1";
-    $direction = "left" 	if $DestinationWaitingRoom eq "STX_2";
-    $direction = "left" 	if $DestinationWaitingRoom eq "TB_3";
-    $direction = "left" 	if $DestinationWaitingRoom eq "TB_4";
-    $direction = "left" 	if $DestinationWaitingRoom eq "TB_5";
-    $direction = "left" 	if $DestinationWaitingRoom eq "TB_6";
-    $direction = "up" 		if $DestinationWaitingRoom eq "TestCentre";
+    $direction = "up"         if $DestinationWaitingRoom eq "DRC";
+    $direction = "left"     if $DestinationWaitingRoom eq "DS1";
+    $direction = "left"     if $DestinationWaitingRoom eq "reception";
+    $direction = "left"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "left"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "up"         if $DestinationWaitingRoom eq "TestCentre";
   }
 
   # location = Ortho_1 (outside of Ortho clinic)
   if($location eq "Ortho_1")
   {
-    $direction = "leftOrtho" 	if $DestinationWaitingRoom eq "OrthoWaitRoom";
-    $direction = "leftOrtho" 	if $DestinationWaitingRoom eq "reception";
+    $direction = "leftOrtho"     if $DestinationWaitingRoom eq "OrthoWaitRoom";
+    $direction = "leftOrtho"     if $DestinationWaitingRoom eq "reception";
   }
 
   # location = Ortho_2 (inside Ortho clinic)
   if($location eq "Ortho_2")
   {
-    $direction = "hereOrtho" 	if $DestinationWaitingRoom eq "OrthoWaitRoom";
-    $direction = "leftOrtho" 	if $DestinationWaitingRoom eq "reception";
-    $direction = "rightOrtho" 	if $DestinationWaitingRoom eq "RadiologyMGH";
-    $direction = "rightOrtho" 	if $DestinationWaitingRoom eq "MGH_Admissions";
+    $direction = "hereOrtho"     if $DestinationWaitingRoom eq "OrthoWaitRoom";
+    $direction = "leftOrtho"     if $DestinationWaitingRoom eq "reception";
+    $direction = "rightOrtho"     if $DestinationWaitingRoom eq "RadiologyMGH";
+    $direction = "rightOrtho"     if $DestinationWaitingRoom eq "MGH_Admissions";
   }
 
   print "Location: $location, Waiting Room destination: $DestinationWaitingRoom, Direction: $direction<br>" if $verbose;
@@ -995,34 +995,34 @@ sub printUI
 
   print "
       <tr style=\"font-family: Helvetica,Arial,sans-serif;\" align=\"center\">
- 	<td colspan=\"3\" style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
- 	  <table border=\"0\" cellpadding=\"20\">
-	 <tr>
- 	        <td rowspan=\"1\">$shortline</td>
-		<td valign=\"center\">";
+     <td colspan=\"3\" style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
+       <table border=\"0\" cellpadding=\"20\">
+     <tr>
+             <td rowspan=\"1\">$shortline</td>
+        <td valign=\"center\">";
 
-  print "	  $direction_image" if $arrows;
-  print "	</td>
-		<td valign=\"center\">
-	  	  <span style=\"font-weight: bold; color: $middleMessage_txtcolor; font-size:25px;\">
-		  <center>
-		  $middleMessage_fr
-		  <p>
-		  $middleMessage_image
-	   	  <p>
-		  $middleMessage_en
-		  </center>
-	  	  </span>
-		</td>
-		<td valign=\"center\">" ;
+  print "      $direction_image" if $arrows;
+  print "    </td>
+        <td valign=\"center\">
+            <span style=\"font-weight: bold; color: $middleMessage_txtcolor; font-size:25px;\">
+          <center>
+          $middleMessage_fr
+          <p>
+          $middleMessage_image
+             <p>
+          $middleMessage_en
+          </center>
+            </span>
+        </td>
+        <td valign=\"center\">" ;
 
-  print "	  $direction_image" if $arrows;
-  print "	</td>
- 	        <td rowspan=\"1\">$shortline</td>
-	</tr>
-	  </table>
-	<!---<font style=\"color: $white;\">--<font><br>	-->
-	</td>
+  print "      $direction_image" if $arrows;
+  print "    </td>
+             <td rowspan=\"1\">$shortline</td>
+    </tr>
+      </table>
+    <!---<font style=\"color: $white;\">--<font><br>    -->
+    </td>
       </tr>
   ";
 
@@ -1031,13 +1031,13 @@ sub printUI
   #------------------------------------------------------------------------
   print "
       <tr style=\"font-family: Helvetica,Arial,sans-serif;\">
- 	<td></td>
-	<td style=\"vertical-align: center; background-color: $message_bgcolor;\">
-	  <span style=\"font-weight: bold; color: $message_txtcolor; font-size:60px;\">
-			<center>$MainMessage_en</center>
-	  </span>
-	</td>
- 	<td></td>
+     <td></td>
+    <td style=\"vertical-align: center; background-color: $message_bgcolor;\">
+      <span style=\"font-weight: bold; color: $message_txtcolor; font-size:60px;\">
+            <center>$MainMessage_en</center>
+      </span>
+    </td>
+     <td></td>
       </tr>
   ";
 
@@ -1046,14 +1046,14 @@ sub printUI
   #------------------------------------------------------------------------
   print "
       <tr style=\"font-family: Helvetica,Arial,sans-serif;\">
- 	<td></td>
-	<td style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
-	  <span style=\"color: $middleMessage_txtcolor;font-size:30px;\">
-			$subMessage_en
-	  </span>
-	  <p>
-	</td>
- 	<td></td>
+     <td></td>
+    <td style=\"vertical-align: center; background-color: $middleMessage_bgcolor;\">
+      <span style=\"color: $middleMessage_txtcolor;font-size:30px;\">
+            $subMessage_en
+      </span>
+      <p>
+    </td>
+     <td></td>
       </tr>
   ";
 
@@ -1134,22 +1134,22 @@ sub findPatient
   }
 
   ##############################################################################################
-  #					Aria						       #
+  #                    Aria                               #
   ##############################################################################################
 
   #============================================================================================
   # Retrieve data
   #============================================================================================
   my $sqlID;
-  my $PatientSer 	= "NULL"; # PatientSer is NULL until filled
-  my $PatientSerNum 	= "NULL"; # PatientSer is NULL until filled
+  my $PatientSer     = "NULL"; # PatientSer is NULL until filled
+  my $PatientSerNum     = "NULL"; # PatientSer is NULL until filled
   my $PatientLastName;
   my $PatientFirstName;
   my $PatientSSN;
   my $PatientSSN_expiry; # defining here but ignoring SSN expiry data in Aria as not sure that it is always in the same format
 
   ##############################################################################################
-  #					MySQL/Medivisit					       #
+  #                    MySQL/Medivisit                           #
   ##############################################################################################
   #------------------------------------------------------------------------
   # Database initialisation stuff
@@ -1157,14 +1157,14 @@ sub findPatient
   my $dbh_mysql = LoadConfigs::GetDatabaseConnection("ORMS") or print CHECKINLOG "###$now, $location ERROR - Couldn't connect to database: \n\n";
 
   $sqlID = "SELECT DISTINCT
-		Patient.LastName,
-		Patient.FirstName,
-		Patient.PatientSerNum,
-		Patient.SSN,
-		Patient.SSNExpDate
+        Patient.LastName,
+        Patient.FirstName,
+        Patient.PatientSerNum,
+        Patient.SSN,
+        Patient.SSNExpDate
           FROM  Patient Patient
           WHERE
-	  $PatientIdentifierMV
+      $PatientIdentifierMV
   ";
   print "SQLID: $sqlID>br>" if $verbose;
 
@@ -1179,11 +1179,11 @@ sub findPatient
   my @data = $query->fetchrow_array();
 
   # grab data from MySQL
-  $PatientLastName 	= $data[0] if $data[0];
-  $PatientFirstName	= $data[1] if $data[1];
-  $PatientSerNum	= $data[2] if $data[2];
-  $PatientSSN		= $data[3] if $data[3];
-  $PatientSSN_expiry	= $data[4] if $data[4];
+  $PatientLastName     = $data[0] if $data[0];
+  $PatientFirstName    = $data[1] if $data[1];
+  $PatientSerNum    = $data[2] if $data[2];
+  $PatientSSN        = $data[3] if $data[3];
+  $PatientSSN_expiry    = $data[4] if $data[4];
 
   print "Patient LastName: $PatientLastName <br>" if $verbose;
   print "Patient FirstName: $PatientFirstName <br>" if $verbose;
@@ -1274,7 +1274,7 @@ sub CheckinPatient
   my $hasAriaAppointment = 0;
 
   ##############################################################################################
-  #					MySQL/Medivisit					       #
+  #                    MySQL/Medivisit                           #
   ##############################################################################################
   my $dbh_mysql = LoadConfigs::GetDatabaseConnection("ORMS") or print CHECKINLOG "###$now, $location ERROR - Couldn't connect to database: \n\n";
 
@@ -1303,32 +1303,32 @@ sub CheckinPatient
   my $numAriaAppts = 0;
 
   ##############################################################################################
-  #				Medivisit appointment search			               #
+  #                Medivisit appointment search                           #
   ##############################################################################################
   my $sqlApptMedivisit = "
-	  SELECT DISTINCT
-		Patient.PatientId,
-		Patient.FirstName,
-		Patient.LastName,
-		MediVisitAppointmentList.ScheduledDateTime,
-		MediVisitAppointmentList.AppointmentCode,
-		MediVisitAppointmentList.ResourceDescription,
-		(UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
-		MediVisitAppointmentList.AppointmentSerNum,
-		HOUR(MediVisitAppointmentList.ScheduledDateTime),
+      SELECT DISTINCT
+        Patient.PatientId,
+        Patient.FirstName,
+        Patient.LastName,
+        MediVisitAppointmentList.ScheduledDateTime,
+        MediVisitAppointmentList.AppointmentCode,
+        MediVisitAppointmentList.ResourceDescription,
+        (UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
+        MediVisitAppointmentList.AppointmentSerNum,
+        HOUR(MediVisitAppointmentList.ScheduledDateTime),
         MediVisitAppointmentList.AppointSys,
         MediVisitAppointmentList.AppointId
           FROM
-		Patient,
-		MediVisitAppointmentList
-	 WHERE
-		MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
-		AND MediVisitAppointmentList.PatientSerNum = $PatientSerNum
-            	AND ( MediVisitAppointmentList.ScheduledDateTime >= \'$startOfToday_mysql\' )
+        Patient,
+        MediVisitAppointmentList
+     WHERE
+        MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
+        AND MediVisitAppointmentList.PatientSerNum = $PatientSerNum
+                AND ( MediVisitAppointmentList.ScheduledDateTime >= \'$startOfToday_mysql\' )
                 AND ( MediVisitAppointmentList.ScheduledDateTime < \'$endOfToday_mysql\' )
-		AND ( MediVisitAppointmentList.Status = 'Open' OR MediVisitAppointmentList.Status = 'In Progress')
+        AND ( MediVisitAppointmentList.Status = 'Open' OR MediVisitAppointmentList.Status = 'In Progress')
 
-		ORDER BY MediVisitAppointmentList.ScheduledDateTime
+        ORDER BY MediVisitAppointmentList.ScheduledDateTime
   ";
 
   print "sqlApptMedivisit: $sqlApptMedivisit<br>" if $verbose;
@@ -1367,15 +1367,15 @@ sub CheckinPatient
   {
     print "<br>-------------Medivisit Appointment---------------------------<br>" if $verbose;
     # grab data from MySQL
-    $MV_PatientId[$numMedivisitAppts]		= $data[0];
-    $MV_PatientFirstName[$numMedivisitAppts]	= $data[1];
-    $MV_PatientLastName[$numMedivisitAppts]	= $data[2];
-    $MV_ScheduledStartTime[$numMedivisitAppts]	= $data[3];
-    $MV_ApptDescription[$numMedivisitAppts]	= $data[4]; ###
-    $MV_Resource[$numMedivisitAppts]		= $data[5];
+    $MV_PatientId[$numMedivisitAppts]        = $data[0];
+    $MV_PatientFirstName[$numMedivisitAppts]    = $data[1];
+    $MV_PatientLastName[$numMedivisitAppts]    = $data[2];
+    $MV_ScheduledStartTime[$numMedivisitAppts]    = $data[3];
+    $MV_ApptDescription[$numMedivisitAppts]    = $data[4]; ###
+    $MV_Resource[$numMedivisitAppts]        = $data[5];
     $MV_AptTimeSinceMidnight[$numMedivisitAppts]= $data[6];
-    $MV_AppointmentSerNum[$numMedivisitAppts]	= $data[7];
-    $MV_AptTimeHour[$numMedivisitAppts]		= $data[8];
+    $MV_AppointmentSerNum[$numMedivisitAppts]    = $data[7];
+    $MV_AptTimeHour[$numMedivisitAppts]        = $data[8];
     $MV_sys[$numMedivisitAppts]             = $data[9];
     $MV_appId[$numMedivisitAppts]           = $data[10];
 
@@ -1389,8 +1389,8 @@ sub CheckinPatient
       $MV_AMorPM[$numMedivisitAppts] = "AM";
     }
 
-    my $MV_ResourceType 	= "Medivisit";
-    my $MV_MachineId 		= "Medivisit";
+    my $MV_ResourceType     = "Medivisit";
+    my $MV_MachineId         = "Medivisit";
 
     print "MV_Patient LastName: $MV_PatientLastName[$numMedivisitAppts] <br>" if $verbose;
     print "MV_ScheduledStartTime: $MV_ScheduledStartTime[$numMedivisitAppts] <br>" if $verbose;
@@ -1531,14 +1531,14 @@ sub CheckinPatient
     # First, check for an existing entry in the patient location table for this appointment
     #---------------------------------------------------------------------------------------------
     my $sqlMV_checkCheckin = "
-	  SELECT DISTINCT
+      SELECT DISTINCT
                 PatientLocation.PatientLocationSerNum,
                 PatientLocation.PatientLocationRevCount,
                 PatientLocation.CheckinVenueName,
                 PatientLocation.ArrivalDateTime
           FROM
-		PatientLocation
-	 WHERE
+        PatientLocation
+     WHERE
                 PatientLocation.AppointmentSerNum = $MV_AppointmentSerNum[$appointment]
     ";
 
@@ -1555,10 +1555,10 @@ sub CheckinPatient
     my @data = $query->fetchrow_array();
 
     # grab data from MySQL
-    my $PatientLocationSerNum			= $data[0];
-    my $PatientLocationRevCount			= $data[1];
-    my $CheckinVenueNamePrevious			= $data[2]; # use the new venue, not the old
-    my $ArrivalDateTime				= $data[3];
+    my $PatientLocationSerNum            = $data[0];
+    my $PatientLocationRevCount            = $data[1];
+    my $CheckinVenueNamePrevious            = $data[2]; # use the new venue, not the old
+    my $ArrivalDateTime                = $data[3];
 
     #---------------------------------------------------------------------------------------------
     # If there is an existing entry in the patient location table, take the values and
@@ -1568,8 +1568,8 @@ sub CheckinPatient
     {
       print "inserting into MH table<br>" if $verbose;
       my $sql_insert_previousCheckin= "INSERT INTO
-		PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime)
-		VALUES ('$PatientLocationSerNum','$PatientLocationRevCount','$MV_AppointmentSerNum[$appointment]','$CheckinVenueNamePrevious','$ArrivalDateTime')";
+        PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime)
+        VALUES ('$PatientLocationSerNum','$PatientLocationRevCount','$MV_AppointmentSerNum[$appointment]','$CheckinVenueNamePrevious','$ArrivalDateTime')";
       $query= $dbh_mysql->prepare($sql_insert_previousCheckin);
       $query->execute();
     }
@@ -1581,8 +1581,8 @@ sub CheckinPatient
     #---------------------------------------------------------------------------------------------
     $PatientLocationRevCount++;
     my $sql_insert_newCheckin= "INSERT INTO
-			PatientLocation(PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime)
-			VALUES ('$PatientLocationRevCount','$MV_AppointmentSerNum[$appointment]','$CheckinVenueName',NOW())";
+            PatientLocation(PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime)
+            VALUES ('$PatientLocationRevCount','$MV_AppointmentSerNum[$appointment]','$CheckinVenueName',NOW())";
 
     print "sql_insert_newCheckin: $sql_insert_newCheckin<br>" if $verbose;
     $query= $dbh_mysql->prepare($sql_insert_newCheckin);
@@ -1648,7 +1648,7 @@ sub CheckinPatient
   # The return value should just be for the NEXT appointment, whether it is Aria or Meidivist
 
   print "Returning for $nextApptSystem<br>" if $verbose;
-  return @returnValueMedivisit 	if $nextApptSystem eq "Medivisit";
+  return @returnValueMedivisit     if $nextApptSystem eq "Medivisit";
 
   ##################################
 

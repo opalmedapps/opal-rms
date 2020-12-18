@@ -32,98 +32,98 @@
 </head>
 
 <body ng-controller="indexController">
-	<div class="page-div">
-		<center><img src="images/logo.png"></img></center>
+    <div class="page-div">
+        <center><img src="images/logo.png"></img></center>
 
-		<br><br>
+        <br><br>
 
-		<div class="tab-div">
-			<md-tabs md-selected="selectedTab" layout-fill>
-				<md-tab label="Select Mode" ng-disabled="selectedTab !== 0"> <!-- ModeTab -->
-					<md-grid-list md-cols="2" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+        <div class="tab-div">
+            <md-tabs md-selected="selectedTab" layout-fill>
+                <md-tab label="Select Mode" ng-disabled="selectedTab !== 0"> <!-- ModeTab -->
+                    <md-grid-list md-cols="2" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Page','vwr','SpecialityTab')">Virtual Waiting Room</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Page','vwr','SpecialityTab')">Virtual Waiting Room</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-right-bottom" ng-click="moveToTab('Page','screens','LocationTab')">Screen</md-button>
-							</md-grid-tile>
-					</md-grid-list>
-				</md-tab>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-right-bottom" ng-click="moveToTab('Page','screens','LocationTab')">Screen</md-button>
+                            </md-grid-tile>
+                    </md-grid-list>
+                </md-tab>
 
-				<md-tab label="Select Service" ng-disabled="selectedTab !== 1"> <!-- SpecialityTab -->
-					<md-grid-list md-cols="2" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+                <md-tab label="Select Service" ng-disabled="selectedTab !== 1"> <!-- SpecialityTab -->
+                    <md-grid-list md-cols="2" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Speciality',speciality,'GroupTab')">{{speciality}}</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Speciality',speciality,'GroupTab')">{{speciality}}</md-button>
+                            </md-grid-tile>
 
-					</md-grid-list>
+                    </md-grid-list>
 
-				</md-tab>
+                </md-tab>
 
-				<md-tab label="Select Group" ng-disabled="selectedTab !== 2"> <!-- GroupTab -->
-					<md-grid-list md-cols="6" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+                <md-tab label="Select Group" ng-disabled="selectedTab !== 2"> <!-- GroupTab -->
+                    <md-grid-list md-cols="6" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Group','PAB','ProfileTab')">PAB</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Group','PAB','ProfileTab')">PAB</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Treatment Machine','ProfileTab')">Treatment<br>Machine</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Treatment Machine','ProfileTab')">Treatment<br>Machine</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Physician','ProfileTab')">Physician</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Physician','ProfileTab')">Physician</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Pharmacy','ProfileTab')">Pharmacy</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Pharmacy','ProfileTab')">Pharmacy</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Nurse','ProfileTab')">Nurse</md-button>
-							</md-grid-tile>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-bottom" ng-click="moveToTab('Group','Nurse','ProfileTab')">Nurse</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-borderless-right-bottom" ng-click="moveToTab('Group','Checkout Clerk','ProfileTab')">Checkout<br>Clerk</md-button>
-							</md-grid-tile>
-					</md-grid-list>
-				</md-tab>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-borderless-right-bottom" ng-click="moveToTab('Group','Checkout Clerk','ProfileTab')">Checkout<br>Clerk</md-button>
+                            </md-grid-tile>
+                    </md-grid-list>
+                </md-tab>
 
-				<md-tab label="Select Profile" ng-disabled="selectedTab !== 3 && selectedTab !== 4" md-on-select="getProfileList()"> <!-- ProfileTab -->
-					<md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
-						<md-grid-tile ng-repeat="profile in userOptions.Profiles" md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button {{checkBorderClass(profile)}}" ng-click="moveToTab('SelectedProfile',profile,'LocationTab')">{{profile.ProfileId}}</md-button>
-							</md-grid-tile>
+                <md-tab label="Select Profile" ng-disabled="selectedTab !== 3 && selectedTab !== 4" md-on-select="getProfileList()"> <!-- ProfileTab -->
+                    <md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+                        <md-grid-tile ng-repeat="profile in userOptions.Profiles" md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button {{checkBorderClass(profile)}}" ng-click="moveToTab('SelectedProfile',profile,'LocationTab')">{{profile.ProfileId}}</md-button>
+                            </md-grid-tile>
 
-						<md-grid-tile md-rowspan="1" md-colspan="1">
-							<md-button class="grid-button button-create {{checkBorderClass('last')}}" ng-click="moveToTab(null,null,'EditTab')">Edit Profiles</md-button>
-						</md-grid-tile>
-					</md-grid-list>
-				</md-tab>
+                        <md-grid-tile md-rowspan="1" md-colspan="1">
+                            <md-button class="grid-button button-create {{checkBorderClass('last')}}" ng-click="moveToTab(null,null,'EditTab')">Edit Profiles</md-button>
+                        </md-grid-tile>
+                    </md-grid-list>
+                </md-tab>
 
-				<md-tab label="Profile Editor" ng-hide="1" md-on-select="broadcastProfileList()"> <!--EditTab -->
-					<editor></editor>
-				</md-tab>
+                <md-tab label="Profile Editor" ng-hide="1" md-on-select="broadcastProfileList()"> <!--EditTab -->
+                    <editor></editor>
+                </md-tab>
 
-				<md-tab label="Select Location" ng-disabled="selectedTab !== 5" md-on-select="redirectURL()"> <!-- LocationTab -->
-					<span ng-if="userOptions.Page == 'screens'">
-						<md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+                <md-tab label="Select Location" ng-disabled="selectedTab !== 5" md-on-select="redirectURL()"> <!-- LocationTab -->
+                    <span ng-if="userOptions.Page == 'screens'">
+                        <md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
 
-							<md-grid-tile md-rowspan="1" md-colspan="1">
-								<md-button class="grid-button button-borderless-left" ng-click="redirectURL(clinicalArea)">{{clinicalArea}}</md-button>
-								</md-grid-tile>
+                            <md-grid-tile md-rowspan="1" md-colspan="1">
+                                <md-button class="grid-button button-borderless-left" ng-click="redirectURL(clinicalArea)">{{clinicalArea}}</md-button>
+                                </md-grid-tile>
 
-						</md-grid-list>
-					</span>
-				</md-tab>
+                        </md-grid-list>
+                    </span>
+                </md-tab>
 
-				<md-button class="restart-button" ng-click="restartPage()">Restart</md-button>
-			</md-tabs>
+                <md-button class="restart-button" ng-click="restartPage()">Restart</md-button>
+            </md-tabs>
 
-		</div>
-	</div>
+        </div>
+    </div>
 </body>
 </html>

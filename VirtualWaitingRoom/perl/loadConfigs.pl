@@ -41,17 +41,17 @@ our $sendDocument = $configs->{"vwr"}->{"SEND_WEIGHTS"};
 #initialize logging function
 sub LOG_MESSAGE
 {
-	my $identifier = $_[0];
-	my $type = $_[1];
-	my $message = $_[2];
+    my $identifier = $_[0];
+    my $type = $_[1];
+    my $message = $_[2];
 
-	my ($package,$filename,$line) = caller;
+    my ($package,$filename,$line) = caller;
 
-	$filename =~ s{.*/}{}; #remove path from the filename
+    $filename =~ s{.*/}{}; #remove path from the filename
 
-	my $encodedArgs = $JSON->encode({filename=> $filename,identifier=> $identifier,type=> $type,message=> $message});
+    my $encodedArgs = $JSON->encode({filename=> $filename,identifier=> $identifier,type=> $type,message=> $message});
 
-	system("./logMessage.pl '$encodedArgs' 1"); #add a second argument so that the log script knows to use system arguments and not cgi params
+    system("./logMessage.pl '$encodedArgs' 1"); #add a second argument so that the log script knows to use system arguments and not cgi params
 }
 
 1;

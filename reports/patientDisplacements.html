@@ -21,135 +21,135 @@
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/angular-datatables/dist/css/angular-datatables.min.css">
 
  <style>
-	.page {margin:10px;}
+    .page {margin:10px;}
 
-	td {
-		padding-right: 15px;
-		padding-bottom: 10px;
-	}
+    td {
+        padding-right: 15px;
+        padding-bottom: 10px;
+    }
 
-	.tables {
-		width:100%;
-		table-layout: fixed;
-	}
-	.tables thead>tr>th {
-		padding-right: 5px;
-		vertical-align: bottom;
-		border-bottom: 2px solid #ddd;
-	}
-	.tables tbody {
-		display: table-row-group;
-		vertical-align: middle;
-	}
-	.tables tbody>tr>td {
-		line-height: 1.42857143;
-		vertical-align: middle;
-		border-top: 1px solid #ddd;
-		font-size: 15px;
-		overflow: auto;
-	}
+    .tables {
+        width:100%;
+        table-layout: fixed;
+    }
+    .tables thead>tr>th {
+        padding-right: 5px;
+        vertical-align: bottom;
+        border-bottom: 2px solid #ddd;
+    }
+    .tables tbody {
+        display: table-row-group;
+        vertical-align: middle;
+    }
+    .tables tbody>tr>td {
+        line-height: 1.42857143;
+        vertical-align: middle;
+        border-top: 1px solid #ddd;
+        font-size: 15px;
+        overflow: auto;
+    }
 
-	table.dataTable,
-	table.dataTable.no-footer {
-		border-top: 1px solid black;
-		border-bottom: 1px solid black;
-	}
+    table.dataTable,
+    table.dataTable.no-footer {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
 
-	table.dataTable thead th {
-		border-bottom: 1px solid black;
-		border-top: 1px solid black;
-	}
+    table.dataTable thead th {
+        border-bottom: 1px solid black;
+        border-top: 1px solid black;
+    }
 
-	.items,
-	.items td,
-	.items tr,
-	.items th {
-		border-collapse:collapse;
-		border:1px solid black;
-		text-align:center;
-	    	--box-sizing: border-box !important;
-   		--table-layout:fixed;
-		overflow-wrap: break-word;
-	}
+    .items,
+    .items td,
+    .items tr,
+    .items th {
+        border-collapse:collapse;
+        border:1px solid black;
+        text-align:center;
+            --box-sizing: border-box !important;
+           --table-layout:fixed;
+        overflow-wrap: break-word;
+    }
 
-	.items tr:nth-child(even){background-color:#f1f1f1;}
-	.items th {background-color:#98FB98}
+    .items tr:nth-child(even){background-color:#f1f1f1;}
+    .items th {background-color:#98FB98}
 
 </style>
 <center><h1>MGH Department of Orthopedics</h1></center><center><h2><u>Patient Displacements</u></h2></center>
 
 <div class="page" ng-controller="main">
-	<table border="0" width="50%" padding="5">
-		<tr>
-		<td valign="top"><b>Description:</b></td>
-		<td>Report that creates a table displaying which rooms patients were checked into.</td>
-		</tr>
-	</table>
-	<br>
+    <table border="0" width="50%" padding="5">
+        <tr>
+        <td valign="top"><b>Description:</b></td>
+        <td>Report that creates a table displaying which rooms patients were checked into.</td>
+        </tr>
+    </table>
+    <br>
 
-	<form ng-submit="runScript()">
-		<table border="0" width="50%" padding="2">
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF>
-			<th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
-			</tr>
-			<tr><td><br></td></tr>
+    <form ng-submit="runScript()">
+        <table border="0" width="50%" padding="2">
+            <tr bgcolor=#1D0886 fgcolor=#FFFFFF>
+            <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
+            </tr>
+            <tr><td><br></td></tr>
 
-			<tr>
-			<td><b>From Date: </b></td>
-			<td><input  type="date" ng-model="sDate" required></input></td>
-			<td><b>To Date: </b></td>
-			<td><input type="date" ng-model="eDate" required></input></td>
-			</tr>
+            <tr>
+            <td><b>From Date: </b></td>
+            <td><input  type="date" ng-model="sDate" required></input></td>
+            <td><b>To Date: </b></td>
+            <td><input type="date" ng-model="eDate" required></input></td>
+            </tr>
 
-			<tr><td><br></td></tr>
-			<tr>
-			<td></td>
-			<td align="right"><input type="submit" value="Submit"> <input type="reset">
-			</td>
-			</tr>
-		</table>
-	</form>
+            <tr><td><br></td></tr>
+            <tr>
+            <td></td>
+            <td align="right"><input type="submit" value="Submit"> <input type="reset">
+            </td>
+            </tr>
+        </table>
+    </form>
 
-	<p>{{message}}</p>
-	<div ng-if='showDiv'>
-		<table>
-			<tr><td>Searching From: </td><td>{{sDateDisplay | date}}</td></tr>
-			<tr><td>Searching To: </td><td>{{eDateDisplay | date}}</td></tr>
-		</table>
+    <p>{{message}}</p>
+    <div ng-if='showDiv'>
+        <table>
+            <tr><td>Searching From: </td><td>{{sDateDisplay | date}}</td></tr>
+            <tr><td>Searching To: </td><td>{{eDateDisplay | date}}</td></tr>
+        </table>
 
-		<table class="items" datatable="ng" dt-options="dtOptions">
-			<thead>
-				<tr>
-					<th>Patient Name</th>
-					<th>Patient Id</th>
-					<th>Scheduled Date</th>
-					<th>Scheduled Time</th>
-					<th>Appointment Code</th>
-					<th>Clinic</th>
-					<th>Status</th>
-					<th>Venue</th>
-					<th>Arrival</th>
-					<th>Discharge</th>
-					<th>Wait Time (Hours)</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="app in tableData">
-					<td>{{app.LastName}}, {{app.FirstName}}</td>
-					<td>{{app.PatientId}}</td>
-					<td>{{app.ScheduledDate}}</td>
-					<td>{{app.ScheduledTime}}</td>
-					<td>{{app.AppointmentCode}}</td>
-					<td>{{app.Resource}}</td>
-					<td>{{app.Status}}</td>
-					<td>{{app.Venue}}</td>
-					<td>{{app.Arrival}}</td>
-					<td>{{app.Discharge}}</td>
-					<td>{{app.WaitTime}}</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+        <table class="items" datatable="ng" dt-options="dtOptions">
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Patient Id</th>
+                    <th>Scheduled Date</th>
+                    <th>Scheduled Time</th>
+                    <th>Appointment Code</th>
+                    <th>Clinic</th>
+                    <th>Status</th>
+                    <th>Venue</th>
+                    <th>Arrival</th>
+                    <th>Discharge</th>
+                    <th>Wait Time (Hours)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="app in tableData">
+                    <td>{{app.LastName}}, {{app.FirstName}}</td>
+                    <td>{{app.PatientId}}</td>
+                    <td>{{app.ScheduledDate}}</td>
+                    <td>{{app.ScheduledTime}}</td>
+                    <td>{{app.AppointmentCode}}</td>
+                    <td>{{app.Resource}}</td>
+                    <td>{{app.Status}}</td>
+                    <td>{{app.Venue}}</td>
+                    <td>{{app.Arrival}}</td>
+                    <td>{{app.Discharge}}</td>
+                    <td>{{app.WaitTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -158,63 +158,63 @@ var app = angular.module('myApp',['datatables','datatables.buttons','ui.bootstra
         }]);
 app.controller('main', function($scope,DTOptionsBuilder,callScript,bowser)
 {
-	$scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
-	if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
+    $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
+    if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
 
-	$scope.dtOptions = DTOptionsBuilder.newOptions();
-	$scope.dtOptions.withOption('lengthMenu',[[25,50,100,-1],[25,50,100,'All']]);
-	$scope.dtOptions.withButtons([{extend: 'csvHtml5', title: 'PatientDisplacements'}]);
+    $scope.dtOptions = DTOptionsBuilder.newOptions();
+    $scope.dtOptions.withOption('lengthMenu',[[25,50,100,-1],[25,50,100,'All']]);
+    $scope.dtOptions.withButtons([{extend: 'csvHtml5', title: 'PatientDisplacements'}]);
 
-	$scope.showDiv = false;
+    $scope.showDiv = false;
 
-	$scope.convertDate = function (enteredDate)
-	{
-		var year = enteredDate.getFullYear();
-		var month = enteredDate.getMonth()+1 >= 10 ? enteredDate.getMonth()+1 : "0" + (enteredDate.getMonth()+1);
-		var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
-		var convDate = year + "-" + month + "-" + day;
+    $scope.convertDate = function (enteredDate)
+    {
+        var year = enteredDate.getFullYear();
+        var month = enteredDate.getMonth()+1 >= 10 ? enteredDate.getMonth()+1 : "0" + (enteredDate.getMonth()+1);
+        var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
+        var convDate = year + "-" + month + "-" + day;
 
-		return convDate;
-	}
+        return convDate;
+    }
 
-	$scope.sDate = new Date();
-	$scope.eDate = new Date();
+    $scope.sDate = new Date();
+    $scope.eDate = new Date();
 
-	$scope.runScript = function ()
-	{
-		$scope.sDateDisplay = $scope.sDate;
-		$scope.eDateDisplay = $scope.eDate;
+    $scope.runScript = function ()
+    {
+        $scope.sDateDisplay = $scope.sDate;
+        $scope.eDateDisplay = $scope.eDate;
 
-		$scope.showDiv = false;
-		$scope.message = "Getting Data...";
-		callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate)).then(function (response)
-		{
-			$scope.tableData = response;
+        $scope.showDiv = false;
+        $scope.message = "Getting Data...";
+        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate)).then(function (response)
+        {
+            $scope.tableData = response;
 
-			$scope.message = "";
-			$scope.showDiv = true;
-		});
-	}
+            $scope.message = "";
+            $scope.showDiv = true;
+        });
+    }
 });
 
 app.factory('callScript',function($http,$q)
 {
-	return {
-		getData: function(sDate,eDate)
-		{
-			var defer = $q.defer();
+    return {
+        getData: function(sDate,eDate)
+        {
+            var defer = $q.defer();
 
-			url = "./Scripts/PatientDisplacements?";
+            url = "./Scripts/PatientDisplacements?";
 
-			$http.get(url+"&sDate="+sDate+"&eDate="+eDate+"&clinic=ortho").then(function (response)
-			{
-				var info = {};
-				info = response.data;
-				defer.resolve(info);
-			});
-			return defer.promise;
-		}
-	};
+            $http.get(url+"&sDate="+sDate+"&eDate="+eDate+"&clinic=ortho").then(function (response)
+            {
+                var info = {};
+                info = response.data;
+                defer.resolve(info);
+            });
+            return defer.promise;
+        }
+    };
 });
 </script>
 

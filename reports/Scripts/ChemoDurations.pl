@@ -39,38 +39,38 @@ my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to
 
 #get a list of all chemotherapy appointments in the date range
 my $sql = "
-	SELECT DISTINCT
-		Patient.LastName,
-		Patient.FirstName,
-		Patient.PatientId,
-		MV.Resource,
-		MV.ResourceDescription,
-		MV.AppointmentCode,
-		MV.ScheduledDateTime,
-		MV.Status,
-		PL.CheckinVenueName,
-		PL.ArrivalDateTime,
-		PL.DichargeThisLocationDateTime,
-		TIMEDIFF(PL.DichargeThisLocationDateTime,PL.ArrivalDateTime) AS Duration,
-		PL.PatientLocationRevCount
-	FROM
-		Patient
-		INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
-			AND MV.Status = 'Completed'
-			AND MV.AppointmentCode LIKE '%CHM%'
-			AND MV.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
-		INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
-			AND PL.PatientLocationRevCount = (
-				SELECT MIN(PatientLocationMH.PatientLocationRevCount)
-				FROM PatientLocationMH
-				WHERE
-					PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
-					AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
-			)
-	WHERE
-		Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
-		AND Patient.PatientId NOT LIKE 'Opal%'
-	ORDER BY MV.ScheduledDateTime, Patient.PatientId";
+    SELECT DISTINCT
+        Patient.LastName,
+        Patient.FirstName,
+        Patient.PatientId,
+        MV.Resource,
+        MV.ResourceDescription,
+        MV.AppointmentCode,
+        MV.ScheduledDateTime,
+        MV.Status,
+        PL.CheckinVenueName,
+        PL.ArrivalDateTime,
+        PL.DichargeThisLocationDateTime,
+        TIMEDIFF(PL.DichargeThisLocationDateTime,PL.ArrivalDateTime) AS Duration,
+        PL.PatientLocationRevCount
+    FROM
+        Patient
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
+            AND MV.Status = 'Completed'
+            AND MV.AppointmentCode LIKE '%CHM%'
+            AND MV.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
+        INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
+            AND PL.PatientLocationRevCount = (
+                SELECT MIN(PatientLocationMH.PatientLocationRevCount)
+                FROM PatientLocationMH
+                WHERE
+                    PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
+                    AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
+            )
+    WHERE
+        Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
+        AND Patient.PatientId NOT LIKE 'Opal%'
+    ORDER BY MV.ScheduledDateTime, Patient.PatientId";
 
 my $query = $dbh->prepare_cached($sql) or die("Query could not be prepared: ".$dbh->errstr);
 $query->execute() or die("Query execution failed: ".$query->errstr);
@@ -82,9 +82,9 @@ my @treatments;
 #----------------------------------------
 while(my $data = $query->fetchrow_hashref())
 {
-	my %data = %{$data};
+    my %data = %{$data};
 
-	push @treatments, \%data;
+    push @treatments, \%data;
 }
 
 #----------------------------------------

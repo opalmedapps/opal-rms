@@ -185,42 +185,42 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
              LIMIT 1) AS Name_EN,
              (SELECT Q.CompletionDate
                 FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS QuestionnaireCompletionDate,
-			 (SELECT QC.QuestionnaireName_EN
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                AND Q.CompletedFlag = 1
+                $qappFilter
+                where Q.PatientSerNum = P.PatientSerNum
+                ORDER BY Q.CompletionDate DESC
+                LIMIT 1) AS QuestionnaireCompletionDate,
+             (SELECT QC.QuestionnaireName_EN
                 FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS QuestionnaireName,
-			(SELECT CASE
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                AND Q.CompletedFlag = 1
+                $qappFilter
+                where Q.PatientSerNum = P.PatientSerNum
+                ORDER BY Q.CompletionDate DESC
+                LIMIT 1) AS QuestionnaireName,
+            (SELECT CASE
                     WHEN Q.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
                         ELSE 0
                     END AS CompletedWithinLastWeek
                 FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS CompletedWithinLastWeek,
-			(SELECT CASE
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                AND Q.CompletedFlag = 1
+                $qappFilter
+                where Q.PatientSerNum = P.PatientSerNum
+                ORDER BY Q.CompletionDate DESC
+                LIMIT 1) AS CompletedWithinLastWeek,
+            (SELECT CASE
                     WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
                         ELSE 0
                     END AS RecentAnswered
                 FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS RecentAnswered
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                AND Q.CompletedFlag = 1
+                $qappFilter
+                where Q.PatientSerNum = P.PatientSerNum
+                ORDER BY Q.CompletionDate DESC
+                LIMIT 1) AS RecentAnswered
             FROM Patient P";
 
     $queryOpal3 = $dbOpal->prepare($sqlOpal3);

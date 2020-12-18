@@ -1,178 +1,178 @@
 <div class="editor-tab-div">
-	<md-tabs md-selected="selectedTab" class="editor-tab-group" layout-fill>
-		<md-tab label="" ng-disabled="1"> <!-- empty tab to create a shift in the placement of the tables -->
+    <md-tabs md-selected="selectedTab" class="editor-tab-group" layout-fill>
+        <md-tab label="" ng-disabled="1"> <!-- empty tab to create a shift in the placement of the tables -->
 
-		</md-tab>
+        </md-tab>
 
-		<md-tab label="Edit Profile"> <!--EditProfile  -->
-			<md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
-				<md-grid-tile ng-repeat="profile in profiles track by $index" md-rowspan="1" md-colspan="1">
-					<md-button class="grid-button {{checkBorderClass(profile)}}" ng-class="(selectedProfile.index === $index) ? 'selected-button' : '' " ng-click="selectProfile($index)">{{profile.ProfileId}}</md-button>
-					</md-grid-tile>
+        <md-tab label="Edit Profile"> <!--EditProfile  -->
+            <md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
+                <md-grid-tile ng-repeat="profile in profiles track by $index" md-rowspan="1" md-colspan="1">
+                    <md-button class="grid-button {{checkBorderClass(profile)}}" ng-class="(selectedProfile.index === $index) ? 'selected-button' : '' " ng-click="selectProfile($index)">{{profile.ProfileId}}</md-button>
+                    </md-grid-tile>
 
-				<md-grid-tile md-rowspan="1" md-colspan="1">
-					<md-button class="grid-button button-create {{checkBorderClass('last')}}" ng-class="(selectedProfile.index === -1) ? 'selected-button' : '' " ng-click="selectProfile(-1)">Create Profile</md-button>
-				</md-grid-tile>
-			</md-grid-list>
-		</md-tab>
+                <md-grid-tile md-rowspan="1" md-colspan="1">
+                    <md-button class="grid-button button-create {{checkBorderClass('last')}}" ng-class="(selectedProfile.index === -1) ? 'selected-button' : '' " ng-click="selectProfile(-1)">Create Profile</md-button>
+                </md-grid-tile>
+            </md-grid-list>
+        </md-tab>
 
-		<md-tab label="Profile Details"> <!-- ProfileDetails -->
-			<div class="modal-header editor-header">
-				<h3 class="modal-title">Set Profile Name</h3>
-			</div>
-			<div class="modal-body editor-body">
-				<table class="editor-table">
-					<tr><td>Profile Name: </td><td><input type="text" ng-model="selectedProfile.data.ProfileId" ng-change="verifyIfIdIsTaken(selectedProfile.data)" /> <span style="color:red;">{{errorMessage}}</span></td></tr>
-					<tr><td>Group: </td><td>{{selectedProfile.data.Category}}</td></tr>
-					<tr><td>Service: </td><td>{{selectedProfile.data.Speciality}}</td></tr>
-					<tr>
-						<td>Clinical Area: </td>
-						<td>
-							<select ng-model="selectedProfile.data.ClinicalArea">
-								<option value="{{clinicalArea}}">{{clinicalArea}}</option>
-								<!-- <option value="">None</option> -->
-							</select>
-						</td>
-					</tr>
-				</table>
-			</div>
+        <md-tab label="Profile Details"> <!-- ProfileDetails -->
+            <div class="modal-header editor-header">
+                <h3 class="modal-title">Set Profile Name</h3>
+            </div>
+            <div class="modal-body editor-body">
+                <table class="editor-table">
+                    <tr><td>Profile Name: </td><td><input type="text" ng-model="selectedProfile.data.ProfileId" ng-change="verifyIfIdIsTaken(selectedProfile.data)" /> <span style="color:red;">{{errorMessage}}</span></td></tr>
+                    <tr><td>Group: </td><td>{{selectedProfile.data.Category}}</td></tr>
+                    <tr><td>Service: </td><td>{{selectedProfile.data.Speciality}}</td></tr>
+                    <tr>
+                        <td>Clinical Area: </td>
+                        <td>
+                            <select ng-model="selectedProfile.data.ClinicalArea">
+                                <option value="{{clinicalArea}}">{{clinicalArea}}</option>
+                                <!-- <option value="">None</option> -->
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-			<div class="modal-footer editor-footer">
-				<button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
-				<button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
-			</div>
-		</md-tab>
+            <div class="modal-footer editor-footer">
+                <button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
+                <button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
+            </div>
+        </md-tab>
 
-		<md-tab ng-repeat="obj in [{title: 'Select Resource',attribute: 'Resources'},{title: 'Select Location',attribute: 'Locations'},{title: 'Select Clinic',attribute: 'Clinics'}]" label="{{obj.title}}s"> <!-- SelectResources --> <!-- SelectLocations --> <!-- SelectAppointments--> <!-- {title: 'Select Appointment',attribute: 'Appointments'}-->
-			<div class="modal-header editor-header">
-				<h3 class="modal-title">{{obj.title}}(s)</h3>
-			</div>
-			<div class="modal-body editor-body">
-				<div class="input-group">
-					<span class="input-group-addon" id="basic-addon1">Search</span>
-					<input type="text" ng-model="selectionFilter[obj.attribute]" class="form-control" placeholder="Enter text to filter" aria-describedby="basic-addon1" autofocus>
-				</div>
+        <md-tab ng-repeat="obj in [{title: 'Select Resource',attribute: 'Resources'},{title: 'Select Location',attribute: 'Locations'},{title: 'Select Clinic',attribute: 'Clinics'}]" label="{{obj.title}}s"> <!-- SelectResources --> <!-- SelectLocations --> <!-- SelectAppointments--> <!-- {title: 'Select Appointment',attribute: 'Appointments'}-->
+            <div class="modal-header editor-header">
+                <h3 class="modal-title">{{obj.title}}(s)</h3>
+            </div>
+            <div class="modal-body editor-body">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">Search</span>
+                    <input type="text" ng-model="selectionFilter[obj.attribute]" class="form-control" placeholder="Enter text to filter" aria-describedby="basic-addon1" autofocus>
+                </div>
 
-				<div style="padding: 0.7%;"></div>
+                <div style="padding: 0.7%;"></div>
 
-				<ul class="option-checkbox">
-					<li ng-repeat="option in givenOptions[obj.attribute] | filter: {Name: selectionFilter[obj.attribute]} | orderBy: '+Name'" style="float: left; width: 50%;">
-						<label>
-							<input type="checkbox" checklist-model="selectedProfile.data[obj.attribute]" checklist-value="option"><span class="selector-color-{{option.Type}}"> {{option.Name}}</span></input>
-						</label>
-					</li>
-				</ul>
-				<div class="option-list">
-					<b>Selected Options: </b>
-					<span ng-repeat="option in selectedProfile.data[obj.attribute] | orderBy: '+Name' "><mark>{{option.Name}}</mark> </span>
-				</div>
-			</div>
-			<div class="modal-footer editor-footer">
-				<button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
-				<button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
-			</div>
-		</md-tab>
+                <ul class="option-checkbox">
+                    <li ng-repeat="option in givenOptions[obj.attribute] | filter: {Name: selectionFilter[obj.attribute]} | orderBy: '+Name'" style="float: left; width: 50%;">
+                        <label>
+                            <input type="checkbox" checklist-model="selectedProfile.data[obj.attribute]" checklist-value="option"><span class="selector-color-{{option.Type}}"> {{option.Name}}</span></input>
+                        </label>
+                    </li>
+                </ul>
+                <div class="option-list">
+                    <b>Selected Options: </b>
+                    <span ng-repeat="option in selectedProfile.data[obj.attribute] | orderBy: '+Name' "><mark>{{option.Name}}</mark> </span>
+                </div>
+            </div>
+            <div class="modal-footer editor-footer">
+                <button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
+                <button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
+            </div>
+        </md-tab>
 
-		<md-tab label="Select Columns"> <!-- SelectColumns -->
-			<div class="modal-header editor-header">
-				<h3 class="modal-title">Order Columns</h3>
-			</div>
-			<div class="modal-body editor-body">
-				<h2 style="margin-top: 0;">Possible Columns</h2>
-				<div class="columns-possible">
-					<ul dnd-list="possibleColumns.possible">
-						<li ng-repeat="col in possibleColumns.possible"
-						dnd-draggable="col"
-						dnd-moved="possibleColumns.possible.splice($index, 1)"
-						dnd-effect-allowed="move"
-						dnd-selected="toggleColumnDescription(col)"
-						ng-class="{'selected': possibleColumns.focusedColumn === col}"
-						>
-							{{col.DisplayName}}&nbsp;<span class="glyphicon {{col.Glyphicon}}"></span>
-						</li>
-					</ul>
-				</div>
+        <md-tab label="Select Columns"> <!-- SelectColumns -->
+            <div class="modal-header editor-header">
+                <h3 class="modal-title">Order Columns</h3>
+            </div>
+            <div class="modal-body editor-body">
+                <h2 style="margin-top: 0;">Possible Columns</h2>
+                <div class="columns-possible">
+                    <ul dnd-list="possibleColumns.possible">
+                        <li ng-repeat="col in possibleColumns.possible"
+                        dnd-draggable="col"
+                        dnd-moved="possibleColumns.possible.splice($index, 1)"
+                        dnd-effect-allowed="move"
+                        dnd-selected="toggleColumnDescription(col)"
+                        ng-class="{'selected': possibleColumns.focusedColumn === col}"
+                        >
+                            {{col.DisplayName}}&nbsp;<span class="glyphicon {{col.Glyphicon}}"></span>
+                        </li>
+                    </ul>
+                </div>
 
-				<br>
+                <br>
 
-				<h2 style="margin-top: 0;">Selected Columns</h2>
-				<div class="columns-chosen">
-					<ul dnd-list="possibleColumns.chosen">
-						<li ng-repeat="col in possibleColumns.chosen"
-						dnd-draggable="col"
-						dnd-moved="possibleColumns.chosen.splice($index, 1)"
-						dnd-effect-allowed="move"
-						dnd-selected=""
-						ng-class=""
-						>
-							{{col.DisplayName}}<br /><span class="glyphicon {{col.Glyphicon}}"></span>
-						</li>
-					</ul>
-				</div>
-			</div>
+                <h2 style="margin-top: 0;">Selected Columns</h2>
+                <div class="columns-chosen">
+                    <ul dnd-list="possibleColumns.chosen">
+                        <li ng-repeat="col in possibleColumns.chosen"
+                        dnd-draggable="col"
+                        dnd-moved="possibleColumns.chosen.splice($index, 1)"
+                        dnd-effect-allowed="move"
+                        dnd-selected=""
+                        ng-class=""
+                        >
+                            {{col.DisplayName}}<br /><span class="glyphicon {{col.Glyphicon}}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-			<div class="modal-footer editor-footer">
-				<button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
-				<button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
-			</div>
-		</md-tab>
+            <div class="modal-footer editor-footer">
+                <button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
+                <button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
+            </div>
+        </md-tab>
 
-		<md-tab label="Misc Settings"> <!-- MiscSettings -->
-			<div class="modal-header editor-header">
-				<h3 class="modal-title">Set Profile Name</h3>
-			</div>
-			<div class="modal-body editor-body">
-				<table class="editor-table">
-					<tr>
-						<td>Fetch Resources Associated with Venues: </td>
-						<td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromVenues" ng-true-value="1" ng-false-value="0"/></td>
-					</tr>
-					<tr>
-						<td>Fetch Resources Associated with Clinic: </td>
-						<td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromClinics" ng-true-value="1" ng-false-value="0"/></td>
-					</tr>
-					<tr>
-						<td>Display Checked Out Appointments: </td>
-						<td><input type="checkbox" ng-model="selectedProfile.data.ShowCheckedOutAppointments" ng-true-value="1" ng-false-value="0"/></td>
-					</tr>
+        <md-tab label="Misc Settings"> <!-- MiscSettings -->
+            <div class="modal-header editor-header">
+                <h3 class="modal-title">Set Profile Name</h3>
+            </div>
+            <div class="modal-body editor-body">
+                <table class="editor-table">
+                    <tr>
+                        <td>Fetch Resources Associated with Venues: </td>
+                        <td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromVenues" ng-true-value="1" ng-false-value="0"/></td>
+                    </tr>
+                    <tr>
+                        <td>Fetch Resources Associated with Clinic: </td>
+                        <td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromClinics" ng-true-value="1" ng-false-value="0"/></td>
+                    </tr>
+                    <tr>
+                        <td>Display Checked Out Appointments: </td>
+                        <td><input type="checkbox" ng-model="selectedProfile.data.ShowCheckedOutAppointments" ng-true-value="1" ng-false-value="0"/></td>
+                    </tr>
 
 
 
-				</table>
-			</div>
+                </table>
+            </div>
 
-			<div class="modal-footer editor-footer">
-				<button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
-				<button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
-			</div>
-		</md-tab>
+            <div class="modal-footer editor-footer">
+                <button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
+                <button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
+            </div>
+        </md-tab>
 
-		<md-tab label="Confirm"> <!-- Confirm -->
-			<div "editor-confirm-div">
-				<div class="editor-box-div">
-					<div ng-if="selectedProfile.data.ProfileId == ''">
-						<span style="color: red;">Profile name not set!</span>
-					</div>
-					<div ng-if="possibleColumns.chosen.length === 0">
-						<span style="color:red;">No columns selected for profile!</span>
-					</div>
-					<div ng-if="errorMessage != ''">
-						<span style="color: red;">{{errorMessage}}</span>
-					</div>
+        <md-tab label="Confirm"> <!-- Confirm -->
+            <div "editor-confirm-div">
+                <div class="editor-box-div">
+                    <div ng-if="selectedProfile.data.ProfileId == ''">
+                        <span style="color: red;">Profile name not set!</span>
+                    </div>
+                    <div ng-if="possibleColumns.chosen.length === 0">
+                        <span style="color:red;">No columns selected for profile!</span>
+                    </div>
+                    <div ng-if="errorMessage != ''">
+                        <span style="color: red;">{{errorMessage}}</span>
+                    </div>
 
-					<table>
-						<tr><td><button style="width:100%" class="btn btn-primary" ng-disabled="selectedProfile.data.ProfileId == '' || possibleColumns.chosen.length === 0 || errorMessage != ''" ng-click="updateProfile()">{{selectedProfile.index === -1 ? 'Create Profile' : 'Update Profile'}}</button></td></tr>
-						<tr><td><br></td></tr>
-						<tr><td><button style="width:100%" class="btn btn-info" ng-click="resetSection()">Reset</button></td></tr>
-						<tr><td><br></td></tr>
-						<tr><td><button style="width:100%" class="btn btn-danger" ng-click="deleteProfile()">Delete Profile</button></td></tr>
-					</table>
+                    <table>
+                        <tr><td><button style="width:100%" class="btn btn-primary" ng-disabled="selectedProfile.data.ProfileId == '' || possibleColumns.chosen.length === 0 || errorMessage != ''" ng-click="updateProfile()">{{selectedProfile.index === -1 ? 'Create Profile' : 'Update Profile'}}</button></td></tr>
+                        <tr><td><br></td></tr>
+                        <tr><td><button style="width:100%" class="btn btn-info" ng-click="resetSection()">Reset</button></td></tr>
+                        <tr><td><br></td></tr>
+                        <tr><td><button style="width:100%" class="btn btn-danger" ng-click="deleteProfile()">Delete Profile</button></td></tr>
+                    </table>
 
-				</div>
-			</div>
+                </div>
+            </div>
 
-		</md-tab>
+        </md-tab>
 
-	</md-tabs>
+    </md-tabs>
 
 </div>

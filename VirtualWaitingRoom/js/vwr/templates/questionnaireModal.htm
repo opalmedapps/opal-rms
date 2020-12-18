@@ -1,92 +1,92 @@
 <div class="modal-header">
-	<h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.PatientIdRVH}})<div style="float:right">Age:{{patient.Age}} Sex:{{patient.Sex}}</div></h3>
+    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.PatientIdRVH}})<div style="float:right">Age:{{patient.Age}} Sex:{{patient.Sex}}</div></h3>
 </div>
 
 <div class="modal-body" ng-init="addScrollFunc()">
 
-	<br/>
+    <br/>
 
-	<div style="display: flex;justify-content: space-between;width: 100%">
-		<div style="width: 33%;">
-		    Search for Questionnaire:
-		    <input type="search" ng-model="qfilter" ng-change="changeIndexGroup(groupData,0)" placeholder="Filter questionnaires..."/>
-		</div>
-		<div style="width: 33%">
-		    <input type="button" ng-show="patient.confidMode === 'Nominal Mode'" class="btn btn-block"  style="background-color: grey; width: 60%" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" >
+    <div style="display: flex;justify-content: space-between;width: 100%">
+        <div style="width: 33%;">
+            Search for Questionnaire:
+            <input type="search" ng-model="qfilter" ng-change="changeIndexGroup(groupData,0)" placeholder="Filter questionnaires..."/>
+        </div>
+        <div style="width: 33%">
+            <input type="button" ng-show="patient.confidMode === 'Nominal Mode'" class="btn btn-block"  style="background-color: grey; width: 60%" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" >
             <input type="button" ng-show="patient.confidMode != 'Nominal Mode'" class="btn" ng-class="patient.QStatus === 'red-circle' ? 'btn-default' : 'btn-success'" ng-style="(patient.QStatus === 'red-circle') ? {'background-color': '#fe4b4b'} : {}" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" ng-click="markAsReviewed()">
-		</div>
-		<div>
-		    Last review: {{patient.LastQuestionnaireReview}}
-		</div>
-	</div>
-	<br>
+        </div>
+        <div>
+            Last review: {{patient.LastQuestionnaireReview}}
+        </div>
+    </div>
+    <br>
 
-	<div class="row questionnaire-container">
-		<h2 style="text-align:center;margin-top:0;">Questionnaire List</h2>
+    <div class="row questionnaire-container">
+        <h2 style="text-align:center;margin-top:0;">Questionnaire List</h2>
 
-		<div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="que in ques = (questionnaireList | filter: listFilter(qfilter) )" ng-click="displayChart(que)">
-			<input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.Name}}">
-		</div>
-	</div>
+        <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="que in ques = (questionnaireList | filter: listFilter(qfilter) )" ng-click="displayChart(que)">
+            <input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.Name}}">
+        </div>
+    </div>
 
-	<div ng-if="selectedQuestionnaireIsChart">
-		<hr>
-		<h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
-		<h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
+    <div ng-if="selectedQuestionnaireIsChart">
+        <hr>
+        <h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
+        <h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
 
-		<br>
+        <br>
 
-		<div class="row">
-			<div class="col-xs-4 col-md-4" ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
-				<div id='question{{$index}}'></div>
-			</div>
-		</div>
-	</div>
+        <div class="row">
+            <div class="col-xs-4 col-md-4" ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
+                <div id='question{{$index}}'></div>
+            </div>
+        </div>
+    </div>
 
-	<div ng-if="selectedQuestionnaireIsNonChart">
-		<hr>
-		<h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
-		<h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
+    <div ng-if="selectedQuestionnaireIsNonChart">
+        <hr>
+        <h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
+        <h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
 
-		<br>
+        <br>
 
-		<center>
-		<table border=0 width='90%'>
-		<tr>
-				<td width='5%'></td>
-				<td width='15%'>Date Answered</td>
-				<td width='50%'>Question</td>
-				<td width='30%'>Answer</td>
-		</tr>
-		</table>
-		</center>
+        <center>
+        <table border=0 width='90%'>
+        <tr>
+                <td width='5%'></td>
+                <td width='15%'>Date Answered</td>
+                <td width='50%'>Question</td>
+                <td width='30%'>Answer</td>
+        </tr>
+        </table>
+        </center>
 
-		<div ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
-			<hr ng-if="questions.DisplayDate">
-			<center>
-			<table border=0 width='90%'>
-			<tr>
-				<td width='5%'></td>
-				<td width='15%'>{{questions.DisplayDate}}</td>
-				<td width='50%'></td>
-				<td width='30%'></td>
-			</tr>
-			<tr class='td12'>
-				<td></td>
-				<td></td>
-				<td><b>{{questions.Description}}</b><br />{{questions.Choice}}</td>
-				<td>{{questions.Answer}}</td>
-			</tr>
-			<tr>
-				<td colspan='10'>&nbsp;</td>
-			</tr>
+        <div ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
+            <hr ng-if="questions.DisplayDate">
+            <center>
+            <table border=0 width='90%'>
+            <tr>
+                <td width='5%'></td>
+                <td width='15%'>{{questions.DisplayDate}}</td>
+                <td width='50%'></td>
+                <td width='30%'></td>
+            </tr>
+            <tr class='td12'>
+                <td></td>
+                <td></td>
+                <td><b>{{questions.Description}}</b><br />{{questions.Choice}}</td>
+                <td>{{questions.Answer}}</td>
+            </tr>
+            <tr>
+                <td colspan='10'>&nbsp;</td>
+            </tr>
 
-			</table>
-			</center>
-		</div>
+            </table>
+            </center>
+        </div>
 
 
-	</div>
+    </div>
 
-	<br>
+    <br>
 </div>

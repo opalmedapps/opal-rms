@@ -45,8 +45,8 @@ print $CGI->header('application/json');
 #if the setting is off, we exit immediately
 if(!$sendDocument)
 {
-	say "Document sending not enabled";
-	exit;
+    say "Document sending not enabled";
+    exit;
 }
 
 #facility = "MG" or "RV" but weights are always for RV
@@ -80,7 +80,7 @@ my @monthsFR = qw(janv f\\'evr mars avril mai juin juil ao\\^ut sept oct nov d\\
 
 for(my $i = 0; $i < scalar @monthsENG; $i++)
 {
-	($now = $now) =~ s/$monthsENG[$i]/$monthsFR[$i]/;
+    ($now = $now) =~ s/$monthsENG[$i]/$monthsFR[$i]/;
 }
 
 #verify the patient exists in the hospital ADT
@@ -88,8 +88,8 @@ for(my $i = 0; $i < scalar @monthsENG; $i++)
 
 #if($patientExists ne 1)
 #{
-#	say "Patient not found in ADT!";
-#	exit;
+#    say "Patient not found in ADT!";
+#    exit;
 #}
 
 #-----------------------------------------------------
@@ -99,35 +99,35 @@ my $dbh =  DBI->connect_cached($WRM_DB,$WRM_USER,$WRM_PASS) or die("Couldn't con
 
 #get the patient weights
 my $sql = "
-	SELECT
-		PM.FirstName,
-		PM.LastName,
-		PatientMeasurement.Date,
-		PatientMeasurement.Time,
-		PatientMeasurement.Height,
-		PatientMeasurement.Weight,
-		PatientMeasurement.BSA,
-		PatientMeasurement.AppointmentId
-	FROM
-	(
-		SELECT
-			Patient.FirstName,
-			Patient.LastName,
-			PatientMeasurement.Date,
-			PatientMeasurement.PatientSer,
-			MAX(PatientMeasurement.LastUpdated) AS LU,
-			MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
-		FROM
-			PatientMeasurement
-			INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
-				AND Patient.PatientId = '$patientIdRVH'
-				AND Patient.PatientId_MGH = '$patientIdMGH'
-		GROUP BY
-			PatientMeasurement.Date
-	) AS PM
-	INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
-		AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
-	ORDER BY PatientMeasurement.Date";
+    SELECT
+        PM.FirstName,
+        PM.LastName,
+        PatientMeasurement.Date,
+        PatientMeasurement.Time,
+        PatientMeasurement.Height,
+        PatientMeasurement.Weight,
+        PatientMeasurement.BSA,
+        PatientMeasurement.AppointmentId
+    FROM
+    (
+        SELECT
+            Patient.FirstName,
+            Patient.LastName,
+            PatientMeasurement.Date,
+            PatientMeasurement.PatientSer,
+            MAX(PatientMeasurement.LastUpdated) AS LU,
+            MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
+        FROM
+            PatientMeasurement
+            INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
+                AND Patient.PatientId = '$patientIdRVH'
+                AND Patient.PatientId_MGH = '$patientIdMGH'
+        GROUP BY
+            PatientMeasurement.Date
+    ) AS PM
+    INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
+        AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
+    ORDER BY PatientMeasurement.Date";
 
 my $query = $dbh->prepare($sql) or die("Query could not be prepared: ".$dbh->errstr);
 $query->execute() or die("Query execution failed: ".$query->errstr);
@@ -138,22 +138,22 @@ my %dates;
 
 while(my $data = $query->fetchrow_hashref)
 {
-	my %data = %{$data};
+    my %data = %{$data};
 
-	$fname = $data{'FirstName'};
-	$lname = $data{'LastName'};
+    $fname = $data{'FirstName'};
+    $lname = $data{'LastName'};
 
-	$data{'Time'} = Time::Piece->strptime($data{'Time'},"%H:%M:%S");
-	$data{'Time'} = $data{'Time'}->strftime("%H:%M");
+    $data{'Time'} = Time::Piece->strptime($data{'Time'},"%H:%M:%S");
+    $data{'Time'} = $data{'Time'}->strftime("%H:%M");
 
-	%{$dates{$data{'Date'}}} = ('Time' => $data{'Time'}, 'Height' => $data{'Height'}, 'Weight' => $data{'Weight'}, 'BSA' => $data{'BSA'}, 'AppointmentId' => substr($data{'AppointmentId'},4));
+    %{$dates{$data{'Date'}}} = ('Time' => $data{'Time'}, 'Height' => $data{'Height'}, 'Weight' => $data{'Weight'}, 'BSA' => $data{'BSA'}, 'AppointmentId' => substr($data{'AppointmentId'},4));
 }
 
 #exit if the patient has not had any measurements taken
 if(!%dates)
 {
-	say "No weights!";
-	exit;
+    say "No weights!";
+    exit;
 }
 
 #---------------------------------------------------------
@@ -211,58 +211,58 @@ say $aptOut "\\usepackage{afterpage}";
 say $aptOut "\\usepackage{lastpage}";
 
 say $aptOut "
-	\\renewcommand{\\headheight}{1.0in}
-	\\renewcommand{\\headrulewidth}{2pt}
-	\\renewcommand{\\footrulewidth}{1pt}
-	\\setlength{\\headwidth}{\\textwidth}
-	\\fancyhead[R]{\\large\\textbf{Liste des poids et tailles du patient}}
-	\\fancyhead[C]{\\includegraphics[height=0.53in]{$BASEPATH/images/logo.png}\\\\}
+    \\renewcommand{\\headheight}{1.0in}
+    \\renewcommand{\\headrulewidth}{2pt}
+    \\renewcommand{\\footrulewidth}{1pt}
+    \\setlength{\\headwidth}{\\textwidth}
+    \\fancyhead[R]{\\large\\textbf{Liste des poids et tailles du patient}}
+    \\fancyhead[C]{\\includegraphics[height=0.53in]{$BASEPATH/images/logo.png}\\\\}
 
-	\\fancyfoot[R]{Page \\thepage~de \\pageref{LastPage}} %page number on right
-	\\fancyfoot[C]{} %blank central footer
+    \\fancyfoot[R]{Page \\thepage~de \\pageref{LastPage}} %page number on right
+    \\fancyfoot[C]{} %blank central footer
 
-	\\lfoot{\\textbf{FMU-4183 Source :} ARIA(REV 2018/08/24) \\\\
-	\\hfill\\\\
-	\\footnotesize{Si une version papier de ce document est re\\c{c}ue aux archives, avec ou sans notes manuscrites, en statut pr\\'{e}liminaire ou final, \\textbf{il ne sera pas num\\'{e}ris\\'{e}}.  Les corrections doivent \\^{e}tre faites dans le document pr\\'{e}liminaire ou via l'addendum si le document est final.\\\\
-	\\hfill\\\\
-	If a printout of this document is received in Medical Records, with or without handwritten notes, whether it is preliminary or final, \\textbf{it will not be scanned}.  Corrections must be done in the preliminary document or via an addendum if the document is final.}
-	} %document info on left
-	\\pagestyle{fancy}
+    \\lfoot{\\textbf{FMU-4183 Source :} ARIA(REV 2018/08/24) \\\\
+    \\hfill\\\\
+    \\footnotesize{Si une version papier de ce document est re\\c{c}ue aux archives, avec ou sans notes manuscrites, en statut pr\\'{e}liminaire ou final, \\textbf{il ne sera pas num\\'{e}ris\\'{e}}.  Les corrections doivent \\^{e}tre faites dans le document pr\\'{e}liminaire ou via l'addendum si le document est final.\\\\
+    \\hfill\\\\
+    If a printout of this document is received in Medical Records, with or without handwritten notes, whether it is preliminary or final, \\textbf{it will not be scanned}.  Corrections must be done in the preliminary document or via an addendum if the document is final.}
+    } %document info on left
+    \\pagestyle{fancy}
 
-	\\definecolor{light-gray}{gray}{0.95}
-	\\definecolor{dark-gray}{gray}{0.8}
-	\\definecolor{light-blue}{rgb}{0,0,0.99}
-	\\definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
+    \\definecolor{light-gray}{gray}{0.95}
+    \\definecolor{dark-gray}{gray}{0.8}
+    \\definecolor{light-blue}{rgb}{0,0,0.99}
+    \\definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
 
-	%\\AddToShipoutPicture{\\AtTextUpperLeft{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}}";
+    %\\AddToShipoutPicture{\\AtTextUpperLeft{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}}";
 
 say $aptOut "
-	\\begin{document}
-	\\begin{minipage}{0.65\\textwidth}
-	\\hspace{-0.22in} Derni\\`{e}re mise \\`{a} jour : \\textbf{\\color{black}{$now}}\\\\
-	\\bigskip
+    \\begin{document}
+    \\begin{minipage}{0.65\\textwidth}
+    \\hspace{-0.22in} Derni\\`{e}re mise \\`{a} jour : \\textbf{\\color{black}{$now}}\\\\
+    \\bigskip
 
-	\\vspace{-0.22in}
-	\\hspace{-0.22in} Ce document est mis \\`{a} jour automatiquement \\`{a} la suite de la mise \\`{a} jour du poids ou de le taille du patient dans le syst\\`{e}me ORMS-Aria.
-	\\end{minipage}
-	\\begin{minipage}{0.25\\textwidth}
-	\\begin{flushright}
-	\\includegraphics[height=0.8in]{$BASEPATH/images/noscan.png}
-	\\end{flushright}
-	\\end{minipage}
+    \\vspace{-0.22in}
+    \\hspace{-0.22in} Ce document est mis \\`{a} jour automatiquement \\`{a} la suite de la mise \\`{a} jour du poids ou de le taille du patient dans le syst\\`{e}me ORMS-Aria.
+    \\end{minipage}
+    \\begin{minipage}{0.25\\textwidth}
+    \\begin{flushright}
+    \\includegraphics[height=0.8in]{$BASEPATH/images/noscan.png}
+    \\end{flushright}
+    \\end{minipage}
 
-	\\begin{center}
-	\\textbf{$lname, $fname (RVH-$patientIdRVH)}
-	\\newline
-	\\includegraphics[height=4.3in]{$outputWeightFile.png}
-	\\end{center}
-	\\vspace{-0.3in}";
+    \\begin{center}
+    \\textbf{$lname, $fname (RVH-$patientIdRVH)}
+    \\newline
+    \\includegraphics[height=4.3in]{$outputWeightFile.png}
+    \\end{center}
+    \\vspace{-0.3in}";
 
 # Prepare the table to hold the data
 say $aptOut "
-	\\normalsize
-	\\rowcolors{1}{light-gray}{dark-gray}
-	{\\renewcommand{\\arraystretch}{1.5}%row padding
+    \\normalsize
+    \\rowcolors{1}{light-gray}{dark-gray}
+    {\\renewcommand{\\arraystretch}{1.5}%row padding
 
     \\hfill\\\\
     \\hfill\\\\
@@ -274,29 +274,29 @@ say $aptOut "
     prescription or treatment purposes. You, the healthcare provider, must validate the
     information prior to making any clinical decision or prescribing any treatment.}}
 
-	\\begin{longtable}
-	{
-		|p{0.2\\linewidth}
-		|p{0.16\\linewidth}
-		|p{0.155\\linewidth}
-		|p{0.15\\linewidth}
-		|p{0.15\\linewidth}
-		|p{0.15\\linewidth}
-		|
-	}
-	\\rowcolor{white}\\multicolumn{6}{l}{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}\\\\
-	\\rowcolor{white}\\multicolumn{6}{l}{\\color{white}{ }}\\\\
-	\\hline
-	\\rowcolor{babyblueeyes}
-		\\textbf{Date et heure de la mesure}
-		&\\textbf{Poids}
-		&\\textbf{Taille}
-		&\\textbf{Surface \\newline Corporelle}
-		&\\textbf{Num\\'{e}ro \\newline du RDV}\\\\
-	\\hline
-	\\endhead
-	\\hline
-	\\hline";
+    \\begin{longtable}
+    {
+        |p{0.2\\linewidth}
+        |p{0.16\\linewidth}
+        |p{0.155\\linewidth}
+        |p{0.15\\linewidth}
+        |p{0.15\\linewidth}
+        |p{0.15\\linewidth}
+        |
+    }
+    \\rowcolor{white}\\multicolumn{6}{l}{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}\\\\
+    \\rowcolor{white}\\multicolumn{6}{l}{\\color{white}{ }}\\\\
+    \\hline
+    \\rowcolor{babyblueeyes}
+        \\textbf{Date et heure de la mesure}
+        &\\textbf{Poids}
+        &\\textbf{Taille}
+        &\\textbf{Surface \\newline Corporelle}
+        &\\textbf{Num\\'{e}ro \\newline du RDV}\\\\
+    \\hline
+    \\endhead
+    \\hline
+    \\hline";
 
 # Loop through the dates and fill the table
 
@@ -305,17 +305,17 @@ my $boldedFirstRow = 0;
 
 foreach my $date (reverse sort keys %dates)
 {
-	if(!$boldedFirstRow)
-	{
-		say $aptOut "\\textbf{$date $dates{$date}{'Time'}} & \\textbf{$dates{$date}{'Weight'} kg} & \\textbf{$dates{$date}{'Height'} cm} & \\textbf{$dates{$date}{'BSA'} m\\textsuperscript{2}} & \\textbf{$dates{$date}{'AppointmentId'}} \\\\";
-		$boldedFirstRow = 1;
-	}
-	else
-	{
-		say $aptOut "$date $dates{$date}{'Time'} & $dates{$date}{'Weight'} kg & $dates{$date}{'Height'} cm & $dates{$date}{'BSA'} m\\textsuperscript{2} & $dates{$date}{'AppointmentId'} \\\\";
-	}
+    if(!$boldedFirstRow)
+    {
+        say $aptOut "\\textbf{$date $dates{$date}{'Time'}} & \\textbf{$dates{$date}{'Weight'} kg} & \\textbf{$dates{$date}{'Height'} cm} & \\textbf{$dates{$date}{'BSA'} m\\textsuperscript{2}} & \\textbf{$dates{$date}{'AppointmentId'}} \\\\";
+        $boldedFirstRow = 1;
+    }
+    else
+    {
+        say $aptOut "$date $dates{$date}{'Time'} & $dates{$date}{'Weight'} kg & $dates{$date}{'Height'} cm & $dates{$date}{'BSA'} m\\textsuperscript{2} & $dates{$date}{'AppointmentId'} \\\\";
+    }
 
-	say $aptOut "\\hline";
+    say $aptOut "\\hline";
 }
 
 say $aptOut "  \\end{longtable}}";
@@ -333,20 +333,20 @@ my $outputXMLFile = "$BASEPATH/perl/MUHC-$facility-$noZeroesId-$aptsChart^Aria_$
 
 open(my $xmlOut,">",$outputXMLFile) or die "Could not open file '$outputXMLFile' $!";
 my $xmlText = "
-	<IndexInfo>
-		<fileCount>1</fileCount>
-		<mrn>$noZeroesId</mrn>
-		<facility>$facility</facility>
-		<docType>MU-4183</docType>
-		<docDate>$today</docDate>
-		<indexingAction>R</indexingAction>
-		<externalSystemIds>
-			<externalSystemId>
-				<externalSystem>Aria</externalSystem>
-				<externalId>MUHC-$facility-$noZeroesId-$aptsChart^Aria</externalId>
-			</externalSystemId>
-		</externalSystemIds>
-	</IndexInfo>";
+    <IndexInfo>
+        <fileCount>1</fileCount>
+        <mrn>$noZeroesId</mrn>
+        <facility>$facility</facility>
+        <docType>MU-4183</docType>
+        <docDate>$today</docDate>
+        <indexingAction>R</indexingAction>
+        <externalSystemIds>
+            <externalSystemId>
+                <externalSystem>Aria</externalSystem>
+                <externalId>MUHC-$facility-$noZeroesId-$aptsChart^Aria</externalId>
+            </externalSystemId>
+        </externalSystemIds>
+    </IndexInfo>";
 
 print $xmlOut $xmlText;
 close $xmlOut;

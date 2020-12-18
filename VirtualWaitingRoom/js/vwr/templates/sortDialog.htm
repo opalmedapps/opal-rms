@@ -1,24 +1,24 @@
 <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
-	<h2 class="md-title ng-binding">Order Appointments</h2>
-	<div class="md-dialog-content-body ng-scope">
-		<table class="order-table">
-			<tr>
-				<td ng-class="priority === '+' ? 'sort-priority-cell' : ''" ng-click="priority = '+'">&#9650;</td>
-				<td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'LastName')">By Last Name</md-button></td>
-				<td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete([priority+'ScheduledStartTime_hh',priority+'ScheduledStartTime_mm'])">By Scheduled Time</md-button></td>
-			</tr>
+    <h2 class="md-title ng-binding">Order Appointments</h2>
+    <div class="md-dialog-content-body ng-scope">
+        <table class="order-table">
+            <tr>
+                <td ng-class="priority === '+' ? 'sort-priority-cell' : ''" ng-click="priority = '+'">&#9650;</td>
+                <td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'LastName')">By Last Name</md-button></td>
+                <td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete([priority+'ScheduledStartTime_hh',priority+'ScheduledStartTime_mm'])">By Scheduled Time</md-button></td>
+            </tr>
 
-			<tr>
-				<td ng-class="priority === '-' ? 'sort-priority-cell' : ''" ng-click="priority = '-'">&#9660;</td>
-				<td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'ResourceName')">By Clinic</md-button></td>
-				<td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'WaitTime')">By Wait</md-button></td>
-			</tr>
+            <tr>
+                <td ng-class="priority === '-' ? 'sort-priority-cell' : ''" ng-click="priority = '-'">&#9660;</td>
+                <td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'ResourceName')">By Clinic</md-button></td>
+                <td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'WaitTime')">By Wait</md-button></td>
+            </tr>
 
-			<tr>
-				<td></td>
-				<td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'AppointmentName')">By Appointment Name</md-button></td>
+            <tr>
+                <td></td>
+                <td><md-button md-no-ink="" class="md-raised md-primary sort-button" ng-click="complete(priority+'AppointmentName')">By Appointment Name</md-button></td>
 
-			</tr>
-		</table>
-	</div>
+            </tr>
+        </table>
+    </div>
 </md-dialog-content>

@@ -15,84 +15,84 @@
 <link media="all" type="text/css" rel="stylesheet" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
 
 <style>
-	.items,
-	.items td,
-	.items tr,
-	.items th {
-		border-collapse:collapse;
-		border:1px solid black;
-		text-align:left;
-	}
+    .items,
+    .items td,
+    .items tr,
+    .items th {
+        border-collapse:collapse;
+        border:1px solid black;
+        text-align:left;
+    }
 
-	.items tr:nth-child(even){background-color:#f1f1f1;min-width:50px;}
-	.items th {background-color:#98FB98;min-width:50px}
-	.page {margin:10px;}
-	td {padding-right: 15px;}
+    .items tr:nth-child(even){background-color:#f1f1f1;min-width:50px;}
+    .items th {background-color:#98FB98;min-width:50px}
+    .page {margin:10px;}
+    td {padding-right: 15px;}
 
-	.match {
-		background-color:#75ea28;
-	}
+    .match {
+        background-color:#75ea28;
+    }
 </style>
 <center><h1>MUHC Department of Radiation Oncology</h1></center><center><h2><u>Patient Locations</u></h2></center>
 
 <div class="page" ng-controller="main" ng-init="runScript(true)">
-	<table border="0" width="50%" padding="5">
-		<tr>
-		<td valign="top"><b>Description:</b></td>
-		<td>Report that creates a table displaying which rooms patients were checked into.</td>
-		</tr>
-	</table>
-	<br>
+    <table border="0" width="50%" padding="5">
+        <tr>
+        <td valign="top"><b>Description:</b></td>
+        <td>Report that creates a table displaying which rooms patients were checked into.</td>
+        </tr>
+    </table>
+    <br>
 
-	<form ng-submit="runScript()">
-		<table border="0" width="50%" padding="2">
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF>
-			<th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
-			</tr>
-			<tr><td><br></td></tr>
+    <form ng-submit="runScript()">
+        <table border="0" width="50%" padding="2">
+            <tr bgcolor=#1D0886 fgcolor=#FFFFFF>
+            <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
+            </tr>
+            <tr><td><br></td></tr>
 
-			<tr>
-			<td><b>From Date: </b></td>
-			<td><input  type="date" ng-model="sDate" required></input></td>
-			<td><b>To Date: </b></td>
-			<td><input type="date" ng-model="eDate" required></input></td>
-			</tr>
+            <tr>
+            <td><b>From Date: </b></td>
+            <td><input  type="date" ng-model="sDate" required></input></td>
+            <td><b>To Date: </b></td>
+            <td><input type="date" ng-model="eDate" required></input></td>
+            </tr>
 
-			<tr><td><br></td></tr>
-			<tr>
-			<td></td>
-			<td align="right"><input type="submit" value="Submit"> <input type="reset">
-			</td>
-			</tr>
-		</table>
-	</form>
+            <tr><td><br></td></tr>
+            <tr>
+            <td></td>
+            <td align="right"><input type="submit" value="Submit"> <input type="reset">
+            </td>
+            </tr>
+        </table>
+    </form>
 
-	<p>{{message}}</p>
-	<div ng-if='showDiv'>
-	<table>
-		<tr><td>Searching From: </td><td>{{sDateDisplay | date}}</td></tr>
-		<tr><td>Searching To: </td><td>{{eDateDisplay | date}}</td></tr>
-	</table>
-	<br>
+    <p>{{message}}</p>
+    <div ng-if='showDiv'>
+    <table>
+        <tr><td>Searching From: </td><td>{{sDateDisplay | date}}</td></tr>
+        <tr><td>Searching To: </td><td>{{eDateDisplay | date}}</td></tr>
+    </table>
+    <br>
 
-	<div ng-repeat="(key,val) in tableData">
-		<h1>{{key}}</h1>
-		<table class='items'>
-		<thead>
-			<tr>
-			<th>Patient ID</th>
-			<th ng-repeat="col in columns">{{col}}</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="(pat,rooms) in val">
-			<td>{{pat}}</td>
-			<td ng-repeat="col in columns track by $index" ng-class="{'match' : rooms.indexOf($index+1) !== -1}"></td>
-			</tr>
-		<tbody>
-		</table>
-		<br>
-	</div>
+    <div ng-repeat="(key,val) in tableData">
+        <h1>{{key}}</h1>
+        <table class='items'>
+        <thead>
+            <tr>
+            <th>Patient ID</th>
+            <th ng-repeat="col in columns">{{col}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="(pat,rooms) in val">
+            <td>{{pat}}</td>
+            <td ng-repeat="col in columns track by $index" ng-class="{'match' : rooms.indexOf($index+1) !== -1}"></td>
+            </tr>
+        <tbody>
+        </table>
+        <br>
+    </div>
 
 </div>
 
@@ -103,90 +103,90 @@ var app = angular.module('myApp',['ui.bootstrap','ngAnimate','highcharts-ng','jl
 
 app.config(['$locationProvider',function ($locationProvider)
 {
-	$locationProvider.html5Mode({
-		enabled: true,
-		requireBase: false,
-		rewriteLinks: false
-	});
+    $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false,
+        rewriteLinks: false
+    });
 }]);
 
 app.controller('main', function($scope,$uibModal,$location,callScript,bowser)
 {
-	$scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
-	if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
+    $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
+    if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
 
-	$scope.showDiv = false;
+    $scope.showDiv = false;
 
-	var pageParams = $location.search();
-	var speciality = pageParams.speciality;
+    var pageParams = $location.search();
+    var speciality = pageParams.speciality;
 
-	$scope.convertDate = function (enteredDate)
-	{
-		var year = enteredDate.getFullYear();
-		var month = enteredDate.getMonth()+1 >= 10 ? enteredDate.getMonth()+1 : "0" + (enteredDate.getMonth()+1);
-		var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
-		var convDate = year + "-" + month + "-" + day;
+    $scope.convertDate = function (enteredDate)
+    {
+        var year = enteredDate.getFullYear();
+        var month = enteredDate.getMonth()+1 >= 10 ? enteredDate.getMonth()+1 : "0" + (enteredDate.getMonth()+1);
+        var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
+        var convDate = year + "-" + month + "-" + day;
 
-		return convDate;
-	}
-	$scope.runScript = function (firstTime)
-	{
-		if(firstTime)
-		{
-			$scope.sDate = new Date();
-			$scope.eDate = new Date();
-		}
+        return convDate;
+    }
+    $scope.runScript = function (firstTime)
+    {
+        if(firstTime)
+        {
+            $scope.sDate = new Date();
+            $scope.eDate = new Date();
+        }
 
-		$scope.sDateDisplay = $scope.sDate;
-		$scope.eDateDisplay = $scope.eDate;
+        $scope.sDateDisplay = $scope.sDate;
+        $scope.eDateDisplay = $scope.eDate;
 
-		$scope.showDiv = false;
-		$scope.message = "Getting Data...";
-		callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),speciality).then(function (response)
-		{
-			$scope.patData = response;
-			$scope.tableData = {};
+        $scope.showDiv = false;
+        $scope.message = "Getting Data...";
+        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),speciality).then(function (response)
+        {
+            $scope.patData = response;
+            $scope.tableData = {};
 
-			angular.forEach($scope.patData, function (val,day)
-			{
-				$scope.tableData[day] = {};
+            angular.forEach($scope.patData, function (val,day)
+            {
+                $scope.tableData[day] = {};
 
-				angular.forEach(val, function (appointment)
-				{
-					if(!$scope.tableData[day].hasOwnProperty(appointment.pID)){$scope.tableData[day][appointment.pID] = [];}
-					angular.forEach(appointment.rooms, function(room)
-					{
-						$scope.tableData[day][appointment.pID].push(room);
-					});
-				});
-			});
+                angular.forEach(val, function (appointment)
+                {
+                    if(!$scope.tableData[day].hasOwnProperty(appointment.pID)){$scope.tableData[day][appointment.pID] = [];}
+                    angular.forEach(appointment.rooms, function(room)
+                    {
+                        $scope.tableData[day][appointment.pID].push(room);
+                    });
+                });
+            });
 
-			$scope.message = "";
-			$scope.showDiv = true;
-		});
-	}
+            $scope.message = "";
+            $scope.showDiv = true;
+        });
+    }
 
-	$scope.columns = ["The Blank Room","8225","A1 EXAM ROOM","A1 EXAM ROOM.","A2 EXAM ROOM","A3 EXAM ROOM","A4 EXAM ROOM","A5 EXAM ROOM","A5 EXAM ROOM -a","A6 EXAM ROOM","ADDED ON BY RECEPTION","B1 EXAM ROOM","B2 EXAM ROOM","B3 EXAM ROOM","B4 EXAM ROOM","B5 EXAM ROOM","B6 EXAM ROOM","B7 EXAM ROOM","B8 EXAM ROOM","B9 EXAM ROOM","BACK FROM X-RAY","BACK FROM X-RAY/PHYSIO","C1 EXAM ROOM","C2 EXAM ROOM","C3 EXAM ROOM","C4 EXAM ROOM","C5 EXAM ROOM","C6 EXAM ROOM","C7 EXAM ROOM","C8 EXAM ROOM","CHEMO COMPLETE","D1 EXAM ROOM","D2 EXAM ROOM","D3 EXAM ROOM","D6 EXAM ROOM","D7 EXAM ROOM","D8 EXAM ROOM","D9 EXAM ROOM","DRC Waiting Room","DS1 Waiting Room","Midnight","OPAL PHONE APP","Ortho Cast Room 1","Ortho Cast Room 2","Ortho Cast Room 3","Ortho Cast Room 4","Ortho Cast Room 5","Ortho Generic","Ortho Reception","Ortho Room A1","Ortho Room A2","Ortho Room A3","Ortho Room A4","Ortho Room B5","Ortho Room B6","Ortho Room C7","Ortho Room C8","Ortho Room D10","Ortho Room D11","Ortho Room D12","Ortho Room D9","Ortho Treatment Room","Ortho Waiting Room","RC RECEPTION","RC Waiting Room","RT TX ROOM 1","RT TX ROOM 3","RT TX ROOM 6","S1 RECEPTION","S1 Waiting Room","SENT FOR PHYSIO","SENT FOR X-RAY","SS1 EXAM ROOM","TEST CENTRE WAITING ROOM","Testing","TX AREA A","TX AREA B","TX AREA C","TX AREA D","TX AREA E","TX AREA F","TX AREA G","TX AREA H","TX AREA U","unknown","VISIT COMPLETE"];
+    $scope.columns = ["The Blank Room","8225","A1 EXAM ROOM","A1 EXAM ROOM.","A2 EXAM ROOM","A3 EXAM ROOM","A4 EXAM ROOM","A5 EXAM ROOM","A5 EXAM ROOM -a","A6 EXAM ROOM","ADDED ON BY RECEPTION","B1 EXAM ROOM","B2 EXAM ROOM","B3 EXAM ROOM","B4 EXAM ROOM","B5 EXAM ROOM","B6 EXAM ROOM","B7 EXAM ROOM","B8 EXAM ROOM","B9 EXAM ROOM","BACK FROM X-RAY","BACK FROM X-RAY/PHYSIO","C1 EXAM ROOM","C2 EXAM ROOM","C3 EXAM ROOM","C4 EXAM ROOM","C5 EXAM ROOM","C6 EXAM ROOM","C7 EXAM ROOM","C8 EXAM ROOM","CHEMO COMPLETE","D1 EXAM ROOM","D2 EXAM ROOM","D3 EXAM ROOM","D6 EXAM ROOM","D7 EXAM ROOM","D8 EXAM ROOM","D9 EXAM ROOM","DRC Waiting Room","DS1 Waiting Room","Midnight","OPAL PHONE APP","Ortho Cast Room 1","Ortho Cast Room 2","Ortho Cast Room 3","Ortho Cast Room 4","Ortho Cast Room 5","Ortho Generic","Ortho Reception","Ortho Room A1","Ortho Room A2","Ortho Room A3","Ortho Room A4","Ortho Room B5","Ortho Room B6","Ortho Room C7","Ortho Room C8","Ortho Room D10","Ortho Room D11","Ortho Room D12","Ortho Room D9","Ortho Treatment Room","Ortho Waiting Room","RC RECEPTION","RC Waiting Room","RT TX ROOM 1","RT TX ROOM 3","RT TX ROOM 6","S1 RECEPTION","S1 Waiting Room","SENT FOR PHYSIO","SENT FOR X-RAY","SS1 EXAM ROOM","TEST CENTRE WAITING ROOM","Testing","TX AREA A","TX AREA B","TX AREA C","TX AREA D","TX AREA E","TX AREA F","TX AREA G","TX AREA H","TX AREA U","unknown","VISIT COMPLETE"];
 });
 
 app.factory('callScript',function($http,$q)
 {
-	return {
-		getData: function(sDate,eDate,speciality)
-		{
-			var defer = $q.defer();
+    return {
+        getData: function(sDate,eDate,speciality)
+        {
+            var defer = $q.defer();
 
-			url = "./Scripts/PatientLocations?"
+            url = "./Scripts/PatientLocations?"
 
-			$http.get(url+"&sDate="+sDate+"&eDate="+eDate+"&clinic="+speciality).then(function (response)
-			{
-				var info = {};
-				info = response.data;
-				defer.resolve(info);
-			});
-			return defer.promise;
-		}
-	};
+            $http.get(url+"&sDate="+sDate+"&eDate="+eDate+"&clinic="+speciality).then(function (response)
+            {
+                var info = {};
+                info = response.data;
+                defer.resolve(info);
+            });
+            return defer.promise;
+        }
+    };
 });
 </script>
 

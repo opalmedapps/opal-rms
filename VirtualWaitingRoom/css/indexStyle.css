@@ -1,55 +1,55 @@
 /*main div*/
 .page-div {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 /*tab div*/
 .tab-div {
-	border: 2px solid black;
-	width:75%;
-	height:75vh;
-	position: absolute;
-	right: 12.5%;
-	min-height: 0 !important;
+    border: 2px solid black;
+    width:75%;
+    height:75vh;
+    position: absolute;
+    right: 12.5%;
+    min-height: 0 !important;
 }
 
 /*enables the back button to be shown*/
 .tab-div md-tab-data {
-	opacity: 1;
-	left: initial;
-	z-index: 20;
+    opacity: 1;
+    left: initial;
+    z-index: 20;
 }
 
 /*background and font settings for the tab bar*/
 .tab-div md-tabs-canvas {
-	background: #03A9F4;
-	/*border: 1px solid black;*/
+    background: #03A9F4;
+    /*border: 1px solid black;*/
 }
 
-.tab-div md-tabs.md-default-theme .md-tab, 
+.tab-div md-tabs.md-default-theme .md-tab,
 .tab-div md-tabs .md-tab {
-	color: black;
-	font-weight: bold;
+    color: black;
+    font-weight: bold;
 }
 
-.tab-div md-tabs.md-default-theme .md-tab.md-active, 
-.tab-div md-tabs .md-tab.md-active, 
-.tab-div md-tabs.md-default-theme .md-tab.md-active md-icon, 
+.tab-div md-tabs.md-default-theme .md-tab.md-active,
+.tab-div md-tabs .md-tab.md-active,
+.tab-div md-tabs.md-default-theme .md-tab.md-active md-icon,
 .tab-div md-tabs .md-tab.md-active md-icon,
-.tab-div md-tabs.md-default-theme .md-tab.md-focused, 
-.tab-div md-tabs .md-tab.md-focused, 
-.tab-div md-tabs.md-default-theme .md-tab.md-focused md-icon, 
+.tab-div md-tabs.md-default-theme .md-tab.md-focused,
+.tab-div md-tabs .md-tab.md-focused,
+.tab-div md-tabs.md-default-theme .md-tab.md-focused md-icon,
 .tab-div md-tabs .md-tab.md-focused md-icon {
-	color: white;
-	font-weight: bold;
+    color: white;
+    font-weight: bold;
 }
 
 /*enables the back button to be shown*/
 .tab-div md-tab-data {
-	opacity: 1;
-	left: initial;
-	z-index: 20;
+    opacity: 1;
+    left: initial;
+    z-index: 20;
 }
 
 /*remove the min height of the tab content*/
@@ -59,62 +59,62 @@
 
 /*grid settings*/
 .mode-selector-grid {
-	height: 100%;
-	width: 100%;
-	padding-bottom: 0 !important;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 0 !important;
 }
 
 .grid-button {
-	height: 100%;
-	width: 100%;
-	margin: 0;
-	font-size: 200%;
-	border: 1px solid black;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    font-size: 200%;
+    border: 1px solid black;
 }
 
 .button-create {
-	background: #49de3985;
+    background: #49de3985;
 }
 
 .button-edit {
-	background: #49de3985;
+    background: #49de3985;
 }
 
 .button-borderless-right {
-	border-right: 0;
+    border-right: 0;
 }
 
 .button-borderless-left {
-	border-left: 0;
+    border-left: 0;
 }
 
 .button-borderless-bottom {
-	border-bottom: 0;
+    border-bottom: 0;
 }
 
 .button-borderless-right-bottom {
-	border-right: 0;
-	border-bottom: 0;
+    border-right: 0;
+    border-bottom: 0;
 }
 
 .button-borderless-left-bottom {
-	border-left: 0;
-	border-bottom: 0;
+    border-left: 0;
+    border-bottom: 0;
 }
 
 .button-border-thick-right {
-	border-right: 2px solid black;
+    border-right: 2px solid black;
 }
 
 .button-border-thick-bottom {
-	border-bottom: 2px solid black;
+    border-bottom: 2px solid black;
 }
 
 
 /*restart button settings*/
 .restart-button {
-	background: red;
-	border-radius: 57%;
+    background: red;
+    border-radius: 57%;
 }
 
 .restart-button:not([disabled]):hover {
@@ -122,18 +122,18 @@
 }
 
 .editor-tab-div {
-	height: 100%;
-	width: 100%;	
+    height: 100%;
+    width: 100%;
 }
 
 /*background and font settings for the profile editor tab bar*/
 .editor-tab-div md-tabs-canvas {
-	background: #f1f1f1;	
+    background: #f1f1f1;
 }
 
-.editor-tab-div md-tabs.md-default-theme .md-tab, 
+.editor-tab-div md-tabs.md-default-theme .md-tab,
 .editor-tab-div md-tabs .md-tab {
-	color: rgba(0,0,0,0.54);
+    color: rgba(0,0,0,0.54);
 }
 
 .editor-tab-div md-tabs.md-default-theme .md-tab.md-active,
@@ -144,74 +144,74 @@
 .editor-tab-div md-tabs .md-tab.md-focused,
 .editor-tab-div md-tabs.md-default-theme .md-tab.md-focused md-icon,
 .editor-tab-div md-tabs .md-tab.md-focused md-icon {
-	color: rgb(63,81,181);
+    color: rgb(63,81,181);
 }
 
 /* profile editor selected button */
 .selected-button {
-	background: #4773f3;
+    background: #4773f3;
 }
 
 /* css for the options selector */
 .option-checkbox {
-	list-style: none;
-	height: 75%;
-	overflow-y: auto;
-	list-style: none;
-	border: 1px #ccc solid;
-	border-radius: 5px;
+    list-style: none;
+    height: 75%;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px #ccc solid;
+    border-radius: 5px;
 }
 
 .option-list {
-	word-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .editor-header {
-	height: 10%;
+    height: 10%;
 }
 
 .editor-body {
-	height: 80%;
-	overflow-y: auto;
+    height: 80%;
+    overflow-y: auto;
 }
 
 .editor-footer {
-	height: 10%;
-	padding: 10px;
+    height: 10%;
+    padding: 10px;
 }
 
 .editor-table {
-	--width: 100%;
+    --width: 100%;
 }
 
 .editor-table td {
-	padding: 10px;
+    padding: 10px;
 }
 
 .editor-confirm-div {
-	height: 100%;
-	width: 100%;
-	overflow-y: auto;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
 }
 
 .editor-box-div {
-	height: 50%;
-	width: 25%;
-	position: absolute;
-	right: 37.5%;
-	top: 25%;
+    height: 50%;
+    width: 25%;
+    position: absolute;
+    right: 37.5%;
+    top: 25%;
 }
 
 .selector-color-IntermediateVenue {
-	color: blue;
+    color: blue;
 }
 
 .selector-color-TreatmentVenue {
-	color: green;
+    color: green;
 }
 
 .selector-color-ExamRoom {
-	color: red;
+    color: red;
 }
 
 /*===============================================================================
@@ -220,8 +220,8 @@
 
 /* for the possible columns */
 .columns-possible {
-	height: 45%;
-	border: 1px solid black;
+    height: 45%;
+    border: 1px solid black;
 }
 
 /**
@@ -229,9 +229,9 @@
  * otherwise you can't drop to it once it's empty
  */
 .columns-possible ul[dnd-list] {
-	padding-left: 0px;
-	height: 100%;
-	overflow-y: auto;
+    padding-left: 0px;
+    height: 100%;
+    overflow-y: auto;
 }
 
 /**
@@ -241,9 +241,9 @@
  * that he's actually moving it.
  */
 .columns-possible ul[dnd-list] .dndDraggingSource {
-	display: none;
-	padding: 0;
-	margin: 0;
+    display: none;
+    padding: 0;
+    margin: 0;
 }
 
 /**
@@ -252,32 +252,32 @@
  * over it.
  */
 .columns-possible ul[dnd-list] .dndPlaceholder {
-	background-color: #ddd;
-	display: block;
-	height: 25%;
-	margin: 0;
+    background-color: #ddd;
+    display: block;
+    height: 25%;
+    margin: 0;
 }
 
 .columns-possible ul[dnd-list] li {
-	background-color: #fff;
-	border: 1px solid #ddd;
-	border-top-right-radius: 4px;
-	border-top-left-radius: 4px;
-	display: flex;
-	width: 20%;
-	height: 25%;
-	float: left;
-	justify-content: center;
-	align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: flex;
+    width: 20%;
+    height: 25%;
+    float: left;
+    justify-content: center;
+    align-items: center;
 }
 
 /**
  * Show selected elements in green
  */
 .columns-possible ul[dnd-list] li.selected {
-	background-color: #dff0d8;
-	color: #3c763d;
-	width: 20%;
+    background-color: #dff0d8;
+    color: #3c763d;
+    width: 20%;
 }
 
 /*================================================*/
@@ -285,44 +285,44 @@
 /*=================================================*/
 
 .columns-chosen {
-	height: 45%;
-	border: 1px solid black;
-	overflow-x: auto;
+    height: 45%;
+    border: 1px solid black;
+    overflow-x: auto;
 }
 
 .columns-chosen ul[dnd-list] {
-	height: 100%;
-	padding-left: 0;
-	margin: 0;
-	display: flex;
-	overflow-x: auto;
+    height: 100%;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    overflow-x: auto;
 }
 
 .columns-chosen ul[dnd-list] .dndDraggingSource {
-	display: none;
+    display: none;
 }
 
 .columns-chosen ul[dnd-list] .dndPlaceholder {
-	background-color: #ddd;
-	display: block;
-	height: 100%;
+    background-color: #ddd;
+    display: block;
+    height: 100%;
 }
 
 .columns-chosen ul[dnd-list] li {
-	background-color: #fff;
-	border: 1px solid #ddd;
-	border-top-right-radius: 4px;
-	border-top-left-radius: 4px;
-	display: block;
-	width: 15%;
-	float: left;
-	height: 100%;
-	text-align: center;
-	line-height: 2em;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: block;
+    width: 15%;
+    float: left;
+    height: 100%;
+    text-align: center;
+    line-height: 2em;
 }
 
 .columns-chosen ul[dnd-list] li.selected {
-	background-color: #dff0d8;
-	color: #3c763d;
-	width: 15%;
+    background-color: #dff0d8;
+    color: #3c763d;
+    width: 15%;
 }

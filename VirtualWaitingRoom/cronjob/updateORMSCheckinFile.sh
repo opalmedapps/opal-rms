@@ -9,6 +9,6 @@ cd $fullPath/..
 #update the checkin file
 while true
 do
-	php ./php/updateCheckinFile.php 1>/dev/null
-	sleep 3
+    php ./php/updateCheckinFile.php 1>/dev/null
+    sleep 3
 done

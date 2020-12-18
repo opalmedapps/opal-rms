@@ -139,7 +139,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 
                     //outer for loop iterates over each chart
                     angular.forEach($scope.selectedQuestionnaire.questions.qData, function(val, key)
-                    {	//inner loop iterates over each data point within a given chart
+                    {    //inner loop iterates over each data point within a given chart
                         angular.forEach(val.series[0].data, function(innerVal, key){
                             if(typeof innerVal[1] === 'string' || innerVal[1] instanceof String){
                                 innerVal[1] = parseInt(innerVal[1].split(" ",1)[0]);
@@ -165,8 +165,8 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
                     });
             });
         }
-		//use if the answers are displayed as a list
-		else if($scope.selectedQuestionnaire.Visualization === "0")
+        //use if the answers are displayed as a list
+        else if($scope.selectedQuestionnaire.Visualization === "0")
         {
             $http({
                 url: "./php/questionnaire/report.php",

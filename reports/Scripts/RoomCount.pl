@@ -6,14 +6,14 @@
 # bugs:
 #  if a patient has 2 appointments and visits the same room in the morning and the afternoon, once for each appointment, the AM + PM counts > total counts for the day
 # example:
-#				|13:00|
-#	|room A	(for app1)	|#################|room A
-#	|room A			|#################|room A (for app2)
+#                |13:00|
+#    |room A    (for app1)    |#################|room A
+#    |room A            |#################|room A (for app2)
 #
-#	AM counts for app1: 1
-#	PM counts for app2: 1
-#	true counts for the day for app1: 1 < AM + PM = 2
-#	true counts for the day for app2: 1 < AM + PM = 2
+#    AM counts for app1: 1
+#    PM counts for app2: 1
+#    true counts for the day for app1: 1 < AM + PM = 2
+#    true counts for the day for app2: 1 < AM + PM = 2
 #
 
 #----------------------------------------
@@ -52,15 +52,15 @@ my $checkinCondition;
 #check what period of the day the user specified and filter appointments that are not within that timeframe
 if($period eq 'All')
 {
-	$checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '00:00:00' AND '23:59:59'";
+    $checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '00:00:00' AND '23:59:59'";
 }
 elsif($period eq 'AM')
 {
-	$checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '00:00:00' AND '12:59:59'";
+    $checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '00:00:00' AND '12:59:59'";
 }
 elsif($period eq 'PM')
 {
-	$checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '13:00:00' AND '23:59:59'";
+    $checkinCondition = "AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN '13:00:00' AND '23:59:59'";
 }
 
 #-----------------------------------------------------
@@ -78,24 +78,24 @@ my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to
 
 #get a list of all rooms that patients were checked into and for which appointment
 my $sql = "
-	SELECT DISTINCT
-		Patient.PatientId,
-		MediVisitAppointmentList.ResourceDescription,
-		PatientLocationMH.CheckinVenueName,
-		MediVisitAppointmentList.ScheduledDate
-	FROM
-		MediVisitAppointmentList MediVisitAppointmentList
-		INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
-			AND Patient.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
-		INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
-			AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
+    SELECT DISTINCT
+        Patient.PatientId,
+        MediVisitAppointmentList.ResourceDescription,
+        PatientLocationMH.CheckinVenueName,
+        MediVisitAppointmentList.ScheduledDate
+    FROM
+        MediVisitAppointmentList MediVisitAppointmentList
+        INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
+            AND Patient.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
+        INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
+            AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
             AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
-			$checkinCondition
+            $checkinCondition
         INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
             AND ClinicResources.Speciality = ?
-	WHERE
-		MediVisitAppointmentList.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
-		AND MediVisitAppointmentList.Status = 'Completed'
+    WHERE
+        MediVisitAppointmentList.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
+        AND MediVisitAppointmentList.Status = 'Completed'
 ";
 
 my $query = $dbh->prepare_cached($sql) or die("Query could not be prepared: ".$dbh->errstr);
@@ -106,9 +106,9 @@ $query->execute($speciality) or die("Query execution failed: ".$query->errstr);
 #----------------------------------------
 while(my $data = $query->fetchrow_hashref)
 {
-	my %data = %{$data};
+    my %data = %{$data};
 
-	$usageCounts{$data{'CheckinVenueName'}}{$data{'ResourceDescription'}}++;
+    $usageCounts{$data{'CheckinVenueName'}}{$data{'ResourceDescription'}}++;
 }
 
 #----------------------------------------
@@ -119,10 +119,10 @@ my $json;
 
 foreach my $room (sort keys %usageCounts)
 {
-	foreach my $appName (sort keys $usageCounts{$room}->%*)
-	{
-		$json .= "{\"Room\":\"$room\",\"Appointment\":\"$appName\",\"Counts\":\"$usageCounts{$room}{$appName}\"},";
-	}
+    foreach my $appName (sort keys $usageCounts{$room}->%*)
+    {
+        $json .= "{\"Room\":\"$room\",\"Appointment\":\"$appName\",\"Counts\":\"$usageCounts{$room}{$appName}\"},";
+    }
 }
 
 $json = substr($json,0,-1) if(substr($json,-1) eq ',');

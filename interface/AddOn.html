@@ -1,98 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>MUHC ORMS Waiting Room Management System</title>
+    <title>MUHC ORMS Waiting Room Management System</title>
 
-	<style>
-		#patients {
-		    border-collapse: collapse;
-		    width: 100%;
-		}
-		#patients thead{
-			background-color: #1D0886;
-			color: white;
-		}
-		#patients td, #patients th {
-		    border: 1px solid #ddd;
-		    padding: 8px;
-		}
+    <style>
+        #patients {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #patients thead{
+            background-color: #1D0886;
+            color: white;
+        }
+        #patients td, #patients th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
 
-		#patients tr:nth-child(even){background-color: #f2f2f2;}
+        #patients tr:nth-child(even){background-color: #f2f2f2;}
 
 
-		#patients th {
-		    padding-top: 12px;
-		    padding-bottom: 12px;
-		    text-align: left;
-		    background-color: #1D0886;
-		    color: white;
-		}
+        #patients th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #1D0886;
+            color: white;
+        }
 
-		.selectable{
-			cursor: pointer;
-		}
+        .selectable{
+            cursor: pointer;
+        }
 
-	</style>
+    </style>
 </head>
 
 <body ng-app="myApp">
-	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Patient Finder</u></h2></center>
+    <center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Patient Finder</u></h2></center>
 
-	<table border="0" width="50%" padding="5">
-		<tr><td valign="top"> Enter patient MRN or RAMQ. You will be brought to the appointment add-on or register sms page after selecting. </td></tr>
-	</table>
+    <table border="0" width="50%" padding="5">
+        <tr><td valign="top"> Enter patient MRN or RAMQ. You will be brought to the appointment add-on or register sms page after selecting. </td></tr>
+    </table>
 <div ng-controller="main">
-	<form ng-submit="fetchPatients()">
-		<table border="0" width="50%" padding="2">
-			<!--  User enters MRN or RAMQ to retrieve info  -->
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
-			<tr>
-				<td><b> MRN </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn" id="inputmrn"></td>
+    <form ng-submit="fetchPatients()">
+        <table border="0" width="50%" padding="2">
+            <!--  User enters MRN or RAMQ to retrieve info  -->
+            <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
+            <tr>
+                <td><b> MRN </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn" id="inputmrn"></td>
 
-				<td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
-			</tr>
-			<tr>
-				<td><p> OR  </p></td>
-			</tr>
-			<tr>
-				<td><b> RAMQ </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq" id="inputramq"></td>
+                <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
+            </tr>
+            <tr>
+                <td><p> OR  </p></td>
+            </tr>
+            <tr>
+                <td><b> RAMQ </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq" id="inputramq"></td>
 
-				<td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
-			</tr>
+                <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
+            </tr>
 
-		</table>
-	</form>
+        </table>
+    </form>
 <p style="visibility:hidden; font-weight: bold;" id="VerifyPat">Please verify this is the correct patient information before continuing <br/>
 Click on any patient data to be brought to add-on page.
 </p>
 
-	<form>
-		<table id="patients">
-			<thead style="font-weight: bold;">
-				<tr>
-					<td> Last Name </td>
-					<td> First Name </td>
-					<td> PatientId </td>
-					<td> RAMQ </td>
-					<td> RAMQ Expiry </td>
-					<td></td>
-					<td></td>
-				</tr>
-			</thead>
-			<tbody>
-			<!--  Display the returned patient information  -->
-				<tr ng-repeat="x in patientinfo">
-					<td style="font-weight: bold; color: red;" id="lastname">{{x.last}}</td>
-					<td style="font-weight: bold; color: red;" id="firstname">{{x.first}}</td>
-					<td id="pid" >{{x.pid}}</td>
-					<td id="ramq" >{{x.ramq}}</td>
-					<td id="ramqexp">{{x.ramqExp}}</td>
-					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
-					<td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
-				</tr>
-			</tbody>
-		</table>
-	</form>
+    <form>
+        <table id="patients">
+            <thead style="font-weight: bold;">
+                <tr>
+                    <td> Last Name </td>
+                    <td> First Name </td>
+                    <td> PatientId </td>
+                    <td> RAMQ </td>
+                    <td> RAMQ Expiry </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+            <!--  Display the returned patient information  -->
+                <tr ng-repeat="x in patientinfo">
+                    <td style="font-weight: bold; color: red;" id="lastname">{{x.last}}</td>
+                    <td style="font-weight: bold; color: red;" id="firstname">{{x.first}}</td>
+                    <td id="pid" >{{x.pid}}</td>
+                    <td id="ramq" >{{x.ramq}}</td>
+                    <td id="ramqexp">{{x.ramqExp}}</td>
+                    <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
+                    <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
 </div>
 <hr>
 <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
@@ -107,92 +107,92 @@ var app = angular.module('myApp',['ngCookies']);
 
 app.config(['$locationProvider',function ($locationProvider)
 {
-	$locationProvider.html5Mode({
-		enabled: true,
-		requireBase: false,
-		rewriteLinks : false
-	});
+    $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false,
+        rewriteLinks : false
+    });
 }]);
 
 app.controller('main', function($scope,$http,$window,$location)
 {
-	$scope.mrn = "";
-	$scope.ramq = "";
+    $scope.mrn = "";
+    $scope.ramq = "";
 
-	//Ensure page is refreshed when using back button
-	if (!!$window.performance && $window.performance.navigation.type==2){
-		$window.location.reload();
-	}
+    //Ensure page is refreshed when using back button
+    if (!!$window.performance && $window.performance.navigation.type==2){
+        $window.location.reload();
+    }
 
-	$scope.fetchPatients = function(){
-		document.getElementById("VerifyPat").style.visibility = "visible";
-		//Call the perl script to get the list of patient(s) with the specified MRN
+    $scope.fetchPatients = function(){
+        document.getElementById("VerifyPat").style.visibility = "visible";
+        //Call the perl script to get the list of patient(s) with the specified MRN
 
-		// If user specified MRN
-		if($scope.mrn){
-			$http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn}})
-			.then(function(response) {
-				//$scope.patientinfo=response.data.record;
-				replaceText(response.data.record);
-				//display the returned records for user to view and select correct patient
-			}, function(error){
-				console.log(error);
-			});
-		}else if($scope.ramq){ //If user specified RAMQ
-			$http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq}})
-			.then(function(response) {
-				replaceText(response.data.record);
-				//display the returned records for user to view and select correct patient
-			}, function(error){
-				console.log(error);
-			});
-		}
-	}
+        // If user specified MRN
+        if($scope.mrn){
+            $http.get("../perl/findPatient.pl", {params: {pid: $scope.mrn}})
+            .then(function(response) {
+                //$scope.patientinfo=response.data.record;
+                replaceText(response.data.record);
+                //display the returned records for user to view and select correct patient
+            }, function(error){
+                console.log(error);
+            });
+        }else if($scope.ramq){ //If user specified RAMQ
+            $http.get("../perl/findPatient.pl", {params: {ramq: $scope.ramq}})
+            .then(function(response) {
+                replaceText(response.data.record);
+                //display the returned records for user to view and select correct patient
+            }, function(error){
+                console.log(error);
+            });
+        }
+    }
 
-	function replaceText(data){
-		var tmp = data;
-		if(!tmp){
-			if($scope.mrn){
-				//Send to next page with this mrn
-				var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
-				if(send == true){
-					var landingurl = "./AddOn_Post.html?first=&last=&pid="+String($scope.mrn)+"&ramq=&ramqExp=";
-					$window.location.href = landingurl; //send user to apt add on
-				}
-				else{
-					return;
-				}
-			}
-			if($scope.ramq){
-				//Send to next page with this ramq
-				var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
-				if(send == true){
-					var landingurl = "./AddOn_Post.html?first=&last=&pid=&ramq="+String($scope.ramq)+ "&ramqExp=";
-					$window.location.href = landingurl; //send user to apt add on
-				}
-				else{
-					return;
-				}
-			}
-		}
-		$scope.patientinfo = tmp;
-	}
+    function replaceText(data){
+        var tmp = data;
+        if(!tmp){
+            if($scope.mrn){
+                //Send to next page with this mrn
+                var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
+                if(send == true){
+                    var landingurl = "./AddOn_Post.html?first=&last=&pid="+String($scope.mrn)+"&ramq=&ramqExp=";
+                    $window.location.href = landingurl; //send user to apt add on
+                }
+                else{
+                    return;
+                }
+            }
+            if($scope.ramq){
+                //Send to next page with this ramq
+                var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
+                if(send == true){
+                    var landingurl = "./AddOn_Post.html?first=&last=&pid=&ramq="+String($scope.ramq)+ "&ramqExp=";
+                    $window.location.href = landingurl; //send user to apt add on
+                }
+                else{
+                    return;
+                }
+            }
+        }
+        $scope.patientinfo = tmp;
+    }
 
-	$scope.resetPage = function(){
-		window.location.reload();
-	}
+    $scope.resetPage = function(){
+        window.location.reload();
+    }
 
-	$scope.sendToAptAddOn = function(data){
-		//prepare the redirect url with the selected patient's parameters for prefilling
-		var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
-		$window.location.href = landingurl; //send user to apt add on
-	}
+    $scope.sendToAptAddOn = function(data){
+        //prepare the redirect url with the selected patient's parameters for prefilling
+        var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
+        $window.location.href = landingurl; //send user to apt add on
+    }
 
-	$scope.sendToSms = function(data){
-		//prepare the redirect url with the selected patient's parameters for prefilling
-		var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
-		$window.location.href = landingurl; //send user to apt add on
-	}
+    $scope.sendToSms = function(data){
+        //prepare the redirect url with the selected patient's parameters for prefilling
+        var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
+        $window.location.href = landingurl; //send user to apt add on
+    }
 
 });
 </script>

@@ -38,25 +38,25 @@ my ($filename,$identifier,$type,$message,$printJSON);
 
 if($ARGV[1] eq 1) #this means that the script was called from another perl script
 {
-	my %input = %{$JSON->decode($ARGV[0])};
+    my %input = %{$JSON->decode($ARGV[0])};
 
-	$filename = $input{"filename"};
-	$identifier = $input{"identifier"};
-	$type = $input{"type"};
-	$message = $input{"message"};
+    $filename = $input{"filename"};
+    $identifier = $input{"identifier"};
+    $type = $input{"type"};
+    $message = $input{"message"};
 }
 else
 {
-	$filename = param("filename");
-	$identifier = param("identifier");
-	$type = param("type");
-	$message = param("message");
-	$printJSON = param("printJSON");
+    $filename = param("filename");
+    $identifier = param("identifier");
+    $type = param("type");
+    $message = param("message");
+    $printJSON = param("printJSON");
 }
 
 if($printJSON)
 {
-	print $CGI->header('application/json');
+    print $CGI->header('application/json');
 }
 
 #-----------------------------------------------------
@@ -65,8 +65,8 @@ if($printJSON)
 my $dbh =  DBI->connect_cached($LOG_DB,$LOG_USER,$LOG_PASS) or die("Couldn't connect to database: ".DBI->errstr);
 
 my $sql = "
-	INSERT INTO $LOG_TABLE (DateTime,FileName,Identifier,Type,Message)
-	VALUES (?,?,?,?,?)";
+    INSERT INTO $LOG_TABLE (DateTime,FileName,Identifier,Type,Message)
+    VALUES (?,?,?,?,?)";
 
 my $query = $dbh->do($sql,undef,($now,$filename,$identifier,$type,$message)) or die("Query could not be prepared: ".$dbh->errstr);
 

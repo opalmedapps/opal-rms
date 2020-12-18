@@ -80,18 +80,18 @@ app.controller('main', function($scope,$location,$http,$cookies)
     let speciality = $cookies.get("speciality");
     $scope.clinicalArea = $cookies.get("hub");
 
-	$scope.profileList = {};
-	//get list of profiles available
-	$http({
+    $scope.profileList = {};
+    //get list of profiles available
+    $http({
         method: "GET",
         url: "./php/getListOfProfiles.php",
         params: {speciality: speciality}
     })
-	.then( response => {
-		response.data.forEach( x => {
-			$scope.profileList[x.Category] = $scope.profileList[x.Category] || [];
-			$scope.profileList[x.Category].push(x);
-		});
+    .then( response => {
+        response.data.forEach( x => {
+            $scope.profileList[x.Category] = $scope.profileList[x.Category] || [];
+            $scope.profileList[x.Category].push(x);
+        });
     });
 
 });

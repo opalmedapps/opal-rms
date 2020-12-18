@@ -27,11 +27,11 @@ my $gitBranch = (split('/',$output))[-1]; #get the last section of the string to
 
 if($gitBranch eq 'preprod' or $gitBranch eq 'master')
 {
-	require("../config/perlLive.pl");
+    require("../config/perlLive.pl");
 }
 else
 {
-	require("configFileDev.pl");
+    require("configFileDev.pl");
 }
 =cut
 
@@ -46,15 +46,15 @@ my $config = $configLoader->read("$currentLocation/../../../config/config.conf")
 #returns a hash with all configs
 sub LoadConfigs::getAllConfigs
 {
-	return $config;
+    return $config;
 }
 
 #returns a hash with specific configs
 sub LoadConfigs::GetConfigs
 {
-	my $section = shift;
+    my $section = shift;
 
-	return $config->{$section};
+    return $config->{$section};
 }
 
 #returns a db connection handle to a requested database server
@@ -62,27 +62,27 @@ sub LoadConfigs::GetConfigs
 #return 0 if connection fails
 sub LoadConfigs::GetDatabaseConnection
 {
-	my $requestedConnection = shift;
+    my $requestedConnection = shift;
 
-	my $dbInfo = $config->{'database'};
+    my $dbInfo = $config->{'database'};
 
-	#set the inital value of the connection to 0 (failure value)
-	#the requesting script can then determine what to do if the db fails to connect
-	my $dbh = 0;
+    #set the inital value of the connection to 0 (failure value)
+    #the requesting script can then determine what to do if the db fails to connect
+    my $dbh = 0;
 
-	#connects to WaitRoomManagment db by default
-	if($requestedConnection eq 'ORMS')
-	{
-		$dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'};port=$dbInfo->{'ORMS_PORT'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
-	}
+    #connects to WaitRoomManagment db by default
+    if($requestedConnection eq 'ORMS')
+    {
+        $dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'ORMS_DB'};host=$dbInfo->{'ORMS_HOST'};port=$dbInfo->{'ORMS_PORT'}",$dbInfo->{'ORMS_USERNAME'},$dbInfo->{'ORMS_PASSWORD'}) or 0;
+    }
 
-	#logging db
-	elsif($requestedConnection eq 'LOGS')
-	{
-		$dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'LOG_DB'};host=$dbInfo->{'LOG_HOST'};port=$dbInfo->{'LOG_PORT'}",$dbInfo->{'LOG_USERNAME'},$dbInfo->{'LOG_PASSWORD'}) or 0;
-	}
+    #logging db
+    elsif($requestedConnection eq 'LOGS')
+    {
+        $dbh = DBI->connect_cached("DBI:MariaDB:database=$dbInfo->{'LOG_DB'};host=$dbInfo->{'LOG_HOST'};port=$dbInfo->{'LOG_PORT'}",$dbInfo->{'LOG_USERNAME'},$dbInfo->{'LOG_PASSWORD'}) or 0;
+    }
 
-	return $dbh;
+    return $dbh;
 }
 
 1;

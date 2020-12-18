@@ -1,63 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>MUHC ORMS Waiting Room Management System</title>
+    <title>MUHC ORMS Waiting Room Management System</title>
 </head>
 
 <body ng-init="setDate();" ng-app="myApp" ng-controller="main" style="margin-left: 8px;">
-	<center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
+    <center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
 
-	<table border="0" width="50%" padding="5">
-		<tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in Medivisit.</font></td></tr>
-	</table>
-	<br>
+    <table border="0" width="50%" padding="5">
+        <tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in Medivisit.</font></td></tr>
+    </table>
+    <br>
 
-	<form ng-submit="createAddOn()">
-		<table border="0" width="60%" padding="2">
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
+    <form ng-submit="createAddOn()">
+        <table border="0" width="60%" padding="2">
+            <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
             <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.pid" id="pid" required></td></tr>
-			<tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
-			<tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
-			<tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" required></td></tr>
-			<tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" required></td></tr>
-			<tr><td></td></td>
+            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
+            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
+            <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" required></td></tr>
+            <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" required></td></tr>
+            <tr><td></td></td>
 
-			<tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
+            <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
 
-			<tr><td><b>Appointment Code</b></td>
-			<td>
+            <tr><td><b>Appointment Code</b></td>
+            <td>
                 <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" required>
                     <option ng-repeat="appointment in loadedAppointments">{{appointment}}</option>
                 </select>
-			</td>
-			</tr>
+            </td>
+            </tr>
 
-			<tr><td><b>Clinic Name</b></td>
-			<td>
+            <tr><td><b>Clinic Name</b></td>
+            <td>
                 <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select clinic" ng-model="userSelectedResource" ng-change="updateSelectedResource(userSelectedResource)" required>
                     <option ng-repeat="resource in loadedResources" data-subtext={{resource.code}} value="{{resource}}">{{resource.description}}</option>
                 </select>
-			</td>
-			</tr>
+            </td>
+            </tr>
 
-			<tr><td><b>Appointment Date/Time</b></td>
-			<td>
-			<input type="date" id="myDate" ng-model="pageFields.AppointDate"/>
-			<input type="time" id="myTime" ng-model="pageFields.AppointTime"/>
-			</td>
-			</tr>
+            <tr><td><b>Appointment Date/Time</b></td>
+            <td>
+            <input type="date" id="myDate" ng-model="pageFields.AppointDate"/>
+            <input type="time" id="myTime" ng-model="pageFields.AppointTime"/>
+            </td>
+            </tr>
 
-			<tr>
-			<td colspan=5 align="center">
-			<input type="submit" value="Submit"><input type="reset">
-			</td>
-			</tr>
-		</table>
-	</form>
+            <tr>
+            <td colspan=5 align="center">
+            <input type="submit" value="Submit"><input type="reset">
+            </td>
+            </tr>
+        </table>
+    </form>
 
-	<hr>
-	<center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
-	<center> <a href="../">Main Page</a></center>
+    <hr>
+    <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+    <center> <a href="../">Main Page</a></center>
 
 </body>
 
@@ -82,24 +82,24 @@ var app = angular.module('myApp',['ngCookies']);
 
 app.config(['$locationProvider',function ($locationProvider)
 {
-	$locationProvider.html5Mode({
-		enabled: true,
-		requireBase: false,
-		rewriteLinks: false
-	});
+    $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false,
+        rewriteLinks: false
+    });
 }]);
 
 app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$location)
 {
-	//Ensure that page is refreshed when using back button
-	if(!!$window.performance && $window.performance.navigation.type == 2)
-	{
-		$window.location.reload();
-	}
+    //Ensure that page is refreshed when using back button
+    if(!!$window.performance && $window.performance.navigation.type == 2)
+    {
+        $window.location.reload();
+    }
 
-	var pageParams = $location.search();
+    var pageParams = $location.search();
 
-	$scope.currentDateTime = new Date();
+    $scope.currentDateTime = new Date();
 
     //Pre fill the form with the specified patient params from the AddOnOnc_PRE page
     $scope.pageFields = {
@@ -123,31 +123,31 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
         $scope.pageFields.RamqExpiryDate = "0000";
     }
 
-	$scope.setDate = function()
-	{
-		var date = new Date();
+    $scope.setDate = function()
+    {
+        var date = new Date();
 
-		var day = date.getDate();
-		var month = date.getMonth() + 1;
-		var year = date.getFullYear();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
 
-		var hour = date.getHours();
-		var min  = date.getMinutes();
+        var hour = date.getHours();
+        var min  = date.getMinutes();
 
-		if (month < 10) month = "0" + month;
-		if (day < 10) day = "0" + day;
+        if (month < 10) month = "0" + month;
+        if (day < 10) day = "0" + day;
 
-		if (hour < 10) hour = "0" + hour;
-		if (min < 10) min = "0" + min;
+        if (hour < 10) hour = "0" + hour;
+        if (min < 10) min = "0" + min;
 
-		var today = year + "-" + month + "-" + day;
-		var now = hour + ":" + min + ":00";
-		var todayANDnow = today + " " + now;
+        var today = year + "-" + month + "-" + day;
+        var now = hour + ":" + min + ":00";
+        var todayANDnow = today + " " + now;
 
         var date = new Date();
         $scope.pageFields.AppointDate = new Date(date.getFullYear(),date.getMonth(),date.getDate());
         $scope.pageFields.AppointTime = new Date(date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes());
-		// document.getElementById('myDate').value = today;
+        // document.getElementById('myDate').value = today;
         // document.getElementById('myTime').value = now;
 
         $scope.timestamp = today +" "+ now;
@@ -159,17 +159,17 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
         $scope.pageFields.resourceDescription = resource.description
     }
 
-	//load list of oncology resources
-	$http({
-		url: "../perl/getClinicResources.pl",
-		method: "GET",
-		params:
-		{
-			speciality: $scope.pageFields.speciality
-		}
-	}).then(function (response)
-	{
-		$scope.loadedResources = response.data.resources;
+    //load list of oncology resources
+    $http({
+        url: "../perl/getClinicResources.pl",
+        method: "GET",
+        params:
+        {
+            speciality: $scope.pageFields.speciality
+        }
+    }).then(function (response)
+    {
+        $scope.loadedResources = response.data.resources;
         $scope.loadedAppointments = response.data.appointments;
 
         //initialize the bootstrap select

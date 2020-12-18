@@ -4,16 +4,16 @@
 html { height:100%; }
 
 .body-login {
-	font-weight: normal;
-	font-size: .8em;
-	line-height: 1.6em;
-	color: #000;
+    font-weight: normal;
+    font-size: .8em;
+    line-height: 1.6em;
+    color: #000;
 
-	background-position: 50% 50%;
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-attachment: fixed; /* fix background gradient */
-	min-height: 100%;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed; /* fix background gradient */
+    min-height: 100%;
     height: auto;
     background-color: #a7ace88a;
     /*background: linear-gradient(to right, #0e0866, #e63939, #1cc03f);*/
@@ -49,8 +49,8 @@ html { height:100%; }
     text-align: center;
     font-weight: bold;
     color: #000000;
-	margin: 20px auto;
-	text-shadow: 0 0 2px #00000066;
+    margin: 20px auto;
+    text-shadow: 0 0 2px #00000066;
     transform: translateY(40%);
     font-size: 25px;
     animation: logo-desc-slideIn 0.8s;
@@ -70,50 +70,50 @@ html { height:100%; }
 /*form css */
 .login-form {
     display: flex;
-	flex-direction: column;
-	justify-content: center;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     text-align: center;
-	position: relative;
-	width: 280px;
-	margin: auto;
+    position: relative;
+    width: 280px;
+    margin: auto;
     padding: 0;
     width: 300px;
-	margin-top: 10vh;
+    margin-top: 10vh;
 }
 
 .field-holder {
     border:0;
     margin-bottom: 20px;
-	text-align: left;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
+    text-align: left;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
 .field-holder input {
     font-family: 'Nunito', 'Open Sans', Frutiger, Calibri, 'Myriad Pro', Myriad, sans-serif;
     font-size: 20px;
-	margin: 5px;
-	padding: 11px 10px 9px;
-	outline: none;
-	-webkit-appearance: none;
+    margin: 5px;
+    padding: 11px 10px 9px;
+    outline: none;
+    -webkit-appearance: none;
 }
 
 .credentials {
     border-radius: 0.2em;
     text-indent: 5px;
     width: 249px;
-	background: #fff;
-	color: #555;
-	cursor: text;
-	font-family: inherit;
-	-webkit-appearance: textfield;
-	-moz-appearance: textfield;
-	box-sizing: content-box;
-	border: none;
-	font-weight: normal;
+    background: #fff;
+    color: #555;
+    cursor: text;
+    font-family: inherit;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    box-sizing: content-box;
+    border: none;
+    font-weight: normal;
 }
 
 ::-webkit-input-placeholder {
@@ -121,45 +121,45 @@ html { height:100%; }
 }
 
 .submit-wrapper {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative; /* Make the wrapper the containing block of its
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Make the wrapper the containing block of its
                            absolutely positioned descendant icons */
     margin-top: 5px;
 }
 
 .submit-wrapper .submit-icon {
-	position: absolute;
-	top: 22px;
-	right: 24px;
-	transition: right 100ms ease-in-out;
-	pointer-events: none; /* The submit icon is positioned on the submit button.
-							 From the user point of view the icon is part of the
-							 button, so the clicks on the icon have to be
-							 applied to the button instead. */
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    transition: right 100ms ease-in-out;
+    pointer-events: none; /* The submit icon is positioned on the submit button.
+                             From the user point of view the icon is part of the
+                             button, so the clicks on the icon have to be
+                             applied to the button instead. */
 }
 
 .submit-wrapper .login-submit:hover ~ .submit-icon,
 .submit-wrapper .login-submit:focus ~ .submit-icon,
 .submit-wrapper .login-submit:active ~ .submit-icon {
-	right: 20px;
+    right: 20px;
 }
 
 .login-submit {
     display: inline-block;
-	min-width: 25px;
-	font-weight: bold;
-	border-radius: 100px;
-	cursor: pointer;
+    min-width: 25px;
+    font-weight: bold;
+    border-radius: 100px;
+    cursor: pointer;
     padding: 10px 20px;
-	width: 260px;
-	height: 50px;
+    width: 260px;
+    height: 50px;
     background-position: right 16px center;
     border: 1px solid #0082c9;
-	background-color: #0082c9;
-	color: #fff;
-	transition: color 100ms ease-in-out;
+    background-color: #0082c9;
+    color: #fff;
+    transition: color 100ms ease-in-out;
 }
 
 .error-wrapper {
@@ -176,8 +176,8 @@ html { height:100%; }
 
 .help-container {
     display: inline-block;
-	margin: 10px 0;
-	text-align: center;
+    margin: 10px 0;
+    text-align: center;
     text-shadow: 0 0 2px #00000066; /* better readability on bright background */
     border:0;
 }

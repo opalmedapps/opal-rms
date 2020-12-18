@@ -26,108 +26,108 @@ my $xml = XML::Simple->new();
 #anything else indicates an error
 sub patientExists
 {
-	my $self = $_[0];
-	my $patientId = $_[1];
-	my $idType = $_[2];
-	my $fname = $_[3];
-	my $lname = $_[4];
+    my $self = $_[0];
+    my $patientId = $_[1];
+    my $idType = $_[2];
+    my $fname = $_[3];
+    my $lname = $_[4];
 
-	#the ADT has a specific format for RVH and MGH ids
-	my $expectedType = "";
-	$expectedType = "MG_PCS" if($idType eq "MG");
-	$expectedType = "MR_PCS" if($idType eq "RV");
-	#$expectedType = "MC_ADT" what this is for is unknown
+    #the ADT has a specific format for RVH and MGH ids
+    my $expectedType = "";
+    $expectedType = "MG_PCS" if($idType eq "MG");
+    $expectedType = "MR_PCS" if($idType eq "RV");
+    #$expectedType = "MC_ADT" what this is for is unknown
 
-	my $requestLocation = 'http://172.26.119.94:8080/pds/pds?wsdl'; #where to send the xml request
-	my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
-	my $requestContent = #the ADT request message
-		"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:pds='http://pds.cis.muhc.mcgill.ca/'>
-			<soapenv:Header/>
-			<soapenv:Body>
-				<pds:findByMrn>
-					<mrns>$patientId</mrns>
-				</pds:findByMrn>
-			</soapenv:Body>
-		</soapenv:Envelope>";
+    my $requestLocation = 'http://172.26.119.94:8080/pds/pds?wsdl'; #where to send the xml request
+    my $requestType = 'text/xml; charset=utf-8'; # character encoding of the request
+    my $requestContent = #the ADT request message
+        "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:pds='http://pds.cis.muhc.mcgill.ca/'>
+            <soapenv:Header/>
+            <soapenv:Body>
+                <pds:findByMrn>
+                    <mrns>$patientId</mrns>
+                </pds:findByMrn>
+            </soapenv:Body>
+        </soapenv:Envelope>";
 
-	my $request = POST $requestLocation, Content_Type => $requestType, Content => $requestContent;
+    my $request = POST $requestLocation, Content_Type => $requestType, Content => $requestContent;
 
-	my $response = $ua->request($request); #make the request and get the response back
+    my $response = $ua->request($request); #make the request and get the response back
 
-	#check if the request failed
-	#if(!$response->is_success()) {return "Connection failed.";}
-	if(!$response->is_success()) {return -10;}
+    #check if the request failed
+    #if(!$response->is_success()) {return "Connection failed.";}
+    if(!$response->is_success()) {return -10;}
 
-	#parse the xml data into a perl readable format
-	my %data = %{$xml->XMLin($response->content())};
+    #parse the xml data into a perl readable format
+    my %data = %{$xml->XMLin($response->content())};
 
-	#check if the response is empty (no patient associated with the ramq), there is one match (a hash), or multiple matches (an array)
-	my $data = $data{'env:Body'}{'ns2:findByMrnResponse'}{'return'}; #the reference
+    #check if the response is empty (no patient associated with the ramq), there is one match (a hash), or multiple matches (an array)
+    my $data = $data{'env:Body'}{'ns2:findByMrnResponse'}{'return'}; #the reference
 
-	#if(!ref($data)) {return "There is no patient associated with that RAMQ.";}
-	if(!ref($data)) {return -1;}
-	elsif(ref($data) eq 'HASH')
-	{
-		my %info = %{$data};
+    #if(!ref($data)) {return "There is no patient associated with that RAMQ.";}
+    if(!ref($data)) {return -1;}
+    elsif(ref($data) eq 'HASH')
+    {
+        my %info = %{$data};
 
-		#verify if parameters match
-		my $match = 0;
+        #verify if parameters match
+        my $match = 0;
 
-		if(uc($info{'firstName'}) eq uc($fname) and uc($info{'lastName'}) eq uc($lname))
-		{
-			if(ref($info{'mrns'}) eq 'HASH')
-			{
-				$match = 1 if($info{'mrn'} eq $patientId and $info{'mrnType'} eq $expectedType);
-			}
-			elsif(ref($info{'mrns'}) eq 'ARRAY')
-			{
-				foreach my $mrn (@{$info{'mrns'}})
-				{
-					$match = 1 if($mrn->{'mrn'} eq $patientId and $mrn->{'mrnType'} eq $expectedType);
-				}
-			}
-			else {return -15;}
-		}
+        if(uc($info{'firstName'}) eq uc($fname) and uc($info{'lastName'}) eq uc($lname))
+        {
+            if(ref($info{'mrns'}) eq 'HASH')
+            {
+                $match = 1 if($info{'mrn'} eq $patientId and $info{'mrnType'} eq $expectedType);
+            }
+            elsif(ref($info{'mrns'}) eq 'ARRAY')
+            {
+                foreach my $mrn (@{$info{'mrns'}})
+                {
+                    $match = 1 if($mrn->{'mrn'} eq $patientId and $mrn->{'mrnType'} eq $expectedType);
+                }
+            }
+            else {return -15;}
+        }
 
-		if($match) {return 1;}
-		else {return 0;}
-	}
-	elsif(ref($data) eq 'ARRAY')
-	{
-		#if multiple patients are matched from the patientId, check if at least one matches the input parameters
-		#if it does, then we know we have the correct information for a patient
+        if($match) {return 1;}
+        else {return 0;}
+    }
+    elsif(ref($data) eq 'ARRAY')
+    {
+        #if multiple patients are matched from the patientId, check if at least one matches the input parameters
+        #if it does, then we know we have the correct information for a patient
 
-		my @patients = @{$data};
-		my $match = 0;
+        my @patients = @{$data};
+        my $match = 0;
 
-		foreach my $patient (@patients)
-		{
-			my %info = %{$patient};
+        foreach my $patient (@patients)
+        {
+            my %info = %{$patient};
 
-			if(uc($info{'firstName'}) eq uc($fname) and uc($info{'lastName'}) eq uc($lname))
-			{
-				if(ref($info{'mrns'}) eq 'HASH')
-				{
-					$match = 1 if($info{'mrn'} eq $patientId and $info{'mrnType'} eq $expectedType);
-				}
-				elsif(ref($info{'mrns'}) eq 'ARRAY')
-				{
-					foreach my $mrn (@{$info{'mrns'}})
-					{
-						$match = 1 if($mrn->{'mrn'} eq $patientId and $mrn->{'mrnType'} eq $expectedType);
-					}
-				}
-				else {return -15;}
-			}
-		}
+            if(uc($info{'firstName'}) eq uc($fname) and uc($info{'lastName'}) eq uc($lname))
+            {
+                if(ref($info{'mrns'}) eq 'HASH')
+                {
+                    $match = 1 if($info{'mrn'} eq $patientId and $info{'mrnType'} eq $expectedType);
+                }
+                elsif(ref($info{'mrns'}) eq 'ARRAY')
+                {
+                    foreach my $mrn (@{$info{'mrns'}})
+                    {
+                        $match = 1 if($mrn->{'mrn'} eq $patientId and $mrn->{'mrnType'} eq $expectedType);
+                    }
+                }
+                else {return -15;}
+            }
+        }
 
-		if($match) {return 1;}
-		else {return 0;}
-	}
+        if($match) {return 1;}
+        else {return 0;}
+    }
 
-	#if the code somehow got to this step, some possibility wasn't considered
-	#return "Error";
-	return -20;
+    #if the code somehow got to this step, some possibility wasn't considered
+    #return "Error";
+    return -20;
 }
 
 1;

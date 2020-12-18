@@ -37,10 +37,10 @@ my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to
 
 #get the list of possible appointments and their resources
 my $sql0 = "
-	SELECT DISTINCT
-		MediVisitAppointmentList.Resource,
+    SELECT DISTINCT
+        MediVisitAppointmentList.Resource,
         MediVisitAppointmentList.ResourceDescription
-	FROM
+    FROM
         MediVisitAppointmentList
         INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
             AND ClinicResources.Speciality = ?
@@ -53,16 +53,16 @@ my @resources;
 
 while(my @data0 = $query0->fetchrow_array())
 {
-	my $resource = $data0[0];
+    my $resource = $data0[0];
     my $resourceDesc = $data0[1];
-	$resource =~ s/(\t|\r|\n)//g; #remove tabs and newlines
-	push @resources, {"code" => $resource,"description" => $resourceDesc};
+    $resource =~ s/(\t|\r|\n)//g; #remove tabs and newlines
+    push @resources, {"code" => $resource,"description" => $resourceDesc};
 }
 
 my $sql1 = "
-	SELECT DISTINCT
-		MediVisitAppointmentList.AppointmentCode
-	FROM
+    SELECT DISTINCT
+        MediVisitAppointmentList.AppointmentCode
+    FROM
         MediVisitAppointmentList
         INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
             AND ClinicResources.Speciality = ?
@@ -75,9 +75,9 @@ my @appointments;
 
 while(my @data1 = $query1->fetchrow_array())
 {
-	my $app = $data1[0];
-	$app =~ s/(\t|\r|\n)//g; #remove tabs and newlines
-	push @appointments, $app;
+    my $app = $data1[0];
+    $app =~ s/(\t|\r|\n)//g; #remove tabs and newlines
+    push @appointments, $app;
 }
 
 

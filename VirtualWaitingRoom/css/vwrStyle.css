@@ -5,8 +5,8 @@
 
 /*necessary for highcharts to display properly*/
 highchart {
-	width: 100%;
-	display: block;
+    width: 100%;
+    display: block;
 }
 
 /*make sure md dialogs are at the front of the page*/
@@ -17,51 +17,51 @@ highchart {
 /*css for the selection modal */
 
 .option-holder-div {
-	display: inline-flex;
-	width: 100%;
+    display: inline-flex;
+    width: 100%;
 }
 
 .option-holder {
-	margin-top: 0.5%;
-	width: 80%;
-	min-height: 50px;
-	max-height: 100px;
-	overflow: auto;
+    margin-top: 0.5%;
+    width: 80%;
+    min-height: 50px;
+    max-height: 100px;
+    overflow: auto;
 }
 
 .selector-button {
-	margin-top: 0;
-	margin-top: 0;
-	height: 0;
+    margin-top: 0;
+    margin-top: 0;
+    height: 0;
 }
 
 .selector-gif {
- 	margin-left:70px;
-	width:50px;
+     margin-left:70px;
+    width:50px;
 }
 
 .selector-color-IntermediateVenue {
-	color: blue;
+    color: blue;
 }
 
 .selector-color-TreatmentVenue {
-	color: green;
+    color: green;
 }
 
 .selector-color-ExamRoom {
-	color: red;
+    color: red;
 }
 
 /*css for the main ORMS patient table */
 table.patient-list {
-	/*table-layout: fixed;
-	border: 1px solid black;*/
-	width: 100%;
-	max-width:100%;
+    /*table-layout: fixed;
+    border: 1px solid black;*/
+    width: 100%;
+    max-width:100%;
 }
 
 table.patient-list th, table.patient-list td {
-	/*border: 1px solid black;*/
+    /*border: 1px solid black;*/
 }
 
 /*modal animate css */
@@ -78,53 +78,53 @@ table.patient-list th, table.patient-list td {
 
 /* selector modal css */
 .option-checkbox {
-	list-style: none;
-	max-height: 400px;
-	overflow-y: auto;
-	list-style: none;
-	border: 1px #ccc solid;
-	margin-top: 10px;
-	border-radius: 5px;
+    list-style: none;
+    max-height: 400px;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px #ccc solid;
+    margin-top: 10px;
+    border-radius: 5px;
 }
 
 .option-list {
-	overflow: auto;
-	word-wrap: break-word;
-	min-height: 5vh;
-	max-height: 20vh;
+    overflow: auto;
+    word-wrap: break-word;
+    min-height: 5vh;
+    max-height: 20vh;
 }
 
 .alert-circle {
-	padding-top: 24%;
-	width: 24%;
-	background-color: transparent;
-	border-radius: 100%;
-	position: absolute;
-	right: -12%;
-	top: -25%;
+    padding-top: 24%;
+    width: 24%;
+    background-color: transparent;
+    border-radius: 100%;
+    position: absolute;
+    right: -12%;
+    top: -25%;
 }
 
 .green-circle {
-	background-color: #59d45d;
+    background-color: #59d45d;
 }
 
 .orange-circle {
-	background-color: #fe8100;
+    background-color: #fe8100;
 }
 
 .red-circle {
-	background-color: #ff0000;
+    background-color: #ff0000;
 }
 
 .weight-indicator {
-	background-color: #e8ea3d !important;
-	border-color: #bec320 !important;
-	color: black;
+    background-color: #e8ea3d !important;
+    border-color: #bec320 !important;
+    color: black;
 }
 
 .green-button {
-	background-color: #59d45d !important;
-	border-color: #299e29 !important;
+    background-color: #59d45d !important;
+    border-color: #299e29 !important;
 }
 
 .turquoise-button {
@@ -134,94 +134,94 @@ table.patient-list th, table.patient-list td {
 
 /*css for the weight input table */
 .weight-div {
-	width: 100%;
+    width: 100%;
 }
 
 table.table-measurement {
-	width: 0;
-	margin-left: auto;
-	margin-right: auto;
+    width: 0;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 table.table-measurement>tbody>tr>td {
-	border: 0;
+    border: 0;
 }
 
 .weight-modal-input {
-	width: 30%;
-	text-align: right;
+    width: 30%;
+    text-align: right;
 }
 
 .weight-cell {
-	background: yellow;
-	font-size: 20px;
+    background: yellow;
+    font-size: 20px;
 }
 
 .weight-input {
-	font-weight: bold;
-	font-size: 20px;
+    font-weight: bold;
+    font-size: 20px;
 }
 
 .weight-update-button {
-	width: 75px;
+    width: 75px;
 }
 
 .weight-update-button-warning {
-	background: red;
-	border-color: black;
+    background: red;
+    border-color: black;
 }
 
 /*status bar css*/
 .status-danger {
-	color: red;
+    color: red;
 }
 
 
 /*order selector popup css */
 .order-table td {
-	padding: 1px;
+    padding: 1px;
 }
 
 .sort-button {
-	width: 100%;
+    width: 100%;
 }
 .sort-priority-cell {
-	background: yellow;
+    background: yellow;
 }
 
 /*legend dialog css*/
 .legend-table {
-	border-collapse: separate;
-	border-spacing: 3em 0;
+    border-collapse: separate;
+    border-spacing: 3em 0;
 }
 
 .legend-table th,td {
-	text-align: left;
+    text-align: left;
 }
 
 .legend-button {
-	cursor: default;
-	width: 100%;
-	margin-right: 0;
-	margin-left: 0;
+    cursor: default;
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
 }
 
 .alert-circle-legend {
-	padding-top: 12%;
-	width: 12%;
-	border-radius: 100%;
-	position: absolute;
-	right: -5%;
-	top: -2%;
+    padding-top: 12%;
+    width: 12%;
+    border-radius: 100%;
+    position: absolute;
+    right: -5%;
+    top: -2%;
 }
 
 /*################################################*/
 /*bottom notification row css */
 /*################################################*/
 .bottom-bar {
-	color: white;
-	display: inline-block;
-	text-align: center;
+    color: white;
+    display: inline-block;
+    text-align: center;
 }
 
 /*###############################################*/
@@ -229,25 +229,25 @@ table.table-measurement>tbody>tr>td {
 /*###############################################*/
 
 div.questionnaireModal > div.modal-dialog {
-	width: calc(80vw);
+    width: calc(80vw);
 }
 
 .btn-que {
-	color: #FFFFFF;
-	font-weight: bold;
-	margin-bottom: 5px;
+    color: #FFFFFF;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
 .ques-row {
-	min-height:0;
+    min-height:0;
 }
 
 .selected-button {
-	background: purple;
+    background: purple;
 }
 
 .selected-button:focus {
-	background: purple;
+    background: purple;
 }
 
 /* sliding animations for the questionnaires */

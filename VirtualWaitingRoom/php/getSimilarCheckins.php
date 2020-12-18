@@ -8,8 +8,7 @@ require("loadConfigs.php");
 // Extract the webpage parameters
 $firstName = $_GET["firstName"];
 $lastNameFirstThree = $_GET["lastNameFirstThree"];
-$patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"];
+$patientId = $_GET["patientId"];
 
 //======================================================================================
 // MediVisit/MySQL patients
@@ -26,7 +25,7 @@ $queryMV = $dbWRM->prepare("
         INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
             AND Patient.FirstName = :first
             AND Patient.SSN LIKE :last
-            AND (Patient.PatientId != :idRVH OR Patient.PatientId_MGH != :idMGH)
+            AND Patient.PatientSerNum != :pSer
     WHERE
         PatientLocation.ArrivalDateTime >= CURDATE()
 ");
@@ -34,8 +33,7 @@ $queryMV = $dbWRM->prepare("
 $queryMV->execute([
     ":first" => $firstName,
     ":last" => "$lastNameFirstThree%",
-    ":idRVH" => $patientIdRVH,
-    ":idMGH" => $patientIdMGH
+    ":pSer" => $patientId
 ]);
 
 /* Process results */

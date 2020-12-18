@@ -305,8 +305,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 firstName: patient.FirstName,
                 lastNameFirstThree: patient.SSN,
-                patientIdRVH: patient.PatientIdRVH,
-                patientIdMGH: patient.PatientIdMGH
+                patientId: patient.PatientId
             }
         }).then(function (response)
         {
@@ -362,7 +361,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     Timestamp: Firebase.ServerValue.TIMESTAMP
                 });
 
-                $scope.logMessage("call_FB","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicalArea +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
+                $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicalArea +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
 
                 // Update the timestamp in the firebase array
                 firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -378,8 +377,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     method: "GET",
                     params:
                     {
-                        patientIdRVH: patient.PatientIdRVH,
-                        patientIdMGH: patient.PatientIdMGH,
+                        patientId: patient.PatientId,
                         room_FR: destination.VenueFR,
                         room_EN: destination.VenueEN
                     }
@@ -402,7 +400,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     method: "GET",
                     params:
                     {
-                        patientid: patient.PatientIdRVH,
+                        patientid: patient.Mrn,
                         appointment_ariaser: correctSerNum,
                         room_FR: destination.VenueFR,
                         room_EN: destination.VenueEN
@@ -424,8 +422,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 {
                     checkinVenue: destination.LocationId,
                     appointmentSer: patient.Identifier,
-                    patientIdRVH: patient.PatientIdRVH,
-                    patientIdMGH: patient.PatientIdMGH
+                    patientId: patient.PatientId
                 }
             }).then(function()
             {
@@ -480,12 +477,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 checkinVenue: sendLocation,
                 appointmentSer: patient.Identifier,
-                patientIdRVH: patient.PatientIdRVH,
-                patientIdMGH: patient.PatientIdMGH
+                patientId: patient.PatientId,
             }
         }).then(function()
         {
-            $scope.logMessage("send_pat","General","Patient "+ patient.PatientIdRVH +"/"+ patient.PatientIdMGH +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location "+ sendLocation);
+            $scope.logMessage("send_pat","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.ScheduledActivitySer + patient.CheckinSystem +" inserted in db at location "+ sendLocation);
 
             if(removeFromFB) {$scope.removeFromFB(patient);}
         });

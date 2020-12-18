@@ -8,8 +8,7 @@ require("loadConfigs.php");
 use Orms\Sms\SmsInterface;
 
 // Extract the webpage parameters
-$patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"];
+$patientId = $_GET["patientId"];
 $room_FR = $_GET["room_FR"];
 $room_EN = $_GET["room_EN"];
 
@@ -38,12 +37,10 @@ $queryPhone = $dbh->prepare("
     FROM
         Patient
     WHERE
-        Patient.PatientId = :patIdRVH
-        AND Patient.PatientId_MGH = :patIdMGH
+        Patient.PatientSerNum = :pSer
 ");
 $queryPhone->execute([
-    ":patIdRVH" => $patientIdRVH,
-    ":patIdMGH" => $patientIdMGH
+    ":pSer" => $patientId
 ]);
 
 $row = $queryPhone->fetchAll(PDO::FETCH_ASSOC)[0];

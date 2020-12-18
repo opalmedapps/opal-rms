@@ -9,32 +9,12 @@ use Orms\Config;
 use Orms\Sms\SmsInterface;
 
 #extract the webpage parameters
-$patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
-$patientIdMGH       = $_GET["patientIdMGH"] ?? NULL;
+$patientId          = $_GET["patientId"] ?? NULL;
 $smsAlertNum        = $_GET["phoneNumber"] ?? NULL;
 $languagePreference = $_GET["language"] ?? NULL;
 $speciality         = $_GET["speciality"] ?? NULL;
 
-#find the patient in ORMS
 $dbh = Config::getDatabaseConnection("ORMS");
-
-$queryOrms = $dbh->prepare("
-    SELECT
-        Patient.PatientSerNum
-    FROM
-        Patient
-    WHERE
-        Patient.PatientId = :patIdRVH
-        AND Patient.PatientId_MGH = :patIdMGH
-");
-$queryOrms->execute([
-    ":patIdRVH" => $patientIdRVH,
-    ":patIdMGH" => $patientIdMGH
-]);
-
-$patSer = $queryOrms->fetchAll()[0]["PatientSerNum"] ?? NULL;
-
-if($patSer === NULL) exit("Patient not found");
 
 #if the phone number provided was empty, then unsuscribe the patient to the service instead
 if($smsAlertNum === "")
@@ -50,7 +30,7 @@ if($smsAlertNum === "")
             PatientSerNum = :pSer"
     );
     $querySMS->execute([
-        ":pSer" => $patSer
+        ":pSer" => $patientId
     ]);
 
     exit("Record updated successfully<br>");
@@ -69,7 +49,7 @@ $querySMS = $dbh->prepare("
 $querySMS->execute([
     ":phoneNum" => $smsAlertNum,
     ":langPref" => $languagePreference,
-    ":pSer"     => $patSer
+    ":pSer"     => $patientId
 ]);
 
 #print a message and close the connection so that the client does not wait

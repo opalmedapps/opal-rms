@@ -352,7 +352,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 {
                     FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
                     PseudoLastName: pseudoLastName,
-                    PatientSer: patient.PatientSer,
+                    PatientId: patient.PatientId,
                     Destination: destination,
                     PatientStatus: 'Called',
                     Appointment: patient.AppointmentName,
@@ -546,7 +546,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 {
                     return "Yes";
                 }
-                else if($scope.screenRows['ToBeWeighed'].hasOwnProperty(patient.PatientSer + patient.CheckinSystem))
+                else if($scope.screenRows['ToBeWeighed'].hasOwnProperty(patient.PatientId + patient.CheckinSystem))
                 {
                     return "Yes";
                 }
@@ -564,7 +564,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //Add the patient to ToBeWeighed firebase array
         //for older browsers, create the object to pass first
         var tempObj = {};
-        tempObj[patient.PatientSer + patient.CheckinSystem] = 1;
+        tempObj[patient.PatientId + patient.CheckinSystem] = 1;
 
         firebaseScreenRef.child("ToBeWeighed").update(tempObj);
 
@@ -863,7 +863,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 //create object for older browsers ({[varName]: 1} syntax doesn't work)
                 var tempObj = {};
-                tempObj[patient.PatientSer + patient.CheckinSystem] = {};
+                tempObj[patient.PatientId + patient.CheckinSystem] = {};
 
                 firebaseScreenRef.child("ToBeWeighed").update(tempObj);
 

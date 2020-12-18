@@ -102,8 +102,7 @@
                                 </span>
                                 <span   ng-switch-when="PatientName">
                                     {{patient.LastName}}, {{patient.FirstName}}<br>
-                                    <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
-                                    <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                                    <span>({{patient.Mrn}})</span>
                                 </span>
                                 <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                                 <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
@@ -133,8 +132,7 @@
                             </span>
                             <span   ng-switch-when="PatientName">
                                 {{patient.LastName}}, {{patient.FirstName}}<br>
-                                <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
-                                <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                                <span>({{patient.Mrn}})</span>
                             </span>
                             <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                             <span   ng-switch-when="ScheduledStartTime">{{patient.ScheduledStartTime_hh}}:{{"0"+patient.ScheduledStartTime_mm | limitTo:-2}}</span>
@@ -168,13 +166,12 @@
                             </span>
                             <span   ng-switch-when="PatientName">
                                 {{patient.LastName}}, {{patient.FirstName}}<br>
-                                <span ng-if="patient.PatientIdRVH">(RV-{{patient.PatientIdRVH}})</span>
-                                <span ng-if="patient.PatientIdMGH"><br>(MG-{{patient.PatientIdMGH}})</span>
+                                <span>({{patient.Mrn}})</span>
                             </span>
                             <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
                             <span   ng-switch-when="RemainingTime">{{patient.TimeRemaining}}</span>
                             <button ng-switch-when="SendForPhysio" ng-show="patient.VenueId != 'SENT FOR PHYSIO'" ng-click="sendToLocation(patient,'SENT FOR PHYSIO',true)" class="btn btn-default">Send for Physio</button>
-                            <span   ng-switch-when="SendForWeight" ng-if="patient.PatientIdRVH" ng-switch="patientWeightRequired(patient)">
+                            <span   ng-switch-when="SendForWeight" ng-switch="patientWeightRequired(patient)">
                                 <button ng-switch-when="Yes" ng-click="openWeightModal(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</button>
                                 <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
                                 <button ng-switch-when="No" ng-click="addToWeighArray(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Send For Weight</button>
@@ -185,7 +182,7 @@
                                 <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
                             </span>
                             <span   ng-switch-when="WaitingTime">{{patient.WaitTime}}</span>
-                            <span   ng-switch-when="WeighPatient" ng-if="patient.PatientIdRVH" ng-switch="patientWeightRequired(patient)">
+                            <span   ng-switch-when="WeighPatient" ng-switch="patientWeightRequired(patient)">
                                 <button ng-switch-when="Yes" ng-click="openWeightModal(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</button>
                                 <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
                             </span>

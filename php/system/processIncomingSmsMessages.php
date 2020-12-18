@@ -92,7 +92,7 @@ foreach($messages as $message)
     {
         foreach($v as $type => $apps)
         {
-            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$language]["Message"];
+            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$language]["Message"] ?? "";
 
             $appListString = array_reduce($apps,function($acc,$x) use($language) {
                 if($language === "French") return $acc . "$x[name] à $x[time]\n";
@@ -103,7 +103,8 @@ foreach($messages as $message)
             $appointmentString .= "\n\n----------------\n\n";
         }
     }
-    $appointmentString = preg_replace("/\n\n----------------\n\n$/","",$appointmentString); #remove last newline
+    $appointmentString = rtrim($appointmentString); #remove trailing newlines
+    $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString); #remove last separator newline
 
     #check the patient into all of his appointments
     $checkInRequest = curl_init("$checkInScriptUrl?".http_build_query(["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]));

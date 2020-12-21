@@ -11,8 +11,7 @@ use Orms\Sms\SmsInterface;
 
 # Extract the webpage parameters
 
-$patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"] ?? "";
+$patientId = $_GET["patientId"];
 $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 
@@ -26,12 +25,10 @@ $queryOrms = $dbh->prepare("
     FROM
         Patient
     WHERE
-        Patient.PatientId = :patIdRVH
-        AND Patient.PatientId_MGH = :patIdMGH
+        Patient.PatientSerNum = :pSer
 ");
 $queryOrms->execute([
-    ":patIdRVH" => $patientIdRVH,
-    ":patIdMGH" => $patientIdMGH
+    ":pSer" => $patientId,
 ]);
 
 $patInfo = $queryOrms->fetchAll()[0] ?? NULL;

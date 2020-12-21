@@ -1,6 +1,6 @@
 <?php
 //====================================================================================
-// checkinPatientAriaMedi.php - php code to check a patient into all appointments
+// php code to check a patient into all appointments
 //====================================================================================
 require("loadConfigs.php");
 

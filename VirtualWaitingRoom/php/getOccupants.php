@@ -1,6 +1,6 @@
 <?php
 //====================================================================================
-// getOccupants.php - php code to query the MySQL databases and extract the list of patients
+// php code to query the MySQL databases and extract the list of patients
 // who are currently checked in for open appointments today in Medivisit (MySQL), using a selected list of destination rooms/areas
 //====================================================================================
 require("loadConfigs.php");

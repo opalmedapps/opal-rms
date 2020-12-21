@@ -1,7 +1,7 @@
 <?php
 //script to get all height and weight records a patient has in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $patientIdRVH = $_GET['patientIdRVH'];

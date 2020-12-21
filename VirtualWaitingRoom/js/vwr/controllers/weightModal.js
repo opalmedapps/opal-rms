@@ -74,7 +74,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         }
 
         $http({
-            url: "php/updatePatientMeasurements.php",
+            url: "php/weight/updatePatientMeasurements.php",
             method: "GET",
             params: {
                 patientIdRVH: patient.PatientIdRVH,
@@ -117,7 +117,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
     {
         //get the patient's previous heights and weights
         $http({
-            url: "php/getHistoricalMeasurements.php",
+            url: "php/weight/getHistoricalMeasurements.php",
             method: "GET",
             params: {
                     patientIdRVH: patient.PatientIdRVH,

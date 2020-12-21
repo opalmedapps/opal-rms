@@ -1,7 +1,7 @@
 <?php
 //script to insert patient measurements in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $patientIdRVH = $_GET["patientIdRVH"];

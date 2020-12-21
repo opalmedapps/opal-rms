@@ -58,14 +58,10 @@ my $timestamp = 100000 * Time::HiRes::gettimeofday();
 #------------------------------------------
 # parse input parameters
 #------------------------------------------
-my $patientIdRVH = url_param("patientIdRVH");
-my $patientIdMGH = url_param("patientIdMGH");
+my $patientId = url_param("patientId");
 my $fname = url_param("firstName");
 my $lname = url_param("lastName");
 my $svgInfo = param("POSTDATA"); #the svg data was sent using POST method
-
-#parse the patientId
-(my $noZeroesId = $patientIdRVH) =~ s/0*(\d+)/$1/; #remove all leading zeroes in the patient id
 
 #handle date/time
 my $now = localtime;
@@ -100,8 +96,9 @@ my $dbh =  DBI->connect_cached($WRM_DB,$WRM_USER,$WRM_PASS) or die("Couldn't con
 #get the patient weights
 my $sql = "
     SELECT
-        PM.FirstName,
-        PM.LastName,
+        Patient.FirstName,
+        Patient.LastName,
+        Patient.PatientId AS Mrn,
         PatientMeasurement.Date,
         PatientMeasurement.Time,
         PatientMeasurement.Height,
@@ -109,24 +106,22 @@ my $sql = "
         PatientMeasurement.BSA,
         PatientMeasurement.AppointmentId
     FROM
-    (
-        SELECT
-            Patient.FirstName,
-            Patient.LastName,
-            PatientMeasurement.Date,
-            PatientMeasurement.PatientSer,
-            MAX(PatientMeasurement.LastUpdated) AS LU,
-            MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
-        FROM
-            PatientMeasurement
-            INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
-                AND Patient.PatientId = '$patientIdRVH'
-                AND Patient.PatientId_MGH = '$patientIdMGH'
-        GROUP BY
-            PatientMeasurement.Date
-    ) AS PM
-    INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
-        AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
+        (
+            SELECT
+                PatientMeasurement.Date,
+                PatientMeasurement.PatientSer,
+                MAX(PatientMeasurement.LastUpdated) AS LU,
+                MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
+            FROM
+                PatientMeasurement
+            WHERE
+                PatientMeasurement.PatientSer = $patientId
+            GROUP BY
+                PatientMeasurement.Date
+        ) AS PM
+        INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
+            AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
+        INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
     ORDER BY PatientMeasurement.Date";
 
 my $query = $dbh->prepare($sql) or die("Query could not be prepared: ".$dbh->errstr);
@@ -134,6 +129,8 @@ $query->execute() or die("Query execution failed: ".$query->errstr);
 
 my $fname;
 my $lname;
+my $mrnRVH;
+my $noZeroesMrn;
 my %dates;
 
 while(my $data = $query->fetchrow_hashref)
@@ -142,6 +139,8 @@ while(my $data = $query->fetchrow_hashref)
 
     $fname = $data{'FirstName'};
     $lname = $data{'LastName'};
+    $mrnRVH = $data{'Mrn'};
+    ($noZeroesMrn = $mrnRVH) =~ s/0*(\d+)/$1/; #remove all leading zeroes in the patient id
 
     $data{'Time'} = Time::Piece->strptime($data{'Time'},"%H:%M:%S");
     $data{'Time'} = $data{'Time'}->strftime("%H:%M");
@@ -162,7 +161,7 @@ if(!%dates)
 # open the temporary datafile that will hold the .tex file
 my $aptsChart = "FMU-4183";
 
-my $outputWeightFile = "$BASEPATH/perl/$patientIdRVH\_$aptsChart\_$timestamp";
+my $outputWeightFile = "$BASEPATH/perl/$mrnRVH\_$aptsChart\_$timestamp";
 my $texFile = "$outputWeightFile.tex";
 my $pdfFile = "$outputWeightFile.pdf";
 
@@ -234,7 +233,7 @@ say $aptOut "
     \\definecolor{light-blue}{rgb}{0,0,0.99}
     \\definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
 
-    %\\AddToShipoutPicture{\\AtTextUpperLeft{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}}";
+    %\\AddToShipoutPicture{\\AtTextUpperLeft{\\textbf{$lname, $fname (RVH-$mrnRVH)}}}";
 
 say $aptOut "
     \\begin{document}
@@ -252,7 +251,7 @@ say $aptOut "
     \\end{minipage}
 
     \\begin{center}
-    \\textbf{$lname, $fname (RVH-$patientIdRVH)}
+    \\textbf{$lname, $fname (RVH-$mrnRVH)}
     \\newline
     \\includegraphics[height=4.3in]{$outputWeightFile.png}
     \\end{center}
@@ -284,7 +283,7 @@ say $aptOut "
         |p{0.15\\linewidth}
         |
     }
-    \\rowcolor{white}\\multicolumn{6}{l}{\\textbf{$lname, $fname (RVH-$patientIdRVH)}}\\\\
+    \\rowcolor{white}\\multicolumn{6}{l}{\\textbf{$lname, $fname (RVH-$mrnRVH)}}\\\\
     \\rowcolor{white}\\multicolumn{6}{l}{\\color{white}{ }}\\\\
     \\hline
     \\rowcolor{babyblueeyes}
@@ -329,13 +328,13 @@ system("pdflatex -output-directory $BASEPATH/perl/ $texFile >/dev/null 2>&1");
 #---------------------------------------
 #create the xml file for ATS
 #--------------------------------------
-my $outputXMLFile = "$BASEPATH/perl/MUHC-$facility-$noZeroesId-$aptsChart^Aria_$timestamp.xml";
+my $outputXMLFile = "$BASEPATH/perl/MUHC-$facility-$noZeroesMrn-$aptsChart^Aria_$timestamp.xml";
 
 open(my $xmlOut,">",$outputXMLFile) or die "Could not open file '$outputXMLFile' $!";
 my $xmlText = "
     <IndexInfo>
         <fileCount>1</fileCount>
-        <mrn>$noZeroesId</mrn>
+        <mrn>$noZeroesMrn</mrn>
         <facility>$facility</facility>
         <docType>MU-4183</docType>
         <docDate>$today</docDate>
@@ -343,7 +342,7 @@ my $xmlText = "
         <externalSystemIds>
             <externalSystemId>
                 <externalSystem>Aria</externalSystem>
-                <externalId>MUHC-$facility-$noZeroesId-$aptsChart^Aria</externalId>
+                <externalId>MUHC-$facility-$noZeroesMrn-$aptsChart^Aria</externalId>
             </externalSystemId>
         </externalSystemIds>
     </IndexInfo>";
@@ -357,20 +356,20 @@ close $xmlOut;
 
 #prod
 my $ftpConnection = Net::FTPSSL->new("172.26.188.167",SSL_version => 'SSLv23') or die("Could not create ftp object");
-#LOG_MESSAGE('connect_ftp','General',"Connected to prod server for patient $patientIdRVH with message: ". $ftpConnection->message);
+#LOG_MESSAGE('connect_ftp','General',"Connected to prod server for patient $mrnRVH with message: ". $ftpConnection->message);
 
 $ftpConnection->login("wnetvmap29\\ProdImport","Importap29") or die($ftpConnection->last_message);
-#LOG_MESSAGE('login_ftp','General',"Logged in to prod server for patient $patientIdRVH with message: ". $ftpConnection->message);
+#LOG_MESSAGE('login_ftp','General',"Logged in to prod server for patient $mrnRVH with message: ". $ftpConnection->message);
 
 $ftpConnection->binary(); #necessary (vital) for some reason
 
 #send the pdf to the ATS server
-$ftpConnection->put($pdfFile,"\\Orms\\MUHC-$facility-$noZeroesId-$aptsChart^Orms.001");
-LOG_MESSAGE('send_pdf','General',"Sent weight pdf for patient $patientIdRVH to server with message: ". $ftpConnection->message);
+$ftpConnection->put($pdfFile,"\\Orms\\MUHC-$facility-$noZeroesMrn-$aptsChart^Orms.001");
+LOG_MESSAGE('send_pdf','General',"Sent weight pdf for patient $mrnRVH to server with message: ". $ftpConnection->message);
 
 #copy the xml file to the ATS server
-$ftpConnection->put($outputXMLFile,"\\Orms\\MUHC-$facility-$noZeroesId-$aptsChart^Orms.xml");
-LOG_MESSAGE('send_xml','General',"Sent weight xml for patient $patientIdRVH to server with message: ". $ftpConnection->message);
+$ftpConnection->put($outputXMLFile,"\\Orms\\MUHC-$facility-$noZeroesMrn-$aptsChart^Orms.xml");
+LOG_MESSAGE('send_xml','General',"Sent weight xml for patient $mrnRVH to server with message: ". $ftpConnection->message);
 
 #dev
 #our $ftpConnection = Net::FTPSSL->new("172.26.188.198") or die("Could not create ftp object");
@@ -379,8 +378,8 @@ LOG_MESSAGE('send_xml','General',"Sent weight xml for patient $patientIdRVH to s
 #interface engine
 #our $ftpConnection = Net::FTP->new("qdxengine.muhc.mcgill.ca","SSL"=> 1) or die("Could not create ftp object");
 #$ftpConnection->login("ariarpt","qdxt1X0") or die($ftpConnection->last_message);
-#$ftpConnection->put($pdfFile,"MUHC-$facility-$noZeroesId-$aptsChart^Orms.001"); for interface engine
-#$ftpConnection->put($outputXMLFile,"MUHC-$facility-$noZeroesId-$aptsChart^Orms.xml"); for interface engine
+#$ftpConnection->put($pdfFile,"MUHC-$facility-$noZeroesMrn-$aptsChart^Orms.001"); for interface engine
+#$ftpConnection->put($outputXMLFile,"MUHC-$facility-$noZeroesMrn-$aptsChart^Orms.xml"); for interface engine
 
 #dev interface engine
 #our $ftpConnection = Net::FTP->new("172.26.191.134") or die("Could not create ftp object");

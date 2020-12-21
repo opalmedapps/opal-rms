@@ -4,10 +4,7 @@
 require("../loadConfigs.php");
 
 //get webpage parameters
-$patientIdRVH = $_GET['patientIdRVH'];
-$patientIdMGH = $_GET['patientIdMGH'];
-
-$json = []; //output array
+$patientId = $_GET['patientId'];
 
 //connect to db
 $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
@@ -15,13 +12,13 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 //==================================
 //run query
 //==================================
-$sql = "
+$query = $dbWRM->prepare("
     SELECT
         PatientMeasurement.Date,
         PatientMeasurement.Height,
         PatientMeasurement.Weight,
         PatientMeasurement.BSA,
-        PatientMeasurement.PatientId
+        PatientMeasurement.PatientId AS Mrn
     FROM
     (
         SELECT
@@ -31,26 +28,19 @@ $sql = "
             MAX(PatientMeasurement.PatientMeasurementSer) AS PatientMeasurementSer
         FROM
             PatientMeasurement
-            INNER JOIN Patient ON Patient.PatientSerNum = PatientMeasurement.PatientSer
-                AND Patient.PatientId = '$patientIdRVH'
-                AND Patient.PatientId_MGH = '$patientIdMGH'
+        WHERE
+            PatientMeasurement.PatientSer = :pSer
         GROUP BY
             PatientMeasurement.Date
     ) AS PM
     INNER JOIN PatientMeasurement ON PatientMeasurement.PatientSer = PM.PatientSer
         AND PatientMeasurement.PatientMeasurementSer = PM.PatientMeasurementSer
-    ORDER BY PatientMeasurement.Date";
-
-//process results
-$query = $dbWRM->query($sql);
-
-while($row = $query->fetch(PDO::FETCH_ASSOC))
-{
-    $json[] = $row;
-}
+    ORDER BY PatientMeasurement.Date
+");
+$query->execute([":pSer" => $patientId]);
 
 //encode and return the json object
-$json = utf8_encode_recursive($json);
+$json = utf8_encode_recursive($query->fetchAll(PDO::FETCH_ASSOC));
 echo json_encode($json,JSON_NUMERIC_CHECK);
 
 ?>

@@ -18,7 +18,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
     $http({
         url: "./php/questionnaire/getQuestionnaires.php",
         method: "GET",
-        params: {Patient_ID: $scope.patient.PatientIdRVH}
+        params: {mrn: $scope.patient.Mrn}
     }).then(function (response)
     {
         $scope.questionnaireList = response.data;
@@ -102,8 +102,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
                 method: "GET",
                 params: {
                     user: result,
-                    patientIdRVH: $scope.patient.PatientIdRVH,
-                    patientIdMGH: $scope.patient.PatientIdMGH
+                    patientId: $scope.patient.PatientId,
                 }
             })
             .then( _ => {$scope.patient.LastQuestionnaireReview = $filter("date")(new Date(),"yyyy-MM-dd HH-mm");});
@@ -127,7 +126,8 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
             $http({
                 url: "./php/questionnaire/reportDisplay.php",
                 method: "GET",
-                params: {ID: $scope.patient.PatientIdRVH,
+                params: {
+                    mrn: $scope.patient.Mrn,
                     rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
                 }
             }).then(function (response) {
@@ -171,7 +171,8 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
             $http({
                 url: "./php/questionnaire/report.php",
                 method: "GET",
-                params: {ID: $scope.patient.PatientIdRVH,
+                params: {
+                    mrn: $scope.patient.Mrn,
                     rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
                 }
             }).then(function (response) {

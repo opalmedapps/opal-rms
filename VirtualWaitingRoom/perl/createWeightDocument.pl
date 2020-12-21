@@ -80,7 +80,7 @@ for(my $i = 0; $i < scalar @monthsENG; $i++)
 }
 
 #verify the patient exists in the hospital ADT
-#my $patientExists = verifyPatientWithADT->patientExists($patientIdRVH,$facility,$fname,$lname);
+#my $patientExists = verifyPatientWithADT->patientExists($patientMrnRVH,$facility,$fname,$lname);
 
 #if($patientExists ne 1)
 #{

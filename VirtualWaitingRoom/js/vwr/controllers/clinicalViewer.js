@@ -463,7 +463,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 //backdrop: 'static',
                 resolve:
                     {
-                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.pID, 'QStatus': appoint.QStatus,'LastQuestionnaireReview':appoint.LastReview,};},
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientIdRVH': appoint.mrn, 'QStatus': appoint.QStatus,'LastQuestionnaireReview':appoint.LastReview,};},
                         //confidMode: function() {return $scope.confid}
                     }
             }).result.then(function(response)
@@ -511,8 +511,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 method: "GET",
                 params:
                     {
-                        patientIdRVH: appoint.pID,
-                        patientIdMGH: null,
+                        patientId: appoint.patientId,
                         zoomLink: $scope.zoomLink,
                         resName: appoint.appName
                     }

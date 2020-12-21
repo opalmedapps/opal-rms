@@ -11,7 +11,7 @@ use Orms\Sms\SmsInterface;
 
 # Extract the webpage parameters
 
-$patientId = $_GET["patientId"];
+$patientId    = $_GET["patientId"];
 $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 

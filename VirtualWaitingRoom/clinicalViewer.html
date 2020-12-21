@@ -444,12 +444,12 @@
             <tbody >
             <tr ng-repeat="appoint in tableData">
 
-                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}},{{appoint.ssn.num}}</div>
+                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}},{{appoint.ssn.num}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td-->
-                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}</div>
+                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************</div></td>
 
-                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</div>
+                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}}, {{appoint.ssn.num}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></--td-->
 
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>

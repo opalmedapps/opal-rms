@@ -131,6 +131,7 @@ $sql = "
         Patient.FirstName,
         Patient.LastName,
         Patient.PatientId,
+        Patient.PatientSerNum,
         Patient.SSN,
         MV.ResourceDescription,
         MV.Resource,
@@ -185,42 +186,42 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
              LIMIT 1) AS Name_EN,
              (SELECT Q.CompletionDate
                 FROM Questionnaire Q
-                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                AND Q.CompletedFlag = 1
-                $qappFilter
-                where Q.PatientSerNum = P.PatientSerNum
-                ORDER BY Q.CompletionDate DESC
-                LIMIT 1) AS QuestionnaireCompletionDate,
-             (SELECT QC.QuestionnaireName_EN
+				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+				AND Q.CompletedFlag = 1
+				$qappFilter
+				where Q.PatientSerNum = P.PatientSerNum
+				ORDER BY Q.CompletionDate DESC
+				LIMIT 1) AS QuestionnaireCompletionDate,
+			 (SELECT QC.QuestionnaireName_EN
                 FROM Questionnaire Q
-                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                AND Q.CompletedFlag = 1
-                $qappFilter
-                where Q.PatientSerNum = P.PatientSerNum
-                ORDER BY Q.CompletionDate DESC
-                LIMIT 1) AS QuestionnaireName,
-            (SELECT CASE
+				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+				AND Q.CompletedFlag = 1
+				$qappFilter
+				where Q.PatientSerNum = P.PatientSerNum
+				ORDER BY Q.CompletionDate DESC
+				LIMIT 1) AS QuestionnaireName,
+			(SELECT CASE
                     WHEN Q.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
                         ELSE 0
                     END AS CompletedWithinLastWeek
                 FROM Questionnaire Q
-                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                AND Q.CompletedFlag = 1
-                $qappFilter
-                where Q.PatientSerNum = P.PatientSerNum
-                ORDER BY Q.CompletionDate DESC
-                LIMIT 1) AS CompletedWithinLastWeek,
-            (SELECT CASE
+				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+				AND Q.CompletedFlag = 1
+				$qappFilter
+				where Q.PatientSerNum = P.PatientSerNum
+				ORDER BY Q.CompletionDate DESC
+				LIMIT 1) AS CompletedWithinLastWeek,
+			(SELECT CASE
                     WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
                         ELSE 0
                     END AS RecentAnswered
                 FROM Questionnaire Q
-                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                AND Q.CompletedFlag = 1
-                $qappFilter
-                where Q.PatientSerNum = P.PatientSerNum
-                ORDER BY Q.CompletionDate DESC
-                LIMIT 1) AS RecentAnswered
+				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+				AND Q.CompletedFlag = 1
+				$qappFilter
+				where Q.PatientSerNum = P.PatientSerNum
+				ORDER BY Q.CompletionDate DESC
+				LIMIT 1) AS RecentAnswered
             FROM Patient P";
 
     $queryOpal3 = $dbOpal->prepare($sqlOpal3);
@@ -228,6 +229,7 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
     $sql2 = "SELECT  Patient.FirstName,
         Patient.LastName,
         Patient.PatientId,
+        Patient.PatientSerNum,
         Patient.SSN,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
         Patient.OpalPatient,
@@ -242,7 +244,7 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
 //if ($cappFilter !== "") $query->bindValue(":appCode", $cspecificApp);
 
 $listOfAppointments = [];
-$pIDlist = [];
+$mrnList = [];
 
 # if the appointment filter is active
 if(!$afilter) {
@@ -305,15 +307,16 @@ if(!$afilter) {
             }
         }
 
-        if (!in_array($row["PatientId"], $pIDlist)) {
-            array_push($pIDlist, $row["PatientId"]);
+        if (!in_array($row["PatientId"], $mrnList)) {
+            array_push($mrnList, $row["PatientId"]);
         }
 
         if (($appdType === "all" || in_array($row["Diagnosis"], explode(",", $dspecificApp))) && ($resultOpal["RecentAnswered"] == 1 || $offbutton == "OFF"||$qfilter||$andbutton=='Or') && ($qType === "all" || $answeredQuestionnaire)) {
             $listOfAppointments[] = [
                 "fname" => $row["FirstName"],
                 "lname" => $row["LastName"],
-                "pID" => $row["PatientId"],
+                "mrn" => $row["PatientId"],
+                "patientId" => $row["PatientSerNum"],
                 "ssn" => [
                     "num" => $row["SSN"],
                     "expDate" => $row["ssnExp"] ?? NULL,
@@ -365,13 +368,14 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
             )
         ) $row2["QStatus"] = "red-circle";
 
-        if (($appdType === "all" || $row2["Name_EN"]) && ($row2["RecentAnswered"] == 1 || $offbutton == "OFF") && ($qType === "all" || $row2["QuestionnaireName"]) && (!in_array($row2["PatientId"], $pIDlist)) && ($resultORMS["FirstName"])
+        if (($appdType === "all" || $row2["Name_EN"]) && ($row2["RecentAnswered"] == 1 || $offbutton == "OFF") && ($qType === "all" || $row2["QuestionnaireName"]) && (!in_array($row2["PatientId"], $mrnList)) && ($resultORMS["FirstName"])
         && ($row2["QuestionnaireCompletionDate"])) {
 
             $listOfAppointments[] = [
                 "fname" => $resultORMS["FirstName"],
                 "lname" => $resultORMS["LastName"],
-                "pID" => $row2["PatientId"],
+                "mrn" => $row2["PatientId"],
+                "patientId" => $resultORMS["PatientSerNum"],
                 "ssn" => [
                     "num" => $row2["SSN"],
                     "expDate" => $row2["ssnExp"] ?? NULL,

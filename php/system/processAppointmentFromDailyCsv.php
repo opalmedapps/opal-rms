@@ -7,6 +7,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Util\Csv;
 
 #get csv file name from command line arguments
 $csvFile = (getopt("",["file:"]))["file"] ?: "";
@@ -26,15 +27,9 @@ if($modDate !== $today)
     }
 }
 
-$fileHandle = fopen($csvFile,"r");
+$appointments = Csv::processCsvFile($csvFile);
 
-if($fileHandle === FALSE) exit("Error opening file");
-
-$appointments = processCsvFile($fileHandle);
-
-foreach($appointments as $key => $val) {
-    $appointments[$key] = !empty($val) ? $val : NULL;
-}
+if($appointments === []) exit("Error opening file");
 
 #call the importer script and export appointments
 $url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
@@ -50,28 +45,5 @@ foreach($appointments as $app)
     curl_exec($ch);
 }
 curl_close($ch);
-
-###################################
-# Functions
-###################################
-
-#takes a just opened file handle for a csv file and inserts all the appointments within into the ORMS db
-function processCsvFile($handle): array #$handle is stream
-{
-    $data = [];
-
-    $headers = fgetcsv($handle) ?: [];
-
-    #csv file is encoded in iso-8859-1 so we need to change it to utf8
-    // $headers = array_map('utf8_encode',$headers);
-
-    while(($row = fgetcsv($handle) ?? []) !== FALSE)
-    {
-        // $row = array_map('utf8_encode',$row);
-        $data[] = array_combine($headers,$row);
-    }
-
-    return $data;
-}
 
 ?>

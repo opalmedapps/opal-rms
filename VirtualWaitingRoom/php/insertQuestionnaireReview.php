@@ -6,37 +6,15 @@
 require("loadConfigs.php");
 
 #extract the webpage parameters
-$patientIdRVH       = $_GET["patientIdRVH"] ?? NULL;
-$patientIdMGH       = $_GET["patientIdMGH"] ?? "";
+$patientId          = $_GET["patientId"] ?? NULL;
 $user               = $_GET["user"] ?? NULL;
 
-#find the patient in ORMS
 $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
-$queryOrms = $dbh->prepare("
-    SELECT
-        Patient.PatientSerNum
-    FROM
-        Patient
-    WHERE
-        Patient.PatientId = :patIdRVH
-        AND Patient.PatientId_MGH = :patIdMGH
-");
-$queryOrms->execute([
-    ":patIdRVH" => $patientIdRVH,
-    ":patIdMGH" => $patientIdMGH
-]);
-
-$patSer = $queryOrms->fetchAll()[0]["PatientSerNum"] ?? NULL;
-
-if($patSer === NULL) exit("Patient not found");
-
-#set the patient phone number
-$queryInsert = $dbh->prepare("
+$dbh->prepare("
     INSERT INTO TEMP_PatientQuestionnaireReview(PatientSer,User)
-    VALUES(:patSer,:user)"
-);
-$queryInsert->execute([
-    ":patSer" => $patSer,
+    VALUES(:pSer,:user)"
+)->execute([
+    ":pSer"   => $patientId,
     ":user"   => $user
 ]);
 

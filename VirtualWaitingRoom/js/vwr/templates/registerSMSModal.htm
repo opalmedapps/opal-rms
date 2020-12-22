@@ -1,6 +1,6 @@
 <!-- RegisterSMS Modal -->
 <div class="modal-header">
-    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} <span ng-if="patient.PatientIdRVH">(RV:{{patient.PatientIdRVH}})<span> <span ng-if="patient.PatientIdMGH">(MG:{{patient.PatientIdMGH}})<span></h3>
+    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.Mrn}})</h3>
 </div>
 <div class="modal-body">
     <form ng-action="accept()">
@@ -21,4 +21,3 @@
 <div class="modal-footer">
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>
-

@@ -9,7 +9,7 @@ $barCodeImg = __DIR__."/noscan.png";
 $logoImg = __DIR__."/logo.png";
 $lname = "";
 $fname = "";
-$patientIdRVH = "";
+$rvhMrn = "";
 $outputWeightFile = "";
 $now = str_replace(
     ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],

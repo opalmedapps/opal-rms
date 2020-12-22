@@ -1,7 +1,6 @@
 <?php
 //====================================================================================
 // YM 2018-05-04
-// getQuestionnaires.php
 // Get the list of questionnaires that the patient have answered only
 //====================================================================================
 #function debuglog($wsTxt) {
@@ -15,7 +14,7 @@ require_once __DIR__."/../loadConfigs.php";
 $conn = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
 
 // Extract the webpage parameters
-$wsPatientID = $_GET["Patient_ID"];
+$wsPatientID = $_GET["mrn"];
 $crossDbName = OPAL_DB;
 
 // Check connection

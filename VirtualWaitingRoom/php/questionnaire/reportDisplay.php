@@ -9,7 +9,7 @@ include('functions.php');
 include('LanguageFile.php');
 
 // Get Patient ID
-$wsPatientID = filter_var($_GET['ID'], FILTER_SANITIZE_STRING);
+$wsPatientID = filter_var($_GET['mrn'], FILTER_SANITIZE_STRING);
 
 // Exit if Patient ID is empty
 if (strlen(trim($wsPatientID)) == 0)

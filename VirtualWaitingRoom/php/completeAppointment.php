@@ -1,6 +1,6 @@
 <?php
 //====================================================================================
-// completeAppointment.php - php code to discharge a medivisit patient
+// php code to discharge a medivisit patient
 //====================================================================================
 require("loadConfigs.php");
 
@@ -8,54 +8,39 @@ $dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
 
 // Extract the webpage parameters
 $checkoutVenue = $_GET["checkoutVenue"];
-$patientIdRVH = $_GET["patientIdRVH"];
-$patientIdMGH = $_GET["patientIdMGH"];
 $appointmentSerNum = $_GET["scheduledActivitySer"];
-$final = $_GET["final"]; # if this is the final checkout of the day, then
-                         # the patient should not be checked in to his/her
-                         # remaining appointments
 
 //======================================================================================
 // Check the patient out of this Medivisit appointment
 //======================================================================================
 // Check the PatientLocation table to get the revision count
-$patientLocationSerNum;
-$patientLocationRevCount;
-$checkinVenueName;
-$arrivalDateTime;
 
-$sqlMV_checkCheckin = "
+$queryAppointment = $dbWRM->prepare("
     SELECT DISTINCT
         PatientLocation.PatientLocationSerNum,
         PatientLocation.PatientLocationRevCount,
         PatientLocation.CheckinVenueName,
-        PatientLocation.ArrivalDateTime
+        PatientLocation.ArrivalDateTime,
+        MV.PatientSerNum
     FROM
         PatientLocation
+        INNER JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PatientLocation.AppointmentSerNum
     WHERE
-        PatientLocation.AppointmentSerNum = $appointmentSerNum";
+        PatientLocation.AppointmentSerNum = :appId
+");
+$queryAppointment->execute([":appId" => $appointmentSerNum]);
 
-/* Process results */
-$result = $dbWRM->query($sqlMV_checkCheckin);
+$appointment = $queryAppointment->fetchAll(PDO::FETCH_ASSOC)[0] ?? NULL;
 
-$rows = $result->fetchAll(PDO::FETCH_ASSOC);
-
-if(count($rows) > 0)
-{
-    // output data of each row
-    foreach($rows as &$row)
-    {
-        $patientLocationSerNum = $row["PatientLocationSerNum"];
-        $patientLocationRevCount = $row["PatientLocationRevCount"];
-        $checkinVenueName = $row["CheckinVenueName"];
-        $arrivalDateTime = $row["ArrivalDateTime"];
-    }
-}
-else
-{
+if($appointment === NULL) {
     die("Doesn't seem like the patient is checked in...");
 }
 
+$patientLocationSerNum      = $appointment["PatientLocationSerNum"];
+$patientLocationRevCount    = $appointment["PatientLocationRevCount"];
+$checkinVenueName           = $appointment["CheckinVenueName"];
+$arrivalDateTime            = $appointment["ArrivalDateTime"];
+$patientId                  = $appointment["PatientSerNum"];
 
 // update the MH table for the last checkin
 
@@ -72,15 +57,8 @@ $result = $dbWRM->query($sql_delete_previousCheckin);
 
 
 // update MediVisitAppointmentList table to show that appointment is no longer open
-$sql_closeApt = "UPDATE MediVisitAppointmentList SET Status = 'Completed' WHERE AppointmentSerNum = '$appointmentSerNum'";
+$sql_closeApt = "UPDATE MediVisitAppointmentList SET Status = 'Completed' WHERE AppointmentSerNum = $appointmentSerNum";
 $result = $dbWRM->query($sql_closeApt);
-
-# Exit now without checking in for further appointments if $Final was called
-if($final == 1)
-{
-    $dbWRM = null;
-    exit(0);
-}
 
 //#############################################################################################
 //### At this stage the patient has been discharged from the specified appointment ###
@@ -90,7 +68,7 @@ if($final == 1)
 
 $base_url = BASE_URL;
 
-$checkinURL_raw = "$base_url/php/checkinPatientAriaMedi.php?checkinVenue=$checkoutVenue&patientIdRVH=$patientIdRVH&patientIdMGH=$patientIdMGH";
+$checkinURL_raw = "$base_url/php/checkinPatientAriaMedi.php?checkinVenue=$checkoutVenue&patientId=$patientId";
 $checkinURL = str_replace(' ','%20',$checkinURL_raw);
 
 # since a script exists for this, best to call it here rather than rewrite the wheel

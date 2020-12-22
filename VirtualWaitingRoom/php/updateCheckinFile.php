@@ -32,7 +32,7 @@ if($opalOnline)
                 AND Questionnaire.CompletedFlag = 1
                 AND Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW()
         WHERE
-            Patient.PatientId = :patId
+            Patient.PatientId = :mrn
         ORDER BY Questionnaire.CompletionDate DESC
         LIMIT 1";
 
@@ -53,8 +53,8 @@ $sqlWRM = "
         LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentName,
         Patient.LastName,
         Patient.FirstName,
-        Patient.PatientId AS PatientIdRVH,
-        Patient.PatientId_MGH AS PatientIdMGH,
+        Patient.PatientSerNum AS PatientId,
+        Patient.PatientId AS Mrn,
         Patient.OpalPatient,
         Patient.SMSAlertNum,
         CASE WHEN Patient.LanguagePreference IS NOT NULL THEN Patient.LanguagePreference ELSE 'French' END AS LanguagePreference,
@@ -68,7 +68,6 @@ $sqlWRM = "
         hour(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_hh,
         minute(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_mm,
         PatientLocation.CheckinVenueName AS VenueId,
-        Patient.PatientSerNum AS PatientSer,
         MediVisitAppointmentList.AppointSys AS CheckinSystem,
         SUBSTRING(Patient.SSN,1,3) AS SSN,
         SUBSTRING(Patient.SSN,9,2) AS DAYOFBIRTH,
@@ -134,7 +133,7 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
     //cross query OpalDB for questionnaire information
     if($opalOnline)
     {
-        $queryOpal->execute([":patId" => $row["PatientIdRVH"]]);
+        $queryOpal->execute([":mrn" => $row["Mrn"]]);
         $resultOpal = $queryOpal->fetchAll()[0] ?? [];
 
         $lastCompleted = $resultOpal["CompletionDate"] ?? NULL;
@@ -164,7 +163,7 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
         "DAYOFBIRTH",
         "MONTHOFBIRTH",
         "OpalPatient",
-        "PatientSer",
+        "PatientId",
         "ScheduledActivitySer"] as $x) {
         $row[$x] = (int) $row[$x];
     }

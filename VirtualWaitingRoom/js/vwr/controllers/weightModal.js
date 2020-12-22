@@ -21,7 +21,8 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         BSA: patient.BSA,
         FirstName: patient.FirstName,
         LastName: patient.LastName,
-        PatientIdRVH: patient.PatientIdRVH
+        Mrn: patient.Mrn,
+        PatientId: patient.PatientId
     }
 
     $scope.mostRecentHeight;
@@ -77,8 +78,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
             url: "php/weight/updatePatientMeasurements.php",
             method: "GET",
             params: {
-                patientIdRVH: patient.PatientIdRVH,
-                patientIdMGH: patient.PatientIdMGH,
+                patientId: patient.PatientId,
                 ssnFirstThree: patient.SSN,
                 height: $scope.patient.Height,
                 weight: $scope.patient.Weight,
@@ -120,8 +120,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
             url: "php/weight/getHistoricalMeasurements.php",
             method: "GET",
             params: {
-                    patientIdRVH: patient.PatientIdRVH,
-                    patientIdMGH: patient.PatientIdMGH
+                    patientId: patient.PatientId,
                 }
         }).then(function (response)
         {
@@ -137,7 +136,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
                 var dotColorBSA = 'purple';
 
                 //check if the patient id of the weight is valid
-                if(measurement.PatientId != patient.PatientIdRVH)
+                if(measurement.Mrn != patient.Mrn)
                 {
                     $scope.invalidIdDetected = true;
                     dotColorWeight = 'red';
@@ -208,8 +207,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
                                             data: window.btoa(weightsOnlyChart.getSVG()),
                                             params:
                                             {
-                                                    patientIdRVH: patient.PatientIdRVH,
-                                                    patientIdMGH: patient.PatientIdMGH,
+                                                    patientId: patient.PatientId,
                                                     firstName: patient.FirstName,
                                                     lastName: patient.LastName
                                             }

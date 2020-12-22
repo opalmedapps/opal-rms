@@ -40,8 +40,7 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
             {
                 LocationId: venue.Name,
                 ArrivalDateTime: '',
-                PatientIdRVH: 'Nobody',
-                PatientIdMGH: 'Nobody',
+                PatientId: 'Nobody',
                 Type: venue.Type
             });
         });
@@ -62,14 +61,13 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
     //================================================================
     $scope.checkRoomConditions = function (destination)
     {
-        if(destination.PatientIdRVH == "Nobody" && destination.PatientIdMGH == "Nobody") {$scope.selected.Name = destination.LocationId;}
+        if(destination.PatientId === "Nobody") {$scope.selected.Name = destination.LocationId;}
         else
         {
             //if the user decides to free the room, we need to return the occupying patient so that he can be removed from firebase and have his location updated
 
-            $scope.occupyingIds.push({PatientIdRVH: destination.PatientIdRVH, PatientIdMGH: destination.PatientIdMGH});
-            destination.PatientIdRVH = 'Nobody';
-            destination.PatientIdMGH = 'Nobody';
+            $scope.occupyingIds.push({PatientId: destination.PatientId});
+            destination.PatientId = 'Nobody';
         }
     }
 }

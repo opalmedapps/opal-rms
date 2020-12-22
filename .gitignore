@@ -11,3 +11,6 @@ smsReceiver.lock
 
 #ignore log files
 php-error.log
+
+#track .htaccess files
+!node_modules/.htaccess

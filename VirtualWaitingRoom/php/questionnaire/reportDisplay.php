@@ -5,6 +5,10 @@ rptID 18 = Breast Radiotherapy Symptoms
 rptID 12 = Edmonton Symptom Assessment System Questionnare
 */
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
+
 include('functions.php');
 include('LanguageFile.php');
 
@@ -33,10 +37,10 @@ if (strlen(trim($wsExportFlag)) == 0)
 // Setup the database connection
 require_once __DIR__."/../loadConfigs.php";
 
-$dsCrossDatabse = OPAL_DB;
+$dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
 
 // Connect to the database
-$connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+$connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
 // Check datbaase connection
 if (!$connection)
@@ -58,7 +62,7 @@ $wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',tr
             from " . $dsCrossDatabse . ".Patient
             where PatientID = $wsPatientID";
 $qSQLPI = $connection->query($wsSQLPI);
-$rowPI = $qSQLPI->fetch(PDO::FETCH_ASSOC);
+$rowPI = $qSQLPI->fetch();
 
 // Get the patient preferred language
 $wsLanguage = $rowPI['Language'];
@@ -69,7 +73,7 @@ $wsLanguage = $rowPI['Language'];
             from Patient
             where PatientID = $wsPatientID";
 $qSQLPSN = $connection->query($wsSQLPSN);
-$rowPSN = $qSQLPSN->fetch(PDO::FETCH_ASSOC);
+$rowPSN = $qSQLPSN->fetch();
 
 // Step 3) Retrieve the Last Questionnaire Responses
 $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, QuestionnaireSerNum,
@@ -81,10 +85,10 @@ $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, Q
             order by max(PatientQuestionnaireSerNum) desc
             ";
 $qSQLQR = $connection->query($wsSQLQR);
-$rowQR = $qSQLQR->fetch(PDO::FETCH_ASSOC);*/
+$rowQR = $qSQLQR->fetch();*/
 
 $qSQLQR = $connection->query("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
-$rowQR = $qSQLQR->fetch(PDO::FETCH_ASSOC);
+$rowQR = $qSQLQR->fetch();
 $qSQLQR->closeCursor();
 
 /*$wsSQLSeries = "select Q.QuestionQuestion, Q.QuestionQuestion_FR
@@ -102,7 +106,7 @@ $wsSeries = [];
 $wsSeriesFR = [];
 $wsRowCounter = 0;
 
-while ($rowSQLSeries = $qSQLSeries->fetch(PDO::FETCH_ASSOC))
+while ($rowSQLSeries = $qSQLSeries->fetch())
 {
     $wsSeriesID[$wsRowCounter] = $rowSQLSeries['QuestionnaireQuestionSerNum'];
     $wsSeries[$wsRowCounter] = $rowSQLSeries['QuestionText_EN'];

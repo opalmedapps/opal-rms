@@ -2,6 +2,10 @@
 //php script to return questionnaire data
 //was converted to a function
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
+
 function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstID)
 {
     // Patient ID $wsPatientID
@@ -16,10 +20,10 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
 
     // Setup the database connection
     require_once __DIR__."/../loadConfigs.php";
-    $dsCrossDatabase = OPAL_DB;
+    $dsCrossDatabase = Config::getConfigs("database")["OPAL_DB"];
 
     // Connect to the database
-    $connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+    $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
     // Check datbaase connection
     if (!$connection) {
@@ -53,7 +57,7 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
     // Prepare the output
     $output = [];
 
-    while($row = $result->fetch(PDO::FETCH_ASSOC))
+    while($row = $result->fetch())
     {
         // merge the output
         $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];

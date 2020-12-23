@@ -1,7 +1,10 @@
 <?php
 //script to get the page settings for a profile
 
+require_once __DIR__."/../../../vendor/autoload.php";
 require("../loadConfigs.php");
+
+use Orms\Config;
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET["profileId"]);
@@ -18,12 +21,12 @@ $examRooms = [];
 $clinics = [];
 
 //connect to db
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //==================================
 //get profile
 //==================================
-$queryProfile = $dbWRM->prepare("
+$queryProfile = $dbh->prepare("
     SELECT
         Profile.ProfileSer,
         Profile.ProfileId,
@@ -41,7 +44,7 @@ $queryProfile = $dbWRM->prepare("
 //process results
 $queryProfile->execute([$profileId]);
 
-$row = $queryProfile->fetchAll(PDO::FETCH_ASSOC)[0] ?? NULL;
+$row = $queryProfile->fetchAll()[0] ?? NULL;
 
 if($row === NULL) {
     echo "{}";
@@ -102,9 +105,9 @@ $sqlColumns = "
     ORDER BY
         ProfileColumns.Position";
 //process results
-$queryColumns = $dbWRM->query($sqlColumns);
+$queryColumns = $dbh->query($sqlColumns);
 
-while($row = $queryColumns->fetch(PDO::FETCH_ASSOC))
+while($row = $queryColumns->fetch())
 {
     $json['ColumnsDisplayed'][] = $row;
 }
@@ -123,9 +126,9 @@ $sqlOptions = "
     ORDER BY ProfileOptions.Options";
 
 //process results
-$queryOptions = $dbWRM->query($sqlOptions);
+$queryOptions = $dbh->query($sqlOptions);
 
-while($row = $queryOptions->fetch(PDO::FETCH_ASSOC))
+while($row = $queryOptions->fetch())
 {
     if($row['Type'] == 'Appointment') {$appointments[] = $row['Options'];}
     else if($row['Type'] == 'IntermediateVenue')
@@ -178,9 +181,9 @@ if($ignoreAutoResources != 1)
             WHERE
                 IntermediateVenue.AriaVenueId IN ('$interVenueList')";
 
-        $queryExamRooms = $dbWRM->query($sqlExamRooms);
+        $queryExamRooms = $dbh->query($sqlExamRooms);
 
-        while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
+        while($row = $queryExamRooms->fetch())
         {
             $examRooms[] = $row['AriaVenueId'];
         }
@@ -226,9 +229,9 @@ if($ignoreAutoResources != 1)
             WHERE
                 ClinicResources.Speciality = '$json[Speciality]'";
 
-        $queryResources = $dbWRM->query($sqlResources);
+        $queryResources = $dbh->query($sqlResources);
 
-        while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
+        while($row = $queryResources->fetch())
         {
             $resources[] = $row['ResourceName'];
         }
@@ -250,9 +253,9 @@ if($ignoreAutoResources != 1)
                 AND ClinicSchedule.Day = '$rightNow[0]'
                 AND ClinicSchedule.AMPM = '$rightNow[1]'";
 
-        $queryExamRooms = $dbWRM->query($sqlExamRooms);
+        $queryExamRooms = $dbh->query($sqlExamRooms);
 
-        while($row = $queryExamRooms->fetch(PDO::FETCH_ASSOC))
+        while($row = $queryExamRooms->fetch())
         {
             $examRooms[] = $row['AriaVenueId'];
         }
@@ -269,9 +272,9 @@ if($ignoreAutoResources != 1)
                 AND ClinicSchedule.Day = '$rightNow[0]'
                 AND ClinicSchedule.AMPM = '$rightNow[1]'";
 
-        $queryResources = $dbWRM->query($sqlResources);
+        $queryResources = $dbh->query($sqlResources);
 
-        while($row = $queryResources->fetch(PDO::FETCH_ASSOC))
+        while($row = $queryResources->fetch())
         {
             $resources[] = $row['ResourceName'];
         }

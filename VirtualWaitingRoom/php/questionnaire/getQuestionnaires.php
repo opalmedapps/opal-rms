@@ -7,15 +7,19 @@
 #  $myfile = file_put_contents('debug.log', $wsTxt.PHP_EOL , FILE_APPEND | LOCK_EX);
 #}
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
+
 // Get the configuration file
 require_once __DIR__."/../loadConfigs.php";
 
 // Create DB connection
-$conn = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+$conn = Config::getDatabaseConnection("QUESTIONNAIRE");
 
 // Extract the webpage parameters
 $wsPatientID = $_GET["mrn"];
-$crossDbName = OPAL_DB;
+$crossDbName = Config::getConfigs("database")["OPAL_DB"];
 
 // Check connection
 if (!$conn) {
@@ -32,7 +36,7 @@ $result = $conn->query($sql) or die(var_dump($conn->errorInfo()));
 
 if ($result) {
 // output data of each row
-  while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+  while($row = $result->fetch()) {
     $json[] = $row;
   }
 } else {

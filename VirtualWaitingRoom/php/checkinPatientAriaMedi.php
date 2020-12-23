@@ -2,18 +2,20 @@
 //====================================================================================
 // php code to check a patient into all appointments
 //====================================================================================
+
+require_once __DIR__."/../../vendor/autoload.php";
+
 require("loadConfigs.php");
 
 use Orms\Config;
 
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $checkinVenue = $_GET["checkinVenue"];
 $originalAppointmentSer = $_GET["appointmentSer"];
 $patientId = $_GET["patientId"];
 
-$waitroom = WAITROOM_DB;
 $baseURL = BASE_URL;
 
 $ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
@@ -28,7 +30,7 @@ $endOfToday = "$today 23:59:59";
 ############################################################################################
 ######################################### Medivisit ########################################
 ############################################################################################
-$queryApptMedivisit = $dbWRM->prepare("
+$queryApptMedivisit = $dbh->prepare("
     SELECT DISTINCT
         MediVisitAppointmentList.AppointmentSerNum
     FROM
@@ -54,7 +56,7 @@ if(strstr($originalAppointmentSer,'Medivisit')) //check if the appointment is a 
 }
 
 // output data of each row
-while($row = $queryApptMedivisit->fetch(PDO::FETCH_ASSOC))
+while($row = $queryApptMedivisit->fetch())
 {
     $mv_AppointmentSerNum = $row["AppointmentSerNum"];
 
@@ -84,8 +86,5 @@ while($row = $queryApptMedivisit->fetch(PDO::FETCH_ASSOC))
 }
 
 echo "Patient location updated";
-
-//close connections
-$dbWRM = null;
 
 ?>

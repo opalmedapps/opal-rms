@@ -3,13 +3,15 @@
 // php code to query the MySQL databases and extract the list of patients
 // who are currently checked in for open appointments today in Medivisit (MySQL), using a selected list of destination rooms/areas
 //====================================================================================
+
+require_once __DIR__."/../../vendor/autoload.php";
+
 require("loadConfigs.php");
 
-//connect to databases
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+use Orms\Config;
 
-//turn on just in case PDO doesn't like being looped
-#$dbWRM->setAttribute(PDO::ATTR_EMULATE_PREPARES,true);
+//connect to databases
+$dbh = Config::getDatabaseConnection("ORMS");
 
 $checkinVenue = $_GET["checkinVenue"];
 
@@ -29,7 +31,7 @@ $json = [];
 #-------------------------------------------------------------------------------------
 # Now, get the Medivisit checkins from MySQL
 #-------------------------------------------------------------------------------------
-$sqlWRM = "
+$sql = "
     SELECT DISTINCT
         Venues.AriaVenueId AS LocationId,
         PatientLocation.ArrivalDateTime,
@@ -60,10 +62,10 @@ $sqlWRM = "
 
 #echo "Medivisit query: $sql<br>";
 /* Process results */
-$queryWRM = $dbWRM->query($sqlWRM);
+$query = $dbh->query($sql);
 
 // output data of each row
-while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
+while($row = $query->fetch())
 {
     $json[] = $row;
 }

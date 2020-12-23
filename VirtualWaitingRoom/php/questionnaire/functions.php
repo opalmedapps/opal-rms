@@ -1,5 +1,9 @@
 <?php
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
+
 // **************************************************
 // ***** Write to a log file
 // **************************************************
@@ -30,7 +34,7 @@ function GetQuestionnaire($wsPatientID, $wsrptID, $wsQuestionnaireSerNum)
     require_once __DIR__."/../loadConfigs.php";
 
     // Connect to the database
-    $connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+    $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
     // Check datbaase connection
     if (!$connection) {
@@ -65,7 +69,7 @@ function GetQuestionnaire($wsPatientID, $wsrptID, $wsQuestionnaireSerNum)
     // Prepare the output
     $output = '';
 
-    while($row = $result->fetch(PDO::FETCH_ASSOC))
+    while($row = $result->fetch())
     {
         // only add a comma if the output contain something
         if (strlen($output) > 0) {

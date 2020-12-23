@@ -1,7 +1,10 @@
 <?php
 //script to get a list of patient columns in the WRM database
 
+require_once __DIR__."/../../../vendor/autoload.php";
 require("../loadConfigs.php");
+
+use Orms\Config;
 
 //get webpage parameters
 $speciality = $_GET['speciality'];
@@ -9,12 +12,12 @@ $speciality = $_GET['speciality'];
 $json = []; //output array
 
 //connect to db
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //==================================
 //get columns
 //==================================
-$query = $dbWRM->prepare("
+$query = $dbh->prepare("
     SELECT
         ProfileColumnDefinition.ColumnName,
         ProfileColumnDefinition.DisplayName,
@@ -30,7 +33,7 @@ $query->execute([$speciality]);
 
 //process results
 
-while($row = $query->fetch(PDO::FETCH_ASSOC))
+while($row = $query->fetch())
 {
     $json[] = $row;
 }

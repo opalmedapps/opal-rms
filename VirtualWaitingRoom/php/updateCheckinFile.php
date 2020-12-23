@@ -3,16 +3,21 @@
 // updateCheckinFile.php - php code to query the MySQL databases and extract the list of patients
 // who are currently checked in for open appointments today in Medivisit (MySQL)
 //====================================================================================
+
+require_once __DIR__."/../../vendor/autoload.php";
+
 require("loadConfigs.php");
 
+use Orms\Config;
+
 // Create MySQL DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Create Opal DB connection
 //perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
 //for now assume that only RVH patients have a questionniare
 $opalOnline = 1;
-try {$dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);}
+try {$dbOpal = Config::getDatabaseConnection("OPAL");}
 catch (PDOException $e) {$opalOnline = 0;}
 
 if($opalOnline)
@@ -106,9 +111,9 @@ $sqlWRM = "
 ";
 
 /* Process results */
-$queryWRM = $dbWRM->query($sqlWRM);
+$queryWRM = $dbh->query($sqlWRM);
 
-while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
+while($row = $queryWRM->fetch())
 {
     //perform some processing
     $row['Identifier'] = $row['ScheduledActivitySer'] ."Medivisit";

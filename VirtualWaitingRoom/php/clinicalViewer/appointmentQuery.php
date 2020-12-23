@@ -4,7 +4,11 @@ declare(strict_types=1);
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
 require("../loadConfigs.php");
+
+use Orms\Config;
 
 #get input parameters
 
@@ -47,8 +51,8 @@ $qDate = "$qDateInit $qTime";
 
 
 #database connection
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
-$dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
+$dbOpal = Config::getDatabaseConnection("OPAL");
 
 #opal database query run under 'and' mode
 $sqlOpal = "
@@ -253,7 +257,7 @@ if(!$afilter) {
     $query->bindValue(":eDate", $eDate);
 
     $query->execute();
-    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+    while ($row = $query->fetch()) {
         #filter apppointments on whether the patient checked in for it
         $checkInTime = $row["CurrentCheckInTime"] ?? $row["PreviousCheckInTime"] ?? NULL;
 
@@ -279,7 +283,7 @@ if(!$afilter) {
         $row["ScheduledTime"] = substr($row["ScheduledTime"], 0, -3);
 
         $queryOpal->execute(array(":uid" => $row["PatientId"], ":qDate" => $qDate, ":uid2" => $row["PatientId"]));
-        $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
+        $resultOpal = $queryOpal->fetch();
 
         $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
         $row["QuestionnaireName"] = !empty($resultOpal["QuestionnaireName"]) ? $resultOpal["QuestionnaireName"] : "";
@@ -300,7 +304,7 @@ if(!$afilter) {
 
         $answeredQuestionnaire = False;
         $queryOpal2->execute(array(":uid" => $row["PatientId"]));
-        while ($questionnaireName = $queryOpal2->fetch(PDO::FETCH_ASSOC)) {
+        while ($questionnaireName = $queryOpal2->fetch()) {
             if (in_array($questionnaireName["QuestionnaireName"], explode(",", $qspecificApp))) {
                 $answeredQuestionnaire = true;
                 break;
@@ -348,9 +352,9 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
 
     $queryOpal3->execute();
 
-    while ($row2 = $queryOpal3->fetch(PDO::FETCH_ASSOC)) {
+    while ($row2 = $queryOpal3->fetch()) {
         $query2->execute(array(":uid" => $row2["PatientId"]));
-        $resultORMS = $query2->fetch(PDO::FETCH_ASSOC);
+        $resultORMS = $query2->fetch();
 
         if ($resultORMS["SMSAlertNum"]) $resultORMS["SMSAlertNum"] = substr($resultORMS["SMSAlertNum"], 0, 3) .
             "-" . substr($resultORMS["SMSAlertNum"], 3, 3) . "-" . substr($resultORMS["SMSAlertNum"], 6, 4);

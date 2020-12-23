@@ -5,9 +5,12 @@ declare(strict_types=1);
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------
 
-//require_once __DIR__."/../loadConfigs.php";
+require_once __DIR__."/../../../vendor/autoload.php";
 require("../loadConfigs.php");
-$dbh = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
+
+use Orms\Config;
+
+$dbh = Config::getDatabaseConnection("OPAL");
 
 $sql = "
 SELECT DISTINCT
@@ -22,7 +25,7 @@ $query->execute();
 
 $resources = array_map(function ($x) {
     return ["Name" => $x["QuestionnaireName_EN"]];
-}, $query->fetchAll(PDO::FETCH_ASSOC));
+}, $query->fetchAll());
 
 $resources = utf8_encode_recursive($resources);
 echo json_encode($resources);

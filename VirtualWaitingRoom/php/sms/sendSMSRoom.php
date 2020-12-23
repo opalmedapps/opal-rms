@@ -3,8 +3,11 @@
 // php code to send an SMS message to a given patient using their cell number
 // registered in the ORMS database
 //====================================================================================
+
+require_once __DIR__."/../../../vendor/autoload.php";
 require("../loadConfigs.php");
 
+use Orms\Config;
 use Orms\Sms\SmsInterface;
 
 // Extract the webpage parameters
@@ -23,8 +26,7 @@ if(preg_match("/^(Salle|Porte|Réception)/",$room_FR))
 //====================================================================================
 // Database
 //====================================================================================
-// Create MySQL DB connection
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //====================================================================================
 // SMS Number
@@ -43,7 +45,7 @@ $queryPhone->execute([
     ":pSer" => $patientId
 ]);
 
-$row = $queryPhone->fetchAll(PDO::FETCH_ASSOC)[0];
+$row = $queryPhone->fetchAll()[0];
 
 $SMSAlertNum = $row["SMSAlertNum"] ?? NULL;
 $LanguagePreference = $row["LanguagePreference"] ?? NULL;

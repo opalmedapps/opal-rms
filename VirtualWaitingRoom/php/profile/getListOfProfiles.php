@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 //script to get a list of profiles in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 $speciality = $_GET['speciality'] ?? NULL;
 

@@ -3,7 +3,7 @@
 // php code to query the MySQL (for Medivisit) databases and
 // extract the list of options, which includes resources, appointments, and rooms
 //====================================================================================
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $speciality = $_GET["speciality"];

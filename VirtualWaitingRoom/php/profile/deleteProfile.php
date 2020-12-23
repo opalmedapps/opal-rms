@@ -1,7 +1,7 @@
 <?php
 //script to delete a profile in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET['profileId']);

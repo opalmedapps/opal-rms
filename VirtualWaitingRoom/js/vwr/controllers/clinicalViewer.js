@@ -507,7 +507,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     {
         if($scope.zoomLink.length> 10 || $scope.zoomLink.includes("zoom.us")) {
             $http({
-                url: "php/sendSmsForZoom",
+                url: "php/sms/sendSmsForZoom",
                 method: "GET",
                 params:
                     {

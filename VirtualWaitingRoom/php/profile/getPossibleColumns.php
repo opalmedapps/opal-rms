@@ -1,7 +1,7 @@
 <?php
 //script to get a list of patient columns in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $speciality = $_GET['speciality'];

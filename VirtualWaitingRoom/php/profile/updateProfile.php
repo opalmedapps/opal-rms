@@ -1,7 +1,7 @@
 <?php
 //script to insert/create a profile in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $postData = file_get_contents("php://input");

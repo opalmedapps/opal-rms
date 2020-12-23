@@ -1,7 +1,7 @@
 <?php
 //script to get the page settings for a profile
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET["profileId"]);

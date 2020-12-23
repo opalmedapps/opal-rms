@@ -1,7 +1,7 @@
 <?php
 //script to get a list of profiles in the WRM database
 
-require("loadConfigs.php");
+require("../loadConfigs.php");
 
 //get webpage parameters
 $category = utf8_decode_recursive($_GET['category']);

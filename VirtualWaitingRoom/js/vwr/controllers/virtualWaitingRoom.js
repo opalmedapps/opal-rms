@@ -172,7 +172,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             $scope.selectedAppointments = $scope.pageSettings.Appointments;
 
             $http({
-                url: "php/getAllOptions.php",
+                url: "php/profile/getAllOptions.php",
                 method: "GET",
                 params:
                 {
@@ -369,7 +369,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 // Send the patient an SMS message
                 //-----------------------------------------------------------------------
                 $http({
-                    url: "php/sendSMSRoom",
+                    url: "php/sms/sendSMSRoom",
                     method: "GET",
                     params:
                     {
@@ -916,7 +916,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendZoomLink = function(patient)
     {
         $http({
-            url: "php/sendSmsForZoom",
+            url: "php/sms/sendSmsForZoom",
             method: "GET",
             params:
             {

@@ -184,7 +184,7 @@ while($row = $queryWRM->fetch())
 //======================================================================================
 // Open the checkinlist.txt file for writing and output the json data to the checkinlist file
 //======================================================================================
-$checkInFilePath = Config::getConfigs("path")["BASE_PATH"] ."/VirtualWaitingRoom/checkin/checkinlist.txt";
+$checkInFilePath = Config::getConfigs("path")["BASE_PATH"] ."/VirtualWaitingRoom/checkin";
 
 foreach($json as $speciality => $data)
 {
@@ -192,7 +192,7 @@ foreach($json as $speciality => $data)
     $data = utf8_encode_recursive($data);
     $data = json_encode($data);
 
-    $checkinlist = fopen($checkInFilePath ."_$speciality", "w") or die("Unable to open checkinlist file!");
+    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w") or die("Unable to open checkinlist file!");
     fwrite($checkinlist,$data);
     fclose($checkinlist);
 }
@@ -201,7 +201,9 @@ foreach($json as $speciality => $data)
 $path = dirname($checkInFilePath);
 $files = scandir($path);
 
-$files = array_diff($files,[".",".."]);
+$files = array_filter($files,function($x) {
+    return preg_match("/\.json/",$x);
+});
 
 foreach($files as $file)
 {

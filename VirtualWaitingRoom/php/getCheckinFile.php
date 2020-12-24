@@ -5,7 +5,9 @@ require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 
-$checkinFile = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom/checkin/checkinlist.txt";
+$speciality = $_GET["speciality"];
+
+$checkinFile = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom/checkin/$speciality.json";
 $opalNotificationUrl = Config::getConfigs("opal")["OPAL_NOTIFICATION_URL"];
 
 echo json_encode([

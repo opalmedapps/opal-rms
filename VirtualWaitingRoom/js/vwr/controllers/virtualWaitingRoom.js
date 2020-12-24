@@ -69,11 +69,13 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         {
             $http({
                 url: "php/getCheckinFile.php",
-                method: "GET"
+                method: "GET",
+                params: {
+                    speciality: $scope.pageSettings.Speciality
+                }
             }).then(function(response)
             {
                 $scope.checkinFile = response.data.checkinFile;
-                $scope.checkinFile = $scope.checkinFile +"_"+ $scope.pageSettings.Speciality;
                 loadPatients();
 
                 //also get the opal notification file here

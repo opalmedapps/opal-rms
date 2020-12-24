@@ -4,7 +4,7 @@
 # php code to send an SMS message to a given patient using their cell number
 # registered in the ORMS database
 #====================================================================================
-require("../loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
 use Orms\Sms\SmsInterface;

@@ -2,7 +2,6 @@
 //script to insert patient measurements in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
-require("../loadConfigs.php");
 
 use Orms\Config;
 

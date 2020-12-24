@@ -6,8 +6,6 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-require("loadConfigs.php");
-
 use Orms\Config;
 
 #extract the webpage parameters

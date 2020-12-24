@@ -4,7 +4,6 @@
 #-------------------------------------------------
 
 require_once __DIR__."/../../../vendor/autoload.php";
-require_once __DIR__."/../loadConfigs.php";
 
 use Orms\Config;
 

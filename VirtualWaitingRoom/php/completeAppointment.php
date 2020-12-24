@@ -5,8 +5,6 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-require("loadConfigs.php");
-
 use Orms\Config;
 
 $dbh = Config::getDatabaseConnection("ORMS");
@@ -71,7 +69,7 @@ $result = $dbh->query($sql_closeApt);
 // As part of the discharge, we want to check the patient in for all other appointments again but
 // put the patient back into the waiting room that is appropriate for their next appointment
 
-$base_url = BASE_URL;
+$base_url = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
 
 $checkinURL_raw = "$base_url/php/checkinPatientAriaMedi.php?checkinVenue=$checkoutVenue&patientId=$patientId";
 $checkinURL = str_replace(' ','%20',$checkinURL_raw);

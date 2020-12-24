@@ -3,7 +3,7 @@
 // php code to insert patients' cell phone numbers and language preferences
 // into ORMS
 //====================================================================================
-require("../loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
 use Orms\Sms\SmsInterface;

@@ -2,7 +2,6 @@
 //script to get all height and weight records a patient has in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
-require("../loadConfigs.php");
 
 use Orms\Config;
 

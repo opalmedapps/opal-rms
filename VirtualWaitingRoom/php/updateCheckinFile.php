@@ -6,8 +6,6 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-require("loadConfigs.php");
-
 use Orms\Config;
 
 // Create MySQL DB connection
@@ -186,19 +184,21 @@ while($row = $queryWRM->fetch())
 //======================================================================================
 // Open the checkinlist.txt file for writing and output the json data to the checkinlist file
 //======================================================================================
+$checkInFilePath = Config::getConfigs("path")["BASE_PATH"] ."/VirtualWaitingRoom/checkin/checkinlist.txt";
+
 foreach($json as $speciality => $data)
 {
     //encode the data to JSON
     $data = utf8_encode_recursive($data);
     $data = json_encode($data);
 
-    $checkinlist = fopen(CHECKIN_FILE_PATH ."_$speciality", "w") or die("Unable to open checkinlist file!");
+    $checkinlist = fopen($checkInFilePath ."_$speciality", "w") or die("Unable to open checkinlist file!");
     fwrite($checkinlist,$data);
     fclose($checkinlist);
 }
 
 #scan for the list of check in files. If any of them were not updated today, empty them
-$path = dirname(CHECKIN_FILE_PATH);
+$path = dirname($checkInFilePath);
 $files = scandir($path);
 
 $files = array_diff($files,[".",".."]);

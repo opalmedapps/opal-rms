@@ -30,9 +30,6 @@ function GetQuestionnaire($wsPatientID, $wsrptID, $wsQuestionnaireSerNum)
         die;
     }
 
-    // Setup the database connection
-    require_once __DIR__."/../loadConfigs.php";
-
     // Connect to the database
     $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 

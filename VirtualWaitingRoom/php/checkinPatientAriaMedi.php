@@ -5,8 +5,6 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-require("loadConfigs.php");
-
 use Orms\Config;
 
 $dbh = Config::getDatabaseConnection("ORMS");
@@ -16,7 +14,7 @@ $checkinVenue = $_GET["checkinVenue"];
 $originalAppointmentSer = $_GET["appointmentSer"];
 $patientId = $_GET["patientId"];
 
-$baseURL = BASE_URL;
+$baseURL = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
 
 $ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
 

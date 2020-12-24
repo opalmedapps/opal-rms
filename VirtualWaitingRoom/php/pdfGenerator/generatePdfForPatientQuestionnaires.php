@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__."/../../../vendor/autoload.php";
-require_once __DIR__."/../loadConfigs.php";
 require_once __DIR__."/src/QIP/Service/HighchartsServerService.php";
 require_once __DIR__."/src/QIP/Service/QuestionnaireScrapperService.php";
 require_once __DIR__."/src/QIP/Service/PDFBuilderService.php";

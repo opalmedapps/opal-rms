@@ -2,14 +2,13 @@
 //script to get the page settings for a profile
 
 require_once __DIR__."/../../../vendor/autoload.php";
-require("../loadConfigs.php");
 
 use Orms\Config;
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET["profileId"]);
 $clinicalArea = utf8_decode_recursive($_GET["clinicalArea"]);
-$ignoreAutoResources = $_GET['ignoreAutoResources'];
+$ignoreAutoResources = $_GET['ignoreAutoResources'] ?? 0;
 
 $json = []; //output array
 
@@ -328,8 +327,10 @@ foreach($clinics as $val)
 }
 
 //get firebase settings
-$json["FirebaseUrl"] = FIREBASE_URL;
-$json["FirebaseSecret"] = FIREBASE_SECRET;
+$configs = Config::getConfigs("vwr");
+
+$json["FirebaseUrl"] = $configs["FIREBASE_URL"];
+$json["FirebaseSecret"] = $configs["FIREBASE_SECRET"];
 
 //encode and return the json object
 $json = utf8_encode_recursive($json);

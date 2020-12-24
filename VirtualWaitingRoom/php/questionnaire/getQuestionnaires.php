@@ -11,9 +11,6 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
 
-// Get the configuration file
-require_once __DIR__."/../loadConfigs.php";
-
 // Create DB connection
 $conn = Config::getDatabaseConnection("QUESTIONNAIRE");
 

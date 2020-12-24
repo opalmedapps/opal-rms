@@ -5,8 +5,6 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-require("loadConfigs.php");
-
 use Orms\Config;
 
 // Create DB connection

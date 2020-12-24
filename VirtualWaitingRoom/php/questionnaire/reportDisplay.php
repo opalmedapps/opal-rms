@@ -35,8 +35,6 @@ if (strlen(trim($wsExportFlag)) == 0)
 {$wsExportFlag=0;}
 
 // Setup the database connection
-require_once __DIR__."/../loadConfigs.php";
-
 $dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
 
 // Connect to the database

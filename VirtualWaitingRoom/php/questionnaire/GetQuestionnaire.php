@@ -19,7 +19,6 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
     }
 
     // Setup the database connection
-    require_once __DIR__."/../loadConfigs.php";
     $dsCrossDatabase = Config::getConfigs("database")["OPAL_DB"];
 
     // Connect to the database

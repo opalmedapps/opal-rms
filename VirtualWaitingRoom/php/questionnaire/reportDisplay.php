@@ -1,11 +1,9 @@
 <?php
 
-/*
-rptID 18 = Breast Radiotherapy Symptoms
-rptID 12 = Edmonton Symptom Assessment System Questionnare
-*/
+require_once __DIR__."/../../../vendor/autoload.php";
 
-include('functions.php');
+use Orms\Config;
+
 include('LanguageFile.php');
 
 // Get Patient ID
@@ -31,12 +29,10 @@ if (strlen(trim($wsExportFlag)) == 0)
 {$wsExportFlag=0;}
 
 // Setup the database connection
-require_once __DIR__."/../loadConfigs.php";
-
-$dsCrossDatabse = OPAL_DB;
+$dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
 
 // Connect to the database
-$connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+$connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
 // Check datbaase connection
 if (!$connection)
@@ -46,10 +42,10 @@ if (!$connection)
     die;
 }
 
-include_once ('GetQuestionnaireTitle.php');
-include_once ('GetQuestionnaire.php');
-
 // Get the title of the report
+$qSQLTitle = $connection->query("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$rowTitle = $qSQLTitle->fetchAll()[0];
+
 $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
@@ -58,7 +54,7 @@ $wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',tr
             from " . $dsCrossDatabse . ".Patient
             where PatientID = $wsPatientID";
 $qSQLPI = $connection->query($wsSQLPI);
-$rowPI = $qSQLPI->fetch(PDO::FETCH_ASSOC);
+$rowPI = $qSQLPI->fetchAll()[0];
 
 // Get the patient preferred language
 $wsLanguage = $rowPI['Language'];
@@ -69,7 +65,7 @@ $wsLanguage = $rowPI['Language'];
             from Patient
             where PatientID = $wsPatientID";
 $qSQLPSN = $connection->query($wsSQLPSN);
-$rowPSN = $qSQLPSN->fetch(PDO::FETCH_ASSOC);
+$rowPSN = $qSQLPSN->fetchAll()[0];
 
 // Step 3) Retrieve the Last Questionnaire Responses
 $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, QuestionnaireSerNum,
@@ -81,10 +77,10 @@ $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, Q
             order by max(PatientQuestionnaireSerNum) desc
             ";
 $qSQLQR = $connection->query($wsSQLQR);
-$rowQR = $qSQLQR->fetch(PDO::FETCH_ASSOC);*/
+$rowQR = $qSQLQR->fetchAll()[0];*/
 
 $qSQLQR = $connection->query("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
-$rowQR = $qSQLQR->fetch(PDO::FETCH_ASSOC);
+$rowQR = $qSQLQR->fetchAll()[0];
 $qSQLQR->closeCursor();
 
 /*$wsSQLSeries = "select Q.QuestionQuestion, Q.QuestionQuestion_FR
@@ -102,7 +98,7 @@ $wsSeries = [];
 $wsSeriesFR = [];
 $wsRowCounter = 0;
 
-while ($rowSQLSeries = $qSQLSeries->fetch(PDO::FETCH_ASSOC))
+foreach($qSQLSeries->fetchAll() as $rowSQLSeries)
 {
     $wsSeriesID[$wsRowCounter] = $rowSQLSeries['QuestionnaireQuestionSerNum'];
     $wsSeries[$wsRowCounter] = $rowSQLSeries['QuestionText_EN'];
@@ -237,5 +233,47 @@ for ($x = 0; $x < count($wsSeries); $x++)
 
 $jstring = utf8_encode_recursive($jstring);
 echo json_encode($jstring,JSON_NUMERIC_CHECK);
+
+function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstID)
+{
+    // Patient ID $wsPatientID
+    // Report Name $wsrptID
+    // Questionnaire Sequence Number $wsQuestionnaireSerNum
+    // Unique report ID (QuestionSerNum in the DB)
+
+    // Exit if either Patient ID, Report ID, or Questionnaire ID is empty
+    if ( (strlen(trim($wsPatientID)) == 0) or (strlen(trim($wsrptID)) == 0) or (strlen(trim($wsQuestionnaireSerNum)) == 0) ) {
+        die;
+    }
+
+    // Setup the database connection
+    $dsCrossDatabase = Config::getConfigs("database")["OPAL_DB"];
+
+    // Connect to the database
+    $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
+
+    // Check datbaase connection
+    if (!$connection) {
+        // stop if connection failed
+        echo "Failed to connect to MySQL";
+        die;
+    }
+
+    $sql = "CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')";
+
+    $result = $connection->query($sql) or die("Error in Selecting ");
+
+    // Prepare the output
+    $output = [];
+
+    foreach($result->fetchAll() as $row)
+    {
+        // merge the output
+        $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];
+    }
+
+    // return the output
+    return $output;
+}
 
 ?>

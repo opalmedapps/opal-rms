@@ -2,10 +2,13 @@
 //====================================================================================
 // checkinPatientMV.php - php code to check a Medivisit patient into Mysql
 //====================================================================================
-require("loadConfigs.php");
+
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Create DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $checkinVenue = utf8_decode_recursive($_GET["checkinVenue"]);
@@ -40,9 +43,9 @@ $sqlMV_checkCheckin = "
 //echo "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>";
 
 /* Process results */
-$query = $dbWRM->query($sqlMV_checkCheckin);
+$query = $dbh->query($sqlMV_checkCheckin);
 
-$rows = $query->fetchAll(PDO::FETCH_ASSOC);
+$rows = $query->fetchAll();
 
 if(count($rows) > 0)
 {
@@ -81,7 +84,7 @@ if($patientLocationSerNum and !$mhSerNum)
 
     //echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
 
-    $result = $dbWRM->query($sql_insert_previousCheckin);
+    $result = $dbh->query($sql_insert_previousCheckin);
 }
 
 #---------------------------------------------------------------------------------------------
@@ -96,9 +99,9 @@ $sql_insert_newCheckin = "
 
 //echo "sql_insert_newCheckin: $sql_insert_newCheckin<br>";
 
-$dbWRM->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT);
+$dbh->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT);
 
-if($dbWRM->query($sql_insert_newCheckin))
+if($dbh->query($sql_insert_newCheckin))
 {
     $checkinStatus = "OK";
 }
@@ -107,7 +110,7 @@ else
     $checkinStatus = "Unable to check in";
 }
 
-$dbWRM->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+$dbh->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 
 echo "CheckinStatus: $checkinStatus... ";
 
@@ -119,11 +122,9 @@ if($patientLocationSerNum)
         DELETE FROM PatientLocation
         WHERE PatientLocationSerNum = $patientLocationSerNum";
 
-    $result = $dbWRM->query($sql_delete_previousCheckin);
+    $result = $dbh->query($sql_delete_previousCheckin);
 
     echo "deleted...<b>";
 }
 
-// Close the MySQL connection
-$dbWRM = null;
 ?>

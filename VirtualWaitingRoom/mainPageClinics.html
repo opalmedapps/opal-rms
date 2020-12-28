@@ -84,7 +84,7 @@ app.controller('main', function($scope,$location,$http,$cookies)
     //get list of profiles available
     $http({
         method: "GET",
-        url: "./php/getListOfProfiles.php",
+        url: "./php/profile/getListOfProfiles.php",
         params: {speciality: speciality}
     })
     .then( response => {

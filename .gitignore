@@ -2,23 +2,17 @@
 *.vscode
 *.swp
 
-#ignore test folder
-test/
-
 #ignore config files
 config/
 
-#ignore js dependencies
-node_modules/
+#ignore dependencies
+node_modules/*
 vendor/
 package-lock.json
 composer.lock
 
-#ignore slave modules
-ormsscheduler/
-tools/KioskStatus/
-
 #ignore lock files
+VirtualWaitingRoom/cronjob/*.lock
 smsReceiver.lock
 
 #ignore log files

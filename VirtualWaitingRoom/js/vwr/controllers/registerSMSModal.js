@@ -26,7 +26,7 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
     $scope.addSMS = function()
     {
         $http({
-            url: "php/setPatientMobileNumber.php",
+            url: "php/sms/setPatientMobileNumber.php",
             method: "GET",
             params: {
                 patientId: patient.PatientId,

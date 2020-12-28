@@ -68,7 +68,7 @@ if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
 $result = $conn->query($sqlApptMedivisit);
 
 // output data of each row
-while($row = $result->fetch())
+foreach($result->fetchAll() as $row)
 {
     #$MV_PatientId = $row["PatientId"];
     $MV_PatientFirstName        = $row["FirstName"];

@@ -1,18 +1,20 @@
 <?php
 //script to get all height and weight records a patient has in the WRM database
 
-require("../loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 //get webpage parameters
 $patientId = $_GET['patientId'];
 
 //connect to db
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //==================================
 //run query
 //==================================
-$query = $dbWRM->prepare("
+$query = $dbh->prepare("
     SELECT
         PatientMeasurement.Date,
         PatientMeasurement.Height,
@@ -40,7 +42,7 @@ $query = $dbWRM->prepare("
 $query->execute([":pSer" => $patientId]);
 
 //encode and return the json object
-$json = utf8_encode_recursive($query->fetchAll(PDO::FETCH_ASSOC));
+$json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json,JSON_NUMERIC_CHECK);
 
 ?>

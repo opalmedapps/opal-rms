@@ -3,10 +3,13 @@
 // getLocationInfo.php - php code to query the MySQL database and extract information
 // regarding a given intermediate venue location
 //====================================================================================
-require("loadConfigs.php");
+
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Create DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $Location = utf8_decode_recursive($_GET["Location"]);
@@ -23,9 +26,9 @@ $sql = "
 
 /* Process results */
 $json = [];
-$query = $dbWRM->query($sql);
+$query = $dbh->query($sql);
 
-$rows = $query->fetchAll(PDO::FETCH_ASSOC);
+$rows = $query->fetchAll();
 
 // if no rows were returned then search for this venue in the ExamRoom table
 if(count($rows) == 0)
@@ -40,9 +43,9 @@ if(count($rows) == 0)
         WHERE
             ExamRoom.AriaVenueId = '$Location'";
 
-    $query = $dbWRM->query($sql);
+    $query = $dbh->query($sql);
 
-    $rows =  $query->fetchAll(PDO::FETCH_ASSOC);
+    $rows =  $query->fetchAll();
 }
 
 // output data of each row

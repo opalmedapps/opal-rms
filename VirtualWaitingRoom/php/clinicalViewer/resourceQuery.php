@@ -3,7 +3,9 @@
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------
 
-require_once __DIR__."/../loadConfigs.php";
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 $speciality = $_GET["clinic"] ?? NULL;
 
@@ -16,7 +18,7 @@ echo json_encode($resources);
 #get the full list of appointment resources depending on the site
 function getResourceList(?string $speciality): array
 {
-    $dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+    $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
         SELECT DISTINCT
             MV.Resource AS code,
@@ -34,7 +36,7 @@ function getResourceList(?string $speciality): array
     );
     $query->execute([":spec" => $speciality]);
 
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    return $query->fetchAll();
 }
 
 ?>

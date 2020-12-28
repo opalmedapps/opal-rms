@@ -1,9 +1,12 @@
 <?php
 //====================================================================================
-// getSimilarCheckins.php - php code to check if there are already patients checked in
+// php code to check if there are already patients checked in
 // with similar identifiers
 //====================================================================================
-require("loadConfigs.php");
+
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Extract the webpage parameters
 $firstName = $_GET["firstName"];
@@ -14,9 +17,9 @@ $patientId = $_GET["patientId"];
 // MediVisit/MySQL patients
 //======================================================================================
 // Create MySQL DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
-$queryMV = $dbWRM->prepare("
+$query = $dbh->prepare("
     SELECT
         COUNT(DISTINCT Patient.SSN) AS numSimilarNames
     FROM
@@ -30,27 +33,12 @@ $queryMV = $dbWRM->prepare("
         PatientLocation.ArrivalDateTime >= CURDATE()
 ");
 
-$queryMV->execute([
+$query->execute([
     ":first" => $firstName,
     ":last" => "$lastNameFirstThree%",
     ":pSer" => $patientId
 ]);
 
-/* Process results */
-$rowMV = $queryMV->fetch();
-
-if(!$rowMV)
-{
-    die('Query failed.');
-}
-
-$numMV = $rowMV[0];
-
-$dbWRM = null;
-
-$totalSimilarNames = $numMV;
-
-# spit the result out to the webpage/calling function
-echo $totalSimilarNames;
+echo $query->fetchAll()[0]["numSimilarNames"] ?? 0;
 
 ?>

@@ -6,6 +6,10 @@ rptID 20 = Patient Acceptibility
 rptID 21 = Information about diagnosis and prognosis of cancer disease
 */
 
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
+
 include('LanguageFile.php');
 
 $wsBackgroundColor = '#33B8FF';
@@ -33,12 +37,10 @@ if (strlen(trim($wsExportFlag)) == 0) {
 }
 
 // Setup the database connection
-require_once __DIR__."/../loadConfigs.php";
-
-$dsCrossDatabse = OPAL_DB;
+$dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
 
 // Connect to the database
-$connection = new PDO(QUESTIONNIARE_CONNECT,QUESTIONNAIRE_USERNAME,QUESTIONNAIRE_PASSWORD,$QUESTIONNAIRE_OPTIONS);
+$connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
 // Check datbaase connection
 if (!$connection) {
@@ -47,9 +49,10 @@ if (!$connection) {
     die;
 }
 
-include_once ('GetQuestionnaireTitle.php');
-
 // Get the title of the report
+$qSQLTitle = $connection->query("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$rowTitle = $qSQLTitle->fetchAll()[0];
+
 $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
@@ -58,7 +61,7 @@ $wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',tr
             from " . $dsCrossDatabse . ".Patient
             where PatientID = $wsPatientID";
 $qSQLPI = $connection->query($wsSQLPI);
-$rowPI = $qSQLPI->fetch(PDO::FETCH_ASSOC);
+$rowPI = $qSQLPI->fetchAll()[0];
 
 $wsPatientSerNum = $rowPI['PatientSerNum'];
 
@@ -104,7 +107,7 @@ if ($wsLanguage == 'EN') {
 $qSQLQR = $connection->query($wsSQLQR);*/
 $wsSQLQR = "CALL getCompletedQuestionnaireInfo($wsPatientSerNum, $wsReportID);";
 $qSQLQR = $connection->query($wsSQLQR);
-$allRowQR = $qSQLQR->fetchAll(PDO::FETCH_ASSOC);
+$allRowQR = $qSQLQR->fetchAll();
 $qSQLQR->closeCursor();
 
 //the return string, will be in JSON format
@@ -119,8 +122,6 @@ if($qSQLQR)
     // begin looping the questionnaires
     foreach($allRowQR as $rowQR)
     {
-        //while ($rowQR = $qSQLQR->fetch(PDO::FETCH_ASSOC)) {
-
         $jstringObj = [];
 
         // Display the questionnaire sequence number and the date when the patient answered
@@ -167,7 +168,7 @@ if($qSQLQR)
         // The patient have a choice of Min To Max
         if ($rowQR['QuestionTypeSerNum'] == 2) {
             // Generate user choice for min to max
-            while ($rowQC = $qSQLQC->fetch(PDO::FETCH_ASSOC)) {
+            foreach($qSQLQC->fetchAll() as $rowQC) {
                 // In theory, there should only be two rows
                 // First row is the minimum value
                 if (strlen(trim($wsQuestionnaireChoice)) == 0) {
@@ -193,7 +194,7 @@ if($qSQLQR)
         $wsAnswer = "";
 
         // loop the response for multiple choices
-        while ($rowAnswers = $qSQLAnswer->fetch(PDO::FETCH_ASSOC))
+        foreach($qSQLAnswer->fetchAll() as $rowAnswers)
         {
             // Add comma if there are more than one answer
             if (strlen($wsAnswer) == 0) {

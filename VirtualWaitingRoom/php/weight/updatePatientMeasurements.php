@@ -1,7 +1,9 @@
 <?php
 //script to insert patient measurements in the WRM database
 
-require("../loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 //get webpage parameters
 $patientId = $_GET["patientId"];
@@ -12,10 +14,10 @@ $bsa = $_GET["bsa"];
 $appointmentId = $_GET["appointmentId"];
 
 //connect to db
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //get the current mrn of the patient as a security check
-$queryPatientExists = $dbWRM->prepare("
+$queryPatientExists = $dbh->prepare("
     SELECT
         Patient.PatientId
     FROM
@@ -25,11 +27,11 @@ $queryPatientExists = $dbWRM->prepare("
 ");
 $queryPatientExists->execute([":pSer" => $patientId]);
 
-$mrn = $queryPatientExists->fetchAll(PDO::FETCH_ASSOC)[0]["PatientId"] ?? NULL;
+$mrn = $queryPatientExists->fetchAll()[0]["PatientId"] ?? NULL;
 
 if($mrn === NULL) {echo "No patient mrn!"; exit;}
 
-$queryWeightInsert = $dbWRM->prepare("
+$queryWeightInsert = $dbh->prepare("
     INSERT INTO PatientMeasurement (PatientSer,Date,Time,Height,Weight,BSA,AppointmentId,PatientId)
     VALUES (:pSer,CURDATE(),CURTIME(),:height,:weight,:bsa,:appId,:mrn)
 ");

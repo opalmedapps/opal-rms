@@ -3,7 +3,10 @@
 // php code to query the MySQL (for Medivisit) databases and
 // extract the list of options, which includes resources, appointments, and rooms
 //====================================================================================
-require("loadConfigs.php");
+
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 //get webpage parameters
 $speciality = $_GET["speciality"];
@@ -21,15 +24,14 @@ $clinics = [];
 //==================================================================
 // Connect to WRM database
 //==================================================================
-#connect to the WRM database
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //==================================================================
 // Get Resources associated with appointments (also called clinics)
 //==================================================================
 
 //get the WRM resources
-$query2 = $dbWRM->prepare("
+$query2 = $dbh->prepare("
     SELECT DISTINCT
         ClinicResources.ResourceName
     FROM
@@ -39,18 +41,14 @@ $query2 = $dbWRM->prepare("
 ");
 $query2->execute([$speciality]);
 
-// Process results
-while($row = $query2->fetch(PDO::FETCH_ASSOC))
-{
-    $resources[] = $row['ResourceName'];
-}
+$resources = array_map(fn($x) => $x["ResourceName"], $query2->fetchAll());
 
 //================================================================================
 // Get all venues and exam rooms (basically, get all possible rooms)
 //================================================================================
 
 //get all exam rooms for the speciality
-$query3 = $dbWRM->prepare("
+$query3 = $dbh->prepare("
     SELECT DISTINCT
         LTRIM(RTRIM(ExamRoom.AriaVenueId)) AS AriaVenueId
     FROM
@@ -59,14 +57,10 @@ $query3 = $dbWRM->prepare("
 ");
 $query3->execute([$clinicalArea]);
 
-// Process results
-while($row = $query3->fetch(PDO::FETCH_ASSOC))
-{
-    $examRooms[] = $row['AriaVenueId'];
-}
+$examRooms = array_map(fn($x) => $x["AriaVenueId"], $query3->fetchAll());
 
 //get all possible intermediate venues for the speciality
-$query4 = $dbWRM->prepare("
+$query4 = $dbh->prepare("
     SELECT DISTINCT
         LTRIM(RTRIM(IntermediateVenue.AriaVenueId)) AS AriaVenueId
     FROM
@@ -77,7 +71,7 @@ $query4 = $dbWRM->prepare("
 $query4->execute([$clinicalArea]);
 
 // Process results
-while($row = $query4->fetch(PDO::FETCH_ASSOC))
+foreach($query4->fetchAll() as $row)
 {
     if(preg_match('/(TX AREA|RT TX ROOM)/',$row['AriaVenueId']))
     {
@@ -96,7 +90,7 @@ while($row = $query4->fetch(PDO::FETCH_ASSOC))
 //================================================================================
 
 //get all appointments from WRM
-$query6 = $dbWRM->prepare("
+$query6 = $dbh->prepare("
     SELECT DISTINCT
         LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentCode
     FROM
@@ -106,28 +100,18 @@ $query6 = $dbWRM->prepare("
 );
 $query6->execute([$speciality]);
 
-//process results
-while($row = $query6->fetch(PDO::FETCH_ASSOC))
-{
-    $appointments[] = $row['AppointmentCode'];
-}
+$appointments = array_map(fn($x) => $x["AppointmentCode"], $query6->fetchAll());
 
 //get all clinics
-$sql7 = "
+$query7 = $dbh->query("
     SELECT DISTINCT
         LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
     FROM
         ClinicSchedule
         INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-";
+");
 
-$query7 = $dbWRM->query($sql7);
-
-//process results
-while($row = $query7->fetch(PDO::FETCH_ASSOC))
-{
-    $clinics[] = $row['ClinicName'];
-}
+$clinics = array_map(fn($x) => $x["ClinicName"], $query7->fetchAll());
 
 //====================================================
 //organize json array

@@ -52,7 +52,7 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
     {
         //get the list of profiles in this group
         $http({
-            url: "php/getProfileList.php",
+            url: "php/profile/getProfileList.php",
             method: "GET",
             params:
             {

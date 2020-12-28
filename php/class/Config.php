@@ -46,21 +46,27 @@ class Config
         $dbh = NULL;
 
         #connects to WaitRoomManagment db by default
-        if($requestedConnection == 'ORMS')
+        if($requestedConnection === 'ORMS')
         {
             $dbh = new PDO("mysql:host={$dbInfo['ORMS_HOST']};port={$dbInfo['ORMS_PORT']};dbname={$dbInfo['ORMS_DB']}",$dbInfo['ORMS_USERNAME'],$dbInfo['ORMS_PASSWORD'],$options);
         }
 
         #logging db
-        elseif($requestedConnection == 'LOGS')
+        elseif($requestedConnection === 'LOGS')
         {
             $dbh = new PDO("mysql:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
         }
 
         #opal db
-        elseif($requestedConnection == 'OPAL')
+        elseif($requestedConnection === 'OPAL')
         {
             $dbh = new PDO("mysql:host={$dbInfo['OPAL_HOST']};port={$dbInfo['OPAL_PORT']};dbname={$dbInfo['OPAL_DB']}",$dbInfo['OPAL_USERNAME'],$dbInfo['OPAL_PASSWORD'],$options);
+        }
+
+        #questionnaire db
+        elseif($requestedConnection === 'QUESTIONNAIRE')
+        {
+            $dbh = new PDO("mysql:host={$dbInfo['QUESTIONNAIRE_HOST']};port={$dbInfo['QUESTIONNAIRE_PORT']};dbname={$dbInfo['QUESTIONNAIRE_DB']}",$dbInfo['QUESTIONNAIRE_USERNAME'],$dbInfo['QUESTIONNAIRE_PASSWORD'],$options);
         }
 
         return $dbh;

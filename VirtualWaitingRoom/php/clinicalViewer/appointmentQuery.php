@@ -4,7 +4,9 @@ declare(strict_types=1);
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
-require("../loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 #get input parameters
 
@@ -47,8 +49,8 @@ $qDate = "$qDateInit $qTime";
 
 
 #database connection
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
-$dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
+$dbOpal = Config::getDatabaseConnection("OPAL");
 
 #opal database query run under 'and' mode
 $sqlOpal = "
@@ -253,7 +255,7 @@ if(!$afilter) {
     $query->bindValue(":eDate", $eDate);
 
     $query->execute();
-    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+    foreach($query->fetchAll() as $row) {
         #filter apppointments on whether the patient checked in for it
         $checkInTime = $row["CurrentCheckInTime"] ?? $row["PreviousCheckInTime"] ?? NULL;
 
@@ -279,7 +281,7 @@ if(!$afilter) {
         $row["ScheduledTime"] = substr($row["ScheduledTime"], 0, -3);
 
         $queryOpal->execute(array(":uid" => $row["PatientId"], ":qDate" => $qDate, ":uid2" => $row["PatientId"]));
-        $resultOpal = $queryOpal->fetch(PDO::FETCH_ASSOC);
+        $resultOpal = $queryOpal->fetchAll()[0] ?? [];
 
         $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
         $row["QuestionnaireName"] = !empty($resultOpal["QuestionnaireName"]) ? $resultOpal["QuestionnaireName"] : "";
@@ -287,6 +289,7 @@ if(!$afilter) {
 
         $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
         $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
+        $recentlyAnswered = $resultOpal["RecentAnswered"] ?? NULL;
         $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
 
         if (
@@ -300,7 +303,7 @@ if(!$afilter) {
 
         $answeredQuestionnaire = False;
         $queryOpal2->execute(array(":uid" => $row["PatientId"]));
-        while ($questionnaireName = $queryOpal2->fetch(PDO::FETCH_ASSOC)) {
+        foreach($queryOpal2->fetchAll() as $questionnaireName) {
             if (in_array($questionnaireName["QuestionnaireName"], explode(",", $qspecificApp))) {
                 $answeredQuestionnaire = true;
                 break;
@@ -311,7 +314,7 @@ if(!$afilter) {
             array_push($mrnList, $row["PatientId"]);
         }
 
-        if (($appdType === "all" || in_array($row["Diagnosis"], explode(",", $dspecificApp))) && ($resultOpal["RecentAnswered"] == 1 || $offbutton == "OFF"||$qfilter||$andbutton=='Or') && ($qType === "all" || $answeredQuestionnaire)) {
+        if (($appdType === "all" || in_array($row["Diagnosis"], explode(",", $dspecificApp))) && ($recentlyAnswered == 1 || $offbutton == "OFF"||$qfilter||$andbutton=='Or') && ($qType === "all" || $answeredQuestionnaire)) {
             $listOfAppointments[] = [
                 "fname" => $row["FirstName"],
                 "lname" => $row["LastName"],
@@ -320,7 +323,7 @@ if(!$afilter) {
                 "ssn" => [
                     "num" => $row["SSN"],
                     "expDate" => $row["ssnExp"] ?? NULL,
-                    "expired" => $ramqExpired,
+                    "expired" => $ramqExpired ?? NULL,
                 ],
                 "appName" => $row["ResourceDescription"],
                 "appClinic" => $row["Resource"],
@@ -348,15 +351,16 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
 
     $queryOpal3->execute();
 
-    while ($row2 = $queryOpal3->fetch(PDO::FETCH_ASSOC)) {
+    foreach($queryOpal3->fetchAll() as $row2) {
         $query2->execute(array(":uid" => $row2["PatientId"]));
-        $resultORMS = $query2->fetch(PDO::FETCH_ASSOC);
+        $resultORMS = $query2->fetchAll()[0];
 
         if ($resultORMS["SMSAlertNum"]) $resultORMS["SMSAlertNum"] = substr($resultORMS["SMSAlertNum"], 0, 3) .
             "-" . substr($resultORMS["SMSAlertNum"], 3, 3) . "-" . substr($resultORMS["SMSAlertNum"], 6, 4);
 
         $lastCompleted = $row2["QuestionnaireCompletionDate"] ?? NULL;
         $completedWithinWeek = $row2["CompletedWithinLastWeek"] ?? NULL;
+        $recentlyAnswered = $row2["RecentAnswered"] ?? NULL;
         $row2["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
 
         if (
@@ -368,7 +372,7 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
             )
         ) $row2["QStatus"] = "red-circle";
 
-        if (($appdType === "all" || $row2["Name_EN"]) && ($row2["RecentAnswered"] == 1 || $offbutton == "OFF") && ($qType === "all" || $row2["QuestionnaireName"]) && (!in_array($row2["PatientId"], $mrnList)) && ($resultORMS["FirstName"])
+        if (($appdType === "all" || $row2["Name_EN"]) && ($recentlyAnswered == 1 || $offbutton == "OFF") && ($qType === "all" || $row2["QuestionnaireName"]) && (!in_array($row2["PatientId"], $mrnList)) && ($resultORMS["FirstName"])
         && ($row2["QuestionnaireCompletionDate"])) {
 
             $listOfAppointments[] = [

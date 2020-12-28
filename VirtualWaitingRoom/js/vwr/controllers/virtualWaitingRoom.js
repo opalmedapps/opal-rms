@@ -69,11 +69,13 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         {
             $http({
                 url: "php/getCheckinFile.php",
-                method: "GET"
+                method: "GET",
+                params: {
+                    speciality: $scope.pageSettings.Speciality
+                }
             }).then(function(response)
             {
                 $scope.checkinFile = response.data.checkinFile;
-                $scope.checkinFile = $scope.checkinFile +"_"+ $scope.pageSettings.Speciality;
                 loadPatients();
 
                 //also get the opal notification file here
@@ -172,7 +174,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             $scope.selectedAppointments = $scope.pageSettings.Appointments;
 
             $http({
-                url: "php/getAllOptions.php",
+                url: "php/profile/getAllOptions.php",
                 method: "GET",
                 params:
                 {
@@ -369,7 +371,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 // Send the patient an SMS message
                 //-----------------------------------------------------------------------
                 $http({
-                    url: "php/sendSMSRoom",
+                    url: "php/sms/sendSMSRoom",
                     method: "GET",
                     params:
                     {
@@ -916,7 +918,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendZoomLink = function(patient)
     {
         $http({
-            url: "php/sendSmsForZoom",
+            url: "php/sms/sendSmsForZoom",
             method: "GET",
             params:
             {

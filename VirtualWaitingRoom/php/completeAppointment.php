@@ -2,9 +2,12 @@
 //====================================================================================
 // php code to discharge a medivisit patient
 //====================================================================================
-require("loadConfigs.php");
 
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
+
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $checkoutVenue = $_GET["checkoutVenue"];
@@ -15,7 +18,7 @@ $appointmentSerNum = $_GET["scheduledActivitySer"];
 //======================================================================================
 // Check the PatientLocation table to get the revision count
 
-$queryAppointment = $dbWRM->prepare("
+$queryAppointment = $dbh->prepare("
     SELECT DISTINCT
         PatientLocation.PatientLocationSerNum,
         PatientLocation.PatientLocationRevCount,
@@ -30,7 +33,7 @@ $queryAppointment = $dbWRM->prepare("
 ");
 $queryAppointment->execute([":appId" => $appointmentSerNum]);
 
-$appointment = $queryAppointment->fetchAll(PDO::FETCH_ASSOC)[0] ?? NULL;
+$appointment = $queryAppointment->fetchAll()[0] ?? NULL;
 
 if($appointment === NULL) {
     die("Doesn't seem like the patient is checked in...");
@@ -44,7 +47,7 @@ $patientId                  = $appointment["PatientSerNum"];
 
 // update the MH table for the last checkin
 
-$queryInsertPreviousCheckIn = $dbWRM->prepare("
+$queryInsertPreviousCheckIn = $dbh->prepare("
     INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime,IntendedAppointmentFlag)
     VALUES (?,?,?,?,?,1)"
 );
@@ -53,12 +56,12 @@ $queryInsertPreviousCheckIn->execute([$patientLocationSerNum,$patientLocationRev
 // remove appointment from PatientLocation table
 $sql_delete_previousCheckin= "DELETE FROM PatientLocation WHERE PatientLocationSerNum= $patientLocationSerNum";
 
-$result = $dbWRM->query($sql_delete_previousCheckin);
+$result = $dbh->query($sql_delete_previousCheckin);
 
 
 // update MediVisitAppointmentList table to show that appointment is no longer open
 $sql_closeApt = "UPDATE MediVisitAppointmentList SET Status = 'Completed' WHERE AppointmentSerNum = $appointmentSerNum";
-$result = $dbWRM->query($sql_closeApt);
+$result = $dbh->query($sql_closeApt);
 
 //#############################################################################################
 //### At this stage the patient has been discharged from the specified appointment ###
@@ -66,14 +69,12 @@ $result = $dbWRM->query($sql_closeApt);
 // As part of the discharge, we want to check the patient in for all other appointments again but
 // put the patient back into the waiting room that is appropriate for their next appointment
 
-$base_url = BASE_URL;
+$base_url = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
 
 $checkinURL_raw = "$base_url/php/checkinPatientAriaMedi.php?checkinVenue=$checkoutVenue&patientId=$patientId";
 $checkinURL = str_replace(' ','%20',$checkinURL_raw);
 
 # since a script exists for this, best to call it here rather than rewrite the wheel
 $lines = file($checkinURL);
-
-$dbWRM = null;
 
 ?>

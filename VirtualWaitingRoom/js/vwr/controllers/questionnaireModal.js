@@ -169,7 +169,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
         else if($scope.selectedQuestionnaire.Visualization === "0")
         {
             $http({
-                url: "./php/questionnaire/report.php",
+                url: "./php/questionnaire/reportDisplayNonChart.php",
                 method: "GET",
                 params: {
                     mrn: $scope.patient.Mrn,

@@ -1,7 +1,9 @@
 <?php
 //script to insert/create a profile in the WRM database
 
-require("loadConfigs.php");
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 //get webpage parameters
 $postData = file_get_contents("php://input");
@@ -24,25 +26,25 @@ foreach($profile['Locations'] as $loc)
 }
 
 //connect to db
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 //if the profile is a new one, we have to create it
 //if not, we just update an existing profile with new information
 
 if($profile['ProfileSer'] == -1)
 {
-    $queryCreateProfile = $dbWRM->prepare("CALL SetupProfile(?,?,?);");
+    $queryCreateProfile = $dbh->prepare("CALL SetupProfile(?,?,?);");
     $queryCreateProfile->execute([$profile["ProfileId"],$profile["Speciality"],$profile["ClinicalArea"]]);
 
     //the subroutine returns the new profile's serial so we update ours
-    $row = $queryCreateProfile->fetchAll(PDO::FETCH_NUM)[0];
+    $row = $queryCreateProfile->fetchAll()[0];
     $queryCreateProfile->closeCursor();
     $profile['ProfileSer'] = $row[0];
 
 }
 
 //insert the profile properties
-$queryProperties = $dbWRM->prepare("
+$queryProperties = $dbh->prepare("
     UPDATE Profile
     SET
         ProfileId = :profileId,
@@ -76,7 +78,7 @@ $optionTypeString = implode("|||",array_map(function ($obj) {
     return $obj['Type'];
 },array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
 
-$queryOptions = $dbWRM->prepare("CALL UpdateProfileOptions(?,?,?)");
+$queryOptions = $dbh->prepare("CALL UpdateProfileOptions(?,?,?)");
 $queryOptions->execute([$profile["ProfileId"],$optionNameString,$optionTypeString]);
 $queryOptions->closeCursor();
 
@@ -85,7 +87,7 @@ $columnNameString = implode("|||",array_map(function ($obj) {
     return $obj['ColumnName'];
 },$columns));
 
-$queryColumns = $dbWRM->prepare("CALL UpdateProfileColumns(?,?)");
+$queryColumns = $dbh->prepare("CALL UpdateProfileColumns(?,?)");
 $queryColumns->execute([$profile["ProfileId"],$columnNameString]);
 $queryColumns->closeCursor();
 

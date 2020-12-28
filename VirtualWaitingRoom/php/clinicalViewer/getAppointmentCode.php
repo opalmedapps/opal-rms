@@ -4,11 +4,13 @@ declare(strict_types=1);
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------
 
-require_once __DIR__."/../loadConfigs.php";
+require_once __DIR__."/../../../vendor/autoload.php";
+
+use Orms\Config;
 
 $speciality = $_GET["clinic"] ?? NULL;
 
-$dbh = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 $sql = "
     SELECT DISTINCT
@@ -25,7 +27,7 @@ $query->execute([$speciality]);
 
 $resources = array_map(function($x) {
     return ["Name" => $x["AppointmentCode"]];
-},$query->fetchAll(PDO::FETCH_ASSOC));
+},$query->fetchAll());
 
 $resources = utf8_encode_recursive($resources);
 echo json_encode($resources);

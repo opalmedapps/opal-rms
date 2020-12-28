@@ -3,16 +3,19 @@
 // updateCheckinFile.php - php code to query the MySQL databases and extract the list of patients
 // who are currently checked in for open appointments today in Medivisit (MySQL)
 //====================================================================================
-require("loadConfigs.php");
+
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
 
 // Create MySQL DB connection
-$dbWRM = new PDO(WRM_CONNECT,MYSQL_USERNAME,MYSQL_PASSWORD,$WRM_OPTIONS);
+$dbh = Config::getDatabaseConnection("ORMS");
 
 // Create Opal DB connection
 //perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
 //for now assume that only RVH patients have a questionniare
 $opalOnline = 1;
-try {$dbOpal = new PDO(OPAL_CONNECT,OPAL_USERNAME,OPAL_PASSWORD,$OPAL_OPTIONS);}
+try {$dbOpal = Config::getDatabaseConnection("OPAL");}
 catch (PDOException $e) {$opalOnline = 0;}
 
 if($opalOnline)
@@ -106,9 +109,9 @@ $sqlWRM = "
 ";
 
 /* Process results */
-$queryWRM = $dbWRM->query($sqlWRM);
+$queryWRM = $dbh->query($sqlWRM);
 
-while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
+foreach($queryWRM->fetchAll() as $row)
 {
     //perform some processing
     $row['Identifier'] = $row['ScheduledActivitySer'] ."Medivisit";
@@ -181,22 +184,26 @@ while($row = $queryWRM->fetch(PDO::FETCH_ASSOC))
 //======================================================================================
 // Open the checkinlist.txt file for writing and output the json data to the checkinlist file
 //======================================================================================
+$checkInFilePath = Config::getConfigs("path")["BASE_PATH"] ."/VirtualWaitingRoom/checkin";
+
 foreach($json as $speciality => $data)
 {
     //encode the data to JSON
     $data = utf8_encode_recursive($data);
     $data = json_encode($data);
 
-    $checkinlist = fopen(CHECKIN_FILE_PATH ."_$speciality", "w") or die("Unable to open checkinlist file!");
+    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w") or die("Unable to open checkinlist file!");
     fwrite($checkinlist,$data);
     fclose($checkinlist);
 }
 
 #scan for the list of check in files. If any of them were not updated today, empty them
-$path = dirname(CHECKIN_FILE_PATH);
+$path = dirname($checkInFilePath);
 $files = scandir($path);
 
-$files = array_diff($files,[".",".."]);
+$files = array_filter($files,function($x) {
+    return preg_match("/\.json/",$x);
+});
 
 foreach($files as $file)
 {

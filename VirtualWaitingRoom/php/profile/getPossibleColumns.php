@@ -8,8 +8,6 @@ use Orms\Config;
 //get webpage parameters
 $speciality = $_GET['speciality'];
 
-$json = []; //output array
-
 //connect to db
 $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -30,15 +28,7 @@ $query = $dbh->prepare("
     ORDER BY ProfileColumnDefinition.ColumnName");
 $query->execute([$speciality]);
 
-//process results
-
-while($row = $query->fetch())
-{
-    $json[] = $row;
-}
-
-//encode and return the json object
-$json = utf8_encode_recursive($json);
+$json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

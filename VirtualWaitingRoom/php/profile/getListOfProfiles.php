@@ -7,8 +7,6 @@ use Orms\Config;
 
 $speciality = $_GET['speciality'] ?? NULL;
 
-$json = []; //output array
-
 //connect to db
 $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -33,12 +31,7 @@ $sql = "
 $query = $dbh->prepare($sql);
 $query->execute([$speciality]);
 
-while($row = $query->fetch())
-{
-    $json[] = $row;
-}
-
-$json = utf8_encode_recursive($json);
+$json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

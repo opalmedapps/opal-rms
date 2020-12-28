@@ -6,10 +6,8 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Config;
 
 //get webpage parameters
-$category = utf8_decode_recursive($_GET['category']);
-$speciality = utf8_decode_recursive($_GET['speciality']);
-
-$json = []; //output array
+$category = utf8_decode_recursive($_GET['category'] ?? NULL);
+$speciality = utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
 
 //connect to db
 $dbh = Config::getDatabaseConnection("ORMS");
@@ -42,13 +40,8 @@ if(!$category && !$speciality)
 //process results
 $query = $dbh->query($sql);
 
-while($row = $query->fetch())
-{
-    $json[] = $row;
-}
-
 //encode and return the json object
-$json = utf8_encode_recursive($json);
+$json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

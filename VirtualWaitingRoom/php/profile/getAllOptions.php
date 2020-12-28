@@ -41,11 +41,7 @@ $query2 = $dbh->prepare("
 ");
 $query2->execute([$speciality]);
 
-// Process results
-while($row = $query2->fetch())
-{
-    $resources[] = $row['ResourceName'];
-}
+$resources = array_map(fn($x) => $x["ResourceName"], $query2->fetchAll());
 
 //================================================================================
 // Get all venues and exam rooms (basically, get all possible rooms)
@@ -61,11 +57,7 @@ $query3 = $dbh->prepare("
 ");
 $query3->execute([$clinicalArea]);
 
-// Process results
-while($row = $query3->fetch())
-{
-    $examRooms[] = $row['AriaVenueId'];
-}
+$examRooms = array_map(fn($x) => $x["AriaVenueId"], $query3->fetchAll());
 
 //get all possible intermediate venues for the speciality
 $query4 = $dbh->prepare("
@@ -79,7 +71,7 @@ $query4 = $dbh->prepare("
 $query4->execute([$clinicalArea]);
 
 // Process results
-while($row = $query4->fetch())
+foreach($query4->fetchAll() as $row)
 {
     if(preg_match('/(TX AREA|RT TX ROOM)/',$row['AriaVenueId']))
     {
@@ -108,28 +100,18 @@ $query6 = $dbh->prepare("
 );
 $query6->execute([$speciality]);
 
-//process results
-while($row = $query6->fetch())
-{
-    $appointments[] = $row['AppointmentCode'];
-}
+$appointments = array_map(fn($x) => $x["AppointmentCode"], $query6->fetchAll());
 
 //get all clinics
-$sql7 = "
+$query7 = $dbh->query("
     SELECT DISTINCT
         LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
     FROM
         ClinicSchedule
         INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-";
+");
 
-$query7 = $dbh->query($sql7);
-
-//process results
-while($row = $query7->fetch())
-{
-    $clinics[] = $row['ClinicName'];
-}
+$clinics = array_map(fn($x) => $x["ClinicName"], $query7->fetchAll());
 
 //====================================================
 //organize json array

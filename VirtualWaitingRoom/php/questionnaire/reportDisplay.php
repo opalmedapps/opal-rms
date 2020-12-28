@@ -9,7 +9,6 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
 
-include('functions.php');
 include('LanguageFile.php');
 
 // Get Patient ID
@@ -48,10 +47,12 @@ if (!$connection)
     die;
 }
 
-include_once ('GetQuestionnaireTitle.php');
 include_once ('GetQuestionnaire.php');
 
 // Get the title of the report
+$qSQLTitle = $connection->query("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$rowTitle = $qSQLTitle->fetchAll()[0];
+
 $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
@@ -60,7 +61,7 @@ $wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',tr
             from " . $dsCrossDatabse . ".Patient
             where PatientID = $wsPatientID";
 $qSQLPI = $connection->query($wsSQLPI);
-$rowPI = $qSQLPI->fetch();
+$rowPI = $qSQLPI->fetchAll()[0];
 
 // Get the patient preferred language
 $wsLanguage = $rowPI['Language'];
@@ -71,7 +72,7 @@ $wsLanguage = $rowPI['Language'];
             from Patient
             where PatientID = $wsPatientID";
 $qSQLPSN = $connection->query($wsSQLPSN);
-$rowPSN = $qSQLPSN->fetch();
+$rowPSN = $qSQLPSN->fetchAll()[0];
 
 // Step 3) Retrieve the Last Questionnaire Responses
 $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, QuestionnaireSerNum,
@@ -83,10 +84,10 @@ $wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, Q
             order by max(PatientQuestionnaireSerNum) desc
             ";
 $qSQLQR = $connection->query($wsSQLQR);
-$rowQR = $qSQLQR->fetch();*/
+$rowQR = $qSQLQR->fetchAll()[0];*/
 
 $qSQLQR = $connection->query("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
-$rowQR = $qSQLQR->fetch();
+$rowQR = $qSQLQR->fetchAll()[0];
 $qSQLQR->closeCursor();
 
 /*$wsSQLSeries = "select Q.QuestionQuestion, Q.QuestionQuestion_FR
@@ -104,7 +105,7 @@ $wsSeries = [];
 $wsSeriesFR = [];
 $wsRowCounter = 0;
 
-while ($rowSQLSeries = $qSQLSeries->fetch())
+foreach($qSQLSeries->fetchAll() as $rowSQLSeries)
 {
     $wsSeriesID[$wsRowCounter] = $rowSQLSeries['QuestionnaireQuestionSerNum'];
     $wsSeries[$wsRowCounter] = $rowSQLSeries['QuestionText_EN'];

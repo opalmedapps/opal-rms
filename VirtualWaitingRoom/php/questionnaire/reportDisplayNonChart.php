@@ -49,9 +49,10 @@ if (!$connection) {
     die;
 }
 
-include_once ('GetQuestionnaireTitle.php');
-
 // Get the title of the report
+$qSQLTitle = $connection->query("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$rowTitle = $qSQLTitle->fetchAll()[0];
+
 $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
@@ -60,7 +61,7 @@ $wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',tr
             from " . $dsCrossDatabse . ".Patient
             where PatientID = $wsPatientID";
 $qSQLPI = $connection->query($wsSQLPI);
-$rowPI = $qSQLPI->fetch();
+$rowPI = $qSQLPI->fetchAll()[0];
 
 $wsPatientSerNum = $rowPI['PatientSerNum'];
 
@@ -121,8 +122,6 @@ if($qSQLQR)
     // begin looping the questionnaires
     foreach($allRowQR as $rowQR)
     {
-        //while ($rowQR = $qSQLQR->fetch()) {
-
         $jstringObj = [];
 
         // Display the questionnaire sequence number and the date when the patient answered
@@ -169,7 +168,7 @@ if($qSQLQR)
         // The patient have a choice of Min To Max
         if ($rowQR['QuestionTypeSerNum'] == 2) {
             // Generate user choice for min to max
-            while ($rowQC = $qSQLQC->fetch()) {
+            foreach($qSQLQC->fetchAll() as $rowQC) {
                 // In theory, there should only be two rows
                 // First row is the minimum value
                 if (strlen(trim($wsQuestionnaireChoice)) == 0) {
@@ -195,7 +194,7 @@ if($qSQLQR)
         $wsAnswer = "";
 
         // loop the response for multiple choices
-        while ($rowAnswers = $qSQLAnswer->fetch())
+        foreach($qSQLAnswer->fetchAll() as $rowAnswers)
         {
             // Add comma if there are more than one answer
             if (strlen($wsAnswer) == 0) {

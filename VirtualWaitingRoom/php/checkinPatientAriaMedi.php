@@ -54,7 +54,7 @@ if(strstr($originalAppointmentSer,'Medivisit')) //check if the appointment is a 
 }
 
 // output data of each row
-while($row = $queryApptMedivisit->fetch())
+foreach($queryApptMedivisit->fetchAll() as $row)
 {
     $mv_AppointmentSerNum = $row["AppointmentSerNum"];
 

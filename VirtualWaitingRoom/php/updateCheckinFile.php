@@ -111,7 +111,7 @@ $sqlWRM = "
 /* Process results */
 $queryWRM = $dbh->query($sqlWRM);
 
-while($row = $queryWRM->fetch())
+foreach($queryWRM->fetchAll() as $row)
 {
     //perform some processing
     $row['Identifier'] = $row['ScheduledActivitySer'] ."Medivisit";

@@ -1,6 +1,6 @@
 <?php
 //====================================================================================
-// getSimilarCheckins.php - php code to check if there are already patients checked in
+// php code to check if there are already patients checked in
 // with similar identifiers
 //====================================================================================
 
@@ -39,19 +39,6 @@ $query->execute([
     ":pSer" => $patientId
 ]);
 
-/* Process results */
-$rowMV = $query->fetch();
-
-if(!$rowMV)
-{
-    die('Query failed.');
-}
-
-$numMV = $rowMV[0];
-
-$totalSimilarNames = $numMV;
-
-# spit the result out to the webpage/calling function
-echo $totalSimilarNames;
+echo $query->fetchAll()[0]["numSimilarNames"] ?? 0;
 
 ?>

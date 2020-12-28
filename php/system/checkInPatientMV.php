@@ -48,7 +48,7 @@ $result = $conn->query($sqlMV_checkCheckin);
 
 if ($result->rowCount() > 0) {
     // output data of each row
-    while($row = $result->fetch()) {
+    foreach($result->fetchAll() as $row) {
         $PatientLocationSerNum      = $row["PatientLocationSerNum"];
         $PatientLocationRevCount    = $row["PatientLocationRevCount"];
         $CheckinVenueName           = $row["CheckinVenueName"];

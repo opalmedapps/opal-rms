@@ -62,13 +62,7 @@ $sql = "
 /* Process results */
 $query = $dbh->query($sql);
 
-// output data of each row
-while($row = $query->fetch())
-{
-    $json[] = $row;
-}
-
-$json = utf8_encode_recursive($json);
+$json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

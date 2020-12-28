@@ -56,7 +56,7 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
     // Prepare the output
     $output = [];
 
-    while($row = $result->fetch())
+    foreach($result->fetchAll() as $row)
     {
         // merge the output
         $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];

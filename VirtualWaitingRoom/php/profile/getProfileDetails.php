@@ -106,10 +106,7 @@ $sqlColumns = "
 //process results
 $queryColumns = $dbh->query($sqlColumns);
 
-while($row = $queryColumns->fetch())
-{
-    $json['ColumnsDisplayed'][] = $row;
-}
+$json['ColumnsDisplayed'] = $queryColumns->fetchAll();
 
 //=======================================================
 //next get the profile options
@@ -127,7 +124,7 @@ $sqlOptions = "
 //process results
 $queryOptions = $dbh->query($sqlOptions);
 
-while($row = $queryOptions->fetch())
+foreach($queryOptions->fetchAll() as $row)
 {
     if($row['Type'] == 'Appointment') {$appointments[] = $row['Options'];}
     else if($row['Type'] == 'IntermediateVenue')
@@ -182,7 +179,7 @@ if($ignoreAutoResources != 1)
 
         $queryExamRooms = $dbh->query($sqlExamRooms);
 
-        while($row = $queryExamRooms->fetch())
+        foreach($queryExamRooms->fetchAll() as $row)
         {
             $examRooms[] = $row['AriaVenueId'];
         }
@@ -230,7 +227,7 @@ if($ignoreAutoResources != 1)
 
         $queryResources = $dbh->query($sqlResources);
 
-        while($row = $queryResources->fetch())
+        foreach($queryResources->fetchAll() as $row)
         {
             $resources[] = $row['ResourceName'];
         }
@@ -254,7 +251,7 @@ if($ignoreAutoResources != 1)
 
         $queryExamRooms = $dbh->query($sqlExamRooms);
 
-        while($row = $queryExamRooms->fetch())
+        foreach($queryExamRooms->fetchAll() as $row)
         {
             $examRooms[] = $row['AriaVenueId'];
         }
@@ -273,7 +270,7 @@ if($ignoreAutoResources != 1)
 
         $queryResources = $dbh->query($sqlResources);
 
-        while($row = $queryResources->fetch())
+        foreach($queryResources->fetchAll() as $row)
         {
             $resources[] = $row['ResourceName'];
         }

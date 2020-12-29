@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Sms;
+namespace Orms;
 
 use DateTime;
 use Exception;

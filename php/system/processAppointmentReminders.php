@@ -3,7 +3,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 use Orms\ArrayUtil;
 
 #get the list of aria appointments to process

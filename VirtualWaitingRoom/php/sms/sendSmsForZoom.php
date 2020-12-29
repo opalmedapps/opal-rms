@@ -7,7 +7,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 
 # Extract the webpage parameters
 

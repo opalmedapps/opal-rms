@@ -6,7 +6,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');

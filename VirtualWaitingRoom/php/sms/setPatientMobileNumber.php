@@ -6,7 +6,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 
 #extract the webpage parameters
 $patientId          = $_GET["patientId"] ?? NULL;

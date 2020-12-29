@@ -3,7 +3,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 use Orms\ArrayUtil;
 
 $checkInScriptUrl = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php";

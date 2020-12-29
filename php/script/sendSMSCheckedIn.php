@@ -6,7 +6,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\Sms\SmsInterface;
+use Orms\SmsInterface;
 
 // Extract the command line parameters
 $opts = getopt("",["PatientId:","message_FR:","message_EN:"]);

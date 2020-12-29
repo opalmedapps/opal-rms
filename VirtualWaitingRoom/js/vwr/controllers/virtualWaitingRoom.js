@@ -461,13 +461,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
     //=========================================================================
     // Function to send a patient to a specifed area
-    // Used for 'SENT FOR X-RAY', 'SEND FOR PHYSIO', and also to send patients back to the waiting room
     //=========================================================================
     $scope.sendToLocation = function (patient,sendLocation,removeFromFB)
     {
-        //-----------------------------------------------------------------------
-        // Check the patient into the SENT FOR X-RAY location
-        //-----------------------------------------------------------------------
         $http({
             url: "php/checkinPatientAriaMedi.php",
             method: "GET",

@@ -167,23 +167,11 @@
                         </span>
                     </span>
 
-                    <span ng-switch-when="SendForPhysio" ng-switch="patient.RowType">
-                        <span ng-switch-when="CheckedIn">
-                            <button ng-show="patient.VenueId != 'SENT FOR PHYSIO'" ng-click="sendToLocation(patient,'SENT FOR PHYSIO',true)" class="btn btn-default">Send for Physio</button>
-                        </span>
-                    </span>
-
                     <span ng-switch-when="SendForWeight" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn" ng-switch="patientWeightRequired(patient)">
                             <button ng-switch-when="Yes" ng-click="openWeightModal(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Enter Weight</button>
                             <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
                             <button ng-switch-when="No" ng-click="addToWeighArray(patient)" class="btn btn-warning" style="background-color:#4e5cf0;border-color:#4436ee;">Send For Weight</button>
-                        </span>
-                    </span>
-
-                    <span ng-switch-when="SendForXray" ng-switch="patient.RowType">
-                        <span ng-switch-when="CheckedIn">
-                            <button ng-show="patient.VenudId != 'SENT FOR X-RAY'" ng-click="sendToLocation(patient,'SENT FOR X-RAY',true)" class="btn btn-warning">Send for X-Ray</button>
                         </span>
                     </span>
 

@@ -30,7 +30,8 @@ $endOfToday = "$today 23:59:59";
 ############################################################################################
 $queryApptMedivisit = $dbh->prepare("
     SELECT DISTINCT
-        MediVisitAppointmentList.AppointmentSerNum
+        MediVisitAppointmentList.AppointmentSerNum,
+        MediVisitAppointmentList.AppointSys
     FROM
         Patient
         INNER JOIN MediVisitAppointmentList ON MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum

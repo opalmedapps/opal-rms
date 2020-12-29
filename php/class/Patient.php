@@ -8,17 +8,17 @@ use Orms\Config;
 class Patient
 {
     #definition of a Patient
-    private $patientSer              = NULL;
+    private ?int $patientSer         = NULL;
 
-    private $firstName               = NULL;
-    private $lastName                = NULL;
-    private $ssn                     = NULL;
-    private $ssnExpDate              = NULL;
-    private $patientId               = NULL;
-    private $patientId_MGH           = NULL;
-    private $smsNum                  = NULL;
-    private $opalPatient             = NULL;
-    private $languagePreference      = NULL;
+    private ?string $firstName               = NULL;
+    private ?string $lastName                = NULL;
+    private ?string $ssn                     = NULL;
+    private ?string $ssnExpDate              = NULL;
+    private ?string $patientId               = NULL;
+    private ?string $patientId_MGH           = NULL;
+    private ?string $smsNum                  = NULL;
+    private ?string $opalPatient             = NULL;
+    private ?string $languagePreference      = NULL;
 
 
     public function __construct(array $args = NULL)
@@ -100,13 +100,6 @@ class Patient
             ":serNum" => $this->patientSer
         ]);
     }
-
-    /*
-    public function updatePatientInDatabase(): ?int
-    {
-
-        return numRowsAffected
-    }*/
 
     #completes the Patient object by getting missing data from the ORMS database
     #uses the ramq and the patient id

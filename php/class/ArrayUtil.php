@@ -4,6 +4,7 @@ namespace Orms;
 
 class ArrayUtil
 {
+    /** @phpstan-ignore-next-line */
     static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
     {
         $groupedArr = [];
@@ -21,6 +22,7 @@ class ArrayUtil
     }
 
     #recursive version of groupArrayByKey that repeats the grouping process for each input key
+    /** @phpstan-ignore-next-line */
     static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
@@ -39,6 +41,7 @@ class ArrayUtil
     }
 
     #version of groupArrayByKeyRecursive that keeps the original keys intact
+    /** @phpstan-ignore-next-line */
     static function groupArrayByKeyRecursiveKeepKeys(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
@@ -56,6 +59,7 @@ class ArrayUtil
         return $groupedArr;
     }
 
+    /** @phpstan-ignore-next-line */
     static function convertSingleElementArraysRecursive($arr)
     {
         if(gettype($arr) === "array")
@@ -70,6 +74,7 @@ class ArrayUtil
         return $arr;
     }
 
+    /** @phpstan-ignore-next-line */
     static function checkIfArrayIsAssoc(array $arr): bool
     {
         return array_keys($arr) !== range(0,count($arr)-1);

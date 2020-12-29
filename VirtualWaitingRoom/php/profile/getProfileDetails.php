@@ -7,7 +7,7 @@ use Orms\Config;
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET["profileId"]);
-$clinicalArea = utf8_decode_recursive($_GET["clinicalArea"]) ?? NULL;
+$clinicalArea = utf8_decode_recursive($_GET["clinicalArea"] ?? NULL);
 $ignoreAutoResources = $_GET['ignoreAutoResources'] ?? 0;
 
 $json = []; //output array

@@ -5,8 +5,9 @@ namespace Orms;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+
 use Orms\Config;
-use Orms\Sms\{SmsTwilio,SmsCdyne};
+use Orms\Sms\{SmsTwilio,SmsCdyne,SmsReceivedMessage};
 use Orms\ArrayUtil;
 use Orms\Logger;
 use PDOException;

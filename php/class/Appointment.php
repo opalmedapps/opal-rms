@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Orms;
 
@@ -27,7 +27,7 @@ class Appointment
 
     /**
      *
-     * @param string[] $appointmentInfo
+     * @param mixed[] $appointmentInfo
      * @param Patient|null $patientInfo
      * @return void
      * @throws Exception
@@ -53,8 +53,8 @@ class Appointment
 
         $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
 
-        if($patientSer === NULL || $appCodeId === NULL) {
-            throw new Exception("Missing database ids");
+        if($patientSer === NULL) {
+            throw new Exception("Missing patient id");
         }
 
         #check if an sms entry exists for the appointment
@@ -163,7 +163,6 @@ class Appointment
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
-        /** @var \PDOStatement */
         $queryClinic = $dbh->prepare("
             SELECT
                 ClinicResourcesSerNum
@@ -204,7 +203,7 @@ class Appointment
         return $clinicSer;
     }
 
-    private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): ?int
+    private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): int
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -223,9 +222,9 @@ class Appointment
             ":spec" => $this->specialityGroup
         ]);
 
-        $appId = $queryAppId->fetchAll()[0]["AppointmentCodeId"] ?? NULL;
+        $appId = (int) ($queryAppId->fetchAll()[0]["AppointmentCodeId"] ?? NULL);
 
-        if($appId === NULL && $mode === "INSERT_IF_NULL")
+        if($appId === 0 && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
                 INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)

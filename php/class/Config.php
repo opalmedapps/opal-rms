@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Orms;
 
@@ -10,23 +10,35 @@ Config::__init();
 class Config
 {
 
-    private static $configs;
+    /** @var mixed[] */
+    private static array $configs;
 
     #class constructor
-    public static function __init()
+    public static function __init(): void
     {
         #load the config file
-        self::$configs = parse_ini_file(dirname(__FILE__) ."/../../config/config.conf",true);
+        $configs = parse_ini_file(dirname(__FILE__) ."/../../config/config.conf",TRUE);
+
+        if($configs === FALSE) throw new Exception("Loading configs failed");
+
+        self::$configs = $configs;
     }
 
-    #returns a hash with all configs
-    public static function GetAllConfigs()
+    /**
+     * returns a hash with all configs
+     * @return mixed[]
+     */
+    public static function GetAllConfigs(): array
     {
         return self::$configs;
     }
 
-    #returns a hash with specific configs
-    public static function getConfigs($section)
+    /**
+     * returns a hash with specific configs
+     * @param string $section
+     * @return mixed[]
+     */
+    public static function getConfigs(string $section): array
     {
         return self::$configs[$section];
     }

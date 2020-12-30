@@ -4,6 +4,13 @@ namespace Orms;
 
 class ArrayUtil
 {
+    /**
+     *
+     * @param mixed[] $arr
+     * @param string $key
+     * @param bool $keepKey
+     * @return mixed[]
+     */
     static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
     {
         $groupedArr = [];
@@ -20,7 +27,12 @@ class ArrayUtil
         return $groupedArr;
     }
 
-    #recursive version of groupArrayByKey that repeats the grouping process for each input key
+    /**
+     * recursive version of groupArrayByKey that repeats the grouping process for each input key
+     * @param mixed[] $arr
+     * @param string ...$keys
+     * @return mixed[]
+     */
     static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
@@ -38,7 +50,12 @@ class ArrayUtil
         return $groupedArr;
     }
 
-    #version of groupArrayByKeyRecursive that keeps the original keys intact
+    /**
+     * version of groupArrayByKeyRecursive that keeps the original keys intact
+     * @param mixed[] $arr
+     * @param string ...$keys
+     * @return mixed[]
+     */
     static function groupArrayByKeyRecursiveKeepKeys(array $arr,string ...$keys): array
     {
         $key = array_shift($keys);
@@ -56,6 +73,11 @@ class ArrayUtil
         return $groupedArr;
     }
 
+    /**
+     *
+     * @param mixed[] $arr
+     * @return mixed[]
+     */
     static function convertSingleElementArraysRecursive($arr): array
     {
         if(gettype($arr) === "array")

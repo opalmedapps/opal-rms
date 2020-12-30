@@ -1,0 +1,11 @@
+parameters:
+    level: 8
+    paths:
+        - php/class
+    ignoreErrors:
+        - message: "#Method .+ has parameter .+ with no value type specified in iterable type array#"
+          paths:
+            - php/class/ArrayUtil.php
+        - message: "#Method .+ return type has no value type specified in iterable type array#"
+          paths:
+            - php/class/ArrayUtil.php

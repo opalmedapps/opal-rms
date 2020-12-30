@@ -53,7 +53,7 @@ class Appointment
 
         $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
 
-        if($patientSer === NULL || $clinicSer === NULL || $appCodeId === NULL) {
+        if($patientSer === NULL || $appCodeId === NULL) {
             throw new Exception("Missing database ids");
         }
 
@@ -159,10 +159,11 @@ class Appointment
 
     #returns the serial num of the first resource matching the Appointment's resource description
     #returns NULL if there is no match
-    private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): ?int
+    private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): int
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
+        /** @var \PDOStatement */
         $queryClinic = $dbh->prepare("
             SELECT
                 ClinicResourcesSerNum
@@ -180,9 +181,9 @@ class Appointment
             ":spec" => $this->specialityGroup
         ]);
 
-        $clinicSer = $queryClinic->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL;
+        $clinicSer = (int) ($queryClinic->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL);
 
-        if($clinicSer === NULL && $mode === "INSERT_IF_NULL")
+        if($clinicSer === 0 && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
                 INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
@@ -194,7 +195,7 @@ class Appointment
                 ":sys"     => $this->system
             ]);
 
-            $clinicSer = $dbh->lastInsertId();
+            $clinicSer = (int) $dbh->lastInsertId();
             if($clinicSer === 0) {
                 throw new Exception("Could not insert new resource");
             }
@@ -235,7 +236,7 @@ class Appointment
                 ":sys"  => $this->system
             ]);
 
-            $appId = $dbh->lastInsertId();
+            $appId = (int) $dbh->lastInsertId();
             if($appId === 0) {
                 throw new Exception("Could not insert new resource");
             }

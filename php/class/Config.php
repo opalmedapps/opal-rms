@@ -2,6 +2,7 @@
 
 namespace Orms;
 
+use Exception;
 use PDO;
 
 Config::__init();
@@ -33,7 +34,7 @@ class Config
     #returns a db connection handle to a requested database server
     #options are currently predefined as "ORMS"
     #return 0 if connection fails
-    public static function getDatabaseConnection($requestedConnection)
+    public static function getDatabaseConnection(string $requestedConnection): PDO
     {
         $dbInfo = self::$configs['database'];
         $options = [
@@ -41,32 +42,28 @@ class Config
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ];
 
-        #set the inital value of the connection to 0 (failure value)
-        #the requesting script can then determine what to do if the db fails to connect
-        $dbh = NULL;
-
         #connects to WaitRoomManagment db by default
-        if($requestedConnection === 'ORMS')
-        {
+        if($requestedConnection === 'ORMS') {
             $dbh = new PDO("mysql:host={$dbInfo['ORMS_HOST']};port={$dbInfo['ORMS_PORT']};dbname={$dbInfo['ORMS_DB']}",$dbInfo['ORMS_USERNAME'],$dbInfo['ORMS_PASSWORD'],$options);
         }
 
         #logging db
-        elseif($requestedConnection === 'LOGS')
-        {
+        elseif($requestedConnection === 'LOGS') {
             $dbh = new PDO("mysql:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
         }
 
         #opal db
-        elseif($requestedConnection === 'OPAL')
-        {
+        elseif($requestedConnection === 'OPAL') {
             $dbh = new PDO("mysql:host={$dbInfo['OPAL_HOST']};port={$dbInfo['OPAL_PORT']};dbname={$dbInfo['OPAL_DB']}",$dbInfo['OPAL_USERNAME'],$dbInfo['OPAL_PASSWORD'],$options);
         }
 
         #questionnaire db
-        elseif($requestedConnection === 'QUESTIONNAIRE')
-        {
+        elseif($requestedConnection === 'QUESTIONNAIRE') {
             $dbh = new PDO("mysql:host={$dbInfo['QUESTIONNAIRE_HOST']};port={$dbInfo['QUESTIONNAIRE_PORT']};dbname={$dbInfo['QUESTIONNAIRE_DB']}",$dbInfo['QUESTIONNAIRE_USERNAME'],$dbInfo['QUESTIONNAIRE_PASSWORD'],$options);
+        }
+
+        else {
+            throw new Exception("Couldn't connect to database");
         }
 
         return $dbh;

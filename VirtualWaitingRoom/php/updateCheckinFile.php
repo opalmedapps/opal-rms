@@ -21,6 +21,7 @@ catch (PDOException $e) {
     $dbOpal = NULL;
 }
 
+$queryOpal = NULL;
 if($dbOpal !== NULL)
 {
     $sqlOpal = "
@@ -47,7 +48,7 @@ if($dbOpal !== NULL)
 
 $json = [];
 
-$queryWRM = $dbh->query("
+$queryWRM = $dbh->prepare("
     SELECT
         MediVisitAppointmentList.AppointmentSerNum AS ScheduledActivitySer,
         MediVisitAppointmentList.AppointId AS AppointmentId,
@@ -132,7 +133,7 @@ foreach($queryWRM->fetchAll() as $row)
     else $row["RowType"] = "CheckedIn";
 
     //cross query OpalDB for questionnaire information
-    if($opalOnline)
+    if($queryOpal !== NULL)
     {
         $queryOpal->execute([":mrn" => $row["Mrn"]]);
         $resultOpal = $queryOpal->fetchAll()[0] ?? [];
@@ -188,16 +189,20 @@ foreach($json as $speciality => $data)
 {
     //encode the data to JSON
     $data = utf8_encode_recursive($data);
-    $data = json_encode($data);
+    $data = json_encode($data) ?: "[]";
 
-    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w") or die("Unable to open checkinlist file!");
+    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w");
+    if($checkinlist === FALSE) {
+        die("Unable to open checkinlist file!");
+    }
+
     fwrite($checkinlist,$data);
     fclose($checkinlist);
 }
 
 #scan for the list of check in files. If any of them were not updated today, empty them
 $path = dirname($checkInFilePath);
-$files = scandir($path);
+$files = scandir($path) ?: [];
 
 $files = array_filter($files,function($x) {
     return preg_match("/\.json/",$x);
@@ -205,12 +210,14 @@ $files = array_filter($files,function($x) {
 
 foreach($files as $file)
 {
-    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file"))->format("Y-m-d");
+    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file") ?: 0)->format("Y-m-d");
     $today = (new DateTime())->format("Y-m-d");
 
     if($modDate === $today) continue;
 
     $handle = fopen("$path/$file","w");
+    if($handle === FALSE) continue;
+
     fwrite($handle,"[]");
     fclose($handle);
 }

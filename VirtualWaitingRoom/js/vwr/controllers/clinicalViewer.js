@@ -646,8 +646,8 @@ app.factory('callScript',function($http,$q)
 
             if(inputs.dfilterdisable){
                 dtypeSelect = "&dtype=all";
-                opal = "&opal=1";
-                SMS = "&SMS=1";
+                opal = "&opal=2";
+                SMS = "&SMS=2";
             }
             if(inputs.qfilterdisable){
                 qtypeSelect = "&qtype=all";

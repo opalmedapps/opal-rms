@@ -107,11 +107,17 @@ $specialityFilter = "ClinicResources.Speciality = '$clinic'";
 $activeStatusConditions = array_filter($statusConditions);
 //if($specificApp === NULL) print("t");
 //else print("x");
+
+//Set the filter for SMS/OPAL status, based on the parameters.
 $opalFilter = "";
 if ($OPAL==NULL && $SMS == NULL) $opalFilter = "AND (Patient.SMSAlertNum IS NULL OR Patient.OpalPatient = 0)";
 else if($OPAL==NULL) $opalFilter .= "AND Patient.SMSAlertNum IS NOT NULL";
 else if($SMS==NULL) $opalFilter .= "AND Patient.OpalPatient = 1";
-else  $opalFilter = "AND (Patient.SMSAlertNum IS NOT NULL OR Patient.OpalPatient = 1)";
+else  {
+    $opal = $_GET["opal"];
+    $sms = $_GET["SMS"];
+    if ($opal == 1 && $sms == 1) $opalFilter = "AND (Patient.SMSAlertNum IS NOT NULL OR Patient.OpalPatient = 1)";
+}
 
 
 $statusFilter = " AND MV.Status IN (" . implode(",", $activeStatusConditions) . ")";

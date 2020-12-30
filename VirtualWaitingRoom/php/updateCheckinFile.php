@@ -14,11 +14,14 @@ $dbh = Config::getDatabaseConnection("ORMS");
 // Create Opal DB connection
 //perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
 //for now assume that only RVH patients have a questionniare
-$opalOnline = 1;
-try {$dbOpal = Config::getDatabaseConnection("OPAL");}
-catch (PDOException $e) {$opalOnline = 0;}
+try {
+    $dbOpal = Config::getDatabaseConnection("OPAL");
+}
+catch (PDOException $e) {
+    $dbOpal = NULL;
+}
 
-if($opalOnline)
+if($dbOpal !== NULL)
 {
     $sqlOpal = "
         SELECT
@@ -44,10 +47,7 @@ if($opalOnline)
 
 $json = [];
 
-#-------------------------------------------------------------------------------------
-# Now, get the Medivisit checkins from MySQL
-#-------------------------------------------------------------------------------------
-$sqlWRM = "
+$queryWRM = $dbh->query("
     SELECT
         MediVisitAppointmentList.AppointmentSerNum AS ScheduledActivitySer,
         MediVisitAppointmentList.AppointId AS AppointmentId,
@@ -106,10 +106,8 @@ $sqlWRM = "
         Patient.LastName,
         MediVisitAppointmentList.ScheduledDateTime,
         MediVisitAppointmentList.AppointmentSerNum
-";
-
-/* Process results */
-$queryWRM = $dbh->query($sqlWRM);
+");
+$queryWRM->execute();
 
 foreach($queryWRM->fetchAll() as $row)
 {

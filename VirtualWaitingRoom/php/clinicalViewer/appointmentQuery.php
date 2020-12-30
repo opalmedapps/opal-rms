@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------

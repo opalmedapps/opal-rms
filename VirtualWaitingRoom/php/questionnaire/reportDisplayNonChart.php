@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
 rptID 11 = Patient Satisfactory Questionnaires
 rptID 19 = Opal Feedback

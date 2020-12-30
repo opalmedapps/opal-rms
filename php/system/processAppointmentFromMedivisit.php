@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # Script that parses a POST request containing Medivisit appointment information and inserts/updates the appointment in the ORMS db
 #---------------------------------------------------------------------------------------------------------------
@@ -119,6 +119,12 @@ finally
 ###################################
 
 #function to transform the information received from Medivisit into an ORMS compatible form
+/**
+ *
+ * @param mixed[] $appInfo
+ * @return mixed[]
+ * @throws Exception
+ */
 function validateAppointmentInfo(array $appInfo): array
 {
     #if a param is just whitespace, set it to null
@@ -161,6 +167,13 @@ function validateAppointmentInfo(array $appInfo): array
 }
 
 #logs the POST request
+/**
+ *
+ * @param mixed[] $requestInfo
+ * @return void
+ * @throws Exception
+ * @throws PDOException
+ */
 function logRequest(array $requestInfo): void
 {
     if($requestInfo["Result"] === NULL) $requestInfo["Result"] = "System Error";
@@ -180,6 +193,11 @@ function logRequest(array $requestInfo): void
 }
 
 #sends an email to the orms admin
+/**
+ *
+ * @param mixed[] $requestInfo
+ * @return void
+ */
 function sendEmail(array $requestInfo): void
 {
 

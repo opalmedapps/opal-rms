@@ -1,14 +1,11 @@
 parameters:
     level: 8
     paths:
-        - php/class
+        - php/
+        - VirtualWaitingRoom/php/
+        - auth/
+    excludes_analyse:
+        - VirtualWaitingRoom/php/pdfGenerator/
+        - VirtualWaitingRoom/php/clinicalViewer/
     stubFiles:
         - php/stub/PDOStatement.stub
-#    ignoreErrors:
-#        - message: "#Method .+ has parameter .+ with no value type specified in iterable type array#"
-#          paths:
-#            - php/class/ArrayUtil.php
-#        - message: "#Method .+ return type has no value type specified in iterable type array#"
-#          paths:
-#            - php/class/ArrayUtil.php
-#            - php/class/Config.php

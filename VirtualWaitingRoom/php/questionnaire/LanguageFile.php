@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 // Pre the languages
 $wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
 $wsShortMonthEN = "'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'";

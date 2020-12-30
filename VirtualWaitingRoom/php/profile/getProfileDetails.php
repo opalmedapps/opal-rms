@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to get the page settings for a profile
 
 require_once __DIR__."/../../../vendor/autoload.php";
@@ -88,7 +88,7 @@ else if($json['Category'] == 'Pharmacy')
 //==========================================================
 //get the profile columns
 //==========================================================
-$sqlColumns = "
+$queryColumns = $dbh->prepare( "
     SELECT
         ProfileColumnDefinition.ColumnName,
         ProfileColumnDefinition.DisplayName,
@@ -102,16 +102,15 @@ $sqlColumns = "
         AND ProfileColumns.Position >= 0
         AND ProfileColumns.Active = 1
     ORDER BY
-        ProfileColumns.Position";
-//process results
-$queryColumns = $dbh->query($sqlColumns);
+        ProfileColumns.Position
+");
 
 $json['ColumnsDisplayed'] = $queryColumns->fetchAll();
 
 //=======================================================
 //next get the profile options
 //=======================================================
-$sqlOptions = "
+$queryOptions = $dbh->prepare("
     SELECT
         ProfileOptions.Options,
         ProfileOptions.Type
@@ -119,10 +118,9 @@ $sqlOptions = "
         ProfileOptions
     WHERE
         ProfileOptions.ProfileSer = '$json[ProfileSer]'
-    ORDER BY ProfileOptions.Options";
-
-//process results
-$queryOptions = $dbh->query($sqlOptions);
+    ORDER BY ProfileOptions.Options"
+);
+$queryOptions->execute();
 
 foreach($queryOptions->fetchAll() as $row)
 {
@@ -168,16 +166,16 @@ if($ignoreAutoResources != 1)
         $interVenueList = implode("','",$intermediateVenues+$treatmentVenues);
 
         //get associated exam rooms from venues
-        $sqlExamRooms = "
+        $queryExamRooms = $dbh->prepare("
             SELECT DISTINCT
                 ExamRoom.AriaVenueId
             FROM
                 IntermediateVenue
                 INNER JOIN ExamRoom ON ExamRoom.IntermediateVenueSerNum = IntermediateVenue.IntermediateVenueSerNum
             WHERE
-                IntermediateVenue.AriaVenueId IN ('$interVenueList')";
-
-        $queryExamRooms = $dbh->query($sqlExamRooms);
+                IntermediateVenue.AriaVenueId IN ('$interVenueList')
+        ");
+        $queryExamRooms->execute();
 
         foreach($queryExamRooms->fetchAll() as $row)
         {
@@ -211,21 +209,21 @@ if($ignoreAutoResources != 1)
             {$val = 'TX AREA A';}
         }
 
-        $sqlResources = "
+        $queryResources = $dbh->prepare("
             SELECT DISTINCT
-                ClinicResources.ResourceName
-            FROM
-                ClinicResources
-                INNER JOIN ClinicSchedule ON ClinicSchedule.ClinicScheduleSerNum = ClinicResources.ClinicScheduleSerNum
-                    AND ClinicSchedule.Day = '$rightNow[0]'
-                    AND ClinicSchedule.AMPM = '$rightNow[1]'
-                INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
-                INNER JOIN IntermediateVenue ON IntermediateVenue.IntermediateVenueSerNum = ExamRoom.IntermediateVenueSerNum
-                    AND IntermediateVenue.AriaVenueId IN ('". implode("','",$convertedVenues) ."')
-            WHERE
-                ClinicResources.Speciality = '$json[Speciality]'";
-
-        $queryResources = $dbh->query($sqlResources);
+            ClinicResources.ResourceName
+        FROM
+            ClinicResources
+            INNER JOIN ClinicSchedule ON ClinicSchedule.ClinicScheduleSerNum = ClinicResources.ClinicScheduleSerNum
+                AND ClinicSchedule.Day = '$rightNow[0]'
+                AND ClinicSchedule.AMPM = '$rightNow[1]'
+            INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
+            INNER JOIN IntermediateVenue ON IntermediateVenue.IntermediateVenueSerNum = ExamRoom.IntermediateVenueSerNum
+                AND IntermediateVenue.AriaVenueId IN ('". implode("','",$convertedVenues) ."')
+        WHERE
+            ClinicResources.Speciality = '$json[Speciality]'
+        ");
+        $queryResources->execute();
 
         foreach($queryResources->fetchAll() as $row)
         {
@@ -238,7 +236,7 @@ if($ignoreAutoResources != 1)
     if($json['FetchResourcesFromClinics'] and $clinics)
     {
         //get associated exam rooms from clinics
-        $sqlExamRooms = "
+        $queryExamRooms = $dbh->prepare("
             SELECT DISTINCT
                 ExamRoom.AriaVenueId
             FROM
@@ -247,9 +245,9 @@ if($ignoreAutoResources != 1)
             WHERE
                 ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
                 AND ClinicSchedule.Day = '$rightNow[0]'
-                AND ClinicSchedule.AMPM = '$rightNow[1]'";
-
-        $queryExamRooms = $dbh->query($sqlExamRooms);
+                AND ClinicSchedule.AMPM = '$rightNow[1]'
+        ");
+        $queryExamRooms->execute();
 
         foreach($queryExamRooms->fetchAll() as $row)
         {
@@ -257,7 +255,7 @@ if($ignoreAutoResources != 1)
         }
 
         //get associated resources from clinics
-        $sqlResources = "
+        $queryResources = $dbh->prepare("
             SELECT DISTINCT
                 ClinicResources.ResourceName
             FROM
@@ -266,9 +264,9 @@ if($ignoreAutoResources != 1)
             WHERE
                 ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
                 AND ClinicSchedule.Day = '$rightNow[0]'
-                AND ClinicSchedule.AMPM = '$rightNow[1]'";
-
-        $queryResources = $dbh->query($sqlResources);
+                AND ClinicSchedule.AMPM = '$rightNow[1]'
+        ");
+        $queryResources->execute();
 
         foreach($queryResources->fetchAll() as $row)
         {

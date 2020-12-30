@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to check a patient into all appointments
 //====================================================================================
@@ -16,13 +16,6 @@ $PushNotification   = 0; # default of zero
 $CheckinVenue       = !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
 $PatientId          = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
 $PushNotification   = !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
-$verbose            = !empty($_GET["verbose"]) ? $_GET["verbose"] : NULL;
-
-if ($verbose) echo "Verbose Mode<br>";
-
-if (!$conn) {
-    die("<br>Connection failed");
-}
 
 //======================================================================================
 // Check for upcoming appointments for this patient
@@ -31,12 +24,10 @@ $Today = date("Y-m-d");
 $startOfToday = "$Today 00:00:00";
 $endOfToday = "$Today 23:59:59";
 
-if ($verbose) echo "startOfToday: $startOfToday, endOfToday: $endOfToday<p>";
-
 ############################################################################################
 ######################################### Medivisit ########################################
 ############################################################################################
-$sqlApptMedivisit = "
+$queryApptMedivisit = $conn->prepare("
     SELECT DISTINCT
         Patient.PatientId,
         Patient.FirstName,
@@ -60,15 +51,11 @@ $sqlApptMedivisit = "
                 AND ( MediVisitAppointmentList.ScheduledDateTime < '$endOfToday' )
         AND MediVisitAppointmentList.Status = 'Open'
     ORDER BY MediVisitAppointmentList.ScheduledDateTime
-";
-
-if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
-
-/* Process results */
-$result = $conn->query($sqlApptMedivisit);
+");
+$queryApptMedivisit->execute();
 
 // output data of each row
-foreach($result->fetchAll() as $row)
+foreach($queryApptMedivisit->fetchAll() as $row)
 {
     #$MV_PatientId = $row["PatientId"];
     $MV_PatientFirstName        = $row["FirstName"];
@@ -80,16 +67,9 @@ foreach($result->fetchAll() as $row)
     $MV_AppointmentSerNum       = $row["AppointmentSerNum"];
     $MV_Status                  = $row["Status"];
 
-    if ($verbose) echo "<br> MV appt: $MV_ApptDescription at $MV_ScheduledStartTime with $MV_Resource<br>";
-
-    // Check in to MediVisit/MySQL appointment, if there is one
-    if ($verbose) echo "About to attempt Medivisit checkin<br>";
-
     # since a script exists for this, best to call it here rather than rewrite the wheel
     $MV_CheckInURL_raw = "$baseURL/php/system/checkInPatientMV.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$MV_AppointmentSerNum";
     $MV_CheckInURL = str_replace(' ', '%20', $MV_CheckInURL_raw);
-
-    if ($verbose) echo "MV_CheckInURL: $MV_CheckInURL<br>";
 
     $lines = file_get_contents($MV_CheckInURL);
 

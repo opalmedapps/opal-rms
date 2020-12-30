@@ -1,11 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
+
+require_once __DIR__."/../vendor/autoload.php";
 
 #Script to authenticate a user trying to log into ORMS
 #creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
 
 #get the credentials the user entered
-$postParams = json_decode(file_get_contents('php://input'), true);
-#$postParams = $_POST;
+$postParams = getPostContents();
 
 $username = !empty($postParams["username"]) ? $postParams["username"] : NULL;
 $password = !empty($postParams["password"]) ? $postParams["password"] : NULL;
@@ -23,7 +24,7 @@ $fieldString = "";
 foreach($fields as $key=>$value) {
     $fieldString .= $key.'='.$value.'&';
 }
-rtrim($fieldString, '&');
+$fieldString = rtrim($fieldString,'&');
 
 #make the request
 $ch = curl_init();
@@ -51,7 +52,7 @@ if($validUser === TRUE)
     $memcache->addServer('localhost',11211) or die("error");
 
     #generate cookie uniq session id
-    $key = md5(uniqid(rand(), TRUE) .$_SERVER["REMOTE_ADDR"]. time());
+    $key = md5(uniqid((string) rand(), TRUE) .$_SERVER["REMOTE_ADDR"]. time());
 
     #$exists = $memcache->get($key);
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to get all height and weight records a patient has in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";

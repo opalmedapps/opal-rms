@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to insert patients' cell phone numbers and language preferences
 // into ORMS

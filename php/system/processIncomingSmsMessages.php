@@ -104,7 +104,7 @@ foreach($messages as $message)
         }
     }
     $appointmentString = rtrim($appointmentString); #remove trailing newlines
-    $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString); #remove last separator newline
+    $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString) ?? ""; #remove last separator newline
 
     #check the patient into all of his appointments
     $checkInRequest = curl_init("$checkInScriptUrl?".http_build_query(["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]));
@@ -130,6 +130,13 @@ foreach($messages as $message)
 
 #functions
 
+/**
+ *
+ * @param string $pSer
+ * @return array<string,string>
+ * @throws Exception
+ * @throws PDOException
+ */
 function getAppointmentList(string $pSer): array
 {
     $dbh = Config::getDatabaseConnection("ORMS");
@@ -185,6 +192,13 @@ function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patient
     ]);
 }
 
+/**
+ *
+ * @param string $phoneNumber
+ * @return null|array<string,string>
+ * @throws Exception
+ * @throws PDOException
+ */
 function getPatientInfo(string $phoneNumber): ?array
 {
     $dbh = Config::getDatabaseConnection("ORMS");

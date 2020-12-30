@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # Script that parses a csv file generated from Impromptu containing Medivisit appointment information and inserts/updates the appointment in the ORMS database
 #---------------------------------------------------------------------------------------------------------------
@@ -10,7 +10,7 @@ use Orms\Config;
 use Orms\Util\Csv;
 
 #get csv file name from command line arguments
-$csvFile = (getopt("",["file:"]))["file"] ?: "";
+$csvFile = getopt("",["file:"])["file"] ?: "";
 
 #csv file must have been created today, otherwise send an error
 #however, if its the weekend, don't send an error

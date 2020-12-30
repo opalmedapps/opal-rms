@@ -3,7 +3,7 @@
 class PDOStatement
 {
     /**
-     * @return mixed[]
+     * @return array<int,array<string,string>>
      */
     function fetchAll() {}
 }

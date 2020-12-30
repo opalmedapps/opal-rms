@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to send an SMS message to a given patient using their cell number
 // registered in the ORMS database

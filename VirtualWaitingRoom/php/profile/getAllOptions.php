@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to query the MySQL (for Medivisit) databases and
 // extract the list of options, which includes resources, appointments, and rooms
@@ -103,13 +103,14 @@ $query6->execute([$speciality]);
 $appointments = array_map(fn($x) => $x["AppointmentCode"], $query6->fetchAll());
 
 //get all clinics
-$query7 = $dbh->query("
+$query7 = $dbh->prepare("
     SELECT DISTINCT
         LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
     FROM
         ClinicSchedule
         INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
 ");
+$query7->execute();
 
 $clinics = array_map(fn($x) => $x["ClinicName"], $query7->fetchAll());
 

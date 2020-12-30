@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to send an SMS message to a given patient using their cell number
 // registered in the ORMS database
@@ -9,11 +9,11 @@ use Orms\Config;
 use Orms\SmsInterface;
 
 // Extract the command line parameters
-$opts = getopt("",["PatientId:","message_FR:","message_EN:"]);
+$opts = getopt("",["PatientId:","message_FR:","message_EN:"]) ?: [];
 
-$PatientId  = $opts["PatientId"] ?? '';
-$message_FR = $opts["message_FR"] ?? '';
-$message_EN = $opts["message_EN"] ?? '';
+$PatientId  = $opts["PatientId"] ?: "";
+$message_FR = $opts["message_FR"] ?: "";
+$message_EN = $opts["message_EN"] ?: "";
 
 //====================================================================================
 // Database

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # Script that parses a POST request from the add on page and inserts/updates the appointment in the ORMS db
 #---------------------------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ $requestResult = curl_exec($ch);
 $resultCode = curl_getinfo($ch)["http_code"];
 curl_close($ch);
 
-if($resultCode === 200) {
+if($resultCode === 200 && isset($appointmentInfo["PatientId"])) {
     checkInPatientForAddOn($appointmentInfo["PatientId"]);
 }
 

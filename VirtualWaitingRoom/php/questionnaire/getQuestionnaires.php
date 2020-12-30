@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // YM 2018-05-04
 // Get the list of questionnaires that the patient have answered only

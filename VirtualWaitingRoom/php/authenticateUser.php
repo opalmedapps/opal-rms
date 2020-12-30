@@ -3,7 +3,7 @@
 #Script to authenticate a user trying to log into ORMS
 
 #get the credentials the user entered
-$postParams = json_decode(file_get_contents('php://input'),TRUE);
+$postParams = getPostContents();
 
 $username = !empty($postParams["username"]) ? $postParams["username"] : NULL;
 $password = !empty($postParams["password"]) ? $postParams["password"] : NULL;
@@ -45,4 +45,3 @@ if($validUser === TRUE) echo json_encode(["valid" => TRUE]);
 else echo json_encode(["valid" => FALSE]);
 
 ?>
-

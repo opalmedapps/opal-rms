@@ -104,6 +104,7 @@ $queryColumns = $dbh->prepare( "
     ORDER BY
         ProfileColumns.Position
 ");
+$queryColumns->execute();
 
 $json['ColumnsDisplayed'] = $queryColumns->fetchAll();
 

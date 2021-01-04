@@ -5,6 +5,7 @@ class PDOStatement
     /**
      * @return array<int,array<string,string>>
      */
+    //technically, the return type should be array<int,array<string,string|null>> but we're assuming that ORMS only uses INNER JOINs in queries...
     function fetchAll() {}
 }
 

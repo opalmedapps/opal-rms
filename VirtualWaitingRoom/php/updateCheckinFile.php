@@ -128,9 +128,9 @@ foreach($queryWRM->fetchAll() as $row)
         $row['WeightDate'] = 'Old';
     }
 
-    if($row["Status"] === "Completed") $row["RowType"] = "Completed";
-    elseif($row["ArrivalDateTime"] === NULL) $row["RowType"] = "NotCheckedIn";
-    else $row["RowType"] = "CheckedIn";
+    if($row["Status"] === "Completed")          $row["RowType"] = "Completed";
+    elseif($row["ArrivalDateTime"] === NULL)    $row["RowType"] = "NotCheckedIn";
+    else                                        $row["RowType"] = "CheckedIn";
 
     //cross query OpalDB for questionnaire information
     if($queryOpal !== NULL)

@@ -6,6 +6,5 @@ parameters:
         - auth/
     excludes_analyse:
         - VirtualWaitingRoom/php/pdfGenerator/
-        - VirtualWaitingRoom/php/clinicalViewer/
     stubFiles:
         - php/stub/PDOStatement.stub

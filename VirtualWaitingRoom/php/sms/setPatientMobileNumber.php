@@ -17,7 +17,7 @@ $speciality         = $_GET["speciality"] ?? NULL;
 $dbh = Config::getDatabaseConnection("ORMS");
 
 #if the phone number provided was empty, then unsuscribe the patient to the service instead
-if($smsAlertNum === "")
+if($smsAlertNum === "" || $smsAlertNum === NULL)
 {
     #set the patient phone number
     $querySMS = $dbh->prepare("
@@ -33,39 +33,41 @@ if($smsAlertNum === "")
         ":pSer" => $patientId
     ]);
 
-    exit("Record updated successfully<br>");
+    echo "Record updated successfully<br>";
 }
+else
+{
+    #set the patient phone number
+    $querySMS = $dbh->prepare("
+        UPDATE Patient
+        SET
+            SMSAlertNum = :phoneNum,
+            SMSSignupDate = NOW(),
+            LanguagePreference = :langPref
+        WHERE
+            PatientSerNum = :pSer"
+    );
+    $querySMS->execute([
+        ":phoneNum" => $smsAlertNum,
+        ":langPref" => $languagePreference,
+        ":pSer"     => $patientId
+    ]);
 
-#set the patient phone number
-$querySMS = $dbh->prepare("
-    UPDATE Patient
-    SET
-        SMSAlertNum = :phoneNum,
-        SMSSignupDate = NOW(),
-        LanguagePreference = :langPref
-    WHERE
-        PatientSerNum = :pSer"
-);
-$querySMS->execute([
-    ":phoneNum" => $smsAlertNum,
-    ":langPref" => $languagePreference,
-    ":pSer"     => $patientId
-]);
+    #print a message and close the connection so that the client does not wait
+    ob_start();
+    echo "Record updated successfully<br>";
+    header('Connection: close');
+    header('Content-Length: '.ob_get_length());
+    ob_end_flush();
+    ob_flush();
+    flush();
 
-#print a message and close the connection so that the client does not wait
-ob_start();
-echo "Record updated successfully<br>";
-header('Connection: close');
-header('Content-Length: '.ob_get_length());
-ob_end_flush();
-ob_flush();
-flush();
+    #change the sms message depending on the language preference and clinic
+    $messageList = SmsInterface::getPossibleSmsMessages();
+    $message = $messageList[$speciality ?? ""]["GENERAL"]["REGISTRATION"][$languagePreference ?? ""]["Message"];
 
-#change the sms message depending on the language preference and clinic
-$messageList = SmsInterface::getPossibleSmsMessages();
-$message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
-
-#send sms
-SmsInterface::sendSms($smsAlertNum,$message);
+    #send sms
+    SmsInterface::sendSms($smsAlertNum,$message);
+}
 
 ?>

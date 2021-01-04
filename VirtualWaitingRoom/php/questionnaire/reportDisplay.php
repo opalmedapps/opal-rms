@@ -4,29 +4,49 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
 
-include('LanguageFile.php');
+// define some constants
+$wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
+$wsShortMonthEN = "'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'";
+$wsWeekDaysEN = "'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'";
+
+$wsMonthFR = "'Janvier', 'F�vrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao�t', 'Septembre', 'Octobre', 'Novembre', 'D�cembre'";
+$wsShortMonthFR = "'jan', 'f�v', 'mar', 'avr', 'mai', 'juin', 'juil', 'ao�', 'sep', 'oct', 'nov', 'd�c'";
+$wsWeekDaysFR = "'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'";
+
+$wsResponseEN = 'Response';
+$wsResponseFR = 'R�ponse';
+
+$LastValueEN = 'Final Value';
+$LastValueFR = 'TR_Final Value';
+
+$wsNameEN = 'Name';
+$wsNameFR = 'Nom';
+
+$wsAgeEN = 'Age';
+$wsAgeFR = '�ge';
+
+$wsSexEN = 'Sex';
+$wsSexFR = 'Sexe';
+
+$wsLanguageEN = 'Language';
+$wsLanguageFR = 'Langue';
+
+$day = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+$month = ["janvier", "f�vrier", "mars", "avril", "mai", "juin", "juillet", "ao�t", "septembre", "octobre", "novembre", "d�cembre"];
 
 // Get Patient ID
-$wsPatientID = filter_var($_GET['mrn'], FILTER_SANITIZE_STRING);
+$wsPatientID = $_GET['mrn'] ?? NULL;
 
 // Exit if Patient ID is empty
-if (strlen(trim($wsPatientID)) == 0)
-{die;}
+if ($wsPatientID === NULL) exit("No mrn!");
 
 // Get Report ID
-$wsReportID = filter_var($_GET['rptID'], FILTER_SANITIZE_STRING);
+$wsReportID = $_GET['rptID'] ?? NULL;
 
 // Exit if Report ID is empty
-if (strlen(trim($wsReportID)) == 0)
-{die;}
+if ($wsReportID === NULL) exit("No questionnaire id!");
 
-// Get Export Flag
-//$wsExportFlag = filter_var($_GET['efID'], FILTER_SANITIZE_STRING);
 $wsExportFlag = 0;
-
-// Set value to 0 if Export Flag is empty
-if (strlen(trim($wsExportFlag)) == 0)
-{$wsExportFlag=0;}
 
 // Setup the database connection
 $dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
@@ -34,52 +54,26 @@ $dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
 // Connect to the database
 $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
-// Check datbaase connection
-if (!$connection)
-{
-    // stop if connection failed
-    echo "Failed to connect to MySQL";
-    die;
-}
-
 // Get the title of the report
-$qSQLTitle = $connection->query("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$qSQLTitle = $connection->prepare("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$qSQLTitle->execute();
 $rowTitle = $qSQLTitle->fetchAll()[0];
 
 $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
 // Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
-$wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
-            from " . $dsCrossDatabse . ".Patient
-            where PatientID = $wsPatientID";
-$qSQLPI = $connection->query($wsSQLPI);
+$qSQLPI = $connection->prepare("select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
+from " . $dsCrossDatabse . ".Patient
+where PatientID = $wsPatientID");
+$qSQLPI->execute();
 $rowPI = $qSQLPI->fetchAll()[0];
 
 // Get the patient preferred language
 $wsLanguage = $rowPI['Language'];
-// $wsLanguage = 'EN'; // TEST ONLY
 
-// Step 2) Retrieve Patient Serial Number from QuestionnaireDB from Patient ID ($wsPatientID)
-/*$wsSQLPSN = "select PatientSerNum
-            from Patient
-            where PatientID = $wsPatientID";
-$qSQLPSN = $connection->query($wsSQLPSN);
-$rowPSN = $qSQLPSN->fetchAll()[0];
-
-// Step 3) Retrieve the Last Questionnaire Responses
-$wsSQLQR = "select max(PatientQuestionnaireSerNum) PatientQuestionnaireSerNum, QuestionnaireSerNum,
-                DATE_FORMAT(max(DateTimeAnswered), '%Y-%m-%d') as LastDateTimeAnswered, count(*) as Total
-            from PatientQuestionnaire
-            where PatientSerNum = " . $rowPSN['PatientSerNum'] .
-            " and QuestionnaireSerNum = $wsReportID
-            group by QuestionnaireSerNum
-            order by max(PatientQuestionnaireSerNum) desc
-            ";
-$qSQLQR = $connection->query($wsSQLQR);
-$rowQR = $qSQLQR->fetchAll()[0];*/
-
-$qSQLQR = $connection->query("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
+$qSQLQR = $connection->prepare("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
+$qSQLQR->execute();
 $rowQR = $qSQLQR->fetchAll()[0];
 $qSQLQR->closeCursor();
 
@@ -91,7 +85,8 @@ $qSQLQR->closeCursor();
                                 ;";
 $qSQLSeries = $connection->query($wsSQLSeries);*/
 #echo $wsReportID;
-$qSQLSeries = $connection->query("CALL queryQuestions('$wsReportID')");
+$qSQLSeries = $connection->prepare("CALL queryQuestions('$wsReportID')");
+$qSQLSeries->execute();
 
 $wsSeriesID = []; //unique id to select questions when the question texts are identical
 $wsSeries = [];
@@ -106,7 +101,7 @@ foreach($qSQLSeries->fetchAll() as $rowSQLSeries)
     $wsRowCounter = $wsRowCounter + 1;
 }
 
-if ($wsLanguage == 'EN')
+if($wsLanguage === "EN")
 {
     $wsResponse = $wsResponseEN;
     $wsReportTitle = $wsReportTitleEN;
@@ -234,7 +229,17 @@ for ($x = 0; $x < count($wsSeries); $x++)
 $jstring = utf8_encode_recursive($jstring);
 echo json_encode($jstring,JSON_NUMERIC_CHECK);
 
-function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstID)
+/**
+ *
+ * @param string $wsPatientID
+ * @param string $wsrptID
+ * @param string $wsQuestionnaireSerNum
+ * @param string $qstID
+ * @return mixed[]
+ * @throws Exception
+ * @throws PDOException
+ */
+function GetQuestionnaireData(string $wsPatientID,string $wsrptID,string $wsQuestionnaireSerNum,string $qstID): array
 {
     // Patient ID $wsPatientID
     // Report Name $wsrptID
@@ -252,21 +257,13 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
     // Connect to the database
     $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
 
-    // Check datbaase connection
-    if (!$connection) {
-        // stop if connection failed
-        echo "Failed to connect to MySQL";
-        die;
-    }
-
-    $sql = "CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')";
-
-    $result = $connection->query($sql) or die("Error in Selecting ");
+    $query = $connection->prepare("CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')");
+    $query->execute();
 
     // Prepare the output
     $output = [];
 
-    foreach($result->fetchAll() as $row)
+    foreach($query->fetchAll() as $row)
     {
         // merge the output
         $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];

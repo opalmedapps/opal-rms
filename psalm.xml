@@ -9,8 +9,12 @@
         <directory name="VirtualWaitingRoom/php/" />
         <ignoreFiles>
             <directory name="vendor" />
-            <directory name="VirtualWaitingRoom/php/clinicalViewer/" />
             <directory name="VirtualWaitingRoom/php/pdfGenerator/" />
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <MissingClosureParamType errorLevel="suppress" />
+        <MissingClosureReturnType errorLevel="suppress" />
+    </issueHandlers>
 </psalm>

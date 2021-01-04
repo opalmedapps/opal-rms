@@ -37,9 +37,9 @@ if($profile['ProfileSer'] == -1)
 
     //the subroutine returns the new profile's serial so we update ours
     $row = $queryCreateProfile->fetchAll()[0];
-    $queryCreateProfile->closeCursor();
-    $profile['ProfileSer'] = $row[0];
 
+    $queryCreateProfile->closeCursor();
+    $profile["ProfileSer"] = $row["@profileSer := ProfileSer"];
 }
 
 //insert the profile properties

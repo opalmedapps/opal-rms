@@ -40,7 +40,7 @@ $queryCheckCheckin->execute();
 $row = $queryCheckCheckin->fetchAll()[0] ?? [];
 
 $patientLocationSerNum = $row["PatientLocationSerNum"] ?? NULL;
-$patientLocationRevCount = $row["PatientLocationRevCount"] ?? NULL;
+$patientLocationRevCount = $row["PatientLocationRevCount"] ?? 0;
 $checkinVenueName = $row["CheckinVenueName"] ?? NULL;
 $arrivalDateTime = $row["ArrivalDateTime"] ?? NULL;
 $intendedFlag = $row["IntendedAppointmentFlag"] ?? NULL;

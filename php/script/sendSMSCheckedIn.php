@@ -42,7 +42,7 @@ $result = $query->fetchAll()[0] ?? NULL;
 $SMSAlertNum = $result["SMSAlertNum"] ?? NULL;
 $LanguagePreference = $result["LanguagePreference"] ?? NULL;
 
-if(empty($SMSAlertNum)){
+if(empty($SMSAlertNum) || $SMSAlertNum === NULL){
     exit("No SMS alert phone number so will not attempt to send");
 }
 

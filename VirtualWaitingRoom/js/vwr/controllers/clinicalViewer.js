@@ -117,6 +117,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         else{
             $scope.confid = 'Nominal Mode';
             sessionStorage.setItem("value",$scope.confid)
+            window.clearTimeout($scope.timeout);
         }
     };
 
@@ -637,7 +638,7 @@ app.factory('callScript',function($http,$q)
             dtypeSelect = (inputs.dtype) ? "&dtype="+ inputs.dtype : "";
             dspecificType = (diagnosis !="" && inputs.dtype != 'all') ? "&dspecificType="+ diagnosis : "";
             qtypeSelect = (inputs.qtype) ? "&qtype="+ inputs.qtype : "";
-            qspecificType = (questionnaireType !="" && inputs.qtype != 'all')? "&qspecificType="+ questionnaireType :"";
+        qspecificType = (questionnaireType !="" && inputs.qtype != 'all')? "&qspecificType="+ questionnaireType :"";
             selectedDate = "&qselectedDate="+qdate + "&qselectedTime="+qtime;
             offb = (inputs.offbutton) ? "&offbutton="+ inputs.offbutton : "";
             andb = (inputs.andbutton) ? "&andbutton="+ inputs.andbutton : "";

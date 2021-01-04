@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+use GuzzleHttp\Client;
+
 require_once __DIR__."/../vendor/autoload.php";
 
 #Script to authenticate a user trying to log into ORMS
@@ -19,22 +21,12 @@ $fields = [
     'institution' => '06-ciusss-cusm'
 ];
 
-#url-ify the data for the POST
-$fieldString = "";
-foreach($fields as $key=>$value) {
-    $fieldString .= $key.'='.$value.'&';
-}
-$fieldString = rtrim($fieldString,'&');
-
 #make the request
-$ch = curl_init();
-curl_setopt_array($ch,[
-    CURLOPT_URL             => $url,
-    CURLOPT_POSTFIELDS      => $fieldString,
-    CURLOPT_RETURNTRANSFER  => TRUE
-]);
-$requestResult = json_decode(curl_exec($ch),TRUE);
-curl_close($ch);
+$client = new Client();
+$request = $client->request("POST",$url,[
+    "form_params" => $fields
+])->getBody()->getContents();
+$requestResult = json_decode($request,TRUE);
 
 #process the result of the AD call
 #filter all groups that aren't ORMS

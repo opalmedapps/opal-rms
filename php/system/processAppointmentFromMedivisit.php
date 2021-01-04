@@ -1,4 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+
+// TODO: add declare(strict_types=1) and fix issues; probably better to refactor the script + class
+
 #---------------------------------------------------------------------------------------------------------------
 # Script that parses a POST request containing Medivisit appointment information and inserts/updates the appointment in the ORMS db
 #---------------------------------------------------------------------------------------------------------------

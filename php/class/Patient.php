@@ -138,7 +138,7 @@ class Patient
         {
             if($mode === "ONLY_PATIENT_SER")
             {
-                $this->patientSer = $result["PatientSerNum"];
+                $this->patientSer = (int) $result["PatientSerNum"];
             }
             elseif($mode === "ALL")
             {

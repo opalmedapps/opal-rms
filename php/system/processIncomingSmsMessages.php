@@ -2,6 +2,8 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
+use GuzzleHttp\Client;
+
 use Orms\Config;
 use Orms\SmsInterface;
 use Orms\ArrayUtil;
@@ -107,12 +109,13 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString) ?? ""; #remove last separator newline
 
     #check the patient into all of his appointments
-    $checkInRequest = curl_init("$checkInScriptUrl?".http_build_query(["CheckinVenue" => $checkInLocation,"PatientId" => $patientMrn]));
-    curl_setopt_array($checkInRequest,[
-        CURLOPT_RETURNTRANSFER => TRUE
-    ]);
-    curl_exec($checkInRequest);
-    $checkInResult = curl_getinfo($checkInRequest)["http_code"];
+    $client = new Client();
+    $checkInResult = $client->request("GET",$checkInScriptUrl,[
+        "query" => [
+            "CheckinVenue" => $checkInLocation,
+            "PatientId"    => $patientMrn
+        ]
+    ])->getStatusCode();
 
     if($checkInResult < 300)
     {

@@ -6,6 +6,8 @@
 #load global configs
 require __DIR__."/../../vendor/autoload.php";
 
+use GuzzleHttp\Client;
+
 use Orms\Config;
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,17 +27,15 @@ foreach($postParams as $key => $val) {
 #call the importer script
 $url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
 
-$ch = curl_init();
-curl_setopt_array($ch,[
-    CURLOPT_URL             => $url,
-    CURLOPT_POSTFIELDS      => $appointmentInfo,
-    CURLOPT_RETURNTRANSFER  => TRUE
+$client = new Client();
+$request = $client->request("POST",$url,[
+    "form_params" => $appointmentInfo
 ]);
-$requestResult = curl_exec($ch);
-$resultCode = curl_getinfo($ch)["http_code"];
-curl_close($ch);
 
-if($resultCode === 200 && isset($appointmentInfo["PatientId"])) {
+$requestCode = $request->getStatusCode();
+$requestResult = $request->getBody()->getContents();
+
+if($requestCode === 200 && isset($appointmentInfo["PatientId"])) {
     checkInPatientForAddOn($appointmentInfo["PatientId"]);
 }
 

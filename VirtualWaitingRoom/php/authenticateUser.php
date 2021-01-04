@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+use GuzzleHttp\Client;
+
 #Script to authenticate a user trying to log into ORMS
 
 #get the credentials the user entered
@@ -24,13 +26,11 @@ $fields = [
 ];
 
 #make the request
-$curlConn = curl_init($url);
-curl_setopt_array($curlConn,[
-    CURLOPT_POSTFIELDS => http_build_query($fields),
-    CURLOPT_RETURNTRANSFER => TRUE
-]);
-$requestResult = json_decode(curl_exec($curlConn),TRUE);
-curl_close($curlConn);
+$client = new Client();
+$request = $client->request("POST",$url,[
+    "form_params" => $fields
+])->getBody()->getContents();
+$requestResult = json_decode($request,TRUE);
 
 #process the result of the AD call
 #filter all groups that aren't ORMS

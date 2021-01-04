@@ -76,9 +76,9 @@ class ArrayUtil
     /**
      *
      * @param mixed $arr
-     * @return mixed[]
+     * @return array|mixed
      */
-    static function convertSingleElementArraysRecursive($arr): array
+    static function convertSingleElementArraysRecursive($arr)
     {
         if(gettype($arr) === "array")
         {

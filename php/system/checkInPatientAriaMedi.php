@@ -4,6 +4,8 @@
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
 
+use GuzzleHttp\Client;
+
 use Orms\Config;
 
 $conn = Config::getDatabaseConnection("ORMS");
@@ -23,6 +25,8 @@ $PushNotification   = !empty($_GET["PushNotification"]) ? $_GET["PushNotificatio
 $Today = date("Y-m-d");
 $startOfToday = "$Today 00:00:00";
 $endOfToday = "$Today 23:59:59";
+
+$client = new Client;
 
 ############################################################################################
 ######################################### Medivisit ########################################
@@ -68,18 +72,34 @@ foreach($queryApptMedivisit->fetchAll() as $row)
     $MV_Status                  = $row["Status"];
 
     # since a script exists for this, best to call it here rather than rewrite the wheel
-    $MV_CheckInURL_raw = "$baseURL/php/system/checkInPatientMV.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$MV_AppointmentSerNum";
-    $MV_CheckInURL = str_replace(' ', '%20', $MV_CheckInURL_raw);
-
-    $lines = file_get_contents($MV_CheckInURL);
+    try {
+        $client->request("GET","$baseURL/php/system/checkInPatientMV.php",[
+            "query" => [
+                "CheckinVenue" => $CheckinVenue,
+                "ScheduledActivitySer" => $MV_AppointmentSerNum
+            ]
+        ]);
+    }
+    catch(Exception $e) {
+        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+    }
 
     #if the appointment originates from Aria, call the AriaIE to update the Aria db
     if($row["AppointSys"] === "Aria" && $ariaURL !== NULL)
     {
         $trueAppId = preg_replace("/Aria/","",$row["AppointId"]);
-        $aria_checkin = "$ariaURL?appointmentId=$trueAppId&location=$CheckinVenue";
-        $aria_checkin = str_replace(' ','%20',$aria_checkin);
-        file_get_contents($aria_checkin);
+
+        try {
+            $client->request("GET",$ariaURL,[
+                "query" => [
+                    "appointmentId" => $trueAppId,
+                    "location" => $CheckinVenue
+                ]
+            ]);
+        }
+        catch(Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
 }
 
@@ -88,10 +108,19 @@ if($PushNotification == 1)
 {
     $opalCheckinURL = Config::getConfigs("opal")["OPAL_CHECKIN_URL"];
 
-    $opalCheckinURL = "$opalCheckinURL?PatientId=$PatientId";
-    $opalCheckinURL = str_replace(' ', '%20', $opalCheckinURL);
+    try {
+        $response = $client->request("GET",$opalCheckinURL,[
+            "query" => [
+                "PatientId" => $PatientId
+            ]
+        ])->getBody()->getContents();
+    }
+    catch(Exception $e) {
+        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+    }
 
-    $response = file_get_contents($opalCheckinURL) ?: "";
+
+    $response = $response ?? "";
 
     if(strpos($response, 'Error')){
     $response = ['error' => $response];

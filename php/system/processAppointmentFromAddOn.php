@@ -49,9 +49,12 @@ echo $requestResult;
 function checkInPatientForAddOn(string $patId): void
 {
     $path = Config::getConfigs("path");
-    $sciptLocation = $path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php?CheckinVenue=ADDED ON BY RECEPTION&PatientId=$patId";
-    $sciptLocation = str_replace(' ','%20',$sciptLocation);
-    file_get_contents($sciptLocation);
+    (new Client())->request("GET",$path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php",[
+        "query" => [
+            "CheckinVenue" => "ADDED ON BY RECEPTION",
+            "PatientId" => $patId
+        ]
+    ]);
 }
 
 ?>

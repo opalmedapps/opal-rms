@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
@@ -153,7 +154,8 @@ $sql = "
         MV.MedivisitStatus,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
         Patient.OpalPatient,
-        Patient.SMSAlertNum
+        Patient.SMSAlertNum,
+        Patient.ClinicalActionStatus
     FROM
         Patient
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
@@ -240,7 +242,8 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
         Patient.SSN,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
         Patient.OpalPatient,
-        Patient.SMSAlertNum
+        Patient.SMSAlertNum,
+        Patient.ClinicalActionStatus
         FROM Patient
         WHERE Patient.PatientId = :uid";
 
@@ -298,7 +301,7 @@ if(!$afilter) {
         $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
 
         if (
-            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
+            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] == NULL)
             ||
             (
                 ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
@@ -328,7 +331,6 @@ if(!$afilter) {
                 "ssn" => [
                     "num" => $row["SSN"],
                     "expDate" => $row["ssnExp"] ?? NULL,
-                    "expired" => $ramqExpired ?? NULL,
                 ],
                 "appName" => $row["ResourceDescription"],
                 "appClinic" => $row["Resource"],
@@ -345,15 +347,15 @@ if(!$afilter) {
                 "opalpatient" => $row["OpalPatient"],
                 "SMSAlertNum" => $row["SMSAlertNum"],
                 "LastReview" => $row["LastQuestionnaireReview"],
+                "CAStatus" => $row["ClinicalActionStatus"],
             ];
         }
     }
 }
 
 #if appointment filter is disable or clinical viewer is under 'or' mode
-if($andbutton=="Or"||(!$qfilter &&$afilter)) {
+if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($query2) ) {
     $queryOpal3->bindValue(":qDate", $qDate);
-
     $queryOpal3->execute();
 
     foreach($queryOpal3->fetchAll() as $row2) {
@@ -388,7 +390,6 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
                 "ssn" => [
                     "num" => $row2["SSN"],
                     "expDate" => $row2["ssnExp"] ?? NULL,
-                    "expired" => $ramqExpired,
                 ],
                 "appName" => $row2["ResourceDescription"],
                 "appClinic" => $row2["Resource"],
@@ -405,6 +406,7 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
                 "opalpatient" => $resultORMS["OpalPatient"],
                 "SMSAlertNum" => $resultORMS["SMSAlertNum"],
                 "LastReview" => $resultORMS["LastQuestionnaireReview"],
+                "CAStatus" => $resultORMS["ClinicalActionStatus"],
             ];
         }
     }

@@ -36,7 +36,7 @@ highchart {
 }
 
 .selector-gif {
-     margin-left:70px;
+    margin-left:70px;
     width:50px;
 }
 
@@ -58,10 +58,6 @@ table.patient-list {
     border: 1px solid black;*/
     width: 100%;
     max-width:100%;
-}
-
-table.patient-list th, table.patient-list td {
-    /*border: 1px solid black;*/
 }
 
 /*modal animate css */

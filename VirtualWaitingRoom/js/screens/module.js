@@ -1,4 +1,4 @@
-var myApp = angular.module('screen', ['firebase', 'ui.bootstrap','ngAudio']);
+var myApp = angular.module('screen', ['firebase','ngAudio']);
 
 myApp.config(['$locationProvider','$qProvider',function($locationProvider,$qProvider) {
     $locationProvider.html5Mode({

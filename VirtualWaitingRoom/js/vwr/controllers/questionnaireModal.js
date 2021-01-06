@@ -3,7 +3,7 @@ angular.module('vwr').component('questionnaireModal',{
     controller: questionnaireModalController
 });
 
-function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$cookies,$filter,patient)
+function questionnaireModalController($scope,$http,$mdDialog,$cookies,$filter,patient)
 {
     $scope.patient = patient;
     $scope.questionnaireList = [];

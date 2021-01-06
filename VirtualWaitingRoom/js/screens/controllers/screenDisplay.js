@@ -66,7 +66,6 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
     var FirebaseUrl = firebaseSettings.FirebaseUrl + $scope.clinicalArea + "/" + today;
 
     var firebaseScreenRef = new Firebase(FirebaseUrl); // FB JK
-    console.log("firebaseScreenRef", FirebaseUrl);
 
     firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, function(error,result)
     {
@@ -83,10 +82,6 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
     // When the data changes on Firebase this array will be automatically updated
     //=========================================================================
     $scope.screenRows = $firebaseArray(firebaseScreenRef);
-    $scope.screenRows.$loaded().then(function()
-    {
-        console.log($scope.screenRows);
-    });
 
     $scope.decryptedPatientTimestamp = new Array(); //used to track if the patient object has changed
 

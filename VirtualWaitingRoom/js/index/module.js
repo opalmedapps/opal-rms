@@ -1,4 +1,4 @@
-var myApp = angular.module('index', ['checklist-model', 'ui.bootstrap', 'ui.filters','ngAnimate','ngMaterial','dndLists','ngCookies']);
+var myApp = angular.module('index', ['checklist-model','ngAnimate','ngMaterial','dndLists','ngCookies']);
 
 //set up some configs
 myApp.config(['$locationProvider','$qProvider',function($locationProvider,$qProvider) {

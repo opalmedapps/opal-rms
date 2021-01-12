@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to insert patient measurements in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";

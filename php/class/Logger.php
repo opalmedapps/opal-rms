@@ -1,12 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Orms;
 
 use \DateTime;
-use Orms\Config;
 use PDOException;
+
+use Orms\Config;
 
 class Logger
 {
@@ -32,7 +31,8 @@ class Logger
         string $message,
         DateTime $timestamp,
         string $result
-    ): void {
+    ): void
+    {
         $dbh = Config::getDatabaseConnection("LOGS");
         $query = $dbh->prepare("
             REPLACE INTO SmsLog(

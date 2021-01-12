@@ -299,7 +299,7 @@ if(!$afilter) {
         $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
 
         if (
-            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
+            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] == NULL)
             ||
             (
                 ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
@@ -329,7 +329,6 @@ if(!$afilter) {
                 "ssn" => [
                     "num" => $row["SSN"],
                     "expDate" => $row["ssnExp"] ?? NULL,
-                    "expired" => $ramqExpired ?? NULL,
                 ],
                 "appName" => $row["ResourceDescription"],
                 "appClinic" => $row["Resource"],
@@ -352,9 +351,8 @@ if(!$afilter) {
 }
 
 #if appointment filter is disable or clinical viewer is under 'or' mode
-if($andbutton=="Or"||(!$qfilter &&$afilter)) {
+if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($query2) ) {
     $queryOpal3->bindValue(":qDate", $qDate);
-
     $queryOpal3->execute();
 
     foreach($queryOpal3->fetchAll() as $row2) {
@@ -389,7 +387,6 @@ if($andbutton=="Or"||(!$qfilter &&$afilter)) {
                 "ssn" => [
                     "num" => $row2["SSN"],
                     "expDate" => $row2["ssnExp"] ?? NULL,
-                    "expired" => $ramqExpired,
                 ],
                 "appName" => $row2["ResourceDescription"],
                 "appClinic" => $row2["Resource"],

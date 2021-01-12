@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to update a RAMQ expiration date in the WaitRoomManagement db
 //====================================================================================
@@ -10,20 +10,15 @@ use Orms\Config;
 // Create DB connection
 $dbh = Config::getDatabaseConnection("ORMS");
 
-// Check connection
-if (!$dbh) {
-    die("<br>Connection failed: ");
-}
-
 #------------------------------------------------------------------------
 # Extract the webpage parameters require both RAMQ and patient Id so that
 # we don't accidentally update the wrong ramq
 #------------------------------------------------------------------------
-$PatientId = $_GET["PatientId"] ?? '';
-$SSN = $_GET["Ramq"] ?? '';
-$SSNExpDateMonth = $_GET["RamqExpireDateMonth"] ?? '';
-$SSNExpDateYear = $_GET["RamqExpireDateYear"] ?? '';
-$verbose = $_GET["verbose"] ?? '';
+$PatientId          = $_GET["PatientId"] ?? "";
+$SSN                = $_GET["Ramq"] ?? "";
+$SSNExpDateMonth    = $_GET["RamqExpireDateMonth"] ?? "";
+$SSNExpDateYear     = $_GET["RamqExpireDateYear"] ?? "";
+$verbose            = $_GET["verbose"] ?? "";
 
 $Caller = $_SERVER['REMOTE_ADDR'] ?? '';
 
@@ -44,9 +39,19 @@ if(!$SSNExpDateMonth) {exit("Error: Missing input parameter RamqExpireDateMonth<
 #==========================================================================================
 # Find the patient using the RAMQ and PaitentId
 #==========================================================================================
-$PatientSerNum_sql = "SELECT PatientSerNum from Patient where Patient.PatientId = '$PatientId' and Patient.SSN = '$SSN'";
+$queryPatientSerNum = $dbh->prepare("
+    SELECT
+        PatientSerNum
+    FROM
+        Patient
+    WHERE
+        Patient.PatientId = '$PatientId' and Patient.SSN = '$SSN'
+");
+$queryPatientSerNum->execute();
 
-$PatientSerNum = $dbh->query($PatientSerNum_sql)->fetchColumn();
+$PatientSerNum = $queryPatientSerNum->fetchAll()[0]["PatientSerNum"] ?? NULL;
+
+//->fetchColumn();
 
 if(!$PatientSerNum)
 {

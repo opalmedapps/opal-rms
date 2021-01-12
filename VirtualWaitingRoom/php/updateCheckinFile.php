@@ -14,11 +14,15 @@ $dbh = Config::getDatabaseConnection("ORMS");
 // Create Opal DB connection
 //perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
 //for now assume that only RVH patients have a questionniare
-$opalOnline = 1;
-try {$dbOpal = Config::getDatabaseConnection("OPAL");}
-catch (PDOException $e) {$opalOnline = 0;}
+try {
+    $dbOpal = Config::getDatabaseConnection("OPAL");
+}
+catch (PDOException $e) {
+    $dbOpal = NULL;
+}
 
-if($opalOnline)
+$queryOpal = NULL;
+if($dbOpal !== NULL)
 {
     $sqlOpal = "
         SELECT
@@ -44,10 +48,7 @@ if($opalOnline)
 
 $json = [];
 
-#-------------------------------------------------------------------------------------
-# Now, get the Medivisit checkins from MySQL
-#-------------------------------------------------------------------------------------
-$sqlWRM = "
+$queryWRM = $dbh->prepare("
     SELECT
         MediVisitAppointmentList.AppointmentSerNum AS ScheduledActivitySer,
         MediVisitAppointmentList.AppointId AS AppointmentId,
@@ -106,10 +107,8 @@ $sqlWRM = "
         Patient.LastName,
         MediVisitAppointmentList.ScheduledDateTime,
         MediVisitAppointmentList.AppointmentSerNum
-";
-
-/* Process results */
-$queryWRM = $dbh->query($sqlWRM);
+");
+$queryWRM->execute();
 
 foreach($queryWRM->fetchAll() as $row)
 {
@@ -129,12 +128,12 @@ foreach($queryWRM->fetchAll() as $row)
         $row['WeightDate'] = 'Old';
     }
 
-    if($row["Status"] === "Completed") $row["RowType"] = "Completed";
-    elseif($row["ArrivalDateTime"] === NULL) $row["RowType"] = "NotCheckedIn";
-    else $row["RowType"] = "CheckedIn";
+    if($row["Status"] === "Completed")          $row["RowType"] = "Completed";
+    elseif($row["ArrivalDateTime"] === NULL)    $row["RowType"] = "NotCheckedIn";
+    else                                        $row["RowType"] = "CheckedIn";
 
     //cross query OpalDB for questionnaire information
-    if($opalOnline)
+    if($queryOpal !== NULL)
     {
         $queryOpal->execute([":mrn" => $row["Mrn"]]);
         $resultOpal = $queryOpal->fetchAll()[0] ?? [];
@@ -190,16 +189,20 @@ foreach($json as $speciality => $data)
 {
     //encode the data to JSON
     $data = utf8_encode_recursive($data);
-    $data = json_encode($data);
+    $data = json_encode($data) ?: "[]";
 
-    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w") or die("Unable to open checkinlist file!");
+    $checkinlist = fopen("$checkInFilePath/$speciality.json", "w");
+    if($checkinlist === FALSE) {
+        die("Unable to open checkinlist file!");
+    }
+
     fwrite($checkinlist,$data);
     fclose($checkinlist);
 }
 
 #scan for the list of check in files. If any of them were not updated today, empty them
 $path = dirname($checkInFilePath);
-$files = scandir($path);
+$files = scandir($path) ?: [];
 
 $files = array_filter($files,function($x) {
     return preg_match("/\.json/",$x);
@@ -207,12 +210,14 @@ $files = array_filter($files,function($x) {
 
 foreach($files as $file)
 {
-    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file"))->format("Y-m-d");
+    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file") ?: 0)->format("Y-m-d");
     $today = (new DateTime())->format("Y-m-d");
 
     if($modDate === $today) continue;
 
     $handle = fopen("$path/$file","w");
+    if($handle === FALSE) continue;
+
     fwrite($handle,"[]");
     fclose($handle);
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to remove patients' cell phone numbers and languagee preferences
 // into ORMS

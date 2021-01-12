@@ -1,10 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # Script that parses a POST request from the add on page and inserts/updates the appointment in the ORMS db
 #---------------------------------------------------------------------------------------------------------------
 
 #load global configs
 require __DIR__."/../../vendor/autoload.php";
+
+use GuzzleHttp\Client;
 
 use Orms\Config;
 
@@ -25,17 +27,15 @@ foreach($postParams as $key => $val) {
 #call the importer script
 $url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
 
-$ch = curl_init();
-curl_setopt_array($ch,[
-    CURLOPT_URL             => $url,
-    CURLOPT_POSTFIELDS      => $appointmentInfo,
-    CURLOPT_RETURNTRANSFER  => TRUE
+$client = new Client();
+$request = $client->request("POST",$url,[
+    "form_params" => $appointmentInfo
 ]);
-$requestResult = curl_exec($ch);
-$resultCode = curl_getinfo($ch)["http_code"];
-curl_close($ch);
 
-if($resultCode === 200) {
+$requestCode = $request->getStatusCode();
+$requestResult = $request->getBody()->getContents();
+
+if($requestCode === 200 && isset($appointmentInfo["PatientId"])) {
     checkInPatientForAddOn($appointmentInfo["PatientId"]);
 }
 
@@ -49,9 +49,12 @@ echo $requestResult;
 function checkInPatientForAddOn(string $patId): void
 {
     $path = Config::getConfigs("path");
-    $sciptLocation = $path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php?CheckinVenue=ADDED ON BY RECEPTION&PatientId=$patId";
-    $sciptLocation = str_replace(' ','%20',$sciptLocation);
-    file_get_contents($sciptLocation);
+    (new Client())->request("GET",$path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php",[
+        "query" => [
+            "CheckinVenue" => "ADDED ON BY RECEPTION",
+            "PatientId" => $patId
+        ]
+    ]);
 }
 
 ?>

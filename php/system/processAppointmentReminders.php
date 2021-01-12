@@ -71,6 +71,12 @@ foreach($patients as $pat)
 
 #functions
 
+/**
+ *
+ * @return array<string,string>
+ * @throws Exception
+ * @throws PDOException
+ */
 function getAppointments(): array
 {
     $dbh = Config::getDatabaseConnection("ORMS");
@@ -137,7 +143,7 @@ function checkIfReminderAlreadySent(string $appSer): bool
      return ($query->fetchAll()[0]["SmsReminderLogSer"] ?? FALSE) ? FALSE : TRUE;
 }
 
-function logReminderData(string $mrn,string $phoneNumber,string $message,string $appSer,$appName): void
+function logReminderData(string $mrn,string $phoneNumber,string $message,string $appSer,string $appName): void
 {
     $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("

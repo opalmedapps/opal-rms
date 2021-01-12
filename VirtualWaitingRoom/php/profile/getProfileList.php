@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to get a list of profiles in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
@@ -38,7 +38,8 @@ if(!$category && !$speciality)
 }
 
 //process results
-$query = $dbh->query($sql);
+$query = $dbh->prepare($sql);
+$query->execute();
 
 //encode and return the json object
 $json = utf8_encode_recursive($query->fetchAll());

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Orms;
 
@@ -8,19 +8,23 @@ use Orms\Config;
 class Patient
 {
     #definition of a Patient
-    private $patientSer              = NULL;
+    private ?int $patientSer                 = NULL;
 
-    private $firstName               = NULL;
-    private $lastName                = NULL;
-    private $ssn                     = NULL;
-    private $ssnExpDate              = NULL;
-    private $patientId               = NULL;
-    private $patientId_MGH           = NULL;
-    private $smsNum                  = NULL;
-    private $opalPatient             = NULL;
-    private $languagePreference      = NULL;
+    private ?string $firstName               = NULL;
+    private ?string $lastName                = NULL;
+    private ?string $ssn                     = NULL;
+    private ?string $ssnExpDate              = NULL;
+    private ?string $patientId               = NULL;
+    private ?string $patientId_MGH           = NULL;
+    private ?string $smsNum                  = NULL;
+    private ?string $opalPatient             = NULL;
+    private ?string $languagePreference      = NULL;
 
-
+    /**
+     *
+     * @param mixed[]|null $args
+     * @return void
+     */
     public function __construct(array $args = NULL)
     {
         foreach(array_keys(get_object_vars($this)) as $field) {
@@ -60,7 +64,7 @@ class Patient
             ":patId"    => $this->patientId,
         ]);
 
-        $this->patientSer = $dbh->lastInsertId();
+        $this->patientSer = (int) $dbh->lastInsertId();
         if($this->patientSer === 0) {
             throw new Exception("Could not insert new patient");
         }
@@ -101,13 +105,6 @@ class Patient
         ]);
     }
 
-    /*
-    public function updatePatientInDatabase(): ?int
-    {
-
-        return numRowsAffected
-    }*/
-
     #completes the Patient object by getting missing data from the ORMS database
     #uses the ramq and the patient id
     #available modes are 'ONLY_PATIENT_SER' OR 'ALL'
@@ -141,7 +138,7 @@ class Patient
         {
             if($mode === "ONLY_PATIENT_SER")
             {
-                $this->patientSer = $result["PatientSerNum"];
+                $this->patientSer = (int) $result["PatientSerNum"];
             }
             elseif($mode === "ALL")
             {
@@ -167,25 +164,29 @@ class Patient
         foreach(array_keys(get_object_vars($this)) as $field)
         {
             #apply some regex
-            if(gettype($this->$field) === 'string')
+            if(gettype($this->$field) === "string")
             {
                 $this->$field = str_replace("\\","",$this->$field); #remove backslashes
                 #$this->$field = str_replace("'","\'",$this->$field); #escape quotes
                 $this->$field = str_replace('"',"",$this->$field); #remove double quotes
                 $this->$field = preg_replace("/\n|\r/","",$this->$field); #remove new lines and tabs
-                $this->$field = preg_replace("/\s+/"," ",$this->$field); #remove multiple spaces
-                $this->$field = preg_replace("/^\s/","",$this->$field); #remove spaces at the start
-                $this->$field = preg_replace("/\s$/","",$this->$field); #remove space at the end
+                $this->$field = preg_replace("/\s+/"," ",$this->$field ?? ""); #remove multiple spaces
+                $this->$field = preg_replace("/^\s/","",$this->$field ?? ""); #remove spaces at the start
+                $this->$field = preg_replace("/\s$/","",$this->$field ?? ""); #remove space at the end
 
-                if(ctype_space($this->$field) || $this->$field === "") $this->$field = NULL;
+                if(is_array($this->$field)
+                    || ctype_space($this->$field ?? "")
+                    || $this->$field === "") $this->$field = NULL;
             }
         }
 
         #insert zeros for incomplete MRNs
-        $this->patientId = str_pad($this->patientId,7,"0",STR_PAD_LEFT);
+        if($this->patientId !== NULL) {
+            $this->patientId = str_pad($this->patientId,7,"0",STR_PAD_LEFT);
+        }
 
         #remove the ramq if the ramq is just a placeholder (XXXXYYMMDD)
-        if(preg_match("/^[A-Z]{4}[0-9]{6}$/",$this->ssn)) {
+        if(preg_match("/^[A-Z]{4}[0-9]{6}$/",$this->ssn ?? "")) {
             $this->ssn = NULL;
             $this->ssnExpDate = "0000";
         }
@@ -200,10 +201,15 @@ class Patient
         }
 
         #uppercase names and ssn
-        $this->firstName = strtoupper($this->firstName);
-        $this->lastName = strtoupper($this->lastName);
-        $this->ssn = strtoupper($this->ssn);
-
+        if($this->firstName !== NULL) {
+            $this->firstName = strtoupper($this->firstName);
+        }
+        if($this->lastName !== NULL) {
+            $this->lastName = strtoupper($this->lastName);
+        }
+        if($this->ssn !== NULL) {
+            $this->ssn = strtoupper($this->ssn);
+        }
     }
 }
 

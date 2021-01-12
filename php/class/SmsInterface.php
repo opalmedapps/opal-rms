@@ -138,14 +138,14 @@ class SmsInterface
     }
 
     /**
-     *
-     * @return array<string[]>
+     *  Messages are classified by speciality, type, and event:
+     *  * speciality is the speciality group the message is used in
+     *  * type is subcategory of the speciality group and is used to link the appointment code to a message
+     *  * event indicates when the message should be sent out (during check in, as a reminder, etc)
+     * @return string[][][][][]
      * @throws PDOException
      */
-    /* messages are classified by speciality, type, and event:
-        speciality is the speciality group the message is used in
-        type is subcategory of the speciality group and is used to link the appointment code to a message
-        event indicates when the message should be sent out (during check in, as a reminder, etc)
+    /*
     */
     static function getPossibleSmsMessages(): array
     {

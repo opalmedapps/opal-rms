@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //gets the location of the text files that contains the list of checked in patients and returns it to a webpage
 
 require_once __DIR__."/../../vendor/autoload.php";

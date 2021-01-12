@@ -1,5 +1,5 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 #-------------------------------------------------
 # Returns a list of resources depending on the speciality specified
 #-------------------------------------------------

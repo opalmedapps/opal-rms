@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types = 1);
 class PDFBuilderService
 {
     CONST PDF_ROOT_DIR = __DIR__ . '/../../../pdf-reports';

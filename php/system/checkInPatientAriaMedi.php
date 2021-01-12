@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to check a patient into all appointments
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
+
+use GuzzleHttp\Client;
 
 use Orms\Config;
 
@@ -16,13 +18,6 @@ $PushNotification   = 0; # default of zero
 $CheckinVenue       = !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
 $PatientId          = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
 $PushNotification   = !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
-$verbose            = !empty($_GET["verbose"]) ? $_GET["verbose"] : NULL;
-
-if ($verbose) echo "Verbose Mode<br>";
-
-if (!$conn) {
-    die("<br>Connection failed");
-}
 
 //======================================================================================
 // Check for upcoming appointments for this patient
@@ -31,12 +26,12 @@ $Today = date("Y-m-d");
 $startOfToday = "$Today 00:00:00";
 $endOfToday = "$Today 23:59:59";
 
-if ($verbose) echo "startOfToday: $startOfToday, endOfToday: $endOfToday<p>";
+$client = new Client;
 
 ############################################################################################
 ######################################### Medivisit ########################################
 ############################################################################################
-$sqlApptMedivisit = "
+$queryApptMedivisit = $conn->prepare("
     SELECT DISTINCT
         Patient.PatientId,
         Patient.FirstName,
@@ -60,15 +55,11 @@ $sqlApptMedivisit = "
                 AND ( MediVisitAppointmentList.ScheduledDateTime < '$endOfToday' )
         AND MediVisitAppointmentList.Status = 'Open'
     ORDER BY MediVisitAppointmentList.ScheduledDateTime
-";
-
-if ($verbose) echo "sqlApptMedivisit:<br> $sqlApptMedivisit<p>";
-
-/* Process results */
-$result = $conn->query($sqlApptMedivisit);
+");
+$queryApptMedivisit->execute();
 
 // output data of each row
-foreach($result->fetchAll() as $row)
+foreach($queryApptMedivisit->fetchAll() as $row)
 {
     #$MV_PatientId = $row["PatientId"];
     $MV_PatientFirstName        = $row["FirstName"];
@@ -80,26 +71,35 @@ foreach($result->fetchAll() as $row)
     $MV_AppointmentSerNum       = $row["AppointmentSerNum"];
     $MV_Status                  = $row["Status"];
 
-    if ($verbose) echo "<br> MV appt: $MV_ApptDescription at $MV_ScheduledStartTime with $MV_Resource<br>";
-
-    // Check in to MediVisit/MySQL appointment, if there is one
-    if ($verbose) echo "About to attempt Medivisit checkin<br>";
-
     # since a script exists for this, best to call it here rather than rewrite the wheel
-    $MV_CheckInURL_raw = "$baseURL/php/system/checkInPatientMV.php?CheckinVenue=$CheckinVenue&ScheduledActivitySer=$MV_AppointmentSerNum";
-    $MV_CheckInURL = str_replace(' ', '%20', $MV_CheckInURL_raw);
-
-    if ($verbose) echo "MV_CheckInURL: $MV_CheckInURL<br>";
-
-    $lines = file_get_contents($MV_CheckInURL);
+    try {
+        $client->request("GET","$baseURL/php/system/checkInPatientMV.php",[
+            "query" => [
+                "CheckinVenue" => $CheckinVenue,
+                "ScheduledActivitySer" => $MV_AppointmentSerNum
+            ]
+        ]);
+    }
+    catch(Exception $e) {
+        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+    }
 
     #if the appointment originates from Aria, call the AriaIE to update the Aria db
     if($row["AppointSys"] === "Aria" && $ariaURL !== NULL)
     {
         $trueAppId = preg_replace("/Aria/","",$row["AppointId"]);
-        $aria_checkin = "$ariaURL?appointmentId=$trueAppId&location=$CheckinVenue";
-        $aria_checkin = str_replace(' ','%20',$aria_checkin);
-        file_get_contents($aria_checkin);
+
+        try {
+            $client->request("GET",$ariaURL,[
+                "query" => [
+                    "appointmentId" => $trueAppId,
+                    "location" => $CheckinVenue
+                ]
+            ]);
+        }
+        catch(Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
 }
 
@@ -108,10 +108,19 @@ if($PushNotification == 1)
 {
     $opalCheckinURL = Config::getConfigs("opal")["OPAL_CHECKIN_URL"];
 
-    $opalCheckinURL = "$opalCheckinURL?PatientId=$PatientId";
-    $opalCheckinURL = str_replace(' ', '%20', $opalCheckinURL);
+    try {
+        $response = $client->request("GET",$opalCheckinURL,[
+            "query" => [
+                "PatientId" => $PatientId
+            ]
+        ])->getBody()->getContents();
+    }
+    catch(Exception $e) {
+        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+    }
 
-    $response = file_get_contents($opalCheckinURL) ?: "";
+
+    $response = $response ?? "";
 
     if(strpos($response, 'Error')){
     $response = ['error' => $response];

@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to query the MySQL databases and extract the list of patients
-// who are currently checked in for open appointments today in Medivisit (MySQL), using a selected list of destination rooms/areas
+// who are currently checked in for open appointments today in Medivisit, using a selected list of destination rooms/areas
 //====================================================================================
 
 require_once __DIR__."/../../vendor/autoload.php";
@@ -24,12 +24,7 @@ else
     exit;
 }
 
-$json = [];
-
-#-------------------------------------------------------------------------------------
-# Now, get the Medivisit checkins from MySQL
-#-------------------------------------------------------------------------------------
-$sql = "
+$query = $dbh->prepare("
     SELECT DISTINCT
         Venues.AriaVenueId AS LocationId,
         PatientLocation.ArrivalDateTime,
@@ -49,7 +44,9 @@ $sql = "
     LEFT JOIN MediVisitAppointmentList ON MediVisitAppointmentList.AppointmentSerNum = PatientLocation.AppointmentSerNum
     LEFT JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
     WHERE
-        (DATE(PatientLocation.ArrivalDateTime) = CURDATE() OR PatientLocation.ArrivalDateTime IS NULL)";
+        (DATE(PatientLocation.ArrivalDateTime) = CURDATE() OR PatientLocation.ArrivalDateTime IS NULL)
+");
+$query->execute();
 
 # Remove last two lines so that rooms show up regardless of date - this would be necessary
 # if rooms are left open at the end of the day. However a cron job at midnight should checkout
@@ -57,10 +54,6 @@ $sql = "
 # is not very useful within the interface as these patients cannot be moved back into the waiting
 # room as that would mean checking them in for today, when their appointments were actually yesterday
 # Best solution is a cron job to checkout all checked-in patients at midnight
-
-#echo "Medivisit query: $sql<br>";
-/* Process results */
-$query = $dbh->query($sql);
 
 $json = utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);

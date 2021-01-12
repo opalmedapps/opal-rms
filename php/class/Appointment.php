@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Orms;
 
@@ -9,24 +9,30 @@ use Orms\Patient;
 class Appointment
 {
     #definition of an Appointment
-    private $patient             = NULL; #Patient object
-    private $appointmentCode     = NULL;
-    private $creationDate        = NULL;
-    private $id                  = NULL;
-    private $referringMd         = NULL;
-    private $resource            = NULL;
-    private $resourceDesc        = NULL;
-    private $scheduledDate       = NULL;
-    private $scheduledDateTime   = NULL;
-    private $scheduledTime       = NULL;
-    private $site                = NULL;
-    private $sourceStatus        = NULL;
-    private $specialityGroup     = NULL;
-    private $status              = NULL;
-    private $system              = NULL;
+    private Patient $patient;
+    private ?string $appointmentCode     = NULL;
+    private ?string $creationDate        = NULL;
+    private ?string $id                  = NULL;
+    private ?string $referringMd         = NULL;
+    private ?string $resource            = NULL;
+    private ?string $resourceDesc        = NULL;
+    private ?string $scheduledDate       = NULL;
+    private ?string $scheduledDateTime   = NULL;
+    private ?string $scheduledTime       = NULL;
+    private ?string $site                = NULL;
+    private ?string $sourceStatus        = NULL;
+    private ?string $specialityGroup     = NULL;
+    private ?string $status              = NULL;
+    private ?string $system              = NULL;
 
-    #constructor
-    public function __construct(array $appointmentInfo, Patient $patientInfo = NULL)
+    /**
+     *
+     * @param mixed[] $appointmentInfo
+     * @param Patient|null $patientInfo
+     * @return void
+     * @throws Exception
+     */
+    public function __construct(array $appointmentInfo,Patient $patientInfo = NULL)
     {
         foreach(array_keys(get_object_vars($this)) as $field) {
             $this->$field = (!empty($appointmentInfo[$field])) ? $appointmentInfo[$field] : NULL;
@@ -45,18 +51,17 @@ class Appointment
         $clinicSer = $this->_getClinicSerNum("INSERT_IF_NULL");
         $appCodeId = $this->_getAppointmentCodeId("INSERT_IF_NULL");
 
+        $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
+
+        if($patientSer === NULL) {
+            throw new Exception("Missing patient id");
+        }
+
         #check if an sms entry exists for the appointment
         $this->_verifySmsAppointment($clinicSer,$appCodeId);
 
-        $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
-
-        if($patientSer === NULL || $clinicSer === NULL) {
-            throw new Exception("Missing database serial numbers");
-        }
         //update the patient ssn or ssnExpDate if they have changed
-        else {
-            $this->patient->updateSSNInDatabase();
-        }
+        $this->patient->updateSSNInDatabase();
 
         #insert row into database
         $dbh = Config::getDatabaseConnection("ORMS");
@@ -154,7 +159,7 @@ class Appointment
 
     #returns the serial num of the first resource matching the Appointment's resource description
     #returns NULL if there is no match
-    private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): ?int
+    private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): int
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -175,9 +180,9 @@ class Appointment
             ":spec" => $this->specialityGroup
         ]);
 
-        $clinicSer = $queryClinic->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL;
+        $clinicSer = (int) ($queryClinic->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL);
 
-        if($clinicSer === NULL && $mode === "INSERT_IF_NULL")
+        if($clinicSer === 0 && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
                 INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
@@ -189,7 +194,7 @@ class Appointment
                 ":sys"     => $this->system
             ]);
 
-            $clinicSer = $dbh->lastInsertId();
+            $clinicSer = (int) $dbh->lastInsertId();
             if($clinicSer === 0) {
                 throw new Exception("Could not insert new resource");
             }
@@ -198,7 +203,7 @@ class Appointment
         return $clinicSer;
     }
 
-    private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): ?int
+    private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): int
     {
         $dbh = Config::getDatabaseConnection("ORMS");
 
@@ -217,9 +222,9 @@ class Appointment
             ":spec" => $this->specialityGroup
         ]);
 
-        $appId = $queryAppId->fetchAll()[0]["AppointmentCodeId"] ?? NULL;
+        $appId = (int) ($queryAppId->fetchAll()[0]["AppointmentCodeId"] ?? NULL);
 
-        if($appId === NULL && $mode === "INSERT_IF_NULL")
+        if($appId === 0 && $mode === "INSERT_IF_NULL")
         {
             $dbh->prepare("
                 INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
@@ -230,7 +235,7 @@ class Appointment
                 ":sys"  => $this->system
             ]);
 
-            $appId = $dbh->lastInsertId();
+            $appId = (int) $dbh->lastInsertId();
             if($appId === 0) {
                 throw new Exception("Could not insert new resource");
             }
@@ -320,18 +325,18 @@ class Appointment
                 #$this->$field = str_replace("'","\'",$this->$field); #escape quotes
                 $this->$field = str_replace('"',"",$this->$field); #remove double quotes
                 $this->$field = preg_replace("/\n|\r/","",$this->$field); #remove new lines and tabs
-                $this->$field = preg_replace("/\s+/"," ",$this->$field); #remove multiple spaces
-                $this->$field = preg_replace("/^\s/","",$this->$field); #remove spaces at the start
-                $this->$field = preg_replace("/\s$/","",$this->$field); #remove space at the end
+                $this->$field = preg_replace("/\s+/"," ",$this->$field ?? ""); #remove multiple spaces
+                $this->$field = preg_replace("/^\s/","",$this->$field ?? ""); #remove spaces at the start
+                $this->$field = preg_replace("/\s$/","",$this->$field ?? ""); #remove space at the end
             }
         }
 
         #make sure date and time are in the right format
-        if(!preg_match("/\d\d\d\d-\d\d-\d\d/",$this->scheduledDate)) {
+        if(!preg_match("/\d\d\d\d-\d\d-\d\d/",$this->scheduledDate ?? "")) {
             throw new Exception("Incorrect date format");
         }
 
-        if(!preg_match("/\d\d:\d\d:\d\d/",$this->scheduledTime)) {
+        if(!preg_match("/\d\d:\d\d:\d\d/",$this->scheduledTime ?? "")) {
             throw new Exception("Incorrect time format");
         }
 
@@ -344,7 +349,7 @@ class Appointment
         #make sure the appointment id that we'll use in the orms system is in the correct format
         #3 possibilities: visit (8 digits), appointment: (YYYYA + 8 digits), cancelled appointment: (YYYYC + 7 digits)
         #if the appointment origin is InstantAddOn, any id is valid
-        if(!preg_match("/^([0-9]{4}A[0-9]{8}|[0-9]{4}C[0-9]{7}|[0-9]{8})$/",$this->id) && !preg_match("/InstantAddOn|Aria/",$this->system)) {
+        if(!preg_match("/^([0-9]{4}A[0-9]{8}|[0-9]{4}C[0-9]{7}|[0-9]{8})$/",$this->id ?? "") && !preg_match("/InstantAddOn|Aria/",$this->system ?? "")) {
             throw new Exception("Incorrect appointment id format");
         }
 

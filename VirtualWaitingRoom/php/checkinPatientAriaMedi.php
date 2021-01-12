@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to check a patient into all appointments
 //====================================================================================
 
 require_once __DIR__."/../../vendor/autoload.php";
+
+use GuzzleHttp\Client;
 
 use Orms\Config;
 
@@ -24,6 +26,8 @@ $ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
 $today = date("Y-m-d");
 $startOfToday = "$today 00:00:00";
 $endOfToday = "$today 23:59:59";
+
+$client = new Client();
 
 ############################################################################################
 ######################################### Medivisit ########################################
@@ -69,18 +73,35 @@ foreach($queryApptMedivisit->fetchAll() as $row)
     // Check in to MediVisit/MySQL appointment, if there is one
 
     # since a script exists for this, best to call it here rather than rewrite the wheel
-    $mv_CheckinURL_raw = "$baseURL/php/checkinPatientMV.php?checkinVenue=$checkinVenue&scheduledActivitySer=$mv_AppointmentSerNum&intendedAppointment=$intendedAppointment";
-    $mv_CheckinURL = str_replace(' ','%20',$mv_CheckinURL_raw);
-
-    $lines = file_get_contents($mv_CheckinURL);
+    try {
+        $client->request("GET","$baseURL/php/checkInPatientMV.php",[
+            "query" => [
+                "checkinVenue" => $checkinVenue,
+                "scheduledActivitySer" => $mv_AppointmentSerNum,
+                "intendedAppointment" => $intendedAppointment
+            ]
+        ]);
+    }
+    catch(Exception $e) {
+        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+    }
 
     #if the appointment originates from Aria, call the AriaIE to update the Aria db
     if($row["AppointSys"] === "Aria" && $ariaURL !== NULL)
     {
         $trueAppId = preg_replace("/Aria/","",$row["AppointId"]);
-        $aria_checkin = "$ariaURL?appointmentId=$trueAppId&location=$checkinVenue";
-        $aria_checkin = str_replace(' ','%20',$aria_checkin);
-        file_get_contents($aria_checkin);
+
+        try {
+            $client->request("GET",$ariaURL,[
+                "query" => [
+                    "appointmentId" => $trueAppId,
+                    "location" => $checkinVenue
+                ]
+            ]);
+        }
+        catch(Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
 }
 

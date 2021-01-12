@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to insert/create a profile in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
@@ -6,8 +6,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Config;
 
 //get webpage parameters
-$postData = file_get_contents("php://input");
-$postData = json_decode($postData,true);
+$postData = getPostContents();
 $postData = utf8_decode_recursive($postData);
 
 $profile = $postData[0]['data'];
@@ -38,9 +37,9 @@ if($profile['ProfileSer'] == -1)
 
     //the subroutine returns the new profile's serial so we update ours
     $row = $queryCreateProfile->fetchAll()[0];
-    $queryCreateProfile->closeCursor();
-    $profile['ProfileSer'] = $row[0];
 
+    $queryCreateProfile->closeCursor();
+    $profile["ProfileSer"] = $row["@profileSer := ProfileSer"];
 }
 
 //insert the profile properties

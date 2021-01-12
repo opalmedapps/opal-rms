@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //script to delete a profile in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";

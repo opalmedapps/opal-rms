@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    paths:
+        - php/
+        - VirtualWaitingRoom/php/
+        - auth/
+    excludes_analyse:
+        - VirtualWaitingRoom/php/pdfGenerator/
+    stubFiles:
+        - php/stub/PDOStatement.stub

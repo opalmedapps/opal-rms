@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // getLocationInfo.php - php code to query the MySQL database and extract information
 // regarding a given intermediate venue location
@@ -14,7 +14,9 @@ $dbh = Config::getDatabaseConnection("ORMS");
 // Extract the webpage parameters
 $Location = utf8_decode_recursive($_GET["Location"]);
 
-$sql = "
+/* Process results */
+$json = [];
+$query = $dbh->prepare("
     SELECT
         IntermediateVenue.ScreenDisplayName,
         IntermediateVenue.VenueEN,
@@ -22,18 +24,16 @@ $sql = "
     FROM
         IntermediateVenue
     WHERE
-        IntermediateVenue.AriaVenueId = '$Location'";
-
-/* Process results */
-$json = [];
-$query = $dbh->query($sql);
+        IntermediateVenue.AriaVenueId = '$Location'
+");
+$query->execute();
 
 $rows = $query->fetchAll();
 
 // if no rows were returned then search for this venue in the ExamRoom table
-if(count($rows) == 0)
+if(count($rows) !== 0)
 {
-    $sql = "
+    $query = $dbh->prepare("
         SELECT
             ExamRoom.ScreenDisplayName,
             ExamRoom.VenueEN,
@@ -41,11 +41,11 @@ if(count($rows) == 0)
         FROM
             ExamRoom
         WHERE
-            ExamRoom.AriaVenueId = '$Location'";
+            ExamRoom.AriaVenueId = '$Location'
+    ");
+    $query->execute();
 
-    $query = $dbh->query($sql);
-
-    $rows =  $query->fetchAll();
+    $rows = $query->fetchAll();
 }
 
 // output data of each row

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to check a Medivisit patient into Mysql
 //====================================================================================
@@ -16,11 +16,6 @@ $AppointmentSerNum = $_GET["ScheduledActivitySer"];
 echo "CheckinVenue: $CheckinVenue<br>";
 echo "AppointmentSerNum: $AppointmentSerNum<br>";
 
-// Check connection
-if (!$conn) {
-    die("<br>Connection failed");
-}
-
 #---------------------------------------------------------------------------------------------
 # First, check for an existing entry in the patient location table for this appointment
 #---------------------------------------------------------------------------------------------
@@ -29,7 +24,7 @@ $PatientLocationRevCount = NULL;
 $CheckinVenueName = NULL;
 $ArrivalDateTime = NULL;
 
-$sqlMV_checkCheckin = "
+$queryCheckCheckin = $conn->prepare("
   SELECT DISTINCT
     PatientLocation.PatientLocationSerNum,
     PatientLocation.PatientLocationRevCount,
@@ -39,24 +34,16 @@ $sqlMV_checkCheckin = "
     PatientLocation
   WHERE
     PatientLocation.AppointmentSerNum = $AppointmentSerNum
-";
+");
+$queryCheckCheckin->execute();
 
-echo "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>";
-
-/* Process results */
-$result = $conn->query($sqlMV_checkCheckin);
-
-if ($result->rowCount() > 0) {
-    // output data of each row
-    foreach($result->fetchAll() as $row) {
-        $PatientLocationSerNum      = $row["PatientLocationSerNum"];
-        $PatientLocationRevCount    = $row["PatientLocationRevCount"];
-        $CheckinVenueName           = $row["CheckinVenueName"];
-        $ArrivalDateTime            = $row["ArrivalDateTime"];
-    }
-} else {
-    echo "Patient not already checked in for this appointment... proceeding to check in";
+foreach($queryCheckCheckin->fetchAll() as $row) {
+    $PatientLocationSerNum      = $row["PatientLocationSerNum"];
+    $PatientLocationRevCount    = $row["PatientLocationRevCount"];
+    $CheckinVenueName           = $row["CheckinVenueName"];
+    $ArrivalDateTime            = $row["ArrivalDateTime"];
 }
+
 
 echo "PatientLocationSerNum: $PatientLocationSerNum<br>";
 echo "PatientLocationRevCount: $PatientLocationRevCount<br>";

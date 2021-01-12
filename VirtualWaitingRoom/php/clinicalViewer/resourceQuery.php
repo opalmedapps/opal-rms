@@ -10,16 +10,8 @@ use Orms\Config;
 $speciality = $_GET["clinic"] ?? NULL;
 
 #get the list of possible appointments and their resources
-$resources = getResourceList($speciality);
-
-$resources = utf8_encode_recursive($resources);
-echo json_encode($resources);
-
-#get the full list of appointment resources depending on the site
-function getResourceList(?string $speciality): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
+$dbh = Config::getDatabaseConnection("ORMS");
+$query = $dbh->prepare("
         SELECT DISTINCT
             MV.Resource AS code,
             CR.ResourceName AS Name,
@@ -33,10 +25,16 @@ function getResourceList(?string $speciality): array
             AND CR.Speciality = :spec
         ORDER BY
             CR.ResourceName"
-    );
-    $query->execute([":spec" => $speciality]);
+);
+$query->execute([":spec" => $speciality]);
 
-    return $query->fetchAll();
-}
+$resources = $query->fetchAll();
+
+$resources = utf8_encode_recursive($resources);
+echo json_encode($resources);
+
+#get the full list of appointment resources depending on the site
+
+
 
 ?>

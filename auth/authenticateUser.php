@@ -1,11 +1,14 @@
-<?php
+<?php declare(strict_types = 1);
+
+use GuzzleHttp\Client;
+
+require_once __DIR__."/../vendor/autoload.php";
 
 #Script to authenticate a user trying to log into ORMS
 #creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
 
 #get the credentials the user entered
-$postParams = json_decode(file_get_contents('php://input'), true);
-#$postParams = $_POST;
+$postParams = getPostContents();
 
 $username = !empty($postParams["username"]) ? $postParams["username"] : NULL;
 $password = !empty($postParams["password"]) ? $postParams["password"] : NULL;
@@ -18,22 +21,12 @@ $fields = [
     'institution' => '06-ciusss-cusm'
 ];
 
-#url-ify the data for the POST
-$fieldString = "";
-foreach($fields as $key=>$value) {
-    $fieldString .= $key.'='.$value.'&';
-}
-rtrim($fieldString, '&');
-
 #make the request
-$ch = curl_init();
-curl_setopt_array($ch,[
-    CURLOPT_URL             => $url,
-    CURLOPT_POSTFIELDS      => $fieldString,
-    CURLOPT_RETURNTRANSFER  => TRUE
-]);
-$requestResult = json_decode(curl_exec($ch),TRUE);
-curl_close($ch);
+$client = new Client();
+$request = $client->request("POST",$url,[
+    "form_params" => $fields
+])->getBody()->getContents();
+$requestResult = json_decode($request,TRUE);
 
 #process the result of the AD call
 #filter all groups that aren't ORMS
@@ -51,7 +44,7 @@ if($validUser === TRUE)
     $memcache->addServer('localhost',11211) or die("error");
 
     #generate cookie uniq session id
-    $key = md5(uniqid(rand(), TRUE) .$_SERVER["REMOTE_ADDR"]. time());
+    $key = md5(uniqid((string) rand(), TRUE) .$_SERVER["REMOTE_ADDR"]. time());
 
     #$exists = $memcache->get($key);
 

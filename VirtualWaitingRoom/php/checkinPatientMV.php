@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // checkinPatientMV.php - php code to check a Medivisit patient into Mysql
 //====================================================================================
@@ -21,12 +21,7 @@ echo "AppointmentSerNum: $appointmentSerNum<br>";
 #---------------------------------------------------------------------------------------------
 # First, check for an existing entry in the patient location table for this appointment
 #---------------------------------------------------------------------------------------------
-$patientLocationSerNum;
-$patientLocationRevCount;
-$checkinVenueName;
-$arrivalDateTime;
-
-$sqlMV_checkCheckin = "
+$queryCheckCheckin = $dbh->prepare("
     SELECT DISTINCT
         PatientLocation.PatientLocationSerNum,
         PatientLocation.PatientLocationRevCount,
@@ -38,32 +33,20 @@ $sqlMV_checkCheckin = "
         PatientLocation
         LEFT JOIN PatientLocationMH ON PatientLocationMH.PatientLocationSerNum = PatientLocation.PatientLocationSerNum
     WHERE
-        PatientLocation.AppointmentSerNum = $appointmentSerNum";
+        PatientLocation.AppointmentSerNum = $appointmentSerNum
+");
+$queryCheckCheckin->execute();
 
-//echo "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>";
+$row = $queryCheckCheckin->fetchAll()[0] ?? [];
 
-/* Process results */
-$query = $dbh->query($sqlMV_checkCheckin);
+$patientLocationSerNum = $row["PatientLocationSerNum"] ?? NULL;
+$patientLocationRevCount = $row["PatientLocationRevCount"] ?? 0;
+$checkinVenueName = $row["CheckinVenueName"] ?? NULL;
+$arrivalDateTime = $row["ArrivalDateTime"] ?? NULL;
+$intendedFlag = $row["IntendedAppointmentFlag"] ?? NULL;
+$mhSerNum = $row["MHSerNum"] ?? NULL;
 
-$rows = $query->fetchAll();
 
-if(count($rows) > 0)
-{
-    // output data of each row
-    foreach($rows as &$row)
-    {
-        $patientLocationSerNum = $row["PatientLocationSerNum"];
-        $patientLocationRevCount = $row["PatientLocationRevCount"];
-        $checkinVenueName = $row["CheckinVenueName"];
-        $arrivalDateTime = $row["ArrivalDateTime"];
-        $intendedFlag = $row["IntendedAppointmentFlag"];
-        $mhSerNum = $row["MHSerNum"];
-    }
-}
-else
-{
-    echo "Patient not already checked in for this appointment... proceeding to check in";
-}
 
 echo "PatientLocationSerNum: $patientLocationSerNum<br>";
 echo "PatientLocationRevCount: $patientLocationRevCount<br>";

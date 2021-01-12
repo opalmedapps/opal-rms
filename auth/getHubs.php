@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 #get all speciality groups and TV hubs from the ORMS db
 
 require __DIR__."/../vendor/autoload.php";

@@ -136,8 +136,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             }
 
             if(
-                            ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today) || !$scope.screenRows.hasOwnProperty("zoomLinkSent")
-                    ) firebaseScreenRef.child("zoomLinkSent").set({CreatedOn: today});
+                ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today)
+                || !$scope.screenRows.hasOwnProperty("zoomLinkSent")
+            ) {
+                firebaseScreenRef.child("zoomLinkSent").set({CreatedOn: today});
+            }
 
             //Prepare a simple object to hold metadata - for now just the timestamp of the most recent call
             if(!$scope.screenRows.hasOwnProperty("Metadata"))
@@ -190,6 +193,14 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 $scope.allAppointments = options.Appointments;
 
                 $scope.resourceLoadingEnabled = 1;
+            });
+
+            $http({
+                url: "php/diagnosis/getDiagnosisCodeList.php",
+                method: "GET"
+            }).then(function (response)
+            {
+                $scope.allDiagnosisCodes = response.data;
             });
 
             //make sure we have the right waiting room
@@ -969,6 +980,26 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         else if(patient.RowType === "Completed") cssClass.push("row-completed");
 
         return cssClass;
+    }
+
+    //=========================================================================
+    // Open the Diagnosis modal
+    //=========================================================================
+    $scope.openDiagnosisModal = function (patient)
+    {
+        $uibModal.open({
+            animation: true,
+            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            controller: diagnosisModalController,
+            windowClass: 'diagnosisModal',
+            size: 'lg',
+            //backdrop: 'static',
+            resolve:
+            {
+                diagnosisList: function() {return $scope.allDiagnosisCodes;},
+                patient: function() {return patient;}
+            }
+        })
     }
 
 });

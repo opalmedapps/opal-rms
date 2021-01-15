@@ -1,0 +1,102 @@
+<style>
+    #customers {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #customers td, #customers th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .custom-container input[type="search"]::-webkit-search-decoration,
+    .custom-container input[type="search"]::-webkit-search-cancel-button,
+    .custom-container input[type="search"]::-webkit-search-results-button,
+    .custom-container input[type="search"]::-webkit-search-results-decoration {
+        -webkit-appearance:none;
+    }
+
+
+
+    #customers tr:nth-child(even){background-color: #f2f2f2;}
+
+    #customers tr:hover {background-color: #ddd;}
+
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .custom-container {
+        z-index: 100000 !important;
+
+    }
+</style>
+
+<div class="modal-header">
+    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.Mrn}}) <div style="float:right">Age:{{patient.Age}} Sex:{{patient.Sex}}</div></h3>
+</div>
+
+<div class="modal-body">
+
+    <br/>
+
+    <div class="row questionnaire-container">
+
+        <h2 style="text-align:center;margin-top:0;">Diagnosis List</h2>
+
+        <div class="text-center animate-show" ng-click="addDiagnosis(userSelectedDiagnosis)">
+            <input type="button" class="btn btn-info btn-block btn-que" value="Add Diagnosis" ng-disabled="userSelectedDiagnosis === null"/>
+        </div>
+
+        <div>
+            <!-- md-no-cache="ctrl.noCache" -->
+            <!-- md-search-text-change="ctrl.searchTextChange(ctrl.searchText)" -->
+            <!-- md-selected-item-change="ctrl.selectedItemChange(item)" -->
+
+            <!-- md-items="item in ctrl.querySearch(ctrl.searchText)" -->
+            <md-autocomplete
+                md-selected-item="userSelectedDiagnosis"
+                md-items="diag in searchList(diagSearchText)"
+                md-item-text="diag.Subcode"
+                placeholder="Select Diagnosis"
+                md-search-text="diagSearchText"
+                md-menu-container-class="custom-container"
+                class="custom-container"
+            >
+                <md-item-template>
+                    <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.Subcode}}</span>
+                    <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;">{{diag.SubcodeDescription}}</span>
+                </md-item-template>
+                <md-not-found>
+                    No matches!
+                </md-not-found>
+            </md-autocomplete>
+        </div>
+
+        <table id="customers">
+            <tr>
+                <th>ICD-10 Code</th>
+                <th>Diagnosis Description</th>
+                <th>Diagnosis Date</th>
+                <th>Action</th>
+            </tr>
+            <tr ng-repeat="diag in patientDiagnosisList">
+                <td>{{diag.diagnosis.subcode}}</td>
+                <td>{{diag.diagnosis.subcodeDescription}}</td>
+                <td>{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
+                <td>
+                    <div class="text-center animate-show" ng-click="editDiagnosis(diag)">
+                        <input type="button" class="btn btn-danger btn-block btn-que" value="Delete"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        </form>
+    </div>
+    <br>
+</div>

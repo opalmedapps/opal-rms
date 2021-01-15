@@ -37,9 +37,10 @@
 <script src="js/vwr/module.js"></script>
 <script src="js/vwr/controllers/virtualWaitingRoom.js"></script>
 <script src="js/vwr/bootstrapper.js"></script>
-<script src="js/vwr/controllers/selectorModal.js"></script>
 <script src="js/vwr/controllers/callModal.js"></script>
-<script src="js/vwr/controllers/questionnaireModal.js"></script>
-<script src="js/vwr/controllers/weightModal.js"></script>
+<script src="js/vwr//controllers/diagnosisModal.js"></script>
 <script src="js/vwr/controllers/formModal.js"></script>
+<script src="js/vwr/controllers/selectorModal.js"></script>
+<script src="js/vwr/controllers/questionnaireModal.js"></script>
 <script src="js/vwr/controllers/registerSMSModal.js"></script>
+<script src="js/vwr/controllers/weightModal.js"></script>

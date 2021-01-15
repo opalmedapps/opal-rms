@@ -8,17 +8,17 @@ use Orms\Database;
 class Patient
 {
     #definition of a Patient
-    private ?int $patientSer                 = NULL;
+    public ?int $patientSer                 = NULL;
 
-    private ?string $firstName               = NULL;
-    private ?string $lastName                = NULL;
-    private ?string $ssn                     = NULL;
-    private ?string $ssnExpDate              = NULL;
-    private ?string $patientId               = NULL;
-    private ?string $patientId_MGH           = NULL;
-    private ?string $smsNum                  = NULL;
-    private ?string $opalPatient             = NULL;
-    private ?string $languagePreference      = NULL;
+    public ?string $firstName               = NULL;
+    public ?string $lastName                = NULL;
+    public ?string $ssn                     = NULL;
+    public ?string $ssnExpDate              = NULL;
+    public ?string $patientId               = NULL;
+    public ?string $patientId_MGH           = NULL;
+    public ?string $smsNum                  = NULL;
+    public ?string $opalPatient             = NULL;
+    public ?string $languagePreference      = NULL;
 
     /**
      *
@@ -142,7 +142,7 @@ class Patient
             }
             elseif($mode === "ALL")
             {
-                $this->patientSer              = $result["PatientSer"];
+                $this->patientSer              = (int) $result["PatientSerNum"];
                 $this->firstName               = $result["FirstName"];
                 $this->lastName                = $result["LastName"];
                 $this->ssn                     = $result["SSN"];
@@ -210,6 +210,70 @@ class Patient
         if($this->ssn !== NULL) {
             $this->ssn = strtoupper($this->ssn);
         }
+    }
+
+    static function getPatientById(int $id): Patient
+    {
+        return self::_fetchPatient($id);
+    }
+
+    static function getPatientByMrn(string $mrn): Patient
+    {
+        return self::_fetchPatient($mrn);
+    }
+
+    // int|string $identifier
+    private static function _fetchPatient($identifier): Patient
+    {
+        switch(gettype($identifier))
+        {
+            case "integer":
+                $column = "PatientSerNum";
+                break;
+            case "string":
+                $column = "PatientId";
+                break;
+        }
+
+        $dbh = Config::getDatabaseConnection("ORMS");
+        $query = $dbh->prepare("
+            SELECT DISTINCT
+                PatientSerNum,
+                LastName,
+                FirstName,
+                SSN,
+                SSNExpDate,
+                PatientId,
+                PatientId_MGH,
+                SMSAlertNum,
+                SMSSignupDate,
+                OpalPatient,
+                LanguagePreference
+            FROM
+                Patient
+            WHERE
+                $column = :iden
+        ");
+        $query->execute([
+            ":iden" => $identifier
+        ]);
+
+        $row = $query->fetchAll()[0];
+
+        $fields = [
+            "patientSer"            => (int) $row["PatientSerNum"],
+            "firstName"             => $row["FirstName"],
+            "lastName"              => $row["LastName"],
+            "ssn"                   => $row["SSN"],
+            "ssnExpDate"            => $row["SSNExpDate"],
+            "patientId"             => $row["PatientId"],
+            "patientId_MGH"         => $row["PatientId_MGH"],
+            "smsNum"                => $row["SMSAlertNum"],
+            "opalPatient"           => $row["OpalPatient"],
+            "languagePreference"    => $row["LanguagePreference"],
+        ];
+
+        return new Patient($fields);
     }
 }
 

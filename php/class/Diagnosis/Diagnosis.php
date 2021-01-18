@@ -110,7 +110,18 @@ class Diagnosis
         ");
         $query->execute();
 
-        return $query->fetchAll();
+        return array_map(function($x) {
+            return new Diagnosis(
+                (int) $x["DiagnosisSubcodeId"],
+                $x["Subcode"],
+                $x["SubcodeDescription"],
+                $x["Code"],
+                $x["Category"],
+                $x["CodeDescription"],
+                $x["Chapter"],
+                $x["ChapterDescription"]
+            );
+        },$query->fetchAll());
     }
 
 }

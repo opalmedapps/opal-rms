@@ -2,6 +2,7 @@
 
 namespace Orms\Diagnosis;
 
+use Exception;
 use PDOException;
 
 use Orms\Config;
@@ -59,8 +60,9 @@ class PatientDiagnosis
                 PatientDiagnosis
             WHERE
                 PatientSerNum = :pid
+                AND Status = 'Active'
             ORDER BY
-                CreatedDate DESC
+                DiagnosisDate DESC
         ");
         $query->execute([":pid" => $patientId]);
 
@@ -129,19 +131,28 @@ class PatientDiagnosis
         return (int) $dbh->lastInsertId();
     }
 
-    // static function insertDiagnosis(int $patientId,int $diagnosisSubcodeId,string $status)
-    // {
-    //     $dbh = Config::getDatabaseConnection("ORMS");
-    //     $query = $dbh->prepare("
-    //         INSERT INTO PatientDiagnosis (PatientSerNum,DiagnosisSubcodeId,Status,UpdatedBy)
-    //         VALUES (:pId,:dId,:stat,'SYSTEM')
-    //     ");
-    //     $query->execute([
-    //         ":pId"      => $patientId,
-    //         ":dId"      => $diagnosisSubcodeId,
-    //         ":stat"     => $status
-    //     ]);
-    // }
+    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status): int
+    {
+        $dbh = Config::getDatabaseConnection("ORMS");
+        $query = $dbh->prepare("
+            UPDATE PatientDiagnosis
+            SET
+                DiagnosisSubcodeId = :codeId
+                ,DiagnosisDate = :dDate
+                ,Status = :status
+            WHERE
+                PatientDiagnosisId = :pdId
+        ");
+        $query->execute([
+            ":pdId"     => $patientDiagnosisId,
+            ":codeId"   => $diagnosisId,
+            "dDate"     => $diagnosisDate->format("Y-m-d H:i:s"),
+            ":status"   => $status
+        ]);
+
+        return $patientDiagnosisId;
+    }
+
 
     // static function updateDiagnosis(int $patientId,int $patientDiagnosisId,int $diagnosisSubcodeId,string $status)
     // {

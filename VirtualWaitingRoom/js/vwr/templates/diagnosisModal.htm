@@ -49,7 +49,7 @@
 
         <h2 style="text-align:center;margin-top:0;">Diagnosis List</h2>
 
-        <div class="text-center animate-show" ng-click="addDiagnosis(userSelectedDiagnosis)">
+        <div class="text-center animate-show" ng-click="addPatientDiagnosis(userSelectedDiagnosis)">
             <input type="button" class="btn btn-info btn-block btn-que" value="Add Diagnosis" ng-disabled="userSelectedDiagnosis === null"/>
         </div>
 
@@ -90,7 +90,7 @@
                 <td>{{diag.diagnosis.subcodeDescription}}</td>
                 <td>{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
                 <td>
-                    <div class="text-center animate-show" ng-click="editDiagnosis(diag)">
+                    <div class="text-center animate-show" ng-click="deletePatientDiagnosis(diag)">
                         <input type="button" class="btn btn-danger btn-block btn-que" value="Delete"/>
                     </div>
                 </td>

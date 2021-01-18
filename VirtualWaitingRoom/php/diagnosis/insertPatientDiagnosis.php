@@ -2,11 +2,10 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
 use Orms\DiagnosisInterface;
 use Orms\DateTime;
-use Orms\Opal;
 use Orms\Patient;
+use Orms\Opal;
 
 $patientId = (int) $_GET["patientId"];
 $diagnosisId = (int) $_GET["diagnosisId"];
@@ -16,7 +15,7 @@ $newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId,$diagnosisId,$d
 
 $mrn = Patient::getPatientById($patientId)->patientId;
 
-//export the diagnois to external systems
+//export the diagnosis to external systems
 Opal::insertPatientDiagnosis(
     $mrn,
     $newDiag->id,

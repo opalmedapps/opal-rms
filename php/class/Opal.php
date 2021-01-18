@@ -56,10 +56,10 @@ class Opal
             "form_params" => [
                 "mrn"           => $mrn,
                 "site"          => Config::getConfigs("orms")["SITE"],
-                "source"        => "MediVisit",
+                "source"        => "ORMS",
                 "rowId"         => $diagId,
                 "code"          => $diagSubcode,
-                "creationDate"  => $creationDate->format("Y-mn-d H:i:s"),
+                "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
                 "descriptionEn" => $descEn,
                 "descriptionFr" => $descFr,
             ],
@@ -67,6 +67,20 @@ class Opal
         ])->getBody()->getContents();
 
         return json_decode($response);
+    }
+
+    static function exportDiagnosisCode(int $id,string $code,string $desc): void
+    {
+        self::getHttpClient()->request("POST","master-source/insert/diagnoses",[
+            "form_params" => [
+                "source"        => "ORMS",
+                "externalId"    => $id,
+                "code"          => $code,
+                "description"   => $desc
+                // "creationDate"  =>
+            ],
+            "cookies" => self::getOpalSessionCookie()
+        ]);
     }
 }
 

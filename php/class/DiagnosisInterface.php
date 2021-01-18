@@ -2,9 +2,9 @@
 
 namespace Orms;
 
-use Orms\Config;
 use Orms\Diagnosis\Diagnosis;
 use Orms\Diagnosis\PatientDiagnosis;
+use Orms\DateTime;
 
 class DiagnosisInterface
 {
@@ -15,9 +15,11 @@ class DiagnosisInterface
        return PatientDiagnosis::getDiagnosisById($insertedId);
     }
 
-    static function updatePatientDiagnosis(int $patientId,int $patientDiagnosisId,int $diagnosisSubcodeId,string $status): void
+    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status): PatientDiagnosis
     {
+        $updatedId = PatientDiagnosis::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status);
 
+        return PatientDiagnosis::getDiagnosisById($updatedId);
     }
 
     static function getDiagnosisCodeList(): array
@@ -57,7 +59,7 @@ class DiagnosisInterface
         // },$rows);
     }
 
-    static function getDiagnosisListForPatient(int $patientId)
+    static function getDiagnosisListForPatient(int $patientId): array
     {
         return PatientDiagnosis::getDiagnosisListForPatient($patientId);
     }

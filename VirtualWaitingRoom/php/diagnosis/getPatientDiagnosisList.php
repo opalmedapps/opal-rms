@@ -13,6 +13,6 @@ $mrn = Patient::getPatientById($patientId)->patientId;
 //get additional diagnoses from Opal
 Opal::getPatientDiagnosis($mrn);
 
-echo json_encode(DiagnosisInterface::getDiagnosisListForPatient($patientId))
+echo json_encode(DiagnosisInterface::getDiagnosisListForPatient($patientId));
 
 ?>

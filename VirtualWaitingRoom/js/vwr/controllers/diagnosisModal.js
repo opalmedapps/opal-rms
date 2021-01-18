@@ -20,20 +20,50 @@ function diagnosisModalController($scope,$http,$mdDialog,$filter,patient,diagnos
         return diagnosisList.filter(x => x.Subcode.includes(searchText) || x.SubcodeDescription.includes(searchText));
     }
 
-    $scope.addDiagnosis = function(diag)
+    $scope.addPatientDiagnosis = function(diag)
     {
         $http({
-            url: "./php/diagnosis/insertDiagnosis.php",
+            url: "./php/diagnosis/insertPatientDiagnosis.php",
             method: "GET",
             params: {
-                patientId: patient.PatientId,
-                diagnosisId: diag.DiagnosisSubcodeId,
+                patientId: patient.patientId,
+                diagnosisId: diag.diagnosisSubcodeId,
                 diagnosisDate: null
             }
         })
         .then( _ => loadPatientDiagnosis());
+    }
 
-        console.log(diag);
+    // $scope.updatePatientDiagnosis = function(patientId,patientDiagId,diagnosisId,diagnosisDate,status)
+    // {
+    //     $http({
+    //         url: "./php/diagnosis/updatePatientDiagnosis.php",
+    //         method: "GET",
+    //         params: {
+    //             patientId: patientId,
+    //             patientDiagnosisId: patientDiagId,
+    //             diagnosisId: diagnosisId,
+    //             diagnosisDate: diagnosisDate,
+    //             status: status
+    //         }
+    //     })
+    //     .then( _ => loadPatientDiagnosis());
+    // }
+
+    $scope.deletePatientDiagnosis = function(patientDiagnosis)
+    {
+        $http({
+            url: "./php/diagnosis/updatePatientDiagnosis.php",
+            method: "GET",
+            params: {
+                patientId: patientDiagnosis.patientId,
+                patientDiagnosisId: patientDiagnosis.id,
+                diagnosisId: patientDiagnosis.diagnosis.id,
+                diagnosisDate: patientDiagnosis.diagnosisDate,
+                status: "Deleted"
+            }
+        })
+        .then( _ => loadPatientDiagnosis());
     }
 
     function loadPatientDiagnosis()

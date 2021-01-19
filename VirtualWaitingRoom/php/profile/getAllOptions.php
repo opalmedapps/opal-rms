@@ -38,6 +38,7 @@ $query2 = $dbh->prepare("
         ClinicResources
     WHERE
         ClinicResources.Speciality = ?
+        AND ClinicResources.Active = 1
 ");
 $query2->execute([$speciality]);
 

@@ -31,7 +31,7 @@ $query->execute();
 $rows = $query->fetchAll();
 
 // if no rows were returned then search for this venue in the ExamRoom table
-if(count($rows) !== 0)
+if(count($rows) === 0)
 {
     $query = $dbh->prepare("
         SELECT

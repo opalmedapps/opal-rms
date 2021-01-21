@@ -74,7 +74,7 @@ foreach($queryApptMedivisit->fetchAll() as $row)
 
     # since a script exists for this, best to call it here rather than rewrite the wheel
     try {
-        $client->request("GET","$baseURL/php/checkInPatientMV.php",[
+        $client->request("GET","$baseURL/php/checkinPatientMV.php",[
             "query" => [
                 "checkinVenue" => $checkinVenue,
                 "scheduledActivitySer" => $mv_AppointmentSerNum,

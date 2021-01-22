@@ -13,7 +13,7 @@ $dbh = Config::getDatabaseConnection("ORMS");
 
 // Extract the webpage parameters
 $checkinVenue = $_GET["checkinVenue"];
-$originalAppointmentSer = $_GET["appointmentSer"];
+$originalAppointmentSer = $_GET["appointmentSer"] ?? "";
 $patientId = $_GET["patientId"];
 
 $baseURL = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";

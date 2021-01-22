@@ -5,6 +5,8 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
+use GuzzleHttp\Client;
+
 use Orms\Config;
 
 $dbh = Config::getDatabaseConnection("ORMS");
@@ -71,10 +73,13 @@ $result = $dbh->query($sql_closeApt);
 
 $base_url = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
 
-$checkinURL_raw = "$base_url/php/checkinPatientAriaMedi.php?checkinVenue=$checkoutVenue&patientId=$patientId";
-$checkinURL = str_replace(' ','%20',$checkinURL_raw);
+$client = new Client();
 
-# since a script exists for this, best to call it here rather than rewrite the wheel
-$lines = file($checkinURL);
+$client->request("GET","$base_url/php/checkinPatientAriaMedi.php",[
+    "query" => [
+        "checkinVenue" => $checkoutVenue,
+        "patientId" => $patientId
+    ]
+]);
 
 ?>

@@ -231,10 +231,6 @@ echo json_encode($jstring,JSON_NUMERIC_CHECK);
 
 /**
  *
- * @param string $wsPatientID
- * @param string $wsrptID
- * @param string $wsQuestionnaireSerNum
- * @param string $qstID
  * @return mixed[]
  * @throws Exception
  * @throws PDOException

@@ -173,7 +173,6 @@ function validateAppointmentInfo(array $appInfo): array
 /**
  *
  * @param mixed[] $requestInfo
- * @return void
  * @throws Exception
  * @throws PDOException
  */
@@ -199,7 +198,6 @@ function logRequest(array $requestInfo): void
 /**
  *
  * @param mixed[] $requestInfo
- * @return void
  */
 function sendEmail(array $requestInfo): void
 {

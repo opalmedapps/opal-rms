@@ -7,8 +7,6 @@ class ArrayUtil
     /**
      *
      * @param mixed[] $arr
-     * @param string $key
-     * @param bool $keepKey
      * @return mixed[]
      */
     static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
@@ -30,7 +28,6 @@ class ArrayUtil
     /**
      * recursive version of groupArrayByKey that repeats the grouping process for each input key
      * @param mixed[] $arr
-     * @param string ...$keys
      * @return mixed[]
      */
     static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
@@ -53,7 +50,6 @@ class ArrayUtil
     /**
      * version of groupArrayByKeyRecursive that keeps the original keys intact
      * @param mixed[] $arr
-     * @param string ...$keys
      * @return mixed[]
      */
     static function groupArrayByKeyRecursiveKeepKeys(array $arr,string ...$keys): array

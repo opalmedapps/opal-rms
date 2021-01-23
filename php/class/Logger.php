@@ -11,15 +11,6 @@ class Logger
 {
     /**
      *
-     * @param string $clientNumber
-     * @param string $serviceNumber
-     * @param string $messageId
-     * @param string $service
-     * @param string $action
-     * @param string $message
-     * @param DateTime $timestamp
-     * @param string $result
-     * @return void
      * @throws PDOException
      */
     static function LogSms(

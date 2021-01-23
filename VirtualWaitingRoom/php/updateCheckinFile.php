@@ -17,7 +17,7 @@ $dbh = Config::getDatabaseConnection("ORMS");
 try {
     $dbOpal = Config::getDatabaseConnection("OPAL");
 }
-catch (PDOException $e) {
+catch (PDOException) {
     $dbOpal = NULL;
 }
 

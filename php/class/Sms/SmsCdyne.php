@@ -26,10 +26,6 @@ class SmsCdyne
      */
     private static array $availableNumbers = [];
 
-    /**
-     *
-     * @return void
-     */
     static function __init(): void
     {
         $configs = Config::getConfigs("cdyne");
@@ -41,10 +37,7 @@ class SmsCdyne
 
     /**
      *
-     * @param string $clientNumber
-     * @param string $message
      * @param string|null $serviceNumber
-     * @return null|string
      * @throws GuzzleException
      * @throws RuntimeException
      */
@@ -126,7 +119,7 @@ class SmsCdyne
                 return $x;
             },$messages);
         }
-        catch(Exception $e)
+        catch(Exception)
         {
             $messages = [];
         }

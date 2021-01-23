@@ -9,8 +9,6 @@ class Csv
     /**
      * takes a just opened file handle for a csv file and inserts all the appointments within into the ORMS db
      *
-     * @param string $filePath
-     * @param bool $headersPresent
      * @return array[]
      */
     // $row = array_map('utf8_encode',$row); TODO: add encoding parameter to function
@@ -43,9 +41,7 @@ class Csv
      * writes an array to a csv file
      * the array must be either an array of assoc arrays or an array of arrays
      *
-     * @param string $filePath
      * @param array[] $data
-     * @return bool
      */
     static function writeCsvFromData(string $filePath,array $data): bool
     {

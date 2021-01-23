@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rector\Core\Configuration\Option;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
@@ -17,6 +18,13 @@ use Rector\Php80\Rector\Ternary\GetDebugTypeRector;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    $parameters = $containerConfigurator->parameters();
+    $parameters->set(Option::PATHS,[
+        __DIR__."/php",
+        __DIR__."/VirtualWaitingRoom/php",
+        __DIR__."/auth/",
+    ]);
+
     $services = $containerConfigurator->services();
 
     $services->set(UnionTypesRector::class);

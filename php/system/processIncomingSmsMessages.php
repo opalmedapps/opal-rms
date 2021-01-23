@@ -132,10 +132,8 @@ foreach($messages as $message)
 }
 
 #functions
-
 /**
  *
- * @param string $pSer
  * @return array<string,string>
  * @throws Exception
  * @throws PDOException
@@ -197,7 +195,6 @@ function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patient
 
 /**
  *
- * @param string $phoneNumber
  * @return null|array<string,string>
  * @throws Exception
  * @throws PDOException

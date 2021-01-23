@@ -128,8 +128,10 @@ foreach($queryWRM->fetchAll() as $row)
         $row['WeightDate'] = 'Old';
     }
 
+    $row["ArrivalDateTime"] = $row["ArrivalDateTime"] ?? ""; //just to get psalm to stop complaining
+
     if($row["Status"] === "Completed")          $row["RowType"] = "Completed";
-    elseif($row["ArrivalDateTime"] === NULL)    $row["RowType"] = "NotCheckedIn";
+    elseif($row["ArrivalDateTime"] === "")    $row["RowType"] = "NotCheckedIn";
     else                                        $row["RowType"] = "CheckedIn";
 
     //cross query OpalDB for questionnaire information
@@ -205,7 +207,7 @@ $path = dirname($checkInFilePath);
 $files = scandir($path) ?: [];
 
 $files = array_filter($files,function($x) {
-    return preg_match("/\.json/",$x);
+    return preg_match("/\.json/",$x) ? TRUE : FALSE ;
 });
 
 foreach($files as $file)

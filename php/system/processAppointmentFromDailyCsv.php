@@ -6,13 +6,16 @@
 #load global configs
 require __DIR__."/../../vendor/autoload.php";
 
+use GetOpt\GetOpt;
 use GuzzleHttp\Client;
 
 use Orms\Config;
 use Orms\Util\Csv;
 
 #get csv file name from command line arguments
-$csvFile = getopt("",["file:"])["file"] ?: "";
+$opts = new GetOpt([["file"]],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+$opts->process();
+$csvFile = $opts->getOption("file");
 
 #csv file must have been created today, otherwise send an error
 #however, if its the weekend, don't send an error

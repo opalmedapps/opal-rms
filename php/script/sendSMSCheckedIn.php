@@ -5,15 +5,22 @@
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
 
+use GetOpt\GetOpt;
+
 use Orms\Config;
 use Orms\SmsInterface;
 
 // Extract the command line parameters
-$opts = getopt("",["PatientId:","message_FR:","message_EN:"]) ?: [];
+$opts = new GetOpt([
+    ["PatientId"],
+    ["message_FR"],
+    ["message_EN"]
+],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+$opts->process();
 
-$PatientId  = $opts["PatientId"] ?: "";
-$message_FR = $opts["message_FR"] ?: "";
-$message_EN = $opts["message_EN"] ?: "";
+$PatientId  = $opts->getOption("PatientId") ?? "";
+$message_FR = $opts->getOption("message_FR") ?? "";
+$message_EN = $opts->getOption("message_EN") ?? "";
 
 //====================================================================================
 // Database
@@ -37,12 +44,12 @@ $query = $dbh->prepare("
 $query->execute([":mrn" => $PatientId]);
 
 /* Process results */
-$result = $query->fetchAll()[0] ?? NULL;
+$result = $query->fetchAll()[0] ?? [];
 
-$SMSAlertNum = $result["SMSAlertNum"] ?? NULL;
+$SMSAlertNum = $result["SMSAlertNum"] ?? "";
 $LanguagePreference = $result["LanguagePreference"] ?? NULL;
 
-if(empty($SMSAlertNum) || $SMSAlertNum === NULL){
+if(empty($SMSAlertNum)) {
     exit("No SMS alert phone number so will not attempt to send");
 }
 

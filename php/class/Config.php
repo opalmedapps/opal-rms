@@ -35,7 +35,6 @@ class Config
 
     /**
      * returns a hash with specific configs
-     * @param string $section
      * @return mixed[]
      */
     public static function getConfigs(string $section): array

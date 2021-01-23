@@ -23,7 +23,6 @@ class SmsInterface
 
     /**
      *
-     * @return void
      * @throws Exception
      */
     static function __init(): void
@@ -42,10 +41,7 @@ class SmsInterface
 
     /**
      *
-     * @param string $clientNumber
-     * @param string $message
      * @param string|null $serviceNumber
-     * @return void
      * @throws GuzzleException
      * @throws PDOException
      */
@@ -105,7 +101,6 @@ class SmsInterface
 
     /**
      *
-     * @param DateTime $timestamp
      * @return SmsReceivedMessage[]
      * @throws GuzzleException
      * @throws PDOException

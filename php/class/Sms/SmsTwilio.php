@@ -18,10 +18,6 @@ class SmsTwilio
      */
     private static array $availableNumbers = [];
 
-    /**
-     *
-     * @return void
-     */
     static function __init(): void
     {
         $configs = Config::getConfigs("twilio");
@@ -32,10 +28,7 @@ class SmsTwilio
 
     /**
      *
-     * @param string $clientNumber
-     * @param string $message
      * @param string|null $serviceNumber
-     * @return string
      * @throws TwilioException
      */
     static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): string
@@ -54,7 +47,6 @@ class SmsTwilio
 
     /**
      *
-     * @param DateTime $timestamp
      * @return SmsReceivedMessage[]
      */
     static function getReceivedMessages(DateTime $timestamp): array

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+require_once __DIR__."/../../vendor/autoload.php";
+
 use GuzzleHttp\Client;
 
 #Script to authenticate a user trying to log into ORMS

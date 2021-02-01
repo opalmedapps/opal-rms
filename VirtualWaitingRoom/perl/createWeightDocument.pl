@@ -26,8 +26,6 @@ use SVG::Parser;
 use SVG::Rasterize;
 use Time::HiRes;
 
-use verifyPatientWithADT;
-
 #------------------------------------------
 # load configs
 #------------------------------------------
@@ -79,6 +77,7 @@ for(my $i = 0; $i < scalar @monthsENG; $i++)
     ($now = $now) =~ s/$monthsENG[$i]/$monthsFR[$i]/;
 }
 
+# this was never actually used in prod so the module was removed...
 #verify the patient exists in the hospital ADT
 #my $patientExists = verifyPatientWithADT->patientExists($patientMrnRVH,$facility,$fname,$lname);
 

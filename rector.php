@@ -22,7 +22,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set(Option::PATHS,[
         __DIR__."/php",
         __DIR__."/VirtualWaitingRoom/php",
-        __DIR__."/auth/",
+        __DIR__."/auth",
+        __DIR__."/reports",
+    ]);
+    $parameters->set(Option::SKIP,[
+        __DIR__."/VirtualWaitingRoom/php/pdfGenerator"
     ]);
 
     $services = $containerConfigurator->services();

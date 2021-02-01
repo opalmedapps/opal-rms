@@ -888,7 +888,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.logMessage = function (identifier,type,message)
     {
         $http({
-            url: "perl/logMessage.pl",
+            url: "php/logMessage.php",
             method: "GET",
             params:
             {

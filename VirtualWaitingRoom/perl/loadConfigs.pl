@@ -46,12 +46,21 @@ sub LOG_MESSAGE
     my $message = $_[2];
 
     my ($package,$filename,$line) = caller;
-
     $filename =~ s{.*/}{}; #remove path from the filename
 
-    my $encodedArgs = $JSON->encode({filename=> $filename,identifier=> $identifier,type=> $type,message=> $message});
+    my $now = localtime;
+    $now = $now->strftime("%Y-%m-%d %H:%M:%S");
 
-    system("./logMessage.pl '$encodedArgs' 1"); #add a second argument so that the log script knows to use system arguments and not cgi params
+    my $dbh =  DBI->connect_cached($LOG_DB,$LOG_USER,$LOG_PASS) or die("Couldn't connect to database: ".DBI->errstr);
+
+    my $sql = "
+        INSERT INTO $LOG_TABLE (DateTime,FileName,Identifier,Type,Message)
+        VALUES (?,?,?,?,?)
+    ";
+
+    my $query = $dbh->do($sql,undef,($now,$filename,$identifier,$type,$message)) or die("Query could not be prepared: ".$dbh->errstr);
+
+    $dbh->disconnect;
 }
 
 1;

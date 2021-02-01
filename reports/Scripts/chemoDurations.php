@@ -1,44 +1,32 @@
-#!/usr/bin/perl
+<?php declare(strict_types = 1);
+
+// legacy report script refactored from perl
+
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all the chemo appointments in specified date range and calculates the time spent inside the first "TX AREA" room the patient was checked in to.
 #---------------------------------------------------------------------------------------------------------------
 
-#----------------------------------------
-#import modules
-#----------------------------------------
-use strict;
-use v5.26;
+require __DIR__ ."/../../vendor/autoload.php";
 
-use lib '../../perl/system/modules';
-use LoadConfigs;
+use Orms\Config;
 
-use Time::Piece;
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-use JSON;
-
-#-----------------------------------------
-#start html feedback
-#-----------------------------------------
-my $cgi = CGI->new;
-print $cgi->header('application/json');
 
 #------------------------------------------
 #parse input parameters
 #------------------------------------------
-my $sDateInit = param("sDate");
-my $eDateInit = param("eDate");
+$sDateInit = $_GET["sDate"];
+$eDateInit = $_GET["eDate"];
 
-my $sDate = $sDateInit ." 00:00:00";
-my $eDate = $eDateInit ." 23:59:59";
+$sDate = $sDateInit ." 00:00:00";
+$eDate = $eDateInit ." 23:59:59";
 
 #-----------------------------------------------------
 #connect to database and run queries
 #-----------------------------------------------------
-my $dbh = LoadConfigs::GetDatabaseConnection("ORMS") or die("Couldn't connect to database: ");
+$dbh = Config::getDatabaseConnection("ORMS");
 
 #get a list of all chemotherapy appointments in the date range
-my $sql = "
+$query = $dbh->prepare("
     SELECT DISTINCT
         Patient.LastName,
         Patient.FirstName,
@@ -58,7 +46,7 @@ my $sql = "
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
             AND MV.Status = 'Completed'
             AND MV.AppointmentCode LIKE '%CHM%'
-            AND MV.ScheduledDateTime BETWEEN '$sDate' AND '$eDate'
+            AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
         INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
             AND PL.PatientLocationRevCount = (
                 SELECT MIN(PatientLocationMH.PatientLocationRevCount)
@@ -70,29 +58,13 @@ my $sql = "
     WHERE
         Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
         AND Patient.PatientId NOT LIKE 'Opal%'
-    ORDER BY MV.ScheduledDateTime, Patient.PatientId";
+    ORDER BY MV.ScheduledDateTime, Patient.PatientId
+");
+$query->execute([
+    ":sDate" => $sDate,
+    ":eDate" => $eDate
+]);
 
-my $query = $dbh->prepare_cached($sql) or die("Query could not be prepared: ".$dbh->errstr);
-$query->execute() or die("Query execution failed: ".$query->errstr);
+echo json_encode($query->fetchAll());
 
-my @treatments;
-
-#----------------------------------------
-#process data
-#----------------------------------------
-while(my $data = $query->fetchrow_hashref())
-{
-    my %data = %{$data};
-
-    push @treatments, \%data;
-}
-
-#----------------------------------------
-#output json
-#----------------------------------------
-#convert the hash data into a json string
-my $json = JSON->new->allow_nonref;
-
-print $json->encode(\@treatments);
-
-exit;
+?>

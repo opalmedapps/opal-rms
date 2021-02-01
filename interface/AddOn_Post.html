@@ -161,7 +161,7 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     //load list of oncology resources
     $http({
-        url: "../perl/getClinicResources.pl",
+        url: "/php/script/getClinicResources.php",
         method: "GET",
         params:
         {

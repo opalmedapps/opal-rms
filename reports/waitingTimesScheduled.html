@@ -1,3 +1,13 @@
+<!--
+
+
+
+    Doesn't appear to be used...
+
+
+
+-->
+
 <html>
 <title>Waiting Times Scheduled Distribution Report</title>
 <img src='../../images/logo.png'>
@@ -247,7 +257,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/WaitingDistribution?"
+            url = "./Scripts/waitingDistribution.php?"
 
             $http.get(url+"mode="+speciality+"&method=scheduled"+"&sDate="+sDate+"&eDate="+eDate).then(function (response)
             {

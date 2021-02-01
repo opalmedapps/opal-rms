@@ -204,7 +204,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/PatientDisplacements?";
+            url = "./Scripts/patientDisplacements.php?";
 
             $http.get(url+"&sDate="+sDate+"&eDate="+eDate+"&clinic=ortho").then(function (response)
             {

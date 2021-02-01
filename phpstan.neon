@@ -4,6 +4,7 @@ parameters:
         - php/
         - VirtualWaitingRoom/php/
         - auth/
+        - reports/
     excludes_analyse:
         - VirtualWaitingRoom/php/pdfGenerator/
     stubFiles:

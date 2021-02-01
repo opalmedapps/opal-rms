@@ -88,6 +88,7 @@
     <p>Find Chart: <select ng-model="selectedChart" ng-options="key as data.name for (key,data) in chartData" ng-change="selectChart(selectedChart)"><option ng-model="selectedChart" value=''>All</option></select></p>
 
     <div ng-show="showDiv" ng-repeat="(key,data) in chartData">
+        <p>Mean: {{data.mean/3600 | number: 2}} STD: {{data.std/3600| number: 2}}</p>
         <highchart ng-show="showChart[key]" config="configs[key]"></highchart>
     </div>
 
@@ -234,7 +235,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/WaitingDistribution?"
+            url = "./Scripts/waitingDistribution.php?"
 
             $http.get(url+"mode="+speciality+"&sDate="+sDate+"&eDate="+eDate).then(function (response)
             {

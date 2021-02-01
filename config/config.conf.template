@@ -2,7 +2,6 @@
 
 [orms]
 SITE                            =
-ADT_SITE_CODE                   =
 
 [path]
 BASE_PATH                       =
@@ -68,3 +67,6 @@ SEND_WEIGHTS                    =
 [aria]
 ARIA_CHECKIN_URL                =
 PHOTO_URL                       =
+
+[muhc]
+PDS_URL                         =

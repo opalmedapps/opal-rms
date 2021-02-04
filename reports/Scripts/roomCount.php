@@ -18,7 +18,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 use Orms\ArrayUtil;
 
 #parse input parameters
@@ -34,7 +34,7 @@ if($period === "AM") $eTime = "12:59:59";
 elseif($period === "PM") $sTime = "13:00:00";
 
 #connect to the database and extract data
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get a list of all rooms that patients were checked into and for which appointment
 $query = $dbh->prepare("

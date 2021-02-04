@@ -3,12 +3,12 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $speciality = $_GET['speciality'] ?? NULL;
 
 //connect to db
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //==================================
 //get profiles

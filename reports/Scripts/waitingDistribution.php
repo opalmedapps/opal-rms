@@ -5,7 +5,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #parse input parameters
 $sDate        = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
@@ -14,7 +14,7 @@ $speciality   = $_GET["mode"] ?? NULL; #speciality of appointments to find
 $method       = $_GET["method"] ?? NULL; #normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
 #connect to the database and extract data
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get a list of patients who waited in a waiting room
 $sql = "

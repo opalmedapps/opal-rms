@@ -7,8 +7,8 @@ use Orms\Config;
 
 $speciality = $_GET["speciality"];
 
-$checkinFile = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom/checkin/$speciality.json";
-$opalNotificationUrl = Config::getConfigs("opal")["OPAL_NOTIFICATION_URL"];
+$checkinFile = Config::getApplicationSettings()->environment->baseUrl ."/VirtualWaitingRoom/checkin/$speciality.json";
+$opalNotificationUrl = Config::getApplicationSettings()->opal?->notificationUrl;
 
 echo json_encode([
     "checkinFile" => $checkinFile,

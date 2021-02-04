@@ -49,7 +49,7 @@ class Patient
     //also updates the patientSer property
     public function insertPatientInDatabase(): int
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $insertPatient = $dbh->prepare("
             INSERT INTO Patient(FirstName,LastName,SSN,SSNExpDate,PatientId)
@@ -75,7 +75,7 @@ class Patient
     #updates the patient ssn and/or expiration date in the ORMS database
     public function updateSSNInDatabase(): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         if($this->patientSer === NULL) {
             throw new Exception("No patient ser");
@@ -110,7 +110,7 @@ class Patient
     #available modes are 'ONLY_PATIENT_SER' OR 'ALL'
     private function _completeObject(string $mode = "ONLY_PATIENT_SER"): void
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT DISTINCT
                 Patient.PatientSerNum,

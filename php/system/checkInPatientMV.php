@@ -4,10 +4,10 @@
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 // Create DB connection
-$conn = Config::getDatabaseConnection("ORMS");
+$conn = Database::getOrmsConnection();
 
 // Extract the webpage parameters
 $CheckinVenue = $_GET["CheckinVenue"];

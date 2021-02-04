@@ -12,7 +12,7 @@ createSmsLogTable();
 ############################################
 function createLastRunTable()
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $dbh->query("
         CREATE TABLE `Cron` (
             `System` VARCHAR(20) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -27,7 +27,7 @@ function createLastRunTable()
 
 function fillLastRunTable()
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         INSERT INTO Cron(System,LastReceivedSmsFetch)
         VALUES('ORMS',NOW());
@@ -37,7 +37,7 @@ function fillLastRunTable()
 
 function createSmsLogTable()
 {
-    $dbh = Config::getDatabaseConnection("LOGS");
+    $dbh = Database::getLogsConnection();
     $dbh->query("
         CREATE TABLE `SmsLog` (
             `SmsLogSer` INT(11) NOT NULL AUTO_INCREMENT,

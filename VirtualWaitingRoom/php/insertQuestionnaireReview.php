@@ -6,13 +6,13 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #extract the webpage parameters
 $patientId          = $_GET["patientId"] ?? NULL;
 $user               = $_GET["user"] ?? NULL;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 $dbh->prepare("
     INSERT INTO TEMP_PatientQuestionnaireReview(PatientSer,User)
     VALUES(:pSer,:user)"

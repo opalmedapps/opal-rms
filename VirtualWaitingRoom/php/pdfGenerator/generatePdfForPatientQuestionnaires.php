@@ -15,7 +15,7 @@ $name = 'Anton Gladyr';// $_GET["name"];
 $questServ = new QuestionnaireScrapperService();
 $chartsServ = new HighchartsServerService();
 $pdfBuilder = new PDFBuilderService();
-$dbConn = Config::getDatabaseConnection("QUESTIONNAIRE");
+$dbConn = Database::getQuestionnaireConnection();
 
 $questionnaireAnswers = $questServ->fetchQuestionnaires($dbConn,$patientId,$language);
 

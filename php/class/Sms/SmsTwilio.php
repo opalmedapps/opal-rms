@@ -20,10 +20,10 @@ class SmsTwilio
 
     static function __init(): void
     {
-        $configs = Config::getConfigs("twilio");
+        $configs = Config::getApplicationSettings()->sms;
 
-        self::$client = new Client($configs["LICENCE_KEY"],$configs["TOKEN"]);
-        self::$availableNumbers = $configs["REGISTERED_LONG_CODES"];
+        self::$client = new Client($configs?->twilioLicenceKey,$configs?->twilioToken);
+        self::$availableNumbers = $configs->twilioCodes ?? [];
     }
 
     /**

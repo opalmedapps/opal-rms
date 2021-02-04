@@ -4,7 +4,7 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $now = new DateTime();
 
@@ -15,7 +15,7 @@ $message    = $_GET["message"];
 
 
 //connect to database and log message
-$dbh = Config::getDatabaseConnection("LOGS");
+$dbh = Database::getLogsConnection();
 
 $query = $dbh->prepare("
     INSERT INTO VirtualWaitingRoomLog (DateTime,FileName,Identifier,Type,Message)

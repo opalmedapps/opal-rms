@@ -5,10 +5,10 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 // Create DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 // Extract the webpage parameters
 $checkinVenue = utf8_decode_recursive($_GET["checkinVenue"]);

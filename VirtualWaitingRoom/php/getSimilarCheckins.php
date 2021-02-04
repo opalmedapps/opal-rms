@@ -6,7 +6,7 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 // Extract the webpage parameters
 $firstName = $_GET["firstName"];
@@ -17,7 +17,7 @@ $patientId = $_GET["patientId"];
 // MediVisit/MySQL patients
 //======================================================================================
 // Create MySQL DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 $query = $dbh->prepare("
     SELECT

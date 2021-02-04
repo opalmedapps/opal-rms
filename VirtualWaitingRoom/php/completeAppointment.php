@@ -8,8 +8,9 @@ require_once __DIR__."/../../vendor/autoload.php";
 use GuzzleHttp\Client;
 
 use Orms\Config;
+use Orms\Database;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 // Extract the webpage parameters
 $checkoutVenue = $_GET["checkoutVenue"];
@@ -71,7 +72,7 @@ $result = $dbh->query($sql_closeApt);
 // As part of the discharge, we want to check the patient in for all other appointments again but
 // put the patient back into the waiting room that is appropriate for their next appointment
 
-$base_url = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
+$base_url = Config::getApplicationSettings()->environment->baseUrl ."/VirtualWaitingRoom";
 
 $client = new Client();
 

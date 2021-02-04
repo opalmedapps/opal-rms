@@ -9,6 +9,7 @@ rptID 21 = Information about diagnosis and prognosis of cancer disease
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 
 // define some constants
 $wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
@@ -54,15 +55,14 @@ $wsReportID = $_GET['rptID'] ?? NULL;
 
 $wsExportFlag = 0;
 
-
-// Setup the database connection
-$dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
-
 // Connect to the database
-$connection = Config::getDatabaseConnection("QUESTIONNAIRE");
+$connection = Database::getQuestionnaireConnection();
+$connectionOpal = Database::getOpalConnection();
+
+if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
 
 // Get the title of the report
-$qSQLTitle = $connection->prepare("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$qSQLTitle = $connectionOpal->prepare("Select * from QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
 $qSQLTitle->execute();
 $rowTitle = $qSQLTitle->fetchAll()[0];
 
@@ -70,10 +70,11 @@ $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
 // Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
-$wsSQLPI = "select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
-            from " . $dsCrossDatabse . ".Patient
-            where PatientID = $wsPatientID";
-$qSQLPI = $connection->prepare($wsSQLPI);
+$qSQLPI = $connectionOpal->prepare("
+    select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
+    from Patient
+    where PatientID = $wsPatientID
+");
 $qSQLPI->execute();
 $rowPI = $qSQLPI->fetchAll()[0];
 

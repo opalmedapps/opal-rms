@@ -3,9 +3,9 @@
 
 require __DIR__."/../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 $query = $dbh->prepare("
     SELECT
         ClinicHub.HubId,

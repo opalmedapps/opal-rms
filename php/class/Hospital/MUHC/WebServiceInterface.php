@@ -52,7 +52,7 @@ class WebServiceInterface
     private static function _makeAdtCall(string $func,array $params): array
     {
         #make the call to the specified webservice with an xml request
-        $url = Config::getConfigs("muhc")["PDS_URL"] ?? NULL;
+        $url = Config::getApplicationSettings()->muhc?->pdsUrl;
         try {
             $client = new SoapClient($url,self::$soapOptions);
             $patients = $client->$func($params)->return ?? []; #returns an array of patient objects

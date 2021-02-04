@@ -5,7 +5,7 @@ namespace Orms\Diagnosis;
 use Exception;
 use PDOException;
 
-use Orms\Config;
+use Orms\Database;
 use Orms\DateTime;
 use Orms\Diagnosis\Diagnosis;
 
@@ -46,7 +46,7 @@ class PatientDiagnosis
      */
     static function getDiagnosisListForPatient(int $patientId): array
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
                 PatientDiagnosisId
@@ -81,7 +81,7 @@ class PatientDiagnosis
 
     static function getDiagnosisById(int $id): PatientDiagnosis
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
                 PatientDiagnosisId
@@ -117,7 +117,7 @@ class PatientDiagnosis
 
     static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate): int
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             INSERT INTO PatientDiagnosis(PatientSerNum,DiagnosisSubcodeId,DiagnosisDate,Status,UpdatedBy)
             VALUES (:pId,:dId,:dDate,'Active','SYSTEM')
@@ -133,7 +133,7 @@ class PatientDiagnosis
 
     static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status): int
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             UPDATE PatientDiagnosis
             SET

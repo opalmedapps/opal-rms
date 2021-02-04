@@ -42,7 +42,7 @@ class Opal
         $response = self::getHttpClient()->request("POST","diagnosis/get/patient-diagnoses",[
             "form_params" => [
                 "mrn"   => $mrn,
-                "site"  => Config::getConfigs("orms")["SITE"]
+                "site"  => Config::getApplicationSettings()->environment->site
             ],
             "cookies" => self::getOpalSessionCookie()
         ])->getBody()->getContents();
@@ -55,7 +55,7 @@ class Opal
         $response = self::getHttpClient()->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
                 "mrn"           => $mrn,
-                "site"          => Config::getConfigs("orms")["SITE"],
+                "site"          => Config::getApplicationSettings()->environment->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId,
                 "code"          => $diagSubcode,

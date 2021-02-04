@@ -5,7 +5,7 @@ namespace Orms\Diagnosis;
 use Exception;
 use PDOException;
 
-use Orms\Config;
+use Orms\Database;
 
 class Diagnosis
 {
@@ -48,7 +48,7 @@ class Diagnosis
      */
     static function getDiagnosisFromId(int $id): Diagnosis
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
                 DS.DiagnosisSubcodeId
@@ -85,12 +85,12 @@ class Diagnosis
 
     /**
      *
-     * @return array<string,array<string,Diagnosis>>
+     * @return Diagnosis[]
      * @throws PDOException
      */
     static function getSubcodeList(): array
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
                 DS.DiagnosisSubcodeId

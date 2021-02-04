@@ -3,6 +3,7 @@
 namespace Orms;
 
 use \Exception;
+
 use Orms\Database;
 
 class Patient
@@ -235,7 +236,7 @@ class Patient
                 break;
         }
 
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT DISTINCT
                 PatientSerNum,

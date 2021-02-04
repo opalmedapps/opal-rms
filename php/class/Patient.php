@@ -3,7 +3,7 @@
 namespace Orms;
 
 use \Exception;
-use Orms\Config;
+use Orms\Database;
 
 class Patient
 {

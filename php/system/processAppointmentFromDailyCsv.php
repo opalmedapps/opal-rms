@@ -37,7 +37,7 @@ $appointments = Csv::loadCsvFromFile($csvFile);
 if($appointments === []) exit("Error opening file");
 
 #call the importer script and export appointments
-$url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
+$url = Config::getApplicationSettings()->environment->baseUrl ."/php/system/processAppointmentFromMedivisit";
 
 $client = new Client();
 

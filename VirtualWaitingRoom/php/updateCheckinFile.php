@@ -7,15 +7,16 @@
 require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 
 // Create MySQL DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 // Create Opal DB connection
 //perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
 //for now assume that only RVH patients have a questionniare
 try {
-    $dbOpal = Config::getDatabaseConnection("OPAL");
+    $dbOpal = Database::getOpalConnection();
 }
 catch (PDOException) {
     $dbOpal = NULL;
@@ -185,7 +186,7 @@ foreach($queryWRM->fetchAll() as $row)
 //======================================================================================
 // Open the checkinlist.txt file for writing and output the json data to the checkinlist file
 //======================================================================================
-$checkInFilePath = Config::getConfigs("path")["BASE_PATH"] ."/VirtualWaitingRoom/checkin";
+$checkInFilePath = Config::getApplicationSettings()->environment->basePath ."/VirtualWaitingRoom/checkin";
 
 foreach($json as $speciality => $data)
 {

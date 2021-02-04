@@ -6,7 +6,6 @@
 
 require_once __DIR__ ."/../vendor/autoload.php";
 
-use Orms\Config;
 use Orms\Util\Csv;
 
 #load csv file from command line input
@@ -16,7 +15,7 @@ $csvFile = (getopt("",["file:"]))["file"] ?: "";
 
 $combinations = Csv::loadCsvFromFile($csvFile);
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 $dbh->beginTransaction();
 
 #update the db

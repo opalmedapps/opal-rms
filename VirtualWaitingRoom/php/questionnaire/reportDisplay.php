@@ -3,6 +3,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 
 // define some constants
 $wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
@@ -48,14 +49,14 @@ if ($wsReportID === NULL) exit("No questionnaire id!");
 
 $wsExportFlag = 0;
 
-// Setup the database connection
-$dsCrossDatabse = Config::getConfigs("database")["OPAL_DB"];
-
 // Connect to the database
-$connection = Config::getDatabaseConnection("QUESTIONNAIRE");
+$connection = Database::getQuestionnaireConnection();
+$connectionOpal = Database::getOpalConnection();
+
+if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
 
 // Get the title of the report
-$qSQLTitle = $connection->prepare("Select * from $dsCrossDatabse.QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
+$qSQLTitle = $connectionOpal->prepare("Select * from QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
 $qSQLTitle->execute();
 $rowTitle = $qSQLTitle->fetchAll()[0];
 
@@ -63,9 +64,20 @@ $wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
 $wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
 // Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
-$qSQLPI = $connection->prepare("select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
-from " . $dsCrossDatabse . ".Patient
-where PatientID = $wsPatientID");
+$qSQLPI = $connectionOpal->prepare("
+    SELECT
+        PatientSerNum
+        ,PatientID
+        ,TRIM(CONCAT(TRIM(FirstName),' ',TRIM(LastName))) AS Name
+        ,LEFT(sex,1) as Sex
+        ,DateOfBirth
+        ,Age
+        ,Language
+    FROM
+        Patient
+    WHERE
+        PatientID = $wsPatientID"
+);
 $qSQLPI->execute();
 $rowPI = $qSQLPI->fetchAll()[0];
 
@@ -248,21 +260,24 @@ function GetQuestionnaireData(string $wsPatientID,string $wsrptID,string $wsQues
     }
 
     // Setup the database connection
-    $dsCrossDatabase = Config::getConfigs("database")["OPAL_DB"];
+    $dsCrossDatabase = Config::getApplicationSettings()->opalDb?->databaseName;
 
     // Connect to the database
-    $connection = Config::getDatabaseConnection("QUESTIONNAIRE");
-
-    $query = $connection->prepare("CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')");
-    $query->execute();
+    $connection = Database::getQuestionnaireConnection();
 
     // Prepare the output
     $output = [];
 
-    foreach($query->fetchAll() as $row)
+    if($connection !== NULL)
     {
-        // merge the output
-        $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];
+        $query = $connection->prepare("CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')");
+        $query->execute();
+
+        foreach($query->fetchAll() as $row)
+        {
+            // merge the output
+            $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];
+        }
     }
 
     // return the output

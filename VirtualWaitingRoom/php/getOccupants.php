@@ -6,10 +6,10 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 //connect to databases
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 $checkinVenue = $_GET["checkinVenue"];
 

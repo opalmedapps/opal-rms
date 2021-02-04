@@ -7,11 +7,12 @@ require __DIR__."/../../vendor/autoload.php";
 use GuzzleHttp\Client;
 
 use Orms\Config;
+use Orms\Database;
 
-$conn = Config::getDatabaseConnection("ORMS");
+$conn = Database::getOrmsConnection();
 
-$baseURL = Config::getConfigs("path")["BASE_URL"];
-$ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
+$baseURL = Config::getApplicationSettings()->environment->baseUrl;
+$ariaURL = Config::getApplicationSettings()->aria?->checkInUrl;
 
 // Extract the webpage parameters
 $PushNotification   = 0; # default of zero
@@ -106,19 +107,21 @@ foreach($queryApptMedivisit->fetchAll() as $row)
 // Send patientID to James and Yick's OpalCheckin script to synchronize the checkin state with OpalDB and send notifications
 if($PushNotification == 1)
 {
-    $opalCheckinURL = Config::getConfigs("opal")["OPAL_CHECKIN_URL"];
+    $opalCheckinURL = Config::getApplicationSettings()->opal?->checkInUrl;
 
-    try {
-        $response = $client->request("GET",$opalCheckinURL,[
-            "query" => [
-                "PatientId" => $PatientId
-            ]
-        ])->getBody()->getContents();
+    if($opalCheckinURL !== NULL)
+    {
+        try {
+            $response = $client->request("GET",$opalCheckinURL,[
+                "query" => [
+                    "PatientId" => $PatientId
+                ]
+            ])->getBody()->getContents();
+        }
+        catch(Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
-    catch(Exception $e) {
-        trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
-    }
-
 
     $response = $response ?? "";
 
@@ -132,4 +135,5 @@ if($PushNotification == 1)
 
     print($response);
 } # End of push notification
+
 ?>

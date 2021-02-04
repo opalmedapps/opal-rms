@@ -4,6 +4,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 
 //get webpage parameters
 $profileId = utf8_decode_recursive($_GET["profileId"]);
@@ -20,7 +21,7 @@ $examRooms = [];
 $clinics = [];
 
 //connect to db
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //==================================
 //get profile
@@ -323,10 +324,10 @@ foreach($clinics as $val)
 }
 
 //get firebase settings
-$configs = Config::getConfigs("vwr");
+$configs = Config::getApplicationSettings()->system;
 
-$json["FirebaseUrl"] = $configs["FIREBASE_URL"];
-$json["FirebaseSecret"] = $configs["FIREBASE_SECRET"];
+$json["FirebaseUrl"] = $configs->firebaseUrl;
+$json["FirebaseSecret"] = $configs->firebaseSecret;
 
 //encode and return the json object
 $json = utf8_encode_recursive($json);

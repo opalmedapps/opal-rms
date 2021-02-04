@@ -2,7 +2,7 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 use Orms\ArrayUtil;
 
@@ -79,7 +79,7 @@ foreach($patients as $pat)
  */
 function getAppointments(): array
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
             Patient.PatientId AS mrn,
@@ -131,7 +131,7 @@ function getAppointments(): array
 #checks to see if a reminder was already sent for a specific appointment
 function checkIfReminderAlreadySent(string $appSer): bool
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT SmsReminderLogSer
         FROM TEMP_SmsReminderLog
@@ -145,7 +145,7 @@ function checkIfReminderAlreadySent(string $appSer): bool
 
 function logReminderData(string $mrn,string $phoneNumber,string $message,string $appSer,string $appName): void
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         INSERT INTO TEMP_SmsReminderLog(Mrn,PhoneNumber,MessageSent,AppointmentSer,AppointmentName)
         VALUES(?,?,?,?,?)

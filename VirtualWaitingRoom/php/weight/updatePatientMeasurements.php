@@ -3,7 +3,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 //get webpage parameters
 $patientId = $_GET["patientId"];
@@ -14,7 +14,7 @@ $bsa = $_GET["bsa"];
 $appointmentId = $_GET["appointmentId"];
 
 //connect to db
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //get the current mrn of the patient as a security check
 $queryPatientExists = $dbh->prepare("

@@ -8,7 +8,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #------------------------------------------
 #parse input parameters
@@ -60,7 +60,7 @@ $dateFormat = '%Y-%m-%d %H:%M:%S';
 #-----------------------------------------------------
 #connect to database and run queries
 #-----------------------------------------------------
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 $queryClinics = $dbh->prepare("
     SELECT DISTINCT

@@ -6,11 +6,11 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $speciality = $_GET["clinic"] ?? NULL;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 $sql = "
     SELECT DISTINCT

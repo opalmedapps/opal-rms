@@ -5,10 +5,11 @@ require __DIR__."/../../vendor/autoload.php";
 use GuzzleHttp\Client;
 
 use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 use Orms\ArrayUtil;
 
-$checkInScriptUrl = Config::getConfigs("path")["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php";
+$checkInScriptUrl = Config::getApplicationSettings()->environment->baseUrl ."/php/system/checkInPatientAriaMedi.php";
 
 #get all the message that we received since the last time we checked
 
@@ -140,7 +141,7 @@ foreach($messages as $message)
  */
 function getAppointmentList(string $pSer): array
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
             MV.AppointmentSerNum AS id,
@@ -178,7 +179,7 @@ function getAppointmentList(string $pSer): array
 
 function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         INSERT INTO TEMP_IncomingSmsLog(ReceivedTimestamp,FromPhoneNumber,PatientSerNum,ReceivedMessage,ReturnMessage,Result)
         VALUES(:rec,:num,:pSer,:msg,:rmsg,:res)
@@ -201,7 +202,7 @@ function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patient
  */
 function getPatientInfo(string $phoneNumber): ?array
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
             Patient.PatientSerNum,
@@ -220,7 +221,7 @@ function getPatientInfo(string $phoneNumber): ?array
 
 function getLastRun(): DateTime
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
             LastReceivedSmsFetch
@@ -244,7 +245,7 @@ function getLastRun(): DateTime
 
 function setLastRun(DateTime $timestamp): void
 {
-    $dbh = Config::getDatabaseConnection("ORMS");
+    $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         UPDATE Cron
         SET

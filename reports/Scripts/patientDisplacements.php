@@ -8,7 +8,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #------------------------------------------
 #parse input parameters
@@ -27,7 +27,7 @@ if($clinic === "ortho") $specialityFilter = "AND ClinicResources.Speciality = 'O
 #-----------------------------------------------------
 #connect to database and run queries
 #-----------------------------------------------------
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get a list of check in/outs for patients who had an appointment in the specified date range
 #this includes the PatientLocation table

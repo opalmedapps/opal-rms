@@ -64,7 +64,7 @@ class Appointment
         $this->patient->updateSSNInDatabase();
 
         #insert row into database
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $insertAppointment = $dbh->prepare("
             INSERT INTO MediVisitAppointmentList
@@ -133,7 +133,7 @@ class Appointment
         //     $this->patient->updateSSNInDatabase();
         // }
 
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $deleteAppointment = $dbh->prepare("
             UPDATE MediVisitAppointmentList
@@ -161,7 +161,7 @@ class Appointment
     #returns NULL if there is no match
     private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): int
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $queryClinic = $dbh->prepare("
             SELECT
@@ -205,7 +205,7 @@ class Appointment
 
     private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): int
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $queryAppId = $dbh->prepare("
             SELECT
@@ -253,7 +253,7 @@ class Appointment
             return;
         }
 
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
 
         $queryAppId = $dbh->prepare("
             SELECT
@@ -288,7 +288,7 @@ class Appointment
                 ":sys"  => $this->system
             ]);
 
-            $emails = Config::getConfigs("alert")["EMAIL"] ?? [];
+            $emails = Config::getApplicationSettings()->system->emails;
 
             $recepient = implode(",",$emails);
             $subject = "ORMS - New appointment type detected";
@@ -341,7 +341,7 @@ class Appointment
         }
 
         #make sure the site of the appointment matches the site in the config
-        $acceptedSite = Config::getConfigs("orms")["SITE"];
+        $acceptedSite = Config::getApplicationSettings()->environment->site;
         if($acceptedSite !== $this->site) {
             throw new Exception("Site is not supported");
         }

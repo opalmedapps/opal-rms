@@ -8,8 +8,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
-
+use Orms\Database;
 
 #------------------------------------------
 #parse input parameters
@@ -23,7 +22,7 @@ $eDate = $eDateInit ." 23:59:59";
 #-----------------------------------------------------
 #connect to database and run queries
 #-----------------------------------------------------
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get a list of all chemotherapy appointments in the date range
 $query = $dbh->prepare("

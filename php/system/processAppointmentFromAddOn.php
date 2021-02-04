@@ -25,7 +25,7 @@ foreach($postParams as $key => $val) {
 }
 
 #call the importer script
-$url = Config::getConfigs("path")["BASE_URL"]."/php/system/processAppointmentFromMedivisit";
+$url = Config::getApplicationSettings()->environment->baseUrl ."/php/system/processAppointmentFromMedivisit";
 
 $client = new Client();
 $request = $client->request("POST",$url,[
@@ -48,8 +48,8 @@ echo $requestResult;
 #temp function to check in a patient after their add on has been created
 function checkInPatientForAddOn(string $patId): void
 {
-    $path = Config::getConfigs("path");
-    (new Client())->request("GET",$path["BASE_URL"] ."/php/system/checkInPatientAriaMedi.php",[
+    $url = Config::getApplicationSettings()->environment->baseUrl;
+    (new Client())->request("GET",$url ."/php/system/checkInPatientAriaMedi.php",[
         "query" => [
             "CheckinVenue" => "ADDED ON BY RECEPTION",
             "PatientId" => $patId

@@ -6,7 +6,7 @@
 #====================================================================================
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 
 # Extract the webpage parameters
@@ -16,7 +16,7 @@ $zoomLink     = $_GET["zoomLink"];
 $resName      = $_GET["resName"];
 
 #find the patient in ORMS
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 $queryOrms = $dbh->prepare("
     SELECT

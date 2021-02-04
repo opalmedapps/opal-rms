@@ -3,14 +3,14 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 //get webpage parameters
 $category = utf8_decode_recursive($_GET['category'] ?? NULL);
 $speciality = utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
 
 //connect to db
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //==================================
 //get profiles

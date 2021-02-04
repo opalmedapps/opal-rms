@@ -24,7 +24,7 @@ class Logger
         string $result
     ): void
     {
-        $dbh = Config::getDatabaseConnection("LOGS");
+        $dbh = Database::getLogsConnection();
         $query = $dbh->prepare("
             REPLACE INTO SmsLog(
                 SmsTimestamp

@@ -7,7 +7,7 @@ require __DIR__."/../../vendor/autoload.php";
 
 use GetOpt\GetOpt;
 
-use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 
 // Extract the command line parameters
@@ -26,7 +26,7 @@ $message_EN = $opts->getOption("message_EN") ?? "";
 // Database
 //====================================================================================
 // Create MySQL DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //====================================================================================
 // SMS Number

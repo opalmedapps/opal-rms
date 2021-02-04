@@ -5,12 +5,12 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $speciality = $_GET["clinic"] ?? NULL;
 
 #get the list of possible appointments and their resources
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 $query = $dbh->prepare("
         SELECT DISTINCT
             MV.Resource AS code,

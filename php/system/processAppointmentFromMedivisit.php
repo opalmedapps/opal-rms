@@ -10,10 +10,11 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 use Orms\Patient;
 use Orms\Appointment;
 
-$systemSite = Config::getConfigs("orms")["SITE"];
+$systemSite = Config::getApplicationSettings()->environment->site;
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -181,7 +182,7 @@ function logRequest(array $requestInfo): void
     if($requestInfo["Result"] === NULL) $requestInfo["Result"] = "System Error";
 
     #log the request
-    $dbh = Config::getDatabaseConnection("LOGS");
+    $dbh = Database::getLogsConnection();
     $query = $dbh->prepare("
         INSERT INTO ImportLogForMedivisitInterfaceEngine
         (ImportTimestamp,Result,Action,AdmDesc,AdmType,AppointCode,AppointDate,AppointId,AppointSys,AppointTime,CreationDate,PatFirstName,PatLastName,PatientId,Ramq,RamqExpireDate,ReferringMd,ResourceCode,ResourceName,Site,SpecialityGroup,Status,VisitDate,VisitId,VisitTime)

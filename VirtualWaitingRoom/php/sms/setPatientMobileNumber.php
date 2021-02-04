@@ -5,7 +5,7 @@
 //====================================================================================
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 
 #extract the webpage parameters
@@ -14,7 +14,7 @@ $smsAlertNum        = $_GET["phoneNumber"] ?? NULL;
 $languagePreference = $_GET["language"] ?? NULL;
 $speciality         = $_GET["speciality"] ?? NULL;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #if the phone number provided was empty, then unsuscribe the patient to the service instead
 if($smsAlertNum === "" || $smsAlertNum === NULL)

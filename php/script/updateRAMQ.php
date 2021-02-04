@@ -5,10 +5,10 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 // Create DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #------------------------------------------------------------------------
 # Extract the webpage parameters require both RAMQ and patient Id so that

@@ -5,11 +5,11 @@ require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 
-$configs = Config::getConfigs("vwr");
+$configs = Config::getApplicationSettings()->system;
 
 echo json_encode([
-    "FirebaseUrl"       => $configs["FIREBASE_URL"],
-    "FirebaseSecret"    => $configs["FIREBASE_SECRET"]
+    "FirebaseUrl"       => $configs->firebaseUrl,
+    "FirebaseSecret"    => $configs->firebaseSecret
 ]);
 
 ?>

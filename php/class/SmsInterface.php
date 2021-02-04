@@ -27,16 +27,18 @@ class SmsInterface
      */
     static function __init(): void
     {
-        $smsConfigs = Config::getConfigs("sms");
-        $twilioConfigs = Config::getConfigs("twilio");
-        $cdyneConfigs = Config::getConfigs("cdyne");
+        // $smsConfigs = Config::getConfigs("sms");
+        // $twilioConfigs = Config::getConfigs("twilio");
+        // $cdyneConfigs = Config::getConfigs("cdyne");
 
-        if($smsConfigs["enabled"] !== "1") {
+        $configs = Config::getApplicationSettings()->sms;
+
+        if($configs?->enabled !== TRUE) {
             throw new Exception("Sms not enabled");
         }
 
-        self::$availableNumbers["Twilio"] = $twilioConfigs["REGISTERED_LONG_CODES"];
-        self::$availableNumbers["Cdyne"] = $cdyneConfigs["REGISTERED_LONG_CODES"];
+        self::$availableNumbers["Twilio"] = $configs->twilioCodes ?? [];
+        self::$availableNumbers["Cdyne"] = $configs->cdyneCodes ?? [];
     }
 
     /**
@@ -144,7 +146,7 @@ class SmsInterface
     */
     static function getPossibleSmsMessages(): array
     {
-        $dbh = Config::getDatabaseConnection("ORMS");
+        $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
                 Speciality

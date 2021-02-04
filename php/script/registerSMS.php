@@ -5,7 +5,7 @@
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 use Orms\SmsInterface;
 
 #print header
@@ -32,7 +32,7 @@ $Ramq = strtoupper($Ramq);
 // Database - ORMS
 //====================================================================================
 // Create MySQL DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //====================================================================================
 // If Patient exists in ORMS, update the preferences

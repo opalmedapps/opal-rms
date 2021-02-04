@@ -10,7 +10,7 @@ patchSmsLog();
 ############################################
 function patchSmsLog()
 {
-    $dbh = Config::getDatabaseConnection("LOGS");
+    $dbh = Database::getLogsConnection();
     $dbh->query("
         ALTER TABLE `SmsLog`
         CHANGE COLUMN `Result` `Result` TEXT NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci' AFTER `ProcessedTimestamp`;

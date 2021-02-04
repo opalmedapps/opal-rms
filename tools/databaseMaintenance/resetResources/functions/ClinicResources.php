@@ -13,7 +13,7 @@ class ClinicResources
 
     public static function __init(): void
     {
-        self::$dbh = Config::getDatabaseConnection("ORMS");
+        self::$dbh = Database::getOrmsConnection();
     }
 
     static function regenerateClinicResources(): void

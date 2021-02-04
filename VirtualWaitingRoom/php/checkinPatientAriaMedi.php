@@ -8,17 +8,17 @@ require_once __DIR__."/../../vendor/autoload.php";
 use GuzzleHttp\Client;
 
 use Orms\Config;
+use Orms\Database;
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 // Extract the webpage parameters
 $checkinVenue = $_GET["checkinVenue"];
 $originalAppointmentSer = $_GET["appointmentSer"] ?? "";
 $patientId = $_GET["patientId"];
 
-$baseURL = Config::getConfigs("path")["BASE_URL"] ."/VirtualWaitingRoom";
-
-$ariaURL = Config::getConfigs("aria")["ARIA_CHECKIN_URL"] ?? NULL;
+$baseURL = Config::getApplicationSettings()->environment->baseUrl ."/VirtualWaitingRoom";
+$ariaURL = Config::getApplicationSettings()->aria?->checkInUrl;
 
 //======================================================================================
 // Check for upcoming appointments

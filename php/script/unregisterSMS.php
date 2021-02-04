@@ -5,7 +5,7 @@
 //====================================================================================
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');
@@ -22,7 +22,7 @@ if(empty($SMSAlertNum))
 // Database - ORMS
 //====================================================================================
 // Create MySQL DB connection
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //====================================================================================
 // Remove the input phone number from to the ORMS db

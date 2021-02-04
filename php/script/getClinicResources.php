@@ -2,11 +2,11 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $speciality = $_GET["speciality"];
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get the list of possible appointments and their resources
 $queryClinicResources = $dbh->prepare("

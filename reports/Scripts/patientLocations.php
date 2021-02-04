@@ -6,7 +6,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #parse input parameters
 $sDate                  = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
@@ -21,7 +21,7 @@ elseif($clinic === 'ortho') $specialityFilter = " AND CR.Speciality = 'Ortho' ";
 $appointmentFilter = ($specifiedAppointment) ?  " AND AC.AppointmentCode LIKE '%$specifiedAppointment%' " : "";
 
 #connect to the database and extract data
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #get a list of check in/outs for patients who had an appointment in the specified date range
 #this includes the PatientLocation table

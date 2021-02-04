@@ -3,19 +3,20 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
+use Orms\Database;
 use Orms\Hospital\MUHC\WebServiceInterface;
 
 $ramq = $_GET["ramq"] ?? NULL;
 $mrn  = $_GET["pid"] ?? NULL;
 
-$mrnSite = Config::getConfigs("orms")["SITE"];
+$mrnSite = Config::getApplicationSettings()->environment->site;
 
 if($ramq === NULL && $mrn === NULL) {
     exit;
 }
 
 #connect to database
-$dbh = Config::GetDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 #format sql query based on the input mrn
 if($ramq !== NULL) $searchCondition = " SSN = :identifier ";

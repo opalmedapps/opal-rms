@@ -6,9 +6,15 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
-$dbh = Config::getDatabaseConnection("OPAL");
+$dbh = Database::getOpalConnection();
+
+if($dbh === NULL)
+{
+    echo json_encode([]);
+    exit;
+}
 
 $sql = "
 SELECT DISTINCT

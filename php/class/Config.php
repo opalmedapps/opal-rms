@@ -3,82 +3,238 @@
 namespace Orms;
 
 use Exception;
-use PDO;
+use TypeError;
 
 Config::__init();
 
+/** @psalm-immutable */
 class Config
 {
+    private static Config $self;
 
-    /** @var mixed[] */
-    private static array $configs;
+    private function __construct(
+        public EnvironmentConfig $environment,
+        public SystemConfig $system,
+        public DatabaseConfig $ormsDb,
+        public DatabaseConfig $logDb,
+        public ?SmsConfig $sms,
+        public ?DatabaseConfig $opalDb,
+        public ?DatabaseConfig $questionnaireDb,
+        public ?OpalConfig $opal,
+        public ?AriaConfig $aria,
+        public ?MuhcConfig $muhc,
+    ) {}
 
-    #class constructor
-    public static function __init(): void
+    public static function getApplicationSettings(): Config
     {
-        #load the config file
-        $configs = parse_ini_file(dirname(__FILE__) ."/../../config/config.conf",TRUE);
+        return self::$self;
+    }
 
-        if($configs === FALSE) throw new Exception("Loading configs failed");
+    static function __init(): void
+    {
+        $loadedData = parse_ini_file(__DIR__."/../../config/config.conf",TRUE) ?: throw new Exception("Loading configs failed");
+        $parsedData = self::_parseData($loadedData);
 
-        self::$configs = $configs;
+        //create required configs
+        $environment = new EnvironmentConfig(
+            basePath:   $parsedData["path"]["BASE_PATH"],
+            baseUrl:    $parsedData["path"]["BASE_URL"],
+            imagePath:  $parsedData["path"]["IMAGE_PATH"],
+            imageUrl:   $parsedData["path"]["IMAGE_URL"],
+            logPath:    $parsedData["path"]["LOG_PATH"],
+            site:       $parsedData["orms"]["SITE"],
+        );
+
+        $system = new SystemConfig(
+            emails:          $parsedData["alert"]["EMAIL"] ?? [],
+            firebaseUrl:     $parsedData["vwr"]["FIREBASE_URL"],
+            firebaseSecret:  $parsedData["vwr"]["FIREBASE_SECRET"]
+        );
+
+        $ormsDb = new DatabaseConfig(
+            type:           $parsedData["database"]["ORMS_TYPE"],
+            host:           $parsedData["database"]["ORMS_HOST"],
+            port:           $parsedData["database"]["ORMS_PORT"],
+            databaseName:   $parsedData["database"]["ORMS_DB"],
+            username:       $parsedData["database"]["ORMS_USERNAME"],
+            password:       $parsedData["database"]["ORMS_PASSWORD"],
+        );
+
+        $logDb = new DatabaseConfig(
+            type:           $parsedData["database"]["LOG_TYPE"],
+            host:           $parsedData["database"]["LOG_HOST"],
+            port:           $parsedData["database"]["LOG_PORT"],
+            databaseName:   $parsedData["database"]["LOG_DB"],
+            username:       $parsedData["database"]["LOG_USERNAME"],
+            password:       $parsedData["database"]["LOG_PASSWORD"],
+        );
+
+        //create optional configs
+        try {
+            $opalDb = new DatabaseConfig(
+                type:           $parsedData["database"]["OPAL_TYPE"],
+                host:           $parsedData["database"]["OPAL_HOST"],
+                port:           $parsedData["database"]["OPAL_PORT"],
+                databaseName:   $parsedData["database"]["OPAL_DB"],
+                username:       $parsedData["database"]["OPAL_USERNAME"],
+                password:       $parsedData["database"]["OPAL_PASSWORD"],
+            );
+        } catch(TypeError) {$opalDb = NULL;}
+
+        try {
+            $questionnaireDb = new DatabaseConfig(
+                type:           $parsedData["database"]["QUESTIONNAIRE_TYPE"],
+                host:           $parsedData["database"]["QUESTIONNAIRE_HOST"],
+                port:           $parsedData["database"]["QUESTIONNAIRE_PORT"],
+                databaseName:   $parsedData["database"]["QUESTIONNAIRE_DB"],
+                username:       $parsedData["database"]["QUESTIONNAIRE_USERNAME"],
+                password:       $parsedData["database"]["QUESTIONNAIRE_PASSWORD"],
+            );
+        }
+        catch(TypeError) {$questionnaireDb = NULL;}
+
+        try {
+            $sms = new SmsConfig(
+                enabled:             (bool) $parsedData["sms"]["enabled"],
+                twilioLicenceKey:    $parsedData["twilio"]["LICENCE_KEY"],
+                twilioToken:         $parsedData["twilio"]["TOKEN"],
+                twilioCodes:         $parsedData["twilio"]["REGISTERED_LONG_CODES"] ?? [],
+                cdyneLicenceKey:     $parsedData["cdyne"]["LICENCE_KEY"],
+                cdyneCodes:          $parsedData["cdyne"]["REGISTERED_LONG_CODES"] ?? [],
+            );
+        } catch(TypeError) {$sms = NULL;}
+
+        try {
+            $opal = new OpalConfig(
+                checkInUrl:         $parsedData["opal"]["OPAL_CHECKIN_URL"],
+                notificationUrl:    $parsedData["opal"]["OPAL_NOTIFICATION_URL"],
+            );
+        } catch(TypeError) {$opal = NULL;}
+
+        try {
+            $aria = new AriaConfig(
+                checkInUrl: $parsedData["aria"]["ARIA_CHECKIN_URL"],
+            );
+        } catch(TypeError) {$aria = NULL;}
+
+        try {
+            $muhc = new MuhcConfig(
+                pdsUrl: $parsedData["muhc"]["PDS_URL"],
+            );
+        } catch(TypeError) {$muhc = NULL;}
+
+        self::$self = new self(
+            environment:        $environment,
+            system:             $system,
+            ormsDb:             $ormsDb,
+            logDb:              $logDb,
+            opalDb:             $opalDb,
+            questionnaireDb:    $questionnaireDb,
+            sms:                $sms,
+            opal:               $opal,
+            aria:               $aria,
+            muhc:               $muhc,
+        );
     }
 
     /**
-     * returns a hash with all configs
+     * Function to convert all empty string in an assoc array into nulls
+     * @param array<string|string[]> $arr
      * @return mixed[]
      */
-    public static function GetAllConfigs(): array
+    private static function _parseData(array $arr): array
     {
-        return self::$configs;
-    }
+        foreach($arr as &$val)
+        {
+            $val = is_array($val) ? self::_parseData($val) : $val;
+            $val = ($val !== "") ? $val : NULL;
+        }
 
+        return $arr;
+    }
+}
+
+/** @psalm-immutable */
+class EnvironmentConfig
+{
+    function __construct(
+        public string $basePath,
+        public string $baseUrl,
+        public string $imagePath,
+        public string $imageUrl,
+        public string $logPath,
+        public string $site
+    ) {}
+}
+
+/** @psalm-immutable */
+class DatabaseConfig
+{
+    function __construct(
+        public string $type,
+        public string $host,
+        public string $port,
+        public string $databaseName,
+        public string $username,
+        public string $password
+    ) {}
+}
+
+/** @psalm-immutable */
+class SystemConfig
+{
+    /** @param string[] $emails */
+
+    function __construct(
+        public array $emails,
+        public string $firebaseUrl,
+        public string $firebaseSecret,
+        //public bool sendWeights //not being used in php, only perl
+    ) {}
+}
+
+/** @psalm-immutable */
+class SmsConfig
+{
     /**
-     * returns a hash with specific configs
-     * @return mixed[]
+     * @param string[] $twilioCodes
+     * @param string[] $cdyneCodes
      */
-    public static function getConfigs(string $section): array
-    {
-        return self::$configs[$section];
-    }
 
-    #returns a db connection handle to a requested database server
-    #options are currently predefined as "ORMS"
-    #return 0 if connection fails
-    public static function getDatabaseConnection(string $requestedConnection): PDO
-    {
-        $dbInfo = self::$configs['database'];
-        $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-        ];
+    function __construct(
+        public bool $enabled,
+        public string $twilioLicenceKey,
+        public string $twilioToken,
+        public array $twilioCodes,
+        public string $cdyneLicenceKey,
+        public array $cdyneCodes
+    ) {}
+}
 
-        #connects to WaitRoomManagment db by default
-        if($requestedConnection === 'ORMS') {
-            $dbh = new PDO("mysql:host={$dbInfo['ORMS_HOST']};port={$dbInfo['ORMS_PORT']};dbname={$dbInfo['ORMS_DB']}",$dbInfo['ORMS_USERNAME'],$dbInfo['ORMS_PASSWORD'],$options);
-        }
+/** @psalm-immutable */
+class OpalConfig
+{
+    function __construct(
+        public string $checkInUrl,
+        public string $notificationUrl,
+    ) {}
+}
 
-        #logging db
-        elseif($requestedConnection === 'LOGS') {
-            $dbh = new PDO("mysql:host={$dbInfo['LOG_HOST']};port={$dbInfo['LOG_PORT']};dbname={$dbInfo['LOG_DB']}",$dbInfo['LOG_USERNAME'],$dbInfo['LOG_PASSWORD'],$options);
-        }
+/** @psalm-immutable */
+class MuhcConfig
+{
+    function __construct(
+        public string $pdsUrl,
+    ) {}
+}
 
-        #opal db
-        elseif($requestedConnection === 'OPAL') {
-            $dbh = new PDO("mysql:host={$dbInfo['OPAL_HOST']};port={$dbInfo['OPAL_PORT']};dbname={$dbInfo['OPAL_DB']}",$dbInfo['OPAL_USERNAME'],$dbInfo['OPAL_PASSWORD'],$options);
-        }
-
-        #questionnaire db
-        elseif($requestedConnection === 'QUESTIONNAIRE') {
-            $dbh = new PDO("mysql:host={$dbInfo['QUESTIONNAIRE_HOST']};port={$dbInfo['QUESTIONNAIRE_PORT']};dbname={$dbInfo['QUESTIONNAIRE_DB']}",$dbInfo['QUESTIONNAIRE_USERNAME'],$dbInfo['QUESTIONNAIRE_PASSWORD'],$options);
-        }
-
-        else {
-            throw new Exception("Couldn't connect to database");
-        }
-
-        return $dbh;
-    }
+/** @psalm-immutable */
+class AriaConfig
+{
+    function __construct(
+        public string $checkInUrl,
+        //public string photoUrl //not being used in php, only perl
+    ) {}
 }
 
 ?>

@@ -28,11 +28,11 @@ class SmsCdyne
 
     static function __init(): void
     {
-        $configs = Config::getConfigs("cdyne");
+        $configs = Config::getApplicationSettings()->sms;
 
         self::$client = new Client();
-        self::$licence = $configs["LICENCE_KEY"];
-        self::$availableNumbers = $configs["REGISTERED_LONG_CODES"];
+        self::$licence = $configs->cdyneLicenceKey ?? "";
+        self::$availableNumbers = $configs->cdyneCodes ?? [];
     }
 
     /**

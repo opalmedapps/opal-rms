@@ -3,7 +3,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 //get webpage parameters
 $postData = getPostContents();
@@ -25,7 +25,7 @@ foreach($profile['Locations'] as $loc)
 }
 
 //connect to db
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 
 //if the profile is a new one, we have to create it
 //if not, we just update an existing profile with new information

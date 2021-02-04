@@ -1,12 +1,11 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 #---------------------------------------------------------------------------------------------------------------
 # This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 #---------------------------------------------------------------------------------------------------------------
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 #get input parameters
 
@@ -49,8 +48,14 @@ $qDate = "$qDateInit $qTime";
 
 
 #database connection
-$dbh = Config::getDatabaseConnection("ORMS");
-$dbOpal = Config::getDatabaseConnection("OPAL");
+$dbh = Database::getOrmsConnection();
+$dbOpal = Database::getOpalConnection();
+
+if($dbOpal === NULL)
+{
+    echo json_encode([]);
+    exit;
+}
 
 #opal database query run under 'and' mode
 $sqlOpal = "

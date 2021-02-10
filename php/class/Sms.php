@@ -7,73 +7,48 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 
 use Orms\Config;
-use Orms\Sms\{SmsTwilio,SmsCdyne,SmsReceivedMessage};
+use Orms\SmsConfig;
+use Orms\Database;
+use Orms\Sms\{SmsTwilio,SmsCdyne,SmsInterface,SmsReceivedMessage};
 use Orms\ArrayUtil;
 use Orms\Logger;
 use PDOException;
 
-SmsInterface::__init();
+Sms::__init();
 
-class SmsInterface
+class Sms
 {
-    /**
-     * @var array<string[]>
-     */
-    private static array $availableNumbers = [];
+    private static ?SmsConfig $configs;
+    private static SmsInterface $smsProvider;
 
-    /**
-     *
-     * @throws Exception
-     */
     static function __init(): void
     {
-        // $smsConfigs = Config::getConfigs("sms");
-        // $twilioConfigs = Config::getConfigs("twilio");
-        // $cdyneConfigs = Config::getConfigs("cdyne");
+        self::$configs = Config::getApplicationSettings()->sms;
 
-        $configs = Config::getApplicationSettings()->sms;
-
-        if($configs?->enabled !== TRUE) {
-            throw new Exception("Sms not enabled");
-        }
-
-        self::$availableNumbers["Twilio"] = $configs->twilioCodes ?? [];
-        self::$availableNumbers["Cdyne"] = $configs->cdyneCodes ?? [];
+        if(self::$configs?->provider === "twilio")     self::$smsProvider = new SmsTwilio();
+        elseif(self::$configs?->provider === "cdyne")  self::$smsProvider = new SmsCdyne();
     }
 
     /**
      *
-     * @param string|null $serviceNumber
      * @throws GuzzleException
      * @throws PDOException
      */
     static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): void
     {
+        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return;
+
         #by default, we send sms using Twilio
         if($serviceNumber === NULL) {
-            $serviceNumber = self::$availableNumbers["Twilio"][array_rand(self::$availableNumbers["Twilio"])];
+            $serviceNumber = self::$configs->longCodes[array_rand(self::$configs->longCodes)];
         }
 
-        $provider = "UNKNOWN";
         $messageId = NULL;
         $result = NULL;
 
         try
         {
-            if(in_array($serviceNumber,self::$availableNumbers["Twilio"],TRUE))
-            {
-                $provider = "Twilio";
-                $messageId = SmsTwilio::sendSms($clientNumber,$message,$serviceNumber);
-            }
-            elseif(in_array($serviceNumber,self::$availableNumbers["Cdyne"],TRUE))
-            {
-                $provider = "Cdyne";
-                $messageId = SmsCdyne::sendSms($clientNumber,$message,$serviceNumber);
-            }
-            else {
-                throw new Exception("Unknown sms provider");
-            }
-
+            $messageId = self::$smsProvider->sendSms($clientNumber,$serviceNumber,$message);
             $result = "SUCCESS";
         }
         catch(Exception $e)
@@ -82,18 +57,11 @@ class SmsInterface
             $result = "FAILURE : {$e->getMessage()}";
         }
 
-        #it might be possible to generate no message id when sending an sms (cdyne) so we have to generate one
-        if($messageId === NULL)
-        {
-            $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
-            $result = "FAILURE : Couldn't generate a messageId";
-        }
-
         Logger::LogSms(
             $clientNumber,
             $serviceNumber,
             $messageId,
-            $provider,
+            ucfirst(self::$configs->provider),
             "SENT",
             $message,
             new DateTime(),
@@ -107,15 +75,13 @@ class SmsInterface
      * @throws GuzzleException
      * @throws PDOException
      */
-    static function getReceivedMessages(DateTime $timestamp): array
+    static function getNewReceivedMessages(DateTime $timestamp): array
     {
-        $messages = [];
+        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return [];
 
-        $messages = array_merge($messages,SmsTwilio::getReceivedMessages($timestamp));
-        $messages = array_merge($messages,SmsCdyne::getReceivedMessages());
-
-        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
-            return $a->timeReceived <=> $b->timeReceived;
+        $messages = self::$smsProvider->getReceivedMessages(self::$configs->longCodes,$timestamp);
+        $messages = array_filter($messages,function($x) {
+            return self::_checkIfMessageAlreadyReceived($x) === FALSE;
         });
 
         foreach($messages as $x) {
@@ -146,6 +112,8 @@ class SmsInterface
     */
     static function getPossibleSmsMessages(): array
     {
+        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return [];
+
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
@@ -166,6 +134,23 @@ class SmsInterface
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
         return utf8_encode_recursive($messages);
+    }
+
+    private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool
+    {
+        $dbh = Database::getLogsConnection();
+        $query = $dbh->prepare("
+            SELECT
+                MessageId
+            FROM
+                SmsLog
+            WHERE
+                MessageId = :id
+
+        ");
+        $query->execute([":id" => $message->messageId]);
+
+        return count($query->fetchAll()) > 0;
     }
 
 }

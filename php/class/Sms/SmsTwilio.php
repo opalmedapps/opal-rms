@@ -4,40 +4,28 @@ namespace Orms\Sms;
 
 use DateTime;
 use Orms\Config;
-use Orms\Sms\SmsReceivedMessage;
+use Orms\Sms\{SmsReceivedMessage,SmsInterface};
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Client;
 
-SmsTwilio::__init();
-
-class SmsTwilio
+class SmsTwilio implements SmsInterface
 {
-    private static Client $client;
-    /**
-     * @var string[]
-     */
-    private static array $availableNumbers = [];
+    private Client $client;
 
-    static function __init(): void
+    function __construct()
     {
         $configs = Config::getApplicationSettings()->sms;
 
-        self::$client = new Client($configs?->twilioLicenceKey,$configs?->twilioToken);
-        self::$availableNumbers = $configs->twilioCodes ?? [];
+        $this->client = new Client($configs?->licenceKey,$configs?->token);
     }
 
     /**
      *
-     * @param string|null $serviceNumber
      * @throws TwilioException
      */
-    static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): string
+    function sendSms(string $clientNumber,string $serviceNumber,string $message): string
     {
-        if($serviceNumber === NULL) {
-            $serviceNumber = self::$availableNumbers[array_rand(self::$availableNumbers)];
-        }
-
-        $sentSms = self::$client->messages->create($clientNumber,[
+        $sentSms = $this->client->messages->create($clientNumber,[
             "body" => $message,
             "from" => $serviceNumber
         ]);
@@ -49,13 +37,13 @@ class SmsTwilio
      *
      * @return SmsReceivedMessage[]
      */
-    static function getReceivedMessages(DateTime $timestamp): array
+    function getReceivedMessages(array $availableNumbers,DateTime $timestamp): array
     {
         $messages = [];
 
-        foreach(self::$availableNumbers as $number)
+        foreach($availableNumbers as $number)
         {
-            $incomingMessages = self::$client->messages->read([
+            $incomingMessages = $this->client->messages->read([
                 "to"        => $number,
                 "dateSent"  => $timestamp
             ]);

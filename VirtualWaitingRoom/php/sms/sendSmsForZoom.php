@@ -7,7 +7,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 
 # Extract the webpage parameters
 
@@ -47,7 +47,7 @@ else {
 }
 
 #send sms
-SmsInterface::sendSms($smsAlertNum,$message);
+Sms::sendSms($smsAlertNum,$message);
 
 echo "message should have been sent...";
 

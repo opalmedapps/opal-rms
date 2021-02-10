@@ -8,7 +8,7 @@ require __DIR__."/../../vendor/autoload.php";
 use GetOpt\GetOpt;
 
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 
 // Extract the command line parameters
 $opts = new GetOpt([
@@ -61,7 +61,7 @@ $message = ($LanguagePreference === "English") ? $message_EN : $message_FR;
 //====================================================================================
 // Sending
 //====================================================================================
-SmsInterface::sendSms($SMSAlertNum,$message);
+Sms::sendSms($SMSAlertNum,$message);
 
 echo "Message should have been sent...";
 

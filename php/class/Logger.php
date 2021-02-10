@@ -26,7 +26,7 @@ class Logger
     {
         $dbh = Database::getLogsConnection();
         $query = $dbh->prepare("
-            REPLACE INTO SmsLog(
+            INSERT INTO SmsLog(
                 SmsTimestamp
                 ,Result
                 ,Action

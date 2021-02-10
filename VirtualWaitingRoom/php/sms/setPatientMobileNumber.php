@@ -6,7 +6,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 
 #extract the webpage parameters
 $patientId          = $_GET["patientId"] ?? NULL;
@@ -63,11 +63,11 @@ else
     flush();
 
     #change the sms message depending on the language preference and clinic
-    $messageList = SmsInterface::getPossibleSmsMessages();
+    $messageList = Sms::getPossibleSmsMessages();
     $message = $messageList[$speciality ?? ""]["GENERAL"]["REGISTRATION"][$languagePreference ?? ""]["Message"];
 
     #send sms
-    SmsInterface::sendSms($smsAlertNum,$message);
+    Sms::sendSms($smsAlertNum,$message);
 }
 
 ?>

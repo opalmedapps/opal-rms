@@ -7,7 +7,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 
 // Extract the webpage parameters
 $patientId = $_GET["patientId"];
@@ -70,7 +70,7 @@ else
 //====================================================================================
 // Sending
 //====================================================================================
-SmsInterface::sendSms($SMSAlertNum,$message);
+Sms::sendSms($SMSAlertNum,$message);
 
 echo "<br>message should have been sent...<br>";
 

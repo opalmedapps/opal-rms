@@ -6,7 +6,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 
 #print header
 header('Content-Type:text/html; charset=UTF-8');
@@ -81,7 +81,7 @@ echo "Record updated successfully<br>";
 //====================================================================================
 // Confirmation Message Creation
 //====================================================================================
-$messageList = SmsInterface::getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 
 $message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"] ?? NULL;
 
@@ -92,7 +92,7 @@ if($message === NULL) {
 //====================================================================================
 // Sending
 //====================================================================================
-SmsInterface::sendSms($SMSAlertNum,$message);
+Sms::sendSms($SMSAlertNum,$message);
 
 echo "Message should have been sent...";
 

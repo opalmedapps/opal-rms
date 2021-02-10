@@ -95,12 +95,11 @@ class Config
 
         try {
             $sms = new SmsConfig(
-                enabled:             (bool) $parsedData["sms"]["enabled"],
-                twilioLicenceKey:    $parsedData["twilio"]["LICENCE_KEY"],
-                twilioToken:         $parsedData["twilio"]["TOKEN"],
-                twilioCodes:         $parsedData["twilio"]["REGISTERED_LONG_CODES"] ?? [],
-                cdyneLicenceKey:     $parsedData["cdyne"]["LICENCE_KEY"],
-                cdyneCodes:          $parsedData["cdyne"]["REGISTERED_LONG_CODES"] ?? [],
+                enabled:             (bool) $parsedData["sms"]["ENABLED"],
+                provider:            $parsedData["sms"]["PROVIDER"],
+                licenceKey:          $parsedData["sms"]["LICENCE_KEY"],
+                token:               $parsedData["sms"]["TOKEN"] ?? "",
+                longCodes:           $parsedData["sms"]["REGISTERED_LONG_CODES"] ?? [],
             );
         } catch(TypeError) {$sms = NULL;}
 
@@ -197,17 +196,15 @@ class SystemConfig
 class SmsConfig
 {
     /**
-     * @param string[] $twilioCodes
-     * @param string[] $cdyneCodes
+     * @param string[] $longCodes
      */
 
     function __construct(
         public bool $enabled,
-        public string $twilioLicenceKey,
-        public string $twilioToken,
-        public array $twilioCodes,
-        public string $cdyneLicenceKey,
-        public array $cdyneCodes
+        public string $provider,
+        public string $licenceKey,
+        public string $token,
+        public array $longCodes,
     ) {}
 }
 

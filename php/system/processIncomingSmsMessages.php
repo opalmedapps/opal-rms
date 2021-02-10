@@ -6,29 +6,31 @@ use GuzzleHttp\Client;
 
 use Orms\Config;
 use Orms\Database;
-use Orms\SmsInterface;
+use Orms\Sms;
 use Orms\ArrayUtil;
 
 $checkInScriptUrl = Config::getApplicationSettings()->environment->baseUrl ."/php/system/checkInPatientAriaMedi.php";
 
-#get all the message that we received since the last time we checked
+//get all the message that we received since the last time we checked
+//also check up to 5 minutes before the last run to get any messages that may have been missed
 
-//find way to get timestamp of last run
 $lastRun = getLastRun();
 $currentRun = new DateTime();
 
 setLastRun($currentRun);
-$messages = SmsInterface::getReceivedMessages($lastRun);
+
+$timeLimit = $currentRun->modify("-5 minutes");
+
+$messages = Sms::getNewReceivedMessages($lastRun->modify("-5 minutes"));
 
 #log all received messages immediately in case the script dies in the middle of processing
-foreach($messages as $message)
-{
+foreach($messages as $message) {
     logMessageData($message->timeReceived,$message->clientNumber,NULL,$message->body,NULL,"SMS received");
 }
 
-#filter all messages that were sent over 10 minutes ago
-$messages = array_filter($messages,function($message) use($currentRun) {
-    if($message->timeReceived < $currentRun->modify("-10 minutes")) {
+#filter all messages that were sent over 5 minutes ago, just in case
+$messages = array_filter($messages,function($message) use($timeLimit) {
+    if($message->timeReceived < $timeLimit) {
         logMessageData($message->timeReceived,$message->clientNumber,NULL,$message->body,NULL,"SMS expired");
         return FALSE;
     }
@@ -37,7 +39,7 @@ $messages = array_filter($messages,function($message) use($currentRun) {
 });
 
 #get default messages
-$messageList = SmsInterface::getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 $checkInLocation = "CELL PHONE";
 
 #process messages
@@ -66,7 +68,7 @@ foreach($messages as $message)
     {
         $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
 
-        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
@@ -80,7 +82,7 @@ foreach($messages as $message)
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
@@ -120,14 +122,14 @@ foreach($messages as $message)
 
     if($checkInResult < 300)
     {
-        SmsInterface::sendSms($message->clientNumber,$appointmentString,$message->serviceNumber);
+        Sms::sendSms($message->clientNumber,$appointmentString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$appointmentString,"Success");
     }
     else
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Error");
     }
 }

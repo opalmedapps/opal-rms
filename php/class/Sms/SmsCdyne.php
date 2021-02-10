@@ -11,46 +11,38 @@ use RuntimeException;
 
 use Orms\Config;
 use Orms\ArrayUtil;
-use Orms\Sms\SmsReceivedMessage;
+use Orms\Sms\{SmsInterface,SmsReceivedMessage};
 
-SmsCdyne::__init();
-
-class SmsCdyne
+class SmsCdyne implements SmsInterface
 {
-    private static string $sendMessageUrl = "https://messaging.cdyne.com/Messaging.svc/SendMessage";
-    private static string $getUnreadMessagesUrl = "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages";
-    private static string $licence;
-    private static Client $client;
-    /**
-     * @var string[]
-     */
-    private static array $availableNumbers = [];
+    private string $sendMessageUrl = "https://messaging.cdyne.com/Messaging.svc/SendMessage";
+    private string $getUnreadMessagesUrl = "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages";
+    private string $licence;
+    private Client $client;
 
-    static function __init(): void
+    function __construct()
     {
         $configs = Config::getApplicationSettings()->sms;
 
-        self::$client = new Client();
-        self::$licence = $configs->cdyneLicenceKey ?? "";
-        self::$availableNumbers = $configs->cdyneCodes ?? [];
+        $this->client = new Client();
+
+        //$configs?->licenceKey ?? "" doesn't work for now with psalm due to a bug
+        $licenceKey = $configs?->licenceKey;
+        $licenceKey ??= "";
+        $this->licence = $licenceKey;
     }
 
     /**
      *
-     * @param string|null $serviceNumber
      * @throws GuzzleException
      * @throws RuntimeException
      */
-    static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): ?string
+    function sendSms(string $clientNumber,string $serviceNumber,string $message): string
     {
-        if($serviceNumber === NULL) {
-            $serviceNumber = self::$availableNumbers[array_rand(self::$availableNumbers)];
-        }
-
-        $sentSms = self::$client->request("POST",self::$sendMessageUrl,[
+        $sentSms = $this->client->request("POST",$this->sendMessageUrl,[
             "json" => [
                 "Body"          => $message,
-                "LicenseKey"    => self::$licence,
+                "LicenseKey"    => $this->licence,
                 "From"          => $serviceNumber,
                 "To"            => [$clientNumber],
                 "Concatenate"   => TRUE,
@@ -60,7 +52,7 @@ class SmsCdyne
         ])->getBody()->getContents();
         $sentSms = json_decode($sentSms,TRUE)[0];
 
-        return $sentSms["MessageID"] ?? NULL;
+        return $sentSms["MessageID"];
     }
 
     /**
@@ -68,20 +60,20 @@ class SmsCdyne
      * @return SmsReceivedMessage[]
      * @throws GuzzleException
      */
-    static function getReceivedMessages(): array
+    function getReceivedMessages(array $availableNumbers,DateTime $timestamp): array
     {
         try
         {
-            $messages = self::$client->request("POST",self::$getUnreadMessagesUrl,[
+            $messages = $this->client->request("POST",$this->getUnreadMessagesUrl,[
                 "json" => [
-                    "LicenseKey" => self::$licence,
+                    "LicenseKey" => $this->licence,
                     "UnreadMessagesOnly" => TRUE
                 ]
             ])->getBody()->getContents();
             $messages = json_decode($messages,TRUE) ?? [];
 
-            #messages have the following structure:
-            #the values are either string or NULL
+            //messages have the following structure:
+            //the values are either string or NULL
             /*
             Array
                 (

@@ -5,8 +5,9 @@ namespace Orms;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ClientException;
-
+use GuzzleHttp\Exception\GuzzleException;
 use Orms\Config;
+use RuntimeException;
 
 class Opal
 {
@@ -37,6 +38,12 @@ class Opal
         return new CookieJar(FALSE,[$cookies->getCookieByName("PHPSESSID")]);
     }
 
+    /**
+     *
+     * @return mixed[]
+     * @throws GuzzleException
+     * @throws RuntimeException
+     */
     static function getPatientDiagnosis(string $mrn): array
     {
         $response = self::getHttpClient()->request("POST","diagnosis/get/patient-diagnoses",[
@@ -47,12 +54,25 @@ class Opal
             "cookies" => self::getOpalSessionCookie()
         ])->getBody()->getContents();
 
-        return json_decode($response);
+        $data = json_decode($response);
+
+        //filter all diagnoses originating from ORMS as we already have those in the ORMS db
+        // $data = array_filter($data)
+
+        //map the fields returned by Opal into something resembling a patient diagnosis
+        // return array_map(function($x) {
+        //     return [
+        //         "isExternalSystem"  => 1,
+
+        //     ];
+        // },);
+
+        return [];
     }
 
-    static function insertPatientDiagnosis(string $mrn,int $diagId,string $diagSubcode,DateTime $creationDate,string $descEn,string $descFr): array
+    static function insertPatientDiagnosis(string $mrn,int $diagId,string $diagSubcode,DateTime $creationDate,string $descEn,string $descFr): void
     {
-        $response = self::getHttpClient()->request("POST","diagnosis/insert/patient-diagnosis",[
+        self::getHttpClient()->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
                 "mrn"           => $mrn,
                 "site"          => Config::getApplicationSettings()->environment->site,
@@ -64,20 +84,20 @@ class Opal
                 "descriptionFr" => $descFr,
             ],
             "cookies" => self::getOpalSessionCookie()
-        ])->getBody()->getContents();
-
-        return json_decode($response);
+        ]);
     }
 
     static function exportDiagnosisCode(int $id,string $code,string $desc): void
     {
         self::getHttpClient()->request("POST","master-source/insert/diagnoses",[
             "form_params" => [
-                "source"        => "ORMS",
-                "externalId"    => $id,
-                "code"          => $code,
-                "description"   => $desc
-                // "creationDate"  =>
+                [
+                    "source"        => 5, //"ORMS", // id 5
+                    "externalId"    => $id,
+                    "code"          => $code,
+                    "description"   => $desc
+                    // "creationDate"  =>
+                ]
             ],
             "cookies" => self::getOpalSessionCookie()
         ]);

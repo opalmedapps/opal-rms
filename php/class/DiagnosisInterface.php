@@ -5,6 +5,7 @@ namespace Orms;
 use Orms\Diagnosis\Diagnosis;
 use Orms\Diagnosis\PatientDiagnosis;
 use Orms\DateTime;
+use PDOException;
 
 class DiagnosisInterface
 {
@@ -22,43 +23,21 @@ class DiagnosisInterface
         return PatientDiagnosis::getDiagnosisById($updatedId);
     }
 
+    /**
+     *
+     * @return Diagnosis[]
+     * @throws PDOException
+     */
     static function getDiagnosisCodeList(): array
     {
         return Diagnosis::getSubcodeList();
-
-        //convert the db rows into a more organized form
-        // $rows = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($query->fetchAll(),"Chapter","Code");
-
-        // return $rows = array_map(function($x) {
-        //     $chFirst = $x[array_key_first($x)][0]; //first diagnosis object for this chapter
-
-        //     return [
-        //         "chapter" => $chFirst["Chapter"],
-        //         "chapterDescription" => $chFirst["ChapterDescription"],
-        //         "codes" => array_map(function($y) {
-        //             $coFirst = $y[0]; //first diagnosis object for this code
-
-        //             return [
-        //                 "code" => $coFirst["Code"],
-        //                 "codeDescription" => $coFirst["CodeDescription"],
-        //                 "subcodes" => array_map(function($z) {
-        //                     return new Diagnosis(
-        //                         (int) $z["DiagnosisSubcodeId"],
-        //                         $z["Subcode"],
-        //                         $z["SubcodeDescription"],
-        //                         $z["Code"],
-        //                         $z["Category"],
-        //                         $z["CodeDescription"],
-        //                         $z["Chapter"],
-        //                         $z["ChapterDescription"]
-        //                     );
-        //                 },$y)
-        //             ];
-        //         },$x)
-        //     ];
-        // },$rows);
     }
 
+    /**
+     *
+     * @return PatientDiagnosis[]
+     * @throws PDOException
+     */
     static function getDiagnosisListForPatient(int $patientId): array
     {
         return PatientDiagnosis::getDiagnosisListForPatient($patientId);

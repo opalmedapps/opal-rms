@@ -9,20 +9,21 @@ use Orms\Opal;
 
 $patientId = (int) $_GET["patientId"];
 $diagnosisId = (int) $_GET["diagnosisId"];
-$diagnosisDate = new DateTime($_GET["diagnosisDate"] ?? "");
+$diagnosisDate = new DateTime($_GET["diagnosisDate"]);
 
 $newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId,$diagnosisId,$diagnosisDate);
 
-$mrn = Patient::getPatientById($patientId)->patientId;
-
 //export the diagnosis to external systems
-Opal::insertPatientDiagnosis(
-    $mrn,
-    $newDiag->id,
-    $newDiag->diagnosis->subcode,
-    $newDiag->createdDate,
-    $newDiag->diagnosis->subcodeDescription,
-    ""
-);
+// $mrn = Patient::getPatientById($patientId)->patientId;
+// if($mrn !== NULL) {
+//     Opal::insertPatientDiagnosis(
+//         $mrn,
+//         $newDiag->diagnosis->id, // $newDiag->id,
+//         $newDiag->diagnosis->subcode,
+//         $newDiag->createdDate,
+//         $newDiag->diagnosis->subcodeDescription,
+//         ""
+//     );
+// }
 
 ?>

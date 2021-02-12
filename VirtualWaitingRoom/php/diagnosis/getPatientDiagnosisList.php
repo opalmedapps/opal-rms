@@ -8,11 +8,14 @@ use Orms\Opal;
 
 $patientId = (int) $_GET["patientId"];
 
-$mrn = Patient::getPatientById($patientId)->patientId;
+$diagArr = DiagnosisInterface::getDiagnosisListForPatient($patientId);
 
 //get additional diagnoses from Opal
-Opal::getPatientDiagnosis($mrn);
+// $mrn = Patient::getPatientById($patientId)->patientId;
+// if($mrn !== NULL) {
+//     $diagArr = array_merge($diagArr,Opal::getPatientDiagnosis($mrn));
+// }
 
-echo json_encode(DiagnosisInterface::getDiagnosisListForPatient($patientId));
+echo json_encode($diagArr);
 
 ?>

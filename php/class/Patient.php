@@ -224,17 +224,13 @@ class Patient
     }
 
     // int|string $identifier
-    private static function _fetchPatient($identifier): Patient
+    private static function _fetchPatient(int|string $identifier): Patient
     {
-        switch(gettype($identifier))
-        {
-            case "integer":
-                $column = "PatientSerNum";
-                break;
-            case "string":
-                $column = "PatientId";
-                break;
-        }
+        $column = match(gettype($identifier)) {
+            "integer" => "PatientSerNum",
+            "string"  => "PatientId",
+            default   => "PatientSerNum"
+        };
 
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("

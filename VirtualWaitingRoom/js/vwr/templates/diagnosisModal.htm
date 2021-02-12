@@ -1,11 +1,11 @@
 <style>
-    #customers {
+    .diag-list {
       font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
       border-collapse: collapse;
       width: 100%;
     }
 
-    #customers td, #customers th {
+    .diag-list td, th {
       border: 1px solid #ddd;
       padding: 8px;
     }
@@ -17,13 +17,9 @@
         -webkit-appearance:none;
     }
 
+    .diag-list tr:hover {background-color: #ddd;}
 
-
-    #customers tr:nth-child(even){background-color: #f2f2f2;}
-
-    #customers tr:hover {background-color: #ddd;}
-
-    #customers th {
+    .diag-list th {
       padding-top: 12px;
       padding-bottom: 12px;
       text-align: left;
@@ -38,7 +34,7 @@
 </style>
 
 <div class="modal-header">
-    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.Mrn}}) <div style="float:right">Age:{{patient.Age}} Sex:{{patient.Sex}}</div></h3>
+    <h3 class="modal-title">{{patient.LastName}}, {{patient.FirstName}} ({{patient.Mrn}})</h3>
 </div>
 
 <div class="modal-body">
@@ -47,38 +43,41 @@
 
     <div class="row questionnaire-container">
 
-        <h2 style="text-align:center;margin-top:0;">Diagnosis List</h2>
+        <h2 style="text-align:center;margin-top: 0;margin-bottom: 20px;">Diagnosis List</h2>
 
-        <div class="text-center animate-show" ng-click="addPatientDiagnosis(userSelectedDiagnosis)">
-            <input type="button" class="btn btn-info btn-block btn-que" value="Add Diagnosis" ng-disabled="userSelectedDiagnosis === null"/>
+        <div style="display: flex;margin: 10px">
+            <div style="width: 40%;">
+                <!-- md-delay="1000" -->
+                <!-- look at https://material.angularjs.org/latest/api/directive/mdAutocomplete#asynchronous-results for calling the backend -->
+                <md-autocomplete
+                    md-selected-item="userSelectedDiagnosis"
+                    md-items="diag in searchList(diagSearchText)"
+                    md-item-text="diag.subcode"
+                    placeholder="Select Diagnosis"
+                    md-search-text="diagSearchText"
+                    md-menu-container-class="custom-container"
+                    class="custom-container"
+                >
+                    <md-item-template>
+                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.subcode}}</span>
+                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;">{{diag.subcodeDescription}}</span>
+                    </md-item-template>
+                    <md-not-found>
+                        No matches!
+                    </md-not-found>
+                </md-autocomplete>
+            </div>
+
+            <div style="width: 15%;margin-left: 20px">
+                <input type="date" ng-model="userSelectedDate" />
+            </div>
+
+            <div class="text-center animate-show" style="width: 15%;margin-left: 40px" ng-click="addPatientDiagnosis(userSelectedDiagnosis)">
+                <input type="button" class="btn btn-info btn-block btn-que" value="Add Diagnosis" ng-disabled="userSelectedDiagnosis === null || userSelectedDate === null"/>
+            </div>
         </div>
 
-        <div>
-            <!-- md-no-cache="ctrl.noCache" -->
-            <!-- md-search-text-change="ctrl.searchTextChange(ctrl.searchText)" -->
-            <!-- md-selected-item-change="ctrl.selectedItemChange(item)" -->
-
-            <!-- md-items="item in ctrl.querySearch(ctrl.searchText)" -->
-            <md-autocomplete
-                md-selected-item="userSelectedDiagnosis"
-                md-items="diag in searchList(diagSearchText)"
-                md-item-text="diag.Subcode"
-                placeholder="Select Diagnosis"
-                md-search-text="diagSearchText"
-                md-menu-container-class="custom-container"
-                class="custom-container"
-            >
-                <md-item-template>
-                    <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.Subcode}}</span>
-                    <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;">{{diag.SubcodeDescription}}</span>
-                </md-item-template>
-                <md-not-found>
-                    No matches!
-                </md-not-found>
-            </md-autocomplete>
-        </div>
-
-        <table id="customers">
+        <table class="diag-list">
             <tr>
                 <th>ICD-10 Code</th>
                 <th>Diagnosis Description</th>
@@ -90,7 +89,7 @@
                 <td>{{diag.diagnosis.subcodeDescription}}</td>
                 <td>{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
                 <td>
-                    <div class="text-center animate-show" ng-click="deletePatientDiagnosis(diag)">
+                    <div ng-if="diag.isExternalSystem !== 1" class="text-center animate-show" ng-click="deletePatientDiagnosis(diag)">
                         <input type="button" class="btn btn-danger btn-block btn-que" value="Delete"/>
                     </div>
                 </td>

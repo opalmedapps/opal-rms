@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 
 use Orms\Config;
+use Orms\DateTime;
 
 Opal::__init();
 
@@ -75,17 +76,17 @@ class Opal
             "cookies" => self::getOpalSessionCookie()
         ])->getBody()->getContents();
 
-        $data = json_decode($response);
-
         //map the fields returned by Opal into something resembling a patient diagnosis
-        // return array_map(function($x) {
-        //     return [
-        //         "isExternalSystem"  => 1,
-
-        //     ];
-        // },);
-
-        return $data;
+        return array_map(function($x) {
+            return [
+                "isExternalSystem"  => 1,
+                // "diagnosisDate"     => new DateTime($x[""])
+                "diagnosis"         => [
+                    "subcode"               => $x["DiagnosisCode"],
+                    "subcodeDescription"    => $x["Description_EN"]
+                ]
+            ];
+        },json_decode($response,TRUE));
     }
 
     static function insertPatientDiagnosis(string $mrn,int $diagId,string $diagSubcode,DateTime $creationDate,string $descEn,string $descFr): void
@@ -102,6 +103,21 @@ class Opal
                 "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
                 "descriptionEn" => $descEn,
                 "descriptionFr" => $descFr,
+            ],
+            "cookies" => self::getOpalSessionCookie()
+        ]);
+    }
+
+    static function deletePatientDiagnosis(string $mrn,int $diagId): void
+    {
+        if(self::$opalAdminUrl === NULL) return;
+
+        self::getHttpClient()->request("POST","diagnosis/delete/patient-diagnosis",[
+            "form_params" => [
+                "mrn"           => $mrn,
+                "site"          => Config::getApplicationSettings()->environment->site,
+                "source"        => "ORMS",
+                "rowId"         => $diagId
             ],
             "cookies" => self::getOpalSessionCookie()
         ]);

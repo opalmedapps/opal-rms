@@ -15,24 +15,29 @@ $status = $_GET["status"];
 
 $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status);
 
+//export the diagnosis to external systems
 $mrn = Patient::getPatientById($patientId)->patientId;
 
-//export the diagnosis to external systems
-// if($status === "Active") {
-//     Opal::updatePatientDiagnosis(
-//         $mrn,
-//         $updatedDiag->id
-//     );
-// }
-// elseif($status === "Deleted") {
-//     Opal::insertPatientDiagnosis(
-//         $mrn,
-//         $updatedDiag->id,
-//         $updatedDiag->diagnosis->subcode,
-//         $updatedDiag->createdDate,
-//         $updatedDiag->diagnosis->subcodeDescription,
-//         ""
-//     );
-// }
+if($mrn !== NULL)
+{
+    if($status === "Active") {
+        Opal::insertPatientDiagnosis(
+            $mrn,
+            $updatedDiag->diagnosis->id, // $newDiag->id,
+            $updatedDiag->diagnosis->subcode,
+            $updatedDiag->createdDate,
+            $updatedDiag->diagnosis->subcodeDescription,
+            ""
+        );
+    }
+    elseif($status === "Deleted") {
+        Opal::deletePatientDiagnosis(
+            $mrn,
+            $updatedDiag->diagnosis->id
+        );
+    }
+}
+
+
 
 ?>

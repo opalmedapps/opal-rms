@@ -11,11 +11,10 @@ $patientId = (int) $_GET["patientId"];
 $diagArr = DiagnosisInterface::getDiagnosisListForPatient($patientId);
 
 // get additional diagnoses from Opal
-// $mrn = Patient::getPatientById($patientId)->patientId;
-// if($mrn !== NULL) {
-//     // $diagArr = array_merge($diagArr,Opal::getPatientDiagnosis($mrn));
-//     $diagArr = Opal::getPatientDiagnosis($mrn);
-// }
+$mrn = Patient::getPatientById($patientId)->patientId;
+if($mrn !== NULL) {
+    $diagArr = array_merge($diagArr,Opal::getPatientDiagnosis($mrn));
+}
 
 echo json_encode($diagArr);
 

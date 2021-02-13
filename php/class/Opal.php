@@ -6,18 +6,33 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use Orms\Config;
 use RuntimeException;
+
+use Orms\Config;
+
+Opal::__init();
 
 class Opal
 {
-    private static string $opalAdminUrl = "https://192.168.56.103:8085/opalAdmin/";
+    private static ?string $opalAdminUrl;
+
+    public static function __init(): void
+    {
+        $url = Config::getApplicationSettings()->opal?->opalAdminUrl;
+
+        if($url === NULL) {
+            self::$opalAdminUrl = NULL;
+        }
+        else {
+            self::$opalAdminUrl = $url . (substr($url,-1) === "/" ? "" : "/"); //add trailing slash if there is none
+        }
+    }
 
     static function getHttpClient(): Client
     {
         return new Client([
             "base_uri"      => self::$opalAdminUrl,
-            "verify"        => FALSE,
+            "verify"        => FALSE, //this should be changed at some point...
             // "http_errors"   => FALSE
         ]);
     }
@@ -46,18 +61,21 @@ class Opal
      */
     static function getPatientDiagnosis(string $mrn): array
     {
+        if(self::$opalAdminUrl === NULL) return [];
+
         $response = self::getHttpClient()->request("POST","diagnosis/get/patient-diagnoses",[
             "form_params" => [
-                "mrn"   => $mrn,
-                "site"  => Config::getApplicationSettings()->environment->site
+                "mrn"       => $mrn,
+                "site"      => Config::getApplicationSettings()->environment->site,
+                "source"    => "ORMS",
+                "include"   => 0,
+                "startDate" =>"2000-01-01",
+                "endDate"   =>"2099-12-31"
             ],
             "cookies" => self::getOpalSessionCookie()
         ])->getBody()->getContents();
 
         $data = json_decode($response);
-
-        //filter all diagnoses originating from ORMS as we already have those in the ORMS db
-        // $data = array_filter($data)
 
         //map the fields returned by Opal into something resembling a patient diagnosis
         // return array_map(function($x) {
@@ -67,11 +85,13 @@ class Opal
         //     ];
         // },);
 
-        return [];
+        return $data;
     }
 
     static function insertPatientDiagnosis(string $mrn,int $diagId,string $diagSubcode,DateTime $creationDate,string $descEn,string $descFr): void
     {
+        if(self::$opalAdminUrl === NULL) return;
+
         self::getHttpClient()->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
                 "mrn"           => $mrn,
@@ -89,6 +109,8 @@ class Opal
 
     static function exportDiagnosisCode(int $id,string $code,string $desc): void
     {
+        if(self::$opalAdminUrl === NULL) return;
+
         self::getHttpClient()->request("POST","master-source/insert/diagnoses",[
             "form_params" => [
                 [

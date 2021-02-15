@@ -33,27 +33,27 @@ $dbh = Database::getOrmsConnection();
 #this includes the PatientLocation table
 $query = $dbh->prepare("
     SELECT
-        MediVisitAppointmentList.ScheduledDate,
-        MediVisitAppointmentList.AppointmentSerNum,
-        Patient.PatientSerNum,
-        Patient.FirstName,
-        Patient.LastName,
-        Patient.PatientId,
+        MV.ScheduledDate,
+        MV.AppointmentSerNum,
+        P.PatientSerNum,
+        P.FirstName,
+        P.LastName,
+        P.PatientId,
         PatientLocations.CheckinVenueName,
         PatientLocations.ArrivalDateTime,
         PatientLocations.DichargeThisLocationDateTime,
         PatientLocations.PatientLocationRevCount,
-        MediVisitAppointmentList.ResourceDescription,
-        MediVisitAppointmentList.AppointmentCode,
-        MediVisitAppointmentList.Status,
-        MediVisitAppointmentList.ScheduledTime
+        MV.ResourceDescription,
+        MV.AppointmentCode,
+        MV.Status,
+        MV.ScheduledTime
     FROM
-        Patient
-        INNER JOIN MediVisitAppointmentList ON MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
-            AND MediVisitAppointmentList.Status != 'Deleted'
-            AND MediVisitAppointmentList.Status != 'Cancelled'
-            AND MediVisitAppointmentList.ScheduledDate BETWEEN :sDate AND :eDate
-        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+        Patient P
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
+            AND MV.Status != 'Deleted'
+            AND MV.Status != 'Cancelled'
+            AND MV.ScheduledDate BETWEEN :sDate AND :eDate
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             $specialityFilter
         LEFT JOIN (
             SELECT
@@ -73,9 +73,9 @@ $query = $dbh->prepare("
                 PatientLocation.AppointmentSerNum
             FROM
                 PatientLocation
-        ) AS PatientLocations ON PatientLocations.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
+        ) AS PatientLocations ON PatientLocations.AppointmentSerNum = MV.AppointmentSerNum
     WHERE
-        Patient.PatientId != '9999996'
+        P.PatientId != '9999996'
 ");
 $query->execute([
     ":sDate" => $sDate,

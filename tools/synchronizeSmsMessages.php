@@ -6,12 +6,18 @@
 
 require_once __DIR__ ."/../vendor/autoload.php";
 
+use GetOpt\GetOpt;
+
+use Orms\Database;
 use Orms\Util\Csv;
 
-#load csv file from command line input
+//get csv file name from command line arguments and load it
+$opts = new GetOpt([
+    ["file"],
+],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+$opts->process();
 
-#get csv file name from command line arguments and load it
-$csvFile = (getopt("",["file:"]))["file"] ?: "";
+$csvFile = $opts->getOption("file") ?? "";
 
 $combinations = Csv::loadCsvFromFile($csvFile);
 

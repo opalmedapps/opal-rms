@@ -28,7 +28,6 @@ use LoadConfigs;
 #------------------------------------------------------------------------
 # Modules needed for SOAP webservices
 #------------------------------------------------------------------------
-use HospitalADT;
 use Data::Dumper;
 
 #------------------------------------------------------------------------
@@ -52,6 +51,8 @@ my $ariaSettings = LoadConfigs::GetConfigs("aria");
 my $ariaCheckinUrl = $ariaSettings->{"ARIA_CHECKIN_URL"};
 my $ariaPhotoUrl = $ariaSettings->{"PHOTO_URL"};
 
+my $site = LoadConfigs::GetConfigs("orms")->{"SITE"};
+
 #user agent for http calls
 my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 
@@ -66,7 +67,7 @@ print "Content-type: text/html\n\n";
 # location is the location of the kiosk - directions are relative to this location
 # PatientId is the ID of the patient that is being checked in
 # PatientSer is the PatientSer of the patient that is being checked in
-# PatientSerNum is the MySQL PatientSerNum (standin for Medivisit) of the patient that is being checked in
+# PatientSerNum is the db PatientSerNum of the patient that is being checked in
 #------------------------------------------------------------------------
 my $verbose = 0;
 my $verbose         = param("verbose");
@@ -102,34 +103,18 @@ $location = "DS1_1" if !$location;
 #                        Location-specific stuff
 #
 # Determine the hospital from the location - needed to know which MRN to use
-# Determine whether to use or not use Aria depdending on location
-# Aria is only used in Cancer Centre DS1 and DRC
 #------------------------------------------------------------------------
-my $hospitalAria;
-my $hospitalMV;
-my $useAria;
 my $mrnType;#Used in check on Patient MRN type in isramqExpired function
 if($location eq "Ortho_1" || $location eq "Ortho_2")
 {
   # Uncomment when ready to implement
-  #$hospitalAria = "2"; # MGH MRN is PatientId2 in Aria
-  #$hospitalMV = "_MGH"; # MGH MRN is PatientId_MGH in MV MySQL DB
   print "mrnType is MG\n" if $verbose;
   $mrnType = "MG";
-  $hospitalAria = ""; #nothing for Glen right now
-  $hospitalMV = ""; #nothing for Glen right now
-  $useAria = 0; # no Aria when in Ortho
-  print "Not using Aria <br>\n" if $verbose;
 }
 else
 {
   print "mrnType is MR\n" if $verbose;
   $mrnType = "MR";
-  $hospitalAria = ""; #nothing for Glen right now
-  $hospitalMV = ""; #nothing for Glen right now
-
-  $useAria = 0; # use Aria when not Ortho
-  print "Using Aria <br>\n" if $verbose;
 }
 
 
@@ -439,9 +424,9 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
   #****************************************************************************
   # attempt to check the patient in for his/her ***NEXT*** appointment TODAY
   # Both check in and retrieve the appointment information at the same time
-  my ($CheckinStatus,$ScheduledStartTime_en,$ScheduledStartTime_fr,$Appt_type_en,$Appt_type_fr,$WaitingRoom,$TreatmentRoom,$PhotoStatus,$PilotStatus,$System) = CheckinPatient($PatientSer,$PatientSerNum,$begin,$begin_mysql,$end,$end_mysql);
+  my ($CheckinStatus,$ScheduledStartTime_en,$ScheduledStartTime_fr,$Appt_type_en,$Appt_type_fr,$WaitingRoom,$TreatmentRoom,$PhotoStatus,$PilotStatus) = CheckinPatient($PatientSer,$PatientSerNum,$begin,$begin_mysql,$end,$end_mysql);
 
-  print "checkin code: ($CheckinStatus,$ScheduledStartTime_en,$ScheduledStartTime_fr,$Appt_type_en,$Appt_type_fr,$WaitingRoom,$TreatmentRoom,$PhotoStatus,$PilotStatus,$System) = CheckinPatient($PatientSer,$PatientSerNum,$begin,$begin_mysql,$end,$end_mysql)<br>" if $verbose;
+  print "checkin code: ($CheckinStatus,$ScheduledStartTime_en,$ScheduledStartTime_fr,$Appt_type_en,$Appt_type_fr,$WaitingRoom,$TreatmentRoom,$PhotoStatus,$PilotStatus) = CheckinPatient($PatientSer,$PatientSerNum,$begin,$begin_mysql,$end,$end_mysql)<br>" if $verbose;
   #****************************************************************************
   #****************************************************************************
 
@@ -621,7 +606,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 
       #$subMessage_en         = "<b>Appointment:</b> $Appt_type_en<br><b>Scheduled:</b> $ScheduledStartTime_en<br><b>Expected:</b> <span style=\"background-color: #ffff00\">$ScheduledStartTime_en</span><br><b>Estimated wait:</b> <span style=\"background-color: #ffff00\">20 mins from now</span><br><b>Message :</b><span style=\"background-color: #FF6666\"> bla bla bla</span>";
     }
-    elsif($PilotStatus == 1 && $PhotoStatus == 0) # No photo in Aria (Note, patient has successfully checked in)
+    elsif($PilotStatus == 1 && $PhotoStatus == 0) # No photo (Note, patient has successfully checked in)
     {
       # Tell the patient to go to the reception for photo
       #$message_bgcolor         = $darkgreen;
@@ -643,7 +628,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
 
       $log_message         = "$PatientId, $location, $subMessage_en";
     }
-    else # Not in the medivisit pilot, although successfully checked in
+    else # Not in the pilot, although successfully checked in
     {
       # Tell the patient to go to the reception
       #$message_bgcolor         = $darkgreen;
@@ -680,7 +665,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
       $middleMessage_fr         = "";
       $middleMessage_en         = "";
       #$middleMessage_image         = "<img src=\"$images/salle_DRC.png\">";
-      $middleMessage_image         = "<img width=\"700\" src=\"$images/DRC_medivisit.png\">";
+      $middleMessage_image         = "<img width=\"700\" src=\"$images/DRC_default.png\">";
     }
 
     if($DestinationWaitingRoom =~ m/TB_/i || $DestinationWaitingRoom =~ m/STX_/i)
@@ -1102,40 +1087,30 @@ sub printUI
 }# end of UI
 
 #------------------------------------------------------------------------
-# Find this patient - look in Aria first and then Medivisit (MySQL)
+# Find this patient
 #------------------------------------------------------------------------
 sub findPatient
 {
-  print "Retrieving data for patient ID Patient$hospitalAria = $PatientId in Aria and Patient$hospitalMV = $PatientId in MV<br>" if $verbose;
-
   #------------------------------------------------------------------------
   # Hospital IDs are numeric only. If there are letters in the ID then it is
   # the SSN, so search by SSN
   #------------------------------------------------------------------------
   my $PatientIdentifier = "";
-  my $PatientIdentifierMV = "";
   if($PatientId =~ /[a-zA-Z]/)
   {
-    # The SSN is stored in Aria in the form LASFYYMMDDXX YYYYMM
-    # However, the scanned barcode only contains LASFYYMMDDX
+    # the scanned barcode only contains LASFYYMMDDX
     print "Patient SSN: $PatientId<br>" if $verbose;
 
     $PatientId = substr($PatientId,0,12);
     print "Patient SSN, after truncation: $PatientId<br>" if $verbose;
 
-    $PatientIdentifier = "Patient.SSN LIKE \'$PatientId %\'" ;
-    $PatientIdentifierMV = "Patient.SSN = \'$PatientId\'";
+    $PatientIdentifier = "SSN = \'$PatientId\'";
   }
   else
   {
     print "Patient ID: $PatientId<br>" if $verbose;
-    $PatientIdentifier = "Patient.PatientId$hospitalAria = \'$PatientId\'" ;
-    $PatientIdentifierMV = "Patient.PatientId$hospitalMV = \'$PatientId\'";
+    $PatientIdentifier = "PatientId = \'$PatientId\'";
   }
-
-  ##############################################################################################
-  #                    Aria                               #
-  ##############################################################################################
 
   #============================================================================================
   # Retrieve data
@@ -1146,25 +1121,24 @@ sub findPatient
   my $PatientLastName;
   my $PatientFirstName;
   my $PatientSSN;
-  my $PatientSSN_expiry; # defining here but ignoring SSN expiry data in Aria as not sure that it is always in the same format
+  my $PatientSSNExpiration;
 
-  ##############################################################################################
-  #                    MySQL/Medivisit                           #
-  ##############################################################################################
   #------------------------------------------------------------------------
   # Database initialisation stuff
   #------------------------------------------------------------------------
   my $dbh_mysql = LoadConfigs::GetDatabaseConnection("ORMS") or print CHECKINLOG "###$now, $location ERROR - Couldn't connect to database: \n\n";
 
-  $sqlID = "SELECT DISTINCT
-        Patient.LastName,
-        Patient.FirstName,
-        Patient.PatientSerNum,
-        Patient.SSN,
-        Patient.SSNExpDate
-          FROM  Patient Patient
-          WHERE
-      $PatientIdentifierMV
+  $sqlID = "
+    SELECT DISTINCT
+        LastName,
+        FirstName,
+        PatientSerNum,
+        SSN,
+        SSNExpDate
+    FROM
+        Patient
+    WHERE
+        $PatientIdentifier
   ";
   print "SQLID: $sqlID>br>" if $verbose;
 
@@ -1183,56 +1157,24 @@ sub findPatient
   $PatientFirstName    = $data[1] if $data[1];
   $PatientSerNum    = $data[2] if $data[2];
   $PatientSSN        = $data[3] if $data[3];
-  $PatientSSN_expiry    = $data[4] if $data[4];
+  $PatientSSNExpiration = $data[4] if $data[4];
 
   print "Patient LastName: $PatientLastName <br>" if $verbose;
   print "Patient FirstName: $PatientFirstName <br>" if $verbose;
   print "Patient SSN in MV : $PatientSSN<br>" if $verbose;
-  print "Patient SSN expiry in MV: $PatientSSN_expiry<br>" if $verbose;
-  print "PatientSer (Aria) in findPatient: $PatientSer <br>" if $verbose;
-  print "PatientSerNum (Medivisit) in findPatient: $PatientSerNum <br>" if $verbose;
+  print "PatientSer in findPatient: $PatientSer <br>" if $verbose;
+  print "PatientSerNum in findPatient: $PatientSerNum <br>" if $verbose;
 
   #######################################################################
-  # Check that the SSN has not expired - use the ADT Webservice to find
-  # the correct expiration date based on the RAMQ number. The expiration
-  # date in Aria and/or Medivisit might not be correct if the patient has
-  # just updated it at Admissions so we need to query the ADT ourselves
-  # directly
+  # Check that the SSN has not expired
   #######################################################################
   my $RAMQCardExpired = 0;
 
-  #call the hospital ADT to check if the ramq is expired
-  if($adtConnected == 1)
+  if($PatientSSNExpiration)
   {
-    my $ramqInfo = HospitalADT->getRamqInformation($PatientSSN);
+    my $expiration = Time::Piece->strptime($PatientSSNExpiration,'%y%m');
 
-    if($verbose)
-    {
-        print "Ramq function status: $ramqInfo->{'Status'}<br>";
-        print "Ramq function message: $ramqInfo->{'Message'}<br>";
-    }
-
-    #if an error is produced, we count the ramq as valid since the patient, probably doesn't have a ramq yet
-    if($ramqInfo->{'Status'} =~ /Valid|Error/)
-    {
-        #likewise, if the patient has no MRN, they probably don't have a ramq
-        if(!$ramqInfo->{'Mrns'} or $ramqInfo->{'Mrns'} =~ /$mrnType/)
-        {
-        $RAMQCardExpired = 0;
-
-        #update the WRM db with the valid ramq expiration date if the current one in the WRM db is expired
-        my $result = HospitalADT->updateRamqInWRM($PatientSSN);
-        print "$result<br>" if $verbose;
-        }
-        else
-        {
-            $RAMQCardExpired = 1;
-        }
-    }
-    else
-    {
-        $RAMQCardExpired = 1;
-    }
+    $RAMQCardExpired = 1 if($expiration <= Time::Piece->new->add_months(-1));  #ramqs last until the end of the month they expire on
   }
 
   print "Is ramq expired? : $RAMQCardExpired<br>" if $verbose;
@@ -1261,21 +1203,16 @@ sub CheckinPatient
 {
   # reassign the arguments
   my @returnValue;
-  my @returnValueAria;
-  my @returnValueMedivisit;
   my ($PatientSer,$PatientSerNum,$startOfToday,$startOfToday_mysql,$endOfToday,$endOfToday_mysql) = @_;
 
   print "Checking in PatientSer  $PatientSer<br>" if $verbose;
   print "Checking in PatientSerNum  $PatientSerNum<br>" if $verbose;
 
-  my $PhotoOk = 1; # ok by default - eg if not an Aria patient it will be ok
-  my $PilotOk = 1; # ok by default - unless the patient has a non-pilot medivisit appointment it should be ok
+  my $PhotoOk = 1; # ok by default
+  my $PilotOk = 1; # ok by default - unless the patient has a non-pilot appointment it should be ok
 
   my $hasAriaAppointment = 0;
 
-  ##############################################################################################
-  #                    MySQL/Medivisit                           #
-  ##############################################################################################
   my $dbh_mysql = LoadConfigs::GetDatabaseConnection("ORMS") or print CHECKINLOG "###$now, $location ERROR - Couldn't connect to database: \n\n";
 
   #============================================================================================
@@ -1295,53 +1232,48 @@ sub CheckinPatient
   my @AptTimeSinceMidnight;
   my @ScheduledStartTime_en;
   my @ScheduledStartTime_fr;
-  my @Aria_Appt_type_en;
-  my @Aria_Appt_type_fr;
-  my @Aria_MachineId;
   my @AptTimeHour;
-  my @Aria_AMorPM;
-  my $numAriaAppts = 0;
 
   ##############################################################################################
-  #                Medivisit appointment search                           #
+  #                Appointment search                           #
   ##############################################################################################
-  my $sqlApptMedivisit = "
+  my $sqlAppt = "
       SELECT DISTINCT
-        Patient.PatientId,
-        Patient.FirstName,
-        Patient.LastName,
-        MediVisitAppointmentList.ScheduledDateTime,
-        MediVisitAppointmentList.AppointmentCode,
-        MediVisitAppointmentList.ResourceDescription,
-        (UNIX_TIMESTAMP(MediVisitAppointmentList.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
-        MediVisitAppointmentList.AppointmentSerNum,
-        HOUR(MediVisitAppointmentList.ScheduledDateTime),
-        MediVisitAppointmentList.AppointSys,
-        MediVisitAppointmentList.AppointId
-          FROM
-        Patient,
-        MediVisitAppointmentList
+        P.PatientId,
+        P.FirstName,
+        P.LastName,
+        MV.ScheduledDateTime,
+        MV.AppointmentCode,
+        MV.ResourceDescription,
+        (UNIX_TIMESTAMP(MV.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
+        MV.AppointmentSerNum,
+        HOUR(MV.ScheduledDateTime),
+        MV.AppointSys,
+        MV.AppointId
+    FROM
+        Patient P,
+        MediVisitAppointmentList MV
      WHERE
-        MediVisitAppointmentList.PatientSerNum = Patient.PatientSerNum
-        AND MediVisitAppointmentList.PatientSerNum = $PatientSerNum
-                AND ( MediVisitAppointmentList.ScheduledDateTime >= \'$startOfToday_mysql\' )
-                AND ( MediVisitAppointmentList.ScheduledDateTime < \'$endOfToday_mysql\' )
-        AND ( MediVisitAppointmentList.Status = 'Open' OR MediVisitAppointmentList.Status = 'In Progress')
+        MV.PatientSerNum = P.PatientSerNum
+        AND MV.PatientSerNum = $PatientSerNum
+                AND ( MV.ScheduledDateTime >= \'$startOfToday_mysql\' )
+                AND ( MV.ScheduledDateTime < \'$endOfToday_mysql\' )
+        AND ( MV.Status = 'Open' OR MV.Status = 'In Progress')
 
-        ORDER BY MediVisitAppointmentList.ScheduledDateTime
+        ORDER BY MV.ScheduledDateTime
   ";
 
-  print "sqlApptMedivisit: $sqlApptMedivisit<br>" if $verbose;
+  print "sqlAppt: $sqlAppt<br>" if $verbose;
 
-  my $query= $dbh_mysql->prepare($sqlApptMedivisit)
-    #or die "Couldn't prepare sqlApptMedivisit statement: " . $dbh_mysql->errstr;
-    or print CHECKINLOG "###$now, $location ERROR - Couldn't prepare sqlApptMedivisit statement: " . $dbh_mysql->errstr . "\n\n";
+  my $query= $dbh_mysql->prepare($sqlAppt)
+    #or die "Couldn't prepare sqlAppt statement: " . $dbh_mysql->errstr;
+    or print CHECKINLOG "###$now, $location ERROR - Couldn't prepare sqlAppt statement: " . $dbh_mysql->errstr . "\n\n";
 
   $query->execute()
-    #or die "Couldn't execute sqlApptMedivisit statement: " . $query->errstr;
-    or print CHECKINLOG "###$now, $location ERROR - Couldn't execute sqlApptMedivisit statement: " . $query->errstr . "\n\n";
+    #or die "Couldn't execute sqlAppt statement: " . $query->errstr;
+    or print CHECKINLOG "###$now, $location ERROR - Couldn't execute sqlAppt statement: " . $query->errstr . "\n\n";
 
-  # set up arrays to hold the Medivisit data pertaining to multiple appointments
+  # set up arrays to hold the data pertaining to multiple appointments
   my @MV_PatientId;
   my @MV_PatientFirstName;
   my @MV_PatientLastName;
@@ -1358,67 +1290,63 @@ sub CheckinPatient
   my @MV_sys;
   my @MV_appId;
 
-  print "<br>-------------Medivisit Appointment Search---------------------------<br>" if $verbose;
-  my $numMedivisitAppts = 0;
+  print "<br>-------------Appointment Search---------------------------<br>" if $verbose;
+  my $numAppts = 0;
   $MV_AptTimeSinceMidnight[0] = 999999999999999999999; # fail safe
-  # lopp over all the Medivisit appointments for this patient today
+  # lopp over all the appointments for this patient today
   # The NEXT appointment will be the first (ie the zeroth) in the list
   while(my @data = $query->fetchrow_array())
   {
-    print "<br>-------------Medivisit Appointment---------------------------<br>" if $verbose;
+    print "<br>-------------Appointment---------------------------<br>" if $verbose;
     # grab data from MySQL
-    $MV_PatientId[$numMedivisitAppts]        = $data[0];
-    $MV_PatientFirstName[$numMedivisitAppts]    = $data[1];
-    $MV_PatientLastName[$numMedivisitAppts]    = $data[2];
-    $MV_ScheduledStartTime[$numMedivisitAppts]    = $data[3];
-    $MV_ApptDescription[$numMedivisitAppts]    = $data[4]; ###
-    $MV_Resource[$numMedivisitAppts]        = $data[5];
-    $MV_AptTimeSinceMidnight[$numMedivisitAppts]= $data[6];
-    $MV_AppointmentSerNum[$numMedivisitAppts]    = $data[7];
-    $MV_AptTimeHour[$numMedivisitAppts]        = $data[8];
-    $MV_sys[$numMedivisitAppts]             = $data[9];
-    $MV_appId[$numMedivisitAppts]           = $data[10];
+    $MV_PatientId[$numAppts]        = $data[0];
+    $MV_PatientFirstName[$numAppts]    = $data[1];
+    $MV_PatientLastName[$numAppts]    = $data[2];
+    $MV_ScheduledStartTime[$numAppts]    = $data[3];
+    $MV_ApptDescription[$numAppts]    = $data[4]; ###
+    $MV_Resource[$numAppts]        = $data[5];
+    $MV_AptTimeSinceMidnight[$numAppts]= $data[6];
+    $MV_AppointmentSerNum[$numAppts]    = $data[7];
+    $MV_AptTimeHour[$numAppts]        = $data[8];
+    $MV_sys[$numAppts]             = $data[9];
+    $MV_appId[$numAppts]           = $data[10];
 
     # appointment AM or PM
-    if($MV_AptTimeHour[$numMedivisitAppts] >= 13)
+    if($MV_AptTimeHour[$numAppts] >= 13)
     {
-      $MV_AMorPM[$numMedivisitAppts] = "PM";
+      $MV_AMorPM[$numAppts] = "PM";
     }
     else
     {
-      $MV_AMorPM[$numMedivisitAppts] = "AM";
+      $MV_AMorPM[$numAppts] = "AM";
     }
 
-    my $MV_ResourceType     = "Medivisit";
-    my $MV_MachineId         = "Medivisit";
-
-    print "MV_Patient LastName: $MV_PatientLastName[$numMedivisitAppts] <br>" if $verbose;
-    print "MV_ScheduledStartTime: $MV_ScheduledStartTime[$numMedivisitAppts] <br>" if $verbose;
-    print "MV_ApptDescription: $MV_ApptDescription[$numMedivisitAppts]<br>" if $verbose;
-    print "MV_Resource: $MV_Resource[$numMedivisitAppts]<br>" if $verbose;
-    print "MV_ResourceType: $MV_ResourceType<br>" if $verbose;
-    print "MV_AptTimeSinceMidnight: $MV_AptTimeSinceMidnight[$numMedivisitAppts]<br>" if $verbose;
-    print "MV_AppointmentSerNum: $MV_AppointmentSerNum[$numMedivisitAppts]<br>" if $verbose;
-    print "MV_AptTimeHour: $MV_AptTimeHour[$numMedivisitAppts]<br>" if $verbose;
+    print "MV_Patient LastName: $MV_PatientLastName[$numAppts] <br>" if $verbose;
+    print "MV_ScheduledStartTime: $MV_ScheduledStartTime[$numAppts] <br>" if $verbose;
+    print "MV_ApptDescription: $MV_ApptDescription[$numAppts]<br>" if $verbose;
+    print "MV_Resource: $MV_Resource[$numAppts]<br>" if $verbose;
+    print "MV_AptTimeSinceMidnight: $MV_AptTimeSinceMidnight[$numAppts]<br>" if $verbose;
+    print "MV_AppointmentSerNum: $MV_AppointmentSerNum[$numAppts]<br>" if $verbose;
+    print "MV_AptTimeHour: $MV_AptTimeHour[$numAppts]<br>" if $verbose;
 
     #------------------------------------------------------------------------
-    # Is the medivisit appointment in the pilot? If yes, nothing to do. If no, then PilotOk = 0
+    # Is the appointment in the pilot? If yes, nothing to do. If no, then PilotOk = 0
     #------------------------------------------------------------------------
-    my $Resource = $MV_Resource[$numMedivisitAppts];
+    my $Resource = $MV_Resource[$numAppts];
     #Uncomment below when ready to initiate use of Resources.pm module
     my $checkPilot = 1;
 
     #------------------------------------------------------------------------
-    # Set the Medivisit appointment type here - just appointment for now
+    # Set the appointment type here - just appointment for now
     #------------------------------------------------------------------------
-    $MV_Appt_type_en[$numMedivisitAppts] = "Appointment";
-    $MV_Appt_type_fr[$numMedivisitAppts] = "rendez-vous";
+    $MV_Appt_type_en[$numAppts] = "Appointment";
+    $MV_Appt_type_fr[$numAppts] = "rendez-vous";
 
-    $numMedivisitAppts++;
-  } # end of medivisit appointment search
+    $numAppts++;
+  } # end of appointment search
 
-  # If we have no appointment today in either Medivisit or Aria, return now with an error
-  if( (!$MV_AppointmentSerNum[0] && $useAria == 0) || ($useAria == 1 && !$MV_AppointmentSerNum[0] && !$ScheduledActivitySer[0]) )
+  # If we have no appointment today, return now with an error
+  if( !$MV_AppointmentSerNum[0] )
   {
     my $null = "";
     @returnValue = ("No Appointment",$null,$null,$null,$null,$null,$null);
@@ -1430,33 +1358,14 @@ sub CheckinPatient
   #######################################################################################
   ################ Figure out Next Appointment and where it is #############
   #######################################################################################
-  # If we have both an Aria and medivist appointment - figure out which is next
-  # (ie earliest =  less minutes since start of day). The patient should be told to wait
-  # for their next appointment, even if checked in for all appointments
-
-  # Take the first ([0]) Aria and the first medivisit appointment and compare them - the earliest
-  # is the earliest
-  #######################################################################################
   my $nextApptDescription;
-  my $nextApptSystem;
   my $nextApptAMorPM;
   my $CheckInResource;
 
-  print "MV_AptTimeSinceMidnight: $MV_AptTimeSinceMidnight[0], Aria AptTimeSinceMidnight: $AptTimeSinceMidnight[0]<br>" if $verbose && $useAria == 1;
-
-  if( ($MV_AptTimeSinceMidnight[0] < $AptTimeSinceMidnight[0]) || !$useAria )
-  {
-    print "Next appointment is in Medivisit<br>" if $verbose;
-    $nextApptSystem = "Medivisit";
-    $nextApptAMorPM= $MV_AMorPM[0];
-    $nextApptDescription = $MV_ApptDescription[0];
-    $CheckInResource = $MV_Resource[0];
-    print "MV CheckInResource: $CheckInResource<br>" if $verbose;
-  }
-
-  print "<br>------------------------------ Next Appointment ---------------------------<br>" if $verbose;
-  print "Next appointment is for $nextApptSystem (at resource: $CheckInResource) <br>" if $verbose;
-  print "<br>---------------------------------------------------------------------------<br>" if $verbose;
+  $nextApptAMorPM= $MV_AMorPM[0];
+  $nextApptDescription = $MV_ApptDescription[0];
+  $CheckInResource = $MV_Resource[0];
+  print "MV CheckInResource: $CheckInResource<br>" if $verbose;
 
   #------------------------------------------------------------------------
   # Figure out the appropriate waiting room for the NEXT appointment
@@ -1495,10 +1404,8 @@ sub CheckinPatient
     $CheckinVenueName = "UNKNOWN";
   }
 
-  # Most radiation oncology activities are at DS1 - use the earliest of the medivisit and Aria data - ie element [0]
   my $WaitingRoomWherePatientShouldWait;
 
- # Next appointment is in Medivisit or not already determined
   my $level;
   #$level = "unknown" if !$level;
 
@@ -1519,27 +1426,27 @@ sub CheckinPatient
   }
 
   ##########################################################################################
-  # Check the patient in for all Medivisit appointments
-  # - loop over all medivisit appointments and check the patient in for each...
+  # Check the patient in for all appointments
+  # - loop over all appointments and check the patient in for each...
   ##########################################################################################
   my @MV_CheckinStatus;
-  for(my $appointment = 0; $appointment < $numMedivisitAppts; $appointment++)
+  for(my $appointment = 0; $appointment < $numAppts; $appointment++)
   {
     print "<br>------------------------------------------------------------<br>"if $verbose;
-    print "<br>Checking into Medivisit appointment #$appointment <br>" if $verbose;
+    print "<br>Checking into appointment #$appointment <br>" if $verbose;
     #---------------------------------------------------------------------------------------------
     # First, check for an existing entry in the patient location table for this appointment
     #---------------------------------------------------------------------------------------------
     my $sqlMV_checkCheckin = "
       SELECT DISTINCT
-                PatientLocation.PatientLocationSerNum,
-                PatientLocation.PatientLocationRevCount,
-                PatientLocation.CheckinVenueName,
-                PatientLocation.ArrivalDateTime
-          FROM
+        PatientLocationSerNum,
+        PatientLocationRevCount,
+        CheckinVenueName,
+        ArrivalDateTime
+    FROM
         PatientLocation
      WHERE
-                PatientLocation.AppointmentSerNum = $MV_AppointmentSerNum[$appointment]
+        AppointmentSerNum = $MV_AppointmentSerNum[$appointment]
     ";
 
     print "<p>sqlMV_checkCheckin: $sqlMV_checkCheckin<br>" if $verbose;
@@ -1608,28 +1515,28 @@ sub CheckinPatient
       print "deleted...<br>" if $verbose;
     }
 
-    print "Patient has been checked into Medivist for Medivisit appointment #$appointment... status: $MV_CheckinStatus[$appointment]" if $verbose;
+    print "Patient has been checked into appointment #$appointment... status: $MV_CheckinStatus[$appointment]" if $verbose;
     print "<center>Patient has been checked into appointment <i>$MV_Resource[$appointment]</i> at <b>$MV_ScheduledStartTime[$appointment]</b>... status: $MV_CheckinStatus[$appointment]<br></center>" if $verbose || $location =~ m/Reception/i;
-    print "<br>===================== Finished Medivisit checkin =====================<br>" if $verbose;
+    print "<br>===================== Finished checkin =====================<br>" if $verbose;
 
     #if the appointment originates from Aria, call the AriaIE to update the Aria db
     if($MV_sys[$appointment] eq "Aria" and $ariaCheckinUrl)
     {
-        my $trueAppId = $MV_appId[$appointment] =~ s/Aria//r;
-        my $aria_checkin = "$ariaCheckinUrl?appointmentId=$trueAppId&location=$CheckinVenueName";
+        my $appId = $MV_appId[$appointment];
+        my $aria_checkin = "$ariaCheckinUrl?appointmentId=$appId&location=$CheckinVenueName";
         $ua->get($aria_checkin);
         $hasAriaAppointment = 1;
 
         $WaitingRoomWherePatientShouldWait = "DS1";
     }
 
-  } # end of Medivisit checkin
+  } # end of checkin
 
   #check if the patient has an Aria photo
   if($hasAriaAppointment)
   {
     my $mrn = $MV_PatientId[0];
-    my $photoResult = $ua->get("$ariaPhotoUrl?type=MRN&identifier=$mrn")->content;;
+    my $photoResult = $ua->get("$ariaPhotoUrl?mrn=$mrn&site=$site")->content;
 
     my $json = JSON->new->allow_nonref;
     $photoResult = $json->decode($photoResult);
@@ -1638,17 +1545,15 @@ sub CheckinPatient
   }
 
 
-  ####### Return Value for Medivisit ###########################
   # Set the return value
-  @returnValueMedivisit = ($MV_CheckinStatus[0],$MV_ScheduledStartTime[0],$MV_ScheduledStartTime[0],$MV_Appt_type_en[0],$MV_Appt_type_fr[0],$WaitingRoomWherePatientShouldWait,$MV_MachineId[0],$PhotoOk,$PilotOk,$nextApptSystem);
-  print "returnValueMedivisit: @returnValueMedivisit<br>" if $verbose;
+  @returnValue = ($MV_CheckinStatus[0],$MV_ScheduledStartTime[0],$MV_ScheduledStartTime[0],$MV_Appt_type_en[0],$MV_Appt_type_fr[0],$WaitingRoomWherePatientShouldWait,$MV_MachineId[0],$PhotoOk,$PilotOk);
+  print "returnValue: @returnValue<br>" if $verbose;
 
 
   ##################################
-  # The return value should just be for the NEXT appointment, whether it is Aria or Meidivist
+  # The return value should just be for the NEXT appointment
 
-  print "Returning for $nextApptSystem<br>" if $verbose;
-  return @returnValueMedivisit     if $nextApptSystem eq "Medivisit";
+  return @returnValue;
 
   ##################################
 

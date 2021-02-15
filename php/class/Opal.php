@@ -2,185 +2,14 @@
 
 namespace Orms;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Exception\GuzzleException;
-use RuntimeException;
+
 use PDOException;
 
 use Orms\Config;
-use Orms\DateTime;
 use Orms\Database;
-
-Opal::__init();
 
 class Opal
 {
-    private static ?string $opalAdminUrl;
-
-    public static function __init(): void
-    {
-        $url = Config::getApplicationSettings()->opal?->opalAdminUrl;
-
-        if($url === NULL) {
-            self::$opalAdminUrl = NULL;
-        }
-        else {
-            self::$opalAdminUrl = $url . (substr($url,-1) === "/" ? "" : "/"); //add trailing slash if there is none
-        }
-    }
-
-    static function getHttpClient(): Client
-    {
-        return new Client([
-            "base_uri"      => self::$opalAdminUrl,
-            "verify"        => FALSE, //this should be changed at some point...
-            // "http_errors"   => FALSE
-        ]);
-    }
-
-    static function getOpalSessionCookie(): CookieJar
-    {
-        $client = self::getHttpClient();
-
-        $cookies = new CookieJar();
-        $client->request("POST","user/system-login",[
-            "form_params" => [
-                "username" => "ORMS",
-                "password" => "Password1@"
-            ],
-            "cookies" => $cookies
-        ]);
-
-        return new CookieJar(FALSE,[$cookies->getCookieByName("PHPSESSID")]);
-    }
-
-    /**
-     *
-     * @return mixed[]
-     * @throws GuzzleException
-     * @throws RuntimeException
-     */
-    static function getPatientDiagnosis(string $mrn): array
-    {
-        if(self::$opalAdminUrl === NULL) return [];
-
-        $response = self::getHttpClient()->request("POST","diagnosis/get/patient-diagnoses",[
-            "form_params" => [
-                "mrn"       => $mrn,
-                "site"      => Config::getApplicationSettings()->environment->site,
-                "source"    => "ORMS",
-                "include"   => 0,
-                "startDate" =>"2000-01-01",
-                "endDate"   =>"2099-12-31"
-            ],
-            "cookies" => self::getOpalSessionCookie()
-        ])->getBody()->getContents();
-
-        //map the fields returned by Opal into something resembling a patient diagnosis
-        return array_map(function($x) {
-            return [
-                "isExternalSystem"  => 1,
-                "status"            => "Active",
-                "createdDate"       => $x["CreationDate"],
-                "updatedDate"       => $x["LastUpdated"],
-                "diagnosis"         => [
-                    "subcode"               => $x["DiagnosisCode"],
-                    "subcodeDescription"    => $x["Description_EN"]
-                ]
-            ];
-        },json_decode($response,TRUE));
-    }
-
-    static function insertPatientDiagnosis(string $mrn,int $diagId,string $diagSubcode,DateTime $creationDate,string $descEn,string $descFr): void
-    {
-        if(self::$opalAdminUrl === NULL) return;
-
-        self::getHttpClient()->request("POST","diagnosis/insert/patient-diagnosis",[
-            "form_params" => [
-                "mrn"           => $mrn,
-                "site"          => Config::getApplicationSettings()->environment->site,
-                "source"        => "ORMS",
-                "rowId"         => $diagId,
-                "code"          => $diagSubcode,
-                "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
-                "descriptionEn" => $descEn,
-                "descriptionFr" => $descFr,
-            ],
-            "cookies" => self::getOpalSessionCookie()
-        ]);
-    }
-
-    static function deletePatientDiagnosis(string $mrn,int $diagId): void
-    {
-        if(self::$opalAdminUrl === NULL) return;
-
-        self::getHttpClient()->request("POST","diagnosis/delete/patient-diagnosis",[
-            "form_params" => [
-                "mrn"           => $mrn,
-                "site"          => Config::getApplicationSettings()->environment->site,
-                "source"        => "ORMS",
-                "rowId"         => $diagId
-            ],
-            "cookies" => self::getOpalSessionCookie()
-        ]);
-    }
-
-    static function exportDiagnosisCode(int $id,string $code,string $desc): void
-    {
-        if(self::$opalAdminUrl === NULL) return;
-
-        self::getHttpClient()->request("POST","master-source/insert/diagnoses",[
-            "form_params" => [
-                [
-                    "source"        => "ORMS",
-                    "externalId"    => $id,
-                    "code"          => $code,
-                    "description"   => $desc
-                ]
-            ],
-            "cookies" => self::getOpalSessionCookie()
-        ]);
-    }
-
-    static function sendCheckInNotification(string $mrn): void
-    {
-        $url = Config::getApplicationSettings()->opal?->checkInUrl;
-        if($url === NULL) return;
-
-        try {
-            (new Client(["verify" => FALSE]))->request("GET",$url,[
-                "query" => [
-                    "PatientId" => $mrn
-                ]
-            ]);
-        }
-        catch(\Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
-        }
-
-    }
-
-    static function sendPushNotification(string $mrn,string $appointmentId,string $roomNameEn,string $roomNameFr): void
-    {
-        $url = Config::getApplicationSettings()->opal?->notificationUrl;
-        if($url === NULL) return;
-
-        try {
-            (new Client(["verify" => FALSE]))->request("GET",$url,[
-                "query" => [
-                    "PatientId"             => $mrn,
-                    "appointment_ariaser"   => $appointmentId,
-                    "room_EN"               => $roomNameEn,
-                    "room_FR"               => $roomNameFr,
-                ]
-            ]);
-        }
-        catch(\Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
-        }
-    }
-
     /////////////////////////////////////
     // direct connections to Opal db
     /////////////////////////////////////
@@ -356,12 +185,12 @@ class Opal
                     ELSE 0
                 END AS CompletedWithinLastWeek
             FROM
-                Patient
-                INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
+                Patient P
+                INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = P.PatientSerNum
                     AND Questionnaire.CompletedFlag = 1
                     AND Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW()
             WHERE
-                Patient.PatientId = :mrn
+                P.PatientId = :mrn
             ORDER BY Questionnaire.CompletionDate DESC
             LIMIT 1
         ");
@@ -465,7 +294,7 @@ class Opal
         $query = $dbh->prepare("
             SELECT
                 PatientSerNum
-                ,PatientID
+                ,PatientId
                 ,CONCAT(TRIM(FirstName),' ',TRIM(LastName)) AS Name
                 ,LEFT(sex,1) as Sex
                 ,DateOfBirth
@@ -474,7 +303,7 @@ class Opal
             FROM
                 Patient
             WHERE
-                PatientID = ?
+                PatientId = ?
         ");
         $query->execute([$mrn]);
 

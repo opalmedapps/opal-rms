@@ -555,9 +555,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         else{
             alert("Please paste your Zoom Personal Meeting ID URL on MSSS Zoom Link!");
         }
-        //.then( _ => {
-        //firebaseScreenRef.child("zoomLinkSent").update({[patient.Identifier]: 1});
-        //});
     }
 
     $scope.openZoomLink = function()

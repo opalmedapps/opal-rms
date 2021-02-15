@@ -2,6 +2,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Opal;
 
 $mrn = $_GET["mrn"] ?? NULL;
@@ -13,7 +14,7 @@ if($mrn === NULL || $questionnaireId === NULL) {
 }
 
 $questions = Opal::getPatientAnswersForChartTypeQuestionnaire($mrn,(int) $questionnaireId);
-$questions = utf8_encode_recursive($questions);
+$questions = Encoding::utf8_encode_recursive($questions);
 
 //get the date of the last questionnaire that the patient answered
 /** @psalm-suppress ArgumentTypeCoercion */

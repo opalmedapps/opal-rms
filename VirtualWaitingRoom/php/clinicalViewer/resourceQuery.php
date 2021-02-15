@@ -5,6 +5,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 $speciality = $_GET["clinic"] ?? NULL;
@@ -30,7 +31,7 @@ $query->execute([":spec" => $speciality]);
 
 $resources = $query->fetchAll();
 
-$resources = utf8_encode_recursive($resources);
+$resources = Encoding::utf8_encode_recursive($resources);
 echo json_encode($resources);
 
 #get the full list of appointment resources depending on the site

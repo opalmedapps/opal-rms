@@ -13,24 +13,20 @@ $firstName = $_GET["firstName"];
 $lastNameFirstThree = $_GET["lastNameFirstThree"];
 $patientId = $_GET["patientId"];
 
-//======================================================================================
-// MediVisit/MySQL patients
-//======================================================================================
-// Create MySQL DB connection
 $dbh = Database::getOrmsConnection();
 
 $query = $dbh->prepare("
     SELECT
-        COUNT(DISTINCT Patient.SSN) AS numSimilarNames
+        COUNT(DISTINCT P.SSN) AS numSimilarNames
     FROM
-        PatientLocation
-        INNER JOIN MediVisitAppointmentList ON MediVisitAppointmentList.AppointmentSerNum = PatientLocation.AppointmentSerNum
-        INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
-            AND Patient.FirstName = :first
-            AND Patient.SSN LIKE :last
-            AND Patient.PatientSerNum != :pSer
+        PatientLocation PL
+        INNER JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PL.AppointmentSerNum
+        INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+            AND P.FirstName = :first
+            AND P.SSN LIKE :last
+            AND P.PatientSerNum != :pSer
     WHERE
-        PatientLocation.ArrivalDateTime >= CURDATE()
+        PL.ArrivalDateTime >= CURDATE()
 ");
 
 $query->execute([

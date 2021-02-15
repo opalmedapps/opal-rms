@@ -20,7 +20,8 @@
     "datatables.net": "1.10.20",
     "datatables.net-buttons-dt": "1.6.1",
     "firebase": "2.2.1",
-    "highcharts": "7.2.1",
+    "highcharts": "9.0.1",
+    "highcharts-export-server": "2.0.30",
     "highcharts-ng": "1.2.1",
     "jquery": "3.4.1",
     "jquery-ui-dist": "1.12.1",
@@ -28,5 +29,11 @@
     "popper.js": "1.16.0",
     "ui-bootstrap4": "3.0.6",
     "ui-select": "0.19.8"
+  },
+  "scripts": {
+    "install": "export HIGHCHARTS_VERSION=npm HIGHCHARTS_CDN=npm ACCEPT_HIGHCHARTS_LICENSE=1 && node node_modules/highcharts-export-server/build.js"
+  },
+  "devDependencies": {
+    "redoc-cli": "^0.10.4"
   }
 }

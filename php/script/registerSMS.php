@@ -39,9 +39,9 @@ $dbh = Database::getOrmsConnection();
 //====================================================================================
 // first check that the patient exists in ORMS
 $queryPatient = $dbh->prepare("
-    SELECT Patient.LastName
+    SELECT LastName
     FROM Patient
-    WHERE  Patient.PatientId = :mrn
+    WHERE PatientId = :mrn
 ");
 $queryPatient->execute([":mrn" => $PatientId]);
 
@@ -61,13 +61,13 @@ echo "Patient already exists in ORMS - will update...<br>";
 $updateSms = $dbh->prepare("
     UPDATE Patient
     SET
-        Patient.SMSAlertNum = :smsNum,
-        Patient.SMSSignupDate = NOW(),
-        Patient.SMSLastUpdated = NOW(),
-        Patient.LanguagePreference = :language
+        SMSAlertNum = :smsNum,
+        SMSSignupDate = NOW(),
+        SMSLastUpdated = NOW(),
+        LanguagePreference = :language
     WHERE
-        Patient.PatientId = :mrn
-        AND Patient.SSN = :ssn
+        PatientId = :mrn
+        AND SSN = :ssn
 ");
 $updateSms->execute([
     ":smsNum"   => $SMSAlertNum,

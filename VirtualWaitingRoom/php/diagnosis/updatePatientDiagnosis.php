@@ -5,7 +5,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\DiagnosisInterface;
 use Orms\DateTime;
 use Orms\Patient;
-use Orms\Opal;
+use Orms\Hospital\OIE\Export;
 
 $patientId           = (int) $_GET["patientId"];
 $patientDiagnosisId  = (int) $_GET["patientDiagnosisId"];
@@ -17,13 +17,13 @@ $user                = $_GET["user"];
 $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status,$user);
 
 //export the diagnosis to external systems
-$mrn = Patient::getPatientById($patientId)->patientId;
+$patient = Patient::getPatientById($patientId);
 
-if($mrn !== NULL)
+if($patient !== NULL)
 {
     if($status === "Active") {
-        Opal::insertPatientDiagnosis(
-            $mrn,
+        Export::exportPatientDiagnosis(
+            $patient,
             $updatedDiag->diagnosis->id, // $newDiag->id,
             $updatedDiag->diagnosis->subcode,
             $updatedDiag->createdDate,
@@ -32,8 +32,8 @@ if($mrn !== NULL)
         );
     }
     elseif($status === "Deleted") {
-        Opal::deletePatientDiagnosis(
-            $mrn,
+        Export::exportPatientDiagnosisDeletion(
+            $patient,
             $updatedDiag->diagnosis->id
         );
     }

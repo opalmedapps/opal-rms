@@ -6,6 +6,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 #parse input parameters
@@ -45,10 +46,10 @@ $query = $dbh->prepare("
         SELECT DISTINCT
             MV.ScheduledDate,
             MV.AppointmentSerNum,
-            Patient.PatientSerNum,
-            Patient.FirstName,
-            Patient.LastName,
-            Patient.PatientId,
+            P.PatientSerNum,
+            P.FirstName,
+            P.LastName,
+            P.PatientId,
             PatientLocationMH.CheckinVenueName,
             PatientLocationMH.ArrivalDateTime,
             PatientLocationMH.DichargeThisLocationDateTime,
@@ -58,8 +59,8 @@ $query = $dbh->prepare("
             MV.Status,
             MV.ScheduledTime
         FROM
-            Patient
-            INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
+            Patient P
+            INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
                 AND MV.Status != 'Deleted'
                 AND MV.ScheduledDate BETWEEN :sDate AND :eDate
             LEFT JOIN PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
@@ -71,10 +72,10 @@ $query = $dbh->prepare("
         SELECT DISTINCT
             MV.ScheduledDate,
             MV.AppointmentSerNum,
-            Patient.PatientSerNum,
-            Patient.FirstName,
-            Patient.LastName,
-            Patient.PatientId,
+            P.PatientSerNum,
+            P.FirstName,
+            P.LastName,
+            P.PatientId,
             PatientLocation.CheckinVenueName,
             PatientLocation.ArrivalDateTime,
             '1970' AS DichargeThisLocationDateTime,
@@ -84,8 +85,8 @@ $query = $dbh->prepare("
             MV.Status,
             MV.ScheduledTime
         FROM
-            Patient
-            INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
+            Patient P
+            INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
                 AND MV.Status != 'Deleted'
                 AND MV.ScheduledDate BETWEEN :sDate AND :eDate
             LEFT JOIN PatientLocation ON PatientLocation.AppointmentSerNum = MV.AppointmentSerNum
@@ -220,7 +221,7 @@ foreach($appointments as $appointment)
     $dates[$appointment["date"]][] = $appointment;
 }
 
-$dates = utf8_encode_recursive($dates);
+$dates = Encoding::utf8_encode_recursive($dates);
 echo json_encode($dates);
 
 #functions

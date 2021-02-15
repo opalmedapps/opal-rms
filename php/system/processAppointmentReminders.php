@@ -2,11 +2,12 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
+use Orms\Util\ArrayUtil;
 use Orms\Database;
 use Orms\Sms;
-use Orms\Util\ArrayUtil;
 
-#get the list of aria appointments to process
+#get the list of appointments to process
 #group appointments by patient
 $appointments = getAppointments();
 $patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments,"mrn");
@@ -82,9 +83,9 @@ function getAppointments(): array
     $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
-            Patient.PatientId AS mrn,
-            Patient.SMSAlertNum AS phoneNumber,
-            Patient.LanguagePreference AS language,
+            P.PatientId AS mrn,
+            P.SMSAlertNum AS phoneNumber,
+            P.LanguagePreference AS language,
             MV.AppointmentSerNum AS appSer,
             MV.ScheduledDate AS date,
             TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
@@ -104,9 +105,9 @@ function getAppointments(): array
             SA.Type as type
         FROM
             MediVisitAppointmentList MV
-            INNER JOIN Patient ON Patient.PatientSerNum = MV.PatientSerNum
-                AND Patient.SMSAlertNum != ''
-                AND Patient.SMSAlertNum IS NOT NULL
+            INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+                AND P.SMSAlertNum != ''
+                AND P.SMSAlertNum IS NOT NULL
             INNER JOIN SmsAppointment SA ON SA.AppointmentCodeId = MV.AppointmentCodeId
                 AND SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                 AND SA.Active = 1
@@ -115,7 +116,7 @@ function getAppointments(): array
             MV.Status = 'Open'
             AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY
         ORDER BY
-            Patient.PatientId,
+            P.PatientId,
             MV.ScheduledTime
     ");
     $query->execute();
@@ -125,7 +126,7 @@ function getAppointments(): array
         return checkIfReminderAlreadySent($x["appSer"]);
     });
 
-    return utf8_encode_recursive($appointments);
+    return Encoding::utf8_encode_recursive($appointments);
 }
 
 #checks to see if a reminder was already sent for a specific appointment

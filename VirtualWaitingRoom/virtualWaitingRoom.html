@@ -93,19 +93,19 @@
 
                     <span ng-switch-when="AssignRoom" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">
-                            <button ng-show="screenRows.hasOwnProperty(patient.Identifier)" ng-click="openCallModal(patient,'ASSIGN EXAM ROOM')" ng-class="checkIfPatientInExamRoom(patient) ? 'btn btn-success green-button' : 'btn btn-danger'">{{checkIfPatientInExamRoom(patient) ? patient.VenueId : 'Assign Exam Room'}}</button>
+                            <button ng-show="screenRows.hasOwnProperty(patient.AppointmentId)" ng-click="openCallModal(patient,'ASSIGN EXAM ROOM')" ng-class="checkIfPatientInExamRoom(patient) ? 'btn btn-success green-button' : 'btn btn-danger'">{{checkIfPatientInExamRoom(patient) ? patient.VenueId : 'Assign Exam Room'}}</button>
                         </span>
                     </span>
 
                     <span ng-switch-when="CallPatient" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">
-                            <button ng-show="!screenRows.hasOwnProperty(patient.Identifier)" ng-click="openCallModal(patient)" class="btn btn-primary">Call Patient</button>
-                            <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="callPatientAgain(patient,true)" class="btn btn-danger">Call Again</button>
+                            <button ng-show="!screenRows.hasOwnProperty(patient.AppointmentId)" ng-click="openCallModal(patient)" class="btn btn-primary">Call Patient</button>
+                            <button ng-show="screenRows[patient.AppointmentId].PatientStatus == 'Called'" ng-click="callPatientAgain(patient,true)" class="btn btn-danger">Call Again</button>
                         </span>
                         <span ng-switch-when="NotCheckedIn">
                             <span ng-show="patient.SMSAlertNum && pageSettings.zoomLink && isZoomAppointment(patient.AppointmentName)">
-                                <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
-                                <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.Identifier)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
+                                <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.AppointmentId)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
+                                <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.AppointmentId)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
                             </span>
                         </span>
                     </span>
@@ -129,17 +129,17 @@
 
                     <span ng-switch-when="CompleteAppointment" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">
-                            <button ng-show="screenRows[patient.Identifier].PatientStatus === 'Called' || patient.VenueId === 'BACK TO WAITING ROOM' || patient.VenueId === 'TEST CENTRE WAITING ROOM'" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
-                            <span ng-show="screenRows[patient.Identifier].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
+                            <button ng-show="screenRows[patient.AppointmentId].PatientStatus === 'Called' || patient.VenueId === 'BACK TO WAITING ROOM' || patient.VenueId === 'TEST CENTRE WAITING ROOM'" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
+                            <span ng-show="screenRows[patient.AppointmentId].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
                         </span>
                         <span ng-switch-when="NotCheckedIn">
                             <button ng-show="isZoomAppointment(patient.AppointmentName)" ng-click="openFormModal(patient)" class="btn btn-success green-button">Complete</button>
-                            <span ng-show="screenRows[patient.Identifier].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
+                            <span ng-show="screenRows[patient.AppointmentId].PatientStatus == 'CheckedOut'"><b>Checked out!</b></span>
                         </span>
                     </span>
 
                     <div ng-switch-when="Diagnosis" class="diagnosis-hover">
-                        <button ng-click="openDiagnosisModal(patient)" class="btn btn-info btn-diagnosis" ng-mouseover="loadPatientDiagnosis(patient)">View</button>
+                        <button ng-click="openDiagnosisModal(patient)" class="btn btn-info btn-diagnosis" ng-mouseover="loadPatientDiagnosis(patient)">Add</button>
                         <span class="diagnosis-table">
                             <table style="width: 100%;margin: 5px">
                                 <tr>
@@ -173,7 +173,7 @@
 
                     <span ng-switch-when="UndoCall" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">
-                            <button ng-show="screenRows[patient.Identifier].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
+                            <button ng-show="screenRows[patient.AppointmentId].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
                         </span>
                         <span ng-switch-when="NotCheckedIn">
                             <button ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient) && isZoomAppointment(patient.AppointmentName)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>

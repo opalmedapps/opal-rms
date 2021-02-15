@@ -3,10 +3,11 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 //get webpage parameters
-$profileId = utf8_decode_recursive($_GET['profileId']);
+$profileId = Encoding::utf8_decode_recursive($_GET['profileId']);
 
 //connect to db
 $dbh = Database::getOrmsConnection();

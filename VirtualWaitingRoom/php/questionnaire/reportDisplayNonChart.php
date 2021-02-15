@@ -2,6 +2,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Opal;
 
 $mrn             = $_GET["mrn"] ?? NULL;
@@ -73,9 +74,9 @@ foreach($questions as $question)
 
     $jstring[] = [
         "DisplayDate"  => $displayDate,
-        "Description"  => utf8_encode_recursive($questionText),
-        "Choice"       => utf8_encode_recursive($scale),
-        "Answer"       => utf8_encode_recursive($answers)
+        "Description"  => Encoding::utf8_encode_recursive($questionText),
+        "Choice"       => Encoding::utf8_encode_recursive($scale),
+        "Answer"       => Encoding::utf8_encode_recursive($answers)
     ];
 
 };

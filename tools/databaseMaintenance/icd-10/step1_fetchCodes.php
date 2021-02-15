@@ -12,6 +12,8 @@ file_put_contents(__DIR__."/data/raw_codes.json",json_encode($data));
 //some codes have extra groups like C00-C75
 
 ####################################################
+
+/** @return mixed[] */
 function getDataFromWho(): array
 {
     $url = "https://icd.who.int/browse10/2019/en/JsonGetRootConcepts?useHtml=false";
@@ -26,6 +28,7 @@ function getDataFromWho(): array
     },$initialData);
 }
 
+/** @return mixed[] */
 function getConceptData(string $concept): array
 {
     $url = "https://icd.who.int/browse10/2019/en/JsonGetChildrenConcepts?useHtml=false&showAdoptedChildren=true";

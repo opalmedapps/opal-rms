@@ -2,9 +2,10 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
+use Orms\Http;
 use Orms\Authentication;
 
-$postParams = getPostContents();
+$postParams = Http::getPostContents();
 
 $username = $postParams["username"] ?? NULL;
 $password = $postParams["password"] ?? NULL;

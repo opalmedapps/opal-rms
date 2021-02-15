@@ -6,17 +6,18 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Patient;
 use Orms\Sms;
-use Orms\Opal;
+use Orms\Hospital\OIE\Export;
 
 // Extract the webpage parameters
 $patientId = (int) ($_GET["patientId"] ?? NULL);
-$appointmentId = $_GET["appointmentId"];
+$sourceId = $_GET["sourceId"];
+$sourceSystem = $_GET["sourceSystem"];
 $roomFr = $_GET["roomFr"];
 $roomEn = $_GET["roomEn"];
 
 $patient = Patient::getPatientById($patientId);
 
-if($patient->smsNum === NULL || $patient->patientId === NULL) {
+if($patient === NULL || $patient->smsNum === NULL) {
     echo "No SMS alert phone number so will not attempt to send";
     exit;
 }
@@ -32,6 +33,6 @@ else {
 Sms::sendSms($patient->smsNum,$message);
 
 //send a notification to Opal if the patient is an Opal patient
-if($patient->opalPatient === "1") Opal::sendPushNotification($patient->patientId,$appointmentId,$roomEn,$roomFr);
+Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);
 
 ?>

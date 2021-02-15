@@ -2,14 +2,12 @@
 
 require __DIR__."/../../vendor/autoload.php";
 
-use GuzzleHttp\Client;
-
-use Orms\Config;
+use Orms\Util\Encoding;
 use Orms\Database;
 use Orms\Sms;
+use Orms\Patient;
+use Orms\Location;
 use Orms\Util\ArrayUtil;
-
-$checkInScriptUrl = Config::getApplicationSettings()->environment->baseUrl ."/php/system/checkInPatientAriaMedi.php";
 
 //get all the message that we received since the last time we checked
 //also check up to 5 minutes before the last run to get any messages that may have been missed
@@ -56,7 +54,6 @@ foreach($messages as $message)
     }
 
     $patientSer = $patientData["PatientSerNum"];
-    $patientMrn = $patientData["PatientId"];
     $language = $patientData["LanguagePreference"];
 
     #sleep first to make sure the previous text message had time to be sent
@@ -112,25 +109,23 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString) ?? ""; #remove last separator newline
 
     #check the patient into all of his appointments
-    $client = new Client();
-    $checkInResult = $client->request("GET",$checkInScriptUrl,[
-        "query" => [
-            "CheckinVenue" => $checkInLocation,
-            "PatientId"    => $patientMrn
-        ]
-    ])->getStatusCode();
+    $patient = Patient::getPatientById((int) $patientSer);
 
-    if($checkInResult < 300)
+    try
     {
+        if($patient === NULL) throw new Exception("Unknown patient");
+
+        Location::movePatientToLocation($patient,$checkInLocation);
+
         Sms::sendSms($message->clientNumber,$appointmentString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$appointmentString,"Success");
     }
-    else
+    catch(\Exception $e)
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
         Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
-        logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Error");
+        logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Error: ". $e->getTraceAsString());
     }
 }
 
@@ -176,7 +171,7 @@ function getAppointmentList(string $pSer): array
     ");
     $query->execute([":pSer" => $pSer]);
 
-    return utf8_encode_recursive($query->fetchAll());
+    return Encoding::utf8_encode_recursive($query->fetchAll());
 }
 
 function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
@@ -207,13 +202,12 @@ function getPatientInfo(string $phoneNumber): ?array
     $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
-            Patient.PatientSerNum,
-            Patient.PatientId,
-            Patient.LanguagePreference
+            PatientSerNum,
+            LanguagePreference
         FROM
             Patient
         WHERE
-            Patient.SMSAlertNum = :num
+            SMSAlertNum = :num
         LIMIT 1
     ");
     $query->execute([":num" => $phoneNumber]);

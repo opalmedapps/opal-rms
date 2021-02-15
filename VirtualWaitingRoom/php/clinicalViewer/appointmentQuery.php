@@ -5,6 +5,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 use Orms\Opal;
 use Orms\DiagnosisInterface;
@@ -48,16 +49,16 @@ $qDate = "$qDateInit $qTime";
 $opalFilter = "";
 
 if($opal === FALSE && $sms === FALSE) {
-    $opalFilter = "AND (Patient.SMSAlertNum IS NULL OR Patient.OpalPatient = 0)";
+    $opalFilter = "AND (P.SMSAlertNum IS NULL OR P.OpalPatient = 0)";
 }
 elseif($opal === FALSE) {
-    $opalFilter .= "AND Patient.SMSAlertNum IS NOT NULL";
+    $opalFilter .= "AND P.SMSAlertNum IS NOT NULL";
 }
 elseif($sms === FALSE) {
-    $opalFilter .= "AND Patient.OpalPatient = 1";
+    $opalFilter .= "AND P.OpalPatient = 1";
 }
 else {
-    $opalFilter = "AND (Patient.SMSAlertNum IS NOT NULL OR Patient.OpalPatient = 1)";
+    $opalFilter = "AND (P.SMSAlertNum IS NOT NULL OR P.OpalPatient = 1)";
 }
 
 $statusFilter = " AND MV.Status IN (". implode(",",$activeStatusConditions) .")";
@@ -70,10 +71,10 @@ $dbh = Database::getOrmsConnection();
 $queryAppointments = $dbh->prepare("
     SELECT
         MV.AppointmentSerNum,
-        Patient.FirstName,
-        Patient.LastName,
-        Patient.PatientId,
-        Patient.PatientSerNum,
+        P.FirstName,
+        P.LastName,
+        P.PatientId,
+        P.PatientSerNum,
         MV.ResourceDescription,
         MV.Resource,
         MV.AppointmentCode,
@@ -83,20 +84,20 @@ $queryAppointments = $dbh->prepare("
         (SELECT PL.ArrivalDateTime FROM PatientLocation PL WHERE PL.AppointmentSerNum = MV.AppointmentSerNum AND PL.PatientLocationRevCount = 1 LIMIT 1) AS CurrentCheckInTime,
         (SELECT PLM.ArrivalDateTime FROM PatientLocationMH PLM WHERE PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 LIMIT 1) AS PreviousCheckInTime,
         MV.MedivisitStatus,
-        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
-        Patient.OpalPatient,
-        Patient.SMSAlertNum
+        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = P.PatientSerNum) AS LastQuestionnaireReview,
+        P.OpalPatient,
+        P.SMSAlertNum
     FROM
-        Patient
-        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
+        Patient P
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
             AND MV.Status != 'Deleted'
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
+            $opalFilter
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             AND CR.Speciality = :spec
-        $statusFilter
-        $appFilter
-        $cappFilter
-        $opalFilter
+            $statusFilter
+            $appFilter
+            $cappFilter
     ORDER BY
         MV.ScheduledDate,
         MV.ScheduledTime
@@ -215,12 +216,12 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
                 FROM
                     TEMP_PatientQuestionnaireReview
                 WHERE
-                    TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum
+                    TEMP_PatientQuestionnaireReview.PatientSer = P.PatientSerNum
             ) AS LastQuestionnaireReview
         FROM
-            Patient
+            Patient P
         WHERE
-            Patient.PatientId = :mrn
+            P.PatientId = :mrn
     ");
 
     foreach($patients as $pat)
@@ -278,7 +279,7 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
     }
 }
 
-$listOfAppointments = utf8_encode_recursive($listOfAppointments);
+$listOfAppointments = Encoding::utf8_encode_recursive($listOfAppointments);
 echo json_encode($listOfAppointments);
 
 /**

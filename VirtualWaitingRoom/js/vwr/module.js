@@ -48,34 +48,6 @@ myApp.filter('multiResourceFilter', function()
         //filter by selected resources
         out = out.filter( x => resources.includes(x.ResourceName));
 
-        //go through the array of data and perform the operation of figuring out if the patient is assigned to a selected Resource
-        // angular.forEach(input, function(patient)
-        // {
-        //     var store = 0;
-
-        //     for(var currentResource = 0; currentResource < resources.length; currentResource++)
-        //     {
-        //         if(patient.ResourceName == resources[currentResource]['Name']) {store = 1;}
-        //     }
-
-        //     for(var currentAppointment = 0; currentAppointment < appointments.length; currentAppointment++)
-        //     {
-        //         if(patient.AppointmentName == appointments[currentAppointment]['Name']) {store = 1;}
-        //     }
-
-        //     //additionally, check if the patient has the CheckedOut status in firebase
-        //     //if they do, filter them
-        //     //if(fbArray.hasOwnProperty(patient.Identifier))
-        //     //{
-        //     //    if(
-        //     //        fbArray[patient.Identifier].PatientStatus === 'CheckedOut'
-        //     //        && !pageSettings.ShowCheckedOutAppointments
-        //     //    ) {store = 0;}
-        //     //}
-
-        //     if(store == 1) {out.push(patient);}
-        // });
-
         return out;
     }
 });

@@ -43,7 +43,7 @@
             </div>
         </md-tab>
 
-        <md-tab ng-repeat="obj in [{title: 'Select Resource',attribute: 'Resources'},{title: 'Select Location',attribute: 'Locations'},{title: 'Select Clinic',attribute: 'Clinics'}]" label="{{obj.title}}s"> <!-- SelectResources --> <!-- SelectLocations --> <!-- SelectAppointments--> <!-- {title: 'Select Appointment',attribute: 'Appointments'}-->
+        <md-tab ng-repeat="obj in [{title: 'Select Resource',attribute: 'Resources'},{title: 'Select Location',attribute: 'Locations'}]" label="{{obj.title}}s"> <!-- SelectResources --> <!-- SelectLocations --> <!-- SelectAppointments--> <!-- {title: 'Select Appointment',attribute: 'Appointments'}-->
             <div class="modal-header editor-header">
                 <h3 class="modal-title">{{obj.title}}(s)</h3>
             </div>
@@ -109,36 +109,6 @@
                         </li>
                     </ul>
                 </div>
-            </div>
-
-            <div class="modal-footer editor-footer">
-                <button class="btn btn-primary" style="float:left" ng-click="previousTab()">Previous</button>
-                <button class="btn btn-primary" style="float:right" ng-click="nextTab()">Next</button>
-            </div>
-        </md-tab>
-
-        <md-tab label="Misc Settings"> <!-- MiscSettings -->
-            <div class="modal-header editor-header">
-                <h3 class="modal-title">Set Profile Name</h3>
-            </div>
-            <div class="modal-body editor-body">
-                <table class="editor-table">
-                    <tr>
-                        <td>Fetch Resources Associated with Venues: </td>
-                        <td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromVenues" ng-true-value="1" ng-false-value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td>Fetch Resources Associated with Clinic: </td>
-                        <td><input type="checkbox" ng-model="selectedProfile.data.FetchResourcesFromClinics" ng-true-value="1" ng-false-value="0"/></td>
-                    </tr>
-                    <tr>
-                        <td>Display Checked Out Appointments: </td>
-                        <td><input type="checkbox" ng-model="selectedProfile.data.ShowCheckedOutAppointments" ng-true-value="1" ng-false-value="0"/></td>
-                    </tr>
-
-
-
-                </table>
             </div>
 
             <div class="modal-footer editor-footer">

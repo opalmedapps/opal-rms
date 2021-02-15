@@ -5,3 +5,9 @@ Virtual Waiting Room notes:
 Quick comments:
     -When creating or deleting profiles in the WaitRoomMangement DB, be sure to use the stored procedures (SetupProfile/DeleteProfile respectively).
     -When adding a new column type, run the VerifyProfileColumns procedure right after.
+
+To start the highcharts export server (after running npm install):
+pm2 start node_modules/highcharts-export-server/bin/cli.js --name hes -- --enableServer 1
+
+To update the public api:
+npx redoc-cli bundle php/api/public/v1/openapi.yml -o php/api/public/v1/index.html

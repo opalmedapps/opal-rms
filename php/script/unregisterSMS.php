@@ -31,12 +31,12 @@ $dbh = Database::getOrmsConnection();
 #check if any patients with the phone number exist
 $querySMS = $dbh->prepare("
     SELECT
-        CONCAT(Patient.LastName ,', ',Patient.FirstName) AS Name,
-        Patient.PatientId AS MRN
+        CONCAT(LastName ,', ',FirstName) AS Name,
+        PatientId AS MRN
     FROM
         Patient
     WHERE
-        Patient.SMSAlertNum = ?
+        SMSAlertNum = ?
 ");
 $querySMS->execute([$SMSAlertNum]);
 
@@ -54,11 +54,12 @@ foreach($patients as $pat) {
 $updateSMS = $dbh->prepare("
     UPDATE Patient
     SET
-        Patient.SMSAlertNum = NULL,
-        Patient.SMSSignupDate = NULL,
-        Patient.SMSLastUpdated = CURRENT_TIMESTAMP(),
-        Patient.LanguagePreference = NULL
-    WHERE Patient.SMSAlertNum = ?
+        SMSAlertNum = NULL,
+        SMSSignupDate = NULL,
+        SMSLastUpdated = CURRENT_TIMESTAMP(),
+        LanguagePreference = NULL
+    WHERE
+        SMSAlertNum = ?
 ");
 $updateSMS->execute([$SMSAlertNum]);
 

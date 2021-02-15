@@ -1,11 +1,12 @@
 <?php
 //====================================================================================
-// updateCheckinFile.php - php code to query the MySQL databases and extract the list of patients
-// who are currently checked in for open appointments today in Medivisit (MySQL)
+// updateCheckinFile.php - php code to query the database and extract the list of patients
+// who are currently checked in for open appointments today
 //====================================================================================
 
 require_once __DIR__."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\Database;
 use Orms\Opal;
@@ -17,42 +18,42 @@ $json = [];
 
 $queryWRM = $dbh->prepare("
     SELECT
-        MediVisitAppointmentList.AppointmentSerNum AS ScheduledActivitySer,
-        MediVisitAppointmentList.AppointId AS AppointmentId,
+        MV.AppointmentSerNum AS AppointmentId,
+        MV.AppointId AS SourceId,
         ClinicResources.Speciality,
-        PatientLocation.ArrivalDateTime,
-        LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentName,
-        Patient.LastName,
-        Patient.FirstName,
-        Patient.PatientSerNum AS PatientId,
-        Patient.PatientId AS Mrn,
-        Patient.OpalPatient,
-        Patient.SMSAlertNum,
-        CASE WHEN Patient.LanguagePreference IS NOT NULL THEN Patient.LanguagePreference ELSE 'French' END AS LanguagePreference,
-        MediVisitAppointmentList.Status,
-        LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS ResourceName,
-        MediVisitAppointmentList.ScheduledDateTime AS ScheduledStartTime,
-        HOUR(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_hh,
-        MINUTE(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_mm,
-        TIMESTAMPDIFF(MINUTE,NOW(), MediVisitAppointmentList.ScheduledDateTime) AS TimeRemaining,
-        TIMESTAMPDIFF(MINUTE,PatientLocation.ArrivalDateTime,NOW()) AS WaitTime,
-        HOUR(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_hh,
-        MINUTE(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_mm,
-        PatientLocation.CheckinVenueName AS VenueId,
-        MediVisitAppointmentList.AppointSys AS CheckinSystem,
-        SUBSTRING(Patient.SSN,1,3) AS SSN,
-        SUBSTRING(Patient.SSN,9,2) AS DAYOFBIRTH,
-        SUBSTRING(Patient.SSN,7,2) AS MONTHOFBIRTH,
+        PL.ArrivalDateTime,
+        LTRIM(RTRIM(MV.AppointmentCode)) AS AppointmentName,
+        P.LastName,
+        P.FirstName,
+        P.PatientSerNum AS PatientId,
+        P.PatientId AS Mrn,
+        P.OpalPatient,
+        P.SMSAlertNum,
+        CASE WHEN P.LanguagePreference IS NOT NULL THEN P.LanguagePreference ELSE 'French' END AS LanguagePreference,
+        MV.Status,
+        LTRIM(RTRIM(MV.ResourceDescription)) AS ResourceName,
+        MV.ScheduledDateTime AS ScheduledStartTime,
+        HOUR(MV.ScheduledDateTime) AS ScheduledStartTime_hh,
+        MINUTE(MV.ScheduledDateTime) AS ScheduledStartTime_mm,
+        TIMESTAMPDIFF(MINUTE,NOW(), MV.ScheduledDateTime) AS TimeRemaining,
+        TIMESTAMPDIFF(MINUTE,PL.ArrivalDateTime,NOW()) AS WaitTime,
+        HOUR(PL.ArrivalDateTime) AS ArrivalDateTime_hh,
+        MINUTE(PL.ArrivalDateTime) AS ArrivalDateTime_mm,
+        PL.CheckinVenueName AS VenueId,
+        MV.AppointSys AS CheckinSystem,
+        SUBSTRING(P.SSN,1,3) AS SSN,
+        SUBSTRING(P.SSN,9,2) AS DAYOFBIRTH,
+        SUBSTRING(P.SSN,7,2) AS MONTHOFBIRTH,
         PatientMeasurement.Date AS WeightDate,
         PatientMeasurement.Weight,
         PatientMeasurement.Height,
         PatientMeasurement.BSA,
-        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview
+        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = P.PatientSerNum) AS LastQuestionnaireReview
     FROM
-        MediVisitAppointmentList
-        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MediVisitAppointmentList.ResourceDescription
-        INNER JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
-        LEFT JOIN PatientLocation ON PatientLocation.AppointmentSerNum = MediVisitAppointmentList.AppointmentSerNum
+        MediVisitAppointmentList MV
+        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MV.ResourceDescription
+        INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+        LEFT JOIN PatientLocation PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
         LEFT JOIN PatientMeasurement ON PatientMeasurement.PatientMeasurementSer =
             (
                 SELECT
@@ -60,7 +61,7 @@ $queryWRM = $dbh->prepare("
                 FROM
                     PatientMeasurement PM
                 WHERE
-                    PM.PatientSer = Patient.PatientSerNum
+                    PM.PatientSer = P.PatientSerNum
                     AND PM.Date BETWEEN DATE_SUB(CURDATE(), INTERVAL 21 DAY) AND NOW()
                 ORDER BY
                     PM.Date DESC,
@@ -68,21 +69,18 @@ $queryWRM = $dbh->prepare("
                 LIMIT 1
             )
     WHERE
-        MediVisitAppointmentList.ScheduledDate = CURDATE()
-        AND MediVisitAppointmentList.Status IN ('Open','Completed','In Progress')
+        MV.ScheduledDate = CURDATE()
+        AND MV.Status IN ('Open','Completed','In Progress')
     ORDER BY
-        Patient.LastName,
-        MediVisitAppointmentList.ScheduledDateTime,
-        MediVisitAppointmentList.AppointmentSerNum
+        P.LastName,
+        MV.ScheduledDateTime,
+        MV.AppointmentSerNum
 ");
 $queryWRM->execute();
 
 foreach($queryWRM->fetchAll() as $row)
 {
     //perform some processing
-    $row['Identifier'] = $row['ScheduledActivitySer'] ."Medivisit";
-    $row['AppointmentId'] = "MEDI". $row['AppointmentId'];
-
     if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
 
     //if the weight was entered today, indicate it
@@ -144,7 +142,7 @@ foreach($queryWRM->fetchAll() as $row)
         "MONTHOFBIRTH",
         "OpalPatient",
         "PatientId",
-        "ScheduledActivitySer"] as $x) {
+        "AppointmentId"] as $x) {
         $row[$x] = (int) $row[$x];
     }
 
@@ -166,7 +164,7 @@ $checkInFilePath = Config::getApplicationSettings()->environment->basePath ."/Vi
 foreach($json as $speciality => $data)
 {
     //encode the data to JSON
-    $data = utf8_encode_recursive($data);
+    $data = Encoding::utf8_encode_recursive($data);
     $data = json_encode($data) ?: "[]";
 
     $checkinlist = fopen("$checkInFilePath/$speciality.json", "w");

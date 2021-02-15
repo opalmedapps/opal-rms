@@ -1,0 +1,51 @@
+
+{
+    "chart": {
+        "type": "line",
+        "panning": true
+    },
+    "title": {"text": "Historical Measurements"},
+    "xAxis": {
+        "type": "datetime",
+        "crosshair": true
+    },
+    "yAxis": {
+        "title": {"text": "Measurement"}
+    },
+    "legend": {"useHTML": true},
+    "plotOptions": {
+        "series": {
+            "marker": {"enabled": true},
+            "stickyTracking": false
+        }
+    },
+    "exporting": {
+        "enabled": false
+    },
+    "credits": {
+        "enabled": false
+    },
+    "series": [
+        {
+            "showInLegend" : true,
+            "name"         : "Weight (kg)",
+            "color"        : "blue",
+            "unit"         : " kg",
+            "data"         : []
+        },
+        {
+            "showInLegend" : true,
+            "name"         : "Height (cm)",
+            "color"        : "green",
+            "unit"         : " cm",
+            "data"         : []
+        },
+        {
+            "showInLegend" : true,
+            "name"         : "BSA (m<sup>2</sup>)",
+            "color"        : "purple",
+            "unit"         : " m<sup>2</sup>",
+            "data"         : []
+        }
+    ]
+}

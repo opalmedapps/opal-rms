@@ -5,6 +5,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 #parse input parameters
@@ -23,9 +24,9 @@ $sql = "
         CR.ResourceName,
         MV.ScheduledDateTime,
         PL.AppointmentSerNum,
-        Patient.FirstName,
-        Patient.LastName,
-        Patient.PatientId,
+        P.FirstName,
+        P.LastName,
+        P.PatientId,
         PL.PatientLocationRevCount,
         CAST(PL.ArrivalDateTime AS DATE) AS Date,
         PL.ArrivalDateTime AS Arrival,
@@ -33,7 +34,7 @@ $sql = "
         PL.CheckinVenueName
     FROM
         MediVisitAppointmentList MV
-        INNER JOIN Patient ON Patient.PatientSerNum = MV.PatientSerNum
+        INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
         INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
             AND (
                 PL.CheckinVenueName LIKE '%Waiting%'
@@ -43,8 +44,8 @@ $sql = "
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             AND CR.Speciality = :spec
     ORDER BY
-        Patient.LastName,
-        Patient.FirstName,
+        P.LastName,
+        P.FirstName,
         PL.AppointmentSerNum,
         PL.ArrivalDateTime";
 $query = $dbh->prepare($sql);
@@ -190,7 +191,7 @@ foreach($resources as &$res)
     $res["std"] = sd($patientWaitTimes);
 }
 
-$resources = utf8_encode_recursive($resources);
+$resources = Encoding::utf8_encode_recursive($resources);
 echo json_encode($resources);
 
 #functions
@@ -206,7 +207,7 @@ function sd_square(float $x,float $mean): float
  *
  * @param float[] $array
  */
-function sd(array $array): float|NULL
+function sd(array $array): ?float
 {
     if(count($array) <= 1) return NULL;
     // square root of sum of squares devided by N-1

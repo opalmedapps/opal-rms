@@ -2,74 +2,74 @@
 
 namespace Orms;
 
-use \Exception;
-use Orms\Config;
 use Orms\Patient;
+use Orms\DateTime;
+use Orms\Resource;
+use Orms\Mail;
+use Orms\Hospital\OIE\Export;
 
 class Appointment
 {
-    #definition of an Appointment
-    private Patient $patient;
-    private ?string $appointmentCode     = NULL;
-    private ?string $creationDate        = NULL;
-    private ?string $id                  = NULL;
-    private ?string $referringMd         = NULL;
-    private ?string $resource            = NULL;
-    private ?string $resourceDesc        = NULL;
-    private ?string $scheduledDate       = NULL;
-    private ?string $scheduledDateTime   = NULL;
-    private ?string $scheduledTime       = NULL;
-    private ?string $site                = NULL;
-    private ?string $sourceStatus        = NULL;
-    private ?string $specialityGroup     = NULL;
-    private ?string $status              = NULL;
-    private ?string $system              = NULL;
-
-    /**
-     *
-     * @param mixed[] $appointmentInfo
-     * @param Patient|null $patientInfo
-     * @return void
-     * @throws Exception
-     */
-    public function __construct(array $appointmentInfo,Patient $patientInfo = NULL)
+    static function createOrUpdateAppointment(
+        Patient $patient,
+        string $appointmentCode,
+        DateTime $creationDate,
+        ?string $referringMd,
+        string $clinicCode,
+        string $clinicDescription,
+        DateTime $scheduledDateTime,
+        string $sourceId,
+        ?string $sourceStatus,
+        string $specialityGroup,
+        string $status,
+        string $system,
+    ): void
     {
-        foreach(array_keys(get_object_vars($this)) as $field) {
-            $this->$field = (!empty($appointmentInfo[$field])) ? $appointmentInfo[$field] : NULL;
+        //get the necessary ids that are attached to the appointment
+        $clinicId = Resource\ClinicResource::getClinicResourceId($clinicCode,$clinicDescription,$specialityGroup);
+        if($clinicId === NULL) $clinicId = Resource\ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
+
+        $appCodeId = Resource\AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
+        if($appCodeId === NULL) $appCodeId = Resource\AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);
+
+        //check if an sms entry for the resource combinations exists and create if it doesn't
+        $smsAppointmentId = Resource\SmsAppointment::getSmsAppointmentId($clinicId,$appCodeId);
+
+        if($smsAppointmentId === NULL)
+        {
+            //add-ons are created from existing appointment types
+            //however, there are restrictions on the frontend, allowing the creation of invalid add-ons
+            //so we disable inserting sms appointments for add-ons
+            if($system !== "InstantAddOn")
+            {
+                Resource\SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroup,$system);
+
+                Mail::sendEmail("ORMS - New appointment type detected",
+                    "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroup speciality group from system $system."
+                );
+            }
         }
 
-        $this->patient = $patientInfo ?? new Patient();
-
-        $this->_sanitizeObject();
-    }
-
-    #insert or update an appointment in the ORMS database
-    #returns rows inserted
-    public function insertOrUpdateAppointmentInDatabase(): bool
-    {
-        #get the necessary ids that are attached to the appointment
-        $clinicSer = $this->_getClinicSerNum("INSERT_IF_NULL");
-        $appCodeId = $this->_getAppointmentCodeId("INSERT_IF_NULL");
-
-        $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
-
-        if($patientSer === NULL) {
-            throw new Exception("Missing patient id");
-        }
-
-        #check if an sms entry exists for the appointment
-        $this->_verifySmsAppointment($clinicSer,$appCodeId);
-
-        //update the patient ssn or ssnExpDate if they have changed
-        $this->patient->updateSSNInDatabase();
-
-        #insert row into database
-        $dbh = Database::getOrmsConnection();
-
-        $insertAppointment = $dbh->prepare("
+        Database::getOrmsConnection()->prepare("
             INSERT INTO MediVisitAppointmentList
-            (PatientSerNum,Resource,ResourceDescription,ClinicResourcesSerNum,ScheduledDateTime,ScheduledDate,ScheduledTime,AppointmentCode,AppointmentCodeId,AppointId,AppointIdIn,AppointSys,Status,MedivisitStatus,CreationDate,ReferringPhysician,LastUpdatedUserIP)
-            VALUES(:patSer,:res,:resDesc,:clinSer,:schDateTime,:schDate,:schTime,:appCode,:appCodeId,:appId,:appIdIn,:appSys,:status,:mvStatus,:creDate,:refPhys,:callIP)
+            SET
+                PatientSerNum          = :patSer,
+                Resource               = :res,
+                ResourceDescription    = :resDesc,
+                ClinicResourcesSerNum  = :clinSer,
+                ScheduledDateTime      = :schDateTime,
+                ScheduledDate          = :schDate,
+                ScheduledTime          = :schTime,
+                AppointmentCode        = :appCode,
+                AppointmentCodeId      = :appCodeId,
+                AppointId              = :appId,
+                AppointIdIn            = :appIdIn,
+                AppointSys             = :appSys,
+                Status                 = :status,
+                MedivisitStatus        = :mvStatus,
+                CreationDate           = :creDate,
+                ReferringPhysician     = :refPhys,
+                LastUpdatedUserIP      = :callIP
             ON DUPLICATE KEY UPDATE
                 PatientSerNum           = VALUES(PatientSerNum),
                 Resource                = VALUES(Resource),
@@ -88,275 +88,77 @@ class Appointment
                 CreationDate            = VALUES(CreationDate),
                 ReferringPhysician      = VALUES(ReferringPhysician),
                 LastUpdatedUserIP       = VALUES(LastUpdatedUserIP)
-        ");
-
-        $insertResult = $insertAppointment->execute([
-            ":patSer"       => $patientSer,
-            ":res"          => $this->resource,
-            ":resDesc"      => $this->resourceDesc,
-            ":clinSer"      => $clinicSer,
-            ":schDateTime"  => $this->scheduledDateTime,
-            ":schDate"      => $this->scheduledDate,
-            ":schTime"      => $this->scheduledTime,
-            ":appCode"      => $this->appointmentCode,
+        ")->execute([
+            ":patSer"       => $patient->id,
+            ":res"          => $clinicCode,
+            ":resDesc"      => $clinicDescription,
+            ":clinSer"      => $clinicId,
+            ":schDateTime"  => $scheduledDateTime->format("Y-m-d H:i:s"),
+            ":schDate"      => $scheduledDateTime->format("Y-m-d"),
+            ":schTime"      => $scheduledDateTime->format("H:i:s"),
+            ":appCode"      => $appointmentCode,
             ":appCodeId"    => $appCodeId,
-            ":appId"        => $this->id,
-            ":appIdIn"      => $this->id,
-            ":appSys"       => $this->system,
-            ":status"       => $this->status,
-            ":mvStatus"     => $this->sourceStatus,
-            ":creDate"      => $this->creationDate,
-            ":refPhys"      => $this->referringMd,
+            ":appId"        => $sourceId,
+            ":appIdIn"      => $sourceId,
+            ":appSys"       => $system,
+            ":status"       => $status,
+            ":mvStatus"     => $sourceStatus,
+            ":creDate"      => $creationDate->format(("Y-m-d H:i:s")),
+            ":refPhys"      => $referringMd,
             ":callIP"       => empty($_SERVER["REMOTE_ADDR"]) ? gethostname() : $_SERVER["REMOTE_ADDR"]
         ]);
-
-        #rowCount return 1 on insert and 2 on update due to the ON DUPLICATE KEY UPDATE
-        #however, if no row was updated (information was identical to whats already there), rowCount returns 0
-        #user should just know if insert/update was successful
-        #return $insertAppointment->rowCount(); #> 0 ? TRUE : FALSE;
-        return $insertResult;
     }
 
-    #deletes all similar appointments in the database
-    #similar is defined as having the same PatientSerNum, ScheduledDateTime, Resource, and AppointmentCode
-    #returns number of rows deleted
-    public function deleteSimilarAppointments(): int
+    //deletes all similar appointments in the database
+    //similar is defined as having the same appointment resources, and being scheduled at the same time (for the same patient)
+    static function deleteSimilarAppointments(Patient $patient,DateTime $scheduledDateTime,string $clinicCode,string $clinicDescription,string $specialityGroup): void
     {
-        #get the patient ser num that is attached to the appointment
-        $patientSer = $this->_getPatientSer("INSERT_IF_NULL");
-
-        if($patientSer === NULL) {
-            throw new Exception("Missing database serial numbers");
-        }
-        //update the patient ssn or ssnExpDate if they have changed
-        // else {
-        //     $this->patient->updateSSNInDatabase();
-        // }
-
-        $dbh = Database::getOrmsConnection();
-
-        $deleteAppointment = $dbh->prepare("
-            UPDATE MediVisitAppointmentList
+        Database::getOrmsConnection()->prepare("
+            UPDATE MediVisitAppointmentList MV
+            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                AND CR.ResourceCode = :res
+                AND CR.Speciality = :spec
+            INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                AND AC.AppointmentCode = :appCode
+                AND AC.Speciality = :spec
             SET
                 Status = 'Deleted'
             WHERE
                 PatientSerNum = :patSer
                 AND ScheduledDateTime = :schDateTime
-                AND Resource = :res
-                AND AppointmentCode = :appCode"
-        );
-
-        $deleteAppointment->execute([
-            ":patSer" => $patientSer,
-            ":schDateTime" => $this->scheduledDateTime,
-            ":res" => $this->resource,
-            ":appCode" => $this->appointmentCode
+        ")->execute([
+            ":patSer"       => $patient->id,
+            ":schDateTime"  => $scheduledDateTime->format("Y-m-d H:i:s"),
+            ":res"          => $clinicCode,
+            ":appCode"      => $clinicDescription,
+            ":spec"         => $specialityGroup
         ]);
-
-        return $deleteAppointment->rowCount();
-
     }
 
-    #returns the serial num of the first resource matching the Appointment's resource description
-    #returns NULL if there is no match
-    private function _getClinicSerNum(string $mode = "SER_NUM_ONLY"): int
+    static function completeAppointment(int $appointmentId): void
     {
-        $dbh = Database::getOrmsConnection();
-
-        $queryClinic = $dbh->prepare("
-            SELECT
-                ClinicResourcesSerNum
-            FROM
-                ClinicResources
+        Database::getOrmsConnection()->prepare("
+            UPDATE MediVisitAppointmentList
+            SET
+                Status = 'Completed'
             WHERE
-                ResourceName = :desc
-                AND ResourceCode = :code
-                AND Speciality = :spec
-        ");
+                AppointmentSerNum = ?
+        ")->execute([$appointmentId]);
 
-        $queryClinic->execute([
-            ":desc" => $this->resourceDesc,
-            ":code" => $this->resource,
-            ":spec" => $this->specialityGroup
-        ]);
-
-        $clinicSer = (int) ($queryClinic->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL);
-
-        if($clinicSer === 0 && $mode === "INSERT_IF_NULL")
-        {
-            $dbh->prepare("
-                INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
-                VALUES(:resCode,:resName,:spec,:sys)
-            ")->execute([
-                ":resCode" => $this->resource,
-                ":resName" => $this->resourceDesc,
-                ":spec"    => $this->specialityGroup,
-                ":sys"     => $this->system
-            ]);
-
-            $clinicSer = (int) $dbh->lastInsertId();
-            if($clinicSer === 0) {
-                throw new Exception("Could not insert new resource");
-            }
-        }
-
-        return $clinicSer;
-    }
-
-    private function _getAppointmentCodeId(string $mode = "SER_NUM_ONLY"): int
-    {
-        $dbh = Database::getOrmsConnection();
-
-        $queryAppId = $dbh->prepare("
+        //retrieve necessary fields to export the appointment completion to the OIE
+        $query = Database::getOrmsConnection()->prepare("
             SELECT
-                AppointmentCodeId
+                AppointId
+                ,AppointSys
             FROM
-                AppointmentCode
+                MediVisitAppointmentList
             WHERE
-                AppointmentCode = :code
-                AND Speciality = :spec
+                AppointmentSerNum = ?
         ");
+        $query->execute([$appointmentId]);
+        $app = $query->fetchAll()[0];
 
-        $queryAppId->execute([
-            ":code" => $this->appointmentCode,
-            ":spec" => $this->specialityGroup
-        ]);
-
-        $appId = (int) ($queryAppId->fetchAll()[0]["AppointmentCodeId"] ?? NULL);
-
-        if($appId === 0 && $mode === "INSERT_IF_NULL")
-        {
-            $dbh->prepare("
-                INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
-                VALUES(:code,:spec,:sys)
-            ")->execute([
-                ":code" => $this->appointmentCode,
-                ":spec" => $this->specialityGroup,
-                ":sys"  => $this->system
-            ]);
-
-            $appId = (int) $dbh->lastInsertId();
-            if($appId === 0) {
-                throw new Exception("Could not insert new resource");
-            }
-        }
-
-        return $appId;
-    }
-
-    private function _verifySmsAppointment(int $clinicSer,int $appointmentCodeId): void
-    {
-        #add-ons are created from existing appointment types
-        #however, there is no restriction on the frontend that the add-on is a valid one
-        #so we disable inserting sms appointments for add-ons
-        if($this->system === "InstantAddOn") {
-            return;
-        }
-
-        $dbh = Database::getOrmsConnection();
-
-        $queryAppId = $dbh->prepare("
-            SELECT
-                SmsAppointmentId
-            FROM
-                SmsAppointment
-            WHERE
-                ClinicResourcesSerNum = :clin
-                AND AppointmentCodeId = :app
-                AND Speciality = :spec
-                AND SourceSystem = :sys
-        ");
-
-        $queryAppId->execute([
-            ":clin" => $clinicSer,
-            ":app"  => $appointmentCodeId,
-            ":spec" => $this->specialityGroup,
-            ":sys"  => $this->system
-        ]);
-
-        $appId = $queryAppId->fetchAll()[0]["SmsAppointmentId"] ?? NULL;
-
-        if($appId === NULL)
-        {
-            $dbh->prepare("
-                INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality,SourceSystem)
-                VALUES(:clin,:app,:spec,:sys)
-            ")->execute([
-                ":clin" => $clinicSer,
-                ":app"  => $appointmentCodeId,
-                ":spec" => $this->specialityGroup,
-                ":sys"  => $this->system
-            ]);
-
-            $emails = Config::getApplicationSettings()->system->emails;
-
-            $recepient = implode(",",$emails);
-            $subject = "ORMS - New appointment type detected";
-            $message = "New appointment type detected: {$this->resourceDesc} ({$this->resource}) with {$this->appointmentCode} in the {$this->specialityGroup} speciality group from system {$this->system}.";
-            $headers = [
-                "From" => "opal@muhc.mcgill.ca"
-            ];
-
-            mail($recepient,$subject,$message,$headers);
-        }
-    }
-
-    #returns the serial num of the Patient object inside the Appointment
-    private function _getPatientSer(string $mode = "SER_NUM_ONLY"): ?int
-    {
-        $patSer = $this->patient->getPatientSer();
-
-        if($patSer === NULL && $mode === "INSERT_IF_NULL") {
-            $patSer = $this->patient->insertPatientInDatabase();
-        }
-
-        return $patSer;
-    }
-
-    #function to convert appointment fields into an ORMS db compatible form
-    private function _sanitizeObject(): void
-    {
-        #apply some regex
-        foreach(array_keys(get_object_vars($this)) as $field)
-        {
-            if(gettype($this->$field) === 'string')
-            {
-                $this->$field = str_replace("\\","",$this->$field); #remove backslashes
-                #$this->$field = str_replace("'","\'",$this->$field); #escape quotes
-                $this->$field = str_replace('"',"",$this->$field); #remove double quotes
-                $this->$field = preg_replace("/\n|\r/","",$this->$field); #remove new lines and tabs
-                $this->$field = preg_replace("/\s+/"," ",$this->$field ?? ""); #remove multiple spaces
-                $this->$field = preg_replace("/^\s/","",$this->$field ?? ""); #remove spaces at the start
-                $this->$field = preg_replace("/\s$/","",$this->$field ?? ""); #remove space at the end
-            }
-        }
-
-        #make sure date and time are in the right format
-        if(!preg_match("/\d\d\d\d-\d\d-\d\d/",$this->scheduledDate ?? "")) {
-            throw new Exception("Incorrect date format");
-        }
-
-        if(!preg_match("/\d\d:\d\d:\d\d/",$this->scheduledTime ?? "")) {
-            throw new Exception("Incorrect time format");
-        }
-
-        #make sure the site of the appointment matches the site in the config
-        $acceptedSite = Config::getApplicationSettings()->environment->site;
-        if($acceptedSite !== $this->site) {
-            throw new Exception("Site is not supported");
-        }
-
-        #make sure the appointment id that we'll use in the orms system is in the correct format
-        #3 possibilities: visit (8 digits), appointment: (YYYYA + 8 digits), cancelled appointment: (YYYYC + 7 digits)
-        #if the appointment origin is InstantAddOn, any id is valid
-        if(!preg_match("/^([0-9]{4}A[0-9]{8}|[0-9]{4}C[0-9]{7}|[0-9]{8})$/",$this->id ?? "") && !preg_match("/InstantAddOn|Aria/",$this->system ?? "")) {
-            throw new Exception("Incorrect appointment id format");
-        }
-
-        #what about InstantAddOn ?
-        #other possible systems are group visits; 999999999G88888888 :  Group Appointment ID  (Appointment sequential#  G  Patient sequential number )  Ex: 20560969G4224207
-        #eClinibase; 9999999E : Eclinibase appointment / visit id Ex: 1373791E
-        #currently not used
+        Export::exportAppointmentCompletion($app["AppointId"],$app["AppointSys"]);
     }
 
 }

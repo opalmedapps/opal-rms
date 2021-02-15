@@ -4,15 +4,16 @@ namespace Orms;
 
 use DateTime;
 use Exception;
+use PDOException;
 use GuzzleHttp\Exception\GuzzleException;
 
+use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\SmsConfig;
 use Orms\Database;
 use Orms\Sms\{SmsTwilio,SmsCdyne,SmsInterface,SmsReceivedMessage};
 use Orms\Util\ArrayUtil;
 use Orms\Logger;
-use PDOException;
 
 Sms::__init();
 
@@ -130,7 +131,7 @@ class Sms
         $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages,"Speciality","Type","Event","Language");
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
-        return utf8_encode_recursive($messages);
+        return Encoding::utf8_encode_recursive($messages);
     }
 
     private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool

@@ -6,13 +6,14 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 // Create DB connection
 $dbh = Database::getOrmsConnection();
 
 // Extract the webpage parameters
-$Location = utf8_decode_recursive($_GET["Location"]);
+$Location = Encoding::utf8_decode_recursive($_GET["Location"]);
 
 /* Process results */
 $json = [];
@@ -63,7 +64,7 @@ if(count($json) == 0)
     die("0 results");
 }
 
-$json = utf8_encode_recursive($json);
+$json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json);
 
 ?>

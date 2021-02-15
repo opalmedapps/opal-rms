@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 //====================================================================================
-// php code to query the MySQL databases and extract the list of patients
-// who are currently checked in for open appointments today in Medivisit, using a selected list of destination rooms/areas
+// php code to query the database and extract the list of patients
+// who are currently checked in for open appointments today, using a selected list of destination rooms/areas
 //====================================================================================
 
 require_once __DIR__."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 //connect to databases
@@ -27,9 +28,9 @@ else
 $query = $dbh->prepare("
     SELECT DISTINCT
         Venues.AriaVenueId AS LocationId,
-        PatientLocation.ArrivalDateTime,
-        COALESCE(Patient.PatientSerNum,'Nobody') AS PatientId,
-        Patient.PatientId AS Mrn
+        PL.ArrivalDateTime,
+        COALESCE(P.PatientSerNum,'Nobody') AS PatientId,
+        P.PatientId AS Mrn
     FROM
     (
         SELECT IntermediateVenue.AriaVenueId
@@ -40,11 +41,11 @@ $query = $dbh->prepare("
         FROM ExamRoom
         WHERE  ExamRoom.AriaVenueId IN ($checkinVenue_list)
     ) AS Venues
-    LEFT JOIN PatientLocation ON PatientLocation.CheckinVenueName = Venues.AriaVenueId
-    LEFT JOIN MediVisitAppointmentList ON MediVisitAppointmentList.AppointmentSerNum = PatientLocation.AppointmentSerNum
-    LEFT JOIN Patient ON Patient.PatientSerNum = MediVisitAppointmentList.PatientSerNum
+    LEFT JOIN PatientLocation PL ON PL.CheckinVenueName = Venues.AriaVenueId
+    LEFT JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PL.AppointmentSerNum
+    LEFT JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
     WHERE
-        (DATE(PatientLocation.ArrivalDateTime) = CURDATE() OR PatientLocation.ArrivalDateTime IS NULL)
+        (DATE(PL.ArrivalDateTime) = CURDATE() OR PL.ArrivalDateTime IS NULL)
 ");
 $query->execute();
 
@@ -55,7 +56,7 @@ $query->execute();
 # room as that would mean checking them in for today, when their appointments were actually yesterday
 # Best solution is a cron job to checkout all checked-in patients at midnight
 
-$json = utf8_encode_recursive($query->fetchAll());
+$json = Encoding::utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

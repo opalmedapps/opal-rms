@@ -3,11 +3,12 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 //get webpage parameters
-$category = utf8_decode_recursive($_GET['category'] ?? NULL);
-$speciality = utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
+$category = Encoding::utf8_decode_recursive($_GET['category'] ?? NULL);
+$speciality = Encoding::utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
 
 //connect to db
 $dbh = Database::getOrmsConnection();
@@ -42,7 +43,7 @@ $query = $dbh->prepare($sql);
 $query->execute();
 
 //encode and return the json object
-$json = utf8_encode_recursive($query->fetchAll());
+$json = Encoding::utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

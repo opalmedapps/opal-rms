@@ -14,12 +14,6 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
         focusedColumn: {}
     };
 
-    /*$scope.columns =
-    {
-        selected: null,
-        lists: {test: [$scope.possibleColumns]}
-    };*/
-
     $scope.errorMessage = ''; //contains the latest error that prevented profile creation/update
 
     //reset the currently selected profile
@@ -33,17 +27,13 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
                 Appointments: [],
                 Category: $scope.group,
                 ClinicalArea: $scope.clinicalArea, // '',
-                Clinics: [],
                 ColumnsDisplayed: [],
                 ExamRooms: [],
-                FetchResourcesFromVenues: 0,
-                FetchResourcesFromClinics: 0,
                 IntermediateVenues: [],
                 Locations: [],
                 ProfileId: [],
                 ProfileSer: -1,
                 Resources: [],
-                ShowCheckedOutAppointments: 0,
                 Speciality: $scope.speciality,
                 TreatmentVenues: []
             }
@@ -163,13 +153,11 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
                 params:
                 {
                     profileId: $scope.profiles[index].ProfileId,
-                    clinicalArea: $scope.profiles[index].ClinicalArea,
-                    ignoreAutoResources: 1
+                    clinicalArea: $scope.profiles[index].ClinicalArea
                 }
             }).then(function (response)
             {
                 $scope.selectedProfile.data = response.data;
-                console.log(response.data);
 
                 //after the profile has finished loading, process the columns in the profile
                 $scope.resetSelectedColumns();
@@ -254,8 +242,6 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
 
             $scope.$emit('profileUpdated',{});
         });
-
-
     }
 
 }

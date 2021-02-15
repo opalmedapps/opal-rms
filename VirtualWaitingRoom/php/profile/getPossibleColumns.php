@@ -3,6 +3,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 //get webpage parameters
@@ -28,7 +29,7 @@ $query = $dbh->prepare("
     ORDER BY ProfileColumnDefinition.ColumnName");
 $query->execute([$speciality]);
 
-$json = utf8_encode_recursive($query->fetchAll());
+$json = Encoding::utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

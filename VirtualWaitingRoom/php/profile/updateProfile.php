@@ -3,11 +3,13 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
+use Orms\Http;
 use Orms\Database;
 
 //get webpage parameters
-$postData = getPostContents();
-$postData = utf8_decode_recursive($postData);
+$postData = Http::getPostContents();
+$postData = Encoding::utf8_decode_recursive($postData);
 
 $profile = $postData[0]['data'];
 $columns = $postData[1];
@@ -49,10 +51,7 @@ $queryProperties = $dbh->prepare("
         ProfileId = :profileId,
         Category = :category,
         Speciality = :speciality,
-        ClinicalArea = :clinicalArea,
-        FetchResourcesFromVenues = :fetchResourcesFromVenues,
-        FetchResourcesFromClinics = :fetchResourcesFromClinics,
-        ShowCheckedOutAppointments = :showCheckedOut
+        ClinicalArea = :clinicalArea
     WHERE Profile.ProfileSer = :profileSer
 ");
 $queryProperties->execute([
@@ -60,9 +59,6 @@ $queryProperties->execute([
     ":category"                     => $profile["Category"],
     ":speciality"                   => $profile["Speciality"],
     ":clinicalArea"                 => $profile["ClinicalArea"],
-    ":fetchResourcesFromVenues"     => $profile["FetchResourcesFromVenues"],
-    ":fetchResourcesFromClinics"    => $profile["FetchResourcesFromClinics"],
-    ":showCheckedOut"               => $profile["ShowCheckedOutAppointments"],
     ":profileSer"                   => $profile["ProfileSer"]
 ]);
 $queryProperties->closeCursor();
@@ -72,10 +68,10 @@ $queryProperties->closeCursor();
 //first create an option string to give to the query
 $optionNameString = implode("|||",array_map(function ($obj) {
     return $obj['Name'];
-},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
+},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'])));
 $optionTypeString = implode("|||",array_map(function ($obj) {
     return $obj['Type'];
-},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'],$profile['Clinics'])));
+},array_merge($profile['ExamRooms'],$profile['IntermediateVenues'],$profile['TreatmentVenues'],$profile['Resources'])));
 
 $queryOptions = $dbh->prepare("CALL UpdateProfileOptions(?,?,?)");
 $queryOptions->execute([$profile["ProfileId"],$optionNameString,$optionTypeString]);

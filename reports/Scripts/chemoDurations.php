@@ -27,9 +27,9 @@ $dbh = Database::getOrmsConnection();
 #get a list of all chemotherapy appointments in the date range
 $query = $dbh->prepare("
     SELECT DISTINCT
-        Patient.LastName,
-        Patient.FirstName,
-        Patient.PatientId,
+        P.LastName,
+        P.FirstName,
+        P.PatientId,
         MV.Resource,
         MV.ResourceDescription,
         MV.AppointmentCode,
@@ -41,8 +41,8 @@ $query = $dbh->prepare("
         TIMEDIFF(PL.DichargeThisLocationDateTime,PL.ArrivalDateTime) AS Duration,
         PL.PatientLocationRevCount
     FROM
-        Patient
-        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
+        Patient P
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
             AND MV.Status = 'Completed'
             AND MV.AppointmentCode LIKE '%CHM%'
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
@@ -55,9 +55,9 @@ $query = $dbh->prepare("
                     AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
             )
     WHERE
-        Patient.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
-        AND Patient.PatientId NOT LIKE 'Opal%'
-    ORDER BY MV.ScheduledDateTime, Patient.PatientId
+        P.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
+        AND P.PatientId NOT LIKE 'Opal%'
+    ORDER BY MV.ScheduledDateTime, P.PatientId
 ");
 $query->execute([
     ":sDate" => $sDate,

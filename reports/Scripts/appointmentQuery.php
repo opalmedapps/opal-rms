@@ -8,6 +8,7 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 #------------------------------------------
@@ -87,11 +88,11 @@ $clinics = array_map(function($x) {
 $queryAppointments = $dbh->prepare("
     SELECT
         MV.AppointmentSerNum,
-        Patient.FirstName,
-        Patient.LastName,
-        Patient.PatientId,
-        Patient.SSN,
-        Patient.SSNExpDate,
+        P.FirstName,
+        P.LastName,
+        P.PatientId,
+        P.SSN,
+        P.SSNExpDate,
         MV.ResourceDescription,
         MV.Resource,
         MV.AppointmentCode,
@@ -104,17 +105,15 @@ $queryAppointments = $dbh->prepare("
         (select PLM.ArrivalDateTime from PatientLocationMH PLM where PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 limit 1) as ArrivalDateTimePLM,
         MV.MedivisitStatus
     FROM
-        Patient,
-        MediVisitAppointmentList MV
+        Patient
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
+            AND MV.ResourceDescription in (Select distinct CR.ResourceName from ClinicResources CR Where trim(CR.ResourceName) not in ('', 'null') $specialityFilter)
+            AND MV.Status != 'Deleted'
+            AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
+            $appFilter
+            $typeFilter
     WHERE
-        Patient.PatientSerNum = MV.PatientSerNum
-        AND Patient.PatientId != '9999996'
-        AND Patient.PatientId != '9999998'
-        AND MV.ResourceDescription in (Select distinct CR.ResourceName from ClinicResources CR Where trim(CR.ResourceName) not in ('', 'null') $specialityFilter)
-        $appFilter
-        AND MV.Status != 'Deleted'
-        AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
-        $typeFilter
+        P.PatientId NOT LIKE '999999%'
     ORDER BY ScheduledDate,ScheduledTime
 ");
 $queryAppointments->execute([
@@ -168,44 +167,8 @@ $appointments = array_map(function($x) {
     ];
 },$appointments);
 
-//script originally updated the patients ramq in the db if it was expired
-//no one is using this functionality atm so the original code (in perl) has been commented out
-
-    // #check if the ssn is expired
-    // my $expired = 1;
-
-    // #get information from the hospital ADT for the ramq if enabled
-    // #also update expired ramqs if any are found
-    // if($updateRamq)
-    // {
-    //     my $currentDate  = localtime;
-
-    //     #check if the ramq is still valid before proceeding
-    //     #this is to reduce computation time
-    //     if(length($ssnExp{$ser}) eq 4 and substr($ssnExp{$ser},-2) <= 12)
-    //     {
-    //         my $expTP = Time::Piece->strptime("20$ssnExp{$ser}","%Y%m");
-    //         $expTP = $expTP + Time::Piece->ONE_MONTH;
-
-    //         $expired = 0 if($expTP > $currentDate);
-    //     }
-
-    //     if($expired eq 1)
-    //     {
-    //         my $ramqInfo = HospitalADT->getRamqInformation($ssn{$ser});
-
-    //         if($ramqInfo->{'Status'} =~ /Valid/)
-    //         {
-    //             $expired = 0;
-
-    //             #also make sure the ramq in the WRM db is up to date if the ramq is expired in the db
-    //             HospitalADT->updateRamqInWRM($ssn{$ser});
-    //         }
-    //     }
-    // }
-
-$clinics = utf8_encode_recursive($clinics);
-$appointments = utf8_encode_recursive($appointments);
+$clinics = Encoding::utf8_encode_recursive($clinics);
+$appointments = Encoding::utf8_encode_recursive($appointments);
 
 echo json_encode([
     "clinics"       => $clinics,

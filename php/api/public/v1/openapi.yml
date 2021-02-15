@@ -1,0 +1,340 @@
+openapi: 3.0.2
+info:
+  title: ORMS Public Api
+  version: 0.2.0
+servers:
+    - url: https://serverUrl/php/api/public/v1
+
+paths:
+  /patient/checkIfPatientExists.php:
+    post:
+      summary: Checks if a patient exists in ORMS
+      description: Matches a patient in the ORMS database using an mrn and site
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: True if the patient exists
+                    type: boolean
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/checkInToLocation.php:
+    post:
+      summary: Check a patient in for their appointments
+      description: Updates the patient's location in the hospital for all their appointments of the day
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                room:
+                  description: Hospital location
+                  type: string
+              required:
+                - mrn
+                - site
+                - room
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/updateOpalStatus.php:
+    post:
+      summary: Update a patient's opal status
+      description: Mark a patient as registered for Opal or not
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                opalStatus:
+                  description: Whether a patient is registered for Opal or not
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+              required:
+                - mrn
+                - site
+                - opalStatus
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/updatePatientDemographics.php:
+    post:
+      summary: Update patient demographic information
+      description: Update a patient's record in ORMS with demograhic information from a hospital source system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  description: The patient's first name
+                  type: string
+                lastName:
+                  description: The patient's last name
+                  type: string
+                ramq:
+                  description: The patient's ramq
+                  type: string
+                  pattern: '^[a-zA-Z]{4}\d{8}$'
+                ramqExpiration:
+                  description: Expiration date of the ramq
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                mrns:
+                  description: List of all mrns of the patient
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      mrn:
+                        description: Medical record number
+                        type: string
+                      site:
+                        description: Hospital site
+                        type: string
+                      active:
+                        description: Status of the mrn
+                        type: integer
+                        enum:
+                          - 0
+                          - 1
+              required:
+                - firstName
+                - lastName
+                - mrns
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /appointment/deleteAppointment.php:
+    post:
+      summary: Delete a patient's appointment
+      description: Due to a bug in Medivist, deleted appointments don't have the same source id as the original appointment. This api deletes all appointments for a patient that match the deleted one.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                appointmentCode:
+                  description: Appointment code
+                  type: string
+                clinics:
+                  description: List of clinics attached to be appointment
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      clinicCode:
+                        description: Clinic code
+                        type: string
+                    required:
+                      - clinicCode
+                scheduledDatetime:
+                  description: Scheduled date of the appointment
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                specialityGroup:
+                  description: ORMS defined speciality group
+                  type: string
+              required:
+                - mrn
+                - site
+                - appointmentCode
+                - clinics
+                - scheduledDatetime
+                - specialityGroup
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /appointment/insertOrUpdateAppointment.php:
+    post:
+      summary: Create a new appointment, or update an existing one
+      description: Imports or updates appointments from (external) source systems into ORMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointmentCode:
+                  description: Appointment code
+                  type: string
+                clinics:
+                  description: List of clinics attached to be appointment
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      clinicCode:
+                        description: Clinic code
+                        type: string
+                      clinicDescription:
+                        description: Clinic code description
+                        type: string
+                    required:
+                      - clinicCode
+                      - clinicDescription
+                creationDatetime:
+                  description: Creation date of the appointment
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                mrn:
+                  description: Medical record number
+                  type: string
+                referringDoctor:
+                  description: Doctor who referred the appointment
+                  type: string
+                scheduledDatetime:
+                  description: Scheduled date of the appointment
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                site:
+                  description: Hospital site
+                  type: string
+                sourceId:
+                  description: Id of the appointment in the source system
+                  type: string
+                sourceStatus:
+                  description: Status of the appointment in the source system
+                  type: string
+                sourceSystem:
+                  description: External system from which the appointment originates
+                  type: string
+                specialityGroup:
+                  description: ORMS defined speciality group
+                  type: string
+                status:
+                  description: Status of the appointment, determined by the HL7 SIU code
+                  type: string
+                  enum:
+                    - Open
+                    - Cancelled
+                    - Deleted
+              required:
+                - appointmentCode
+                - clinics
+                - creationDatetime
+                - mrn
+                - scheduledDatetime
+                - site
+                - sourceId
+                - sourceSystem
+                - specialityGroup
+                - status
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+components:
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessObject'
+    400:
+      description: Input error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+    500:
+      description: Server error
+
+  schemas:
+    SuccessObject:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/SuccessProperty'
+    ErrorObject:
+      type: object
+      properties:
+        status:
+          description: Status of the api call
+          type: string
+          enum:
+            - Error
+        error:
+          description: Description of the error, if any
+          type: string
+    SuccessProperty:
+      description: Status of the api call
+      type: string
+      enum:
+        - Success

@@ -3,17 +3,18 @@
     "description": "",
     "autoload": {
         "psr-4": {"Orms\\": "php/class/"},
-        "files": ["php/GlobalFunctions.php"]
+        "files": ["php/settings.php"]
     },
     "require": {
         "php": "8.0.2",
         "twilio/sdk": "^6.18",
         "guzzlehttp/guzzle": "^7.2",
-        "ulrichsg/getopt-php": "^3.4"
+        "ulrichsg/getopt-php": "^3.4",
+        "league/openapi-psr7-validator": "^0.15.2",
+        "cebe/php-openapi": "^1.5"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12",
-        "vimeo/psalm": "^4.6",
-        "rector/rector": "^0.9"
+        "vimeo/psalm": "^4.6"
     }
 }

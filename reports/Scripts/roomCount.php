@@ -18,8 +18,9 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\Database;
+use Orms\Util\Encoding;
 use Orms\Util\ArrayUtil;
+use Orms\Database;
 
 #parse input parameters
 $sDate  = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
@@ -39,15 +40,15 @@ $dbh = Database::getOrmsConnection();
 #get a list of all rooms that patients were checked into and for which appointment
 $query = $dbh->prepare("
     SELECT DISTINCT
-        Patient.PatientId,
+        P.PatientId,
         CR.ResourceName,
         PatientLocationMH.CheckinVenueName,
         MV.ScheduledDate
     FROM
         MediVisitAppointmentList MV
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-        INNER JOIN Patient ON Patient.PatientSerNum = MV.PatientSerNum
-            AND Patient.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
+        INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+            AND P.PatientId NOT IN  ('9999996','9999997','9999998','999999997')
         INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
             AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
             AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
@@ -63,7 +64,7 @@ $query->execute([
     ":eTime" => $eTime,
 ]);
 
-$dataArr = ArrayUtil::groupArrayByKeyRecursive(utf8_encode_recursive($query->fetchAll()),"CheckinVenueName","ResourceName");
+$dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($query->fetchAll()),"CheckinVenueName","ResourceName");
 
 $flattenedArr = [];
 foreach($dataArr as $roomKey => $room) {

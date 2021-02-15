@@ -3,6 +3,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 $speciality = $_GET['speciality'] ?? NULL;
@@ -31,7 +32,7 @@ $sql = "
 $query = $dbh->prepare($sql);
 $query->execute([$speciality]);
 
-$json = utf8_encode_recursive($query->fetchAll());
+$json = Encoding::utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
 
 ?>

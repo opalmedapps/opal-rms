@@ -114,76 +114,58 @@ app.config(['$locationProvider',function ($locationProvider)
     });
 }]);
 
-app.controller('main', function($scope,$http,$window,$location)
+app.controller('main',function($scope,$http,$window,$location)
 {
     $scope.mrn = "";
     $scope.ramq = "";
 
     //Ensure page is refreshed when using back button
-    if (!!$window.performance && $window.performance.navigation.type==2){
+    if (!!$window.performance && $window.performance.navigation.type==2) {
         $window.location.reload();
     }
 
-    $scope.fetchPatients = function(){
+    $scope.fetchPatients = function()
+    {
         document.getElementById("VerifyPat").style.visibility = "visible";
-        //Call the perl script to get the list of patient(s) with the specified MRN
 
-        // If user specified MRN
-        if($scope.mrn){
-            $http.get("/php/script/findPatient.php", {params: {pid: $scope.mrn}})
-            .then(function(response) {
-                //$scope.patientinfo=response.data.record;
-                replaceText(response.data.record);
-                //display the returned records for user to view and select correct patient
-            });
-        }else if($scope.ramq){ //If user specified RAMQ
-            $http.get("/php/script/findPatient.php", {params: {ramq: $scope.ramq}})
-            .then(function(response) {
-                replaceText(response.data.record);
-                //display the returned records for user to view and select correct patient
-            });
-        }
-    }
+        let params = {};
 
-    function replaceText(data){
-        if(data.length === 0){
-            if($scope.mrn){
-                //Send to next page with this mrn
-                var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
-                if(send == true){
-                    var landingurl = "./AddOn_Post.html?first=&last=&pid="+String($scope.mrn)+"&ramq=&ramqExp=";
-                    $window.location.href = landingurl; //send user to apt add on
-                }
-                else{
-                    return;
-                }
-            }
-            if($scope.ramq){
-                //Send to next page with this ramq
-                var send = confirm("This patient was not found in the database. Would you like to go to the manual add-on page?");
-                if(send == true){
-                    var landingurl = "./AddOn_Post.html?first=&last=&pid=&ramq="+String($scope.ramq)+ "&ramqExp=";
-                    $window.location.href = landingurl; //send user to apt add on
-                }
-                else{
-                    return;
-                }
-            }
+        if($scope.mrn) {
+            params = {pid: $scope.mrn};
         }
-        $scope.patientinfo = data;
+        else if($scope.ramq) {
+            params = {ramq: $scope.ramq};
+        }
+
+        $http.get("/php/script/findPatient.php", {params: params})
+        .then(response => {
+            let patients = response.data.record;
+            if(patients.length === 0) {
+                alert("No patients were found in the hospital systems.");
+            }
+            else {
+                //display the returned records for user to view and select correct patient
+                $scope.patientinfo = patients;
+            }
+        })
+        .catch(_ => {
+            alert("Error searching for patient. Please try again later.");
+        });
     }
 
     $scope.resetPage = function(){
         window.location.reload();
     }
 
-    $scope.sendToAptAddOn = function(data){
+    $scope.sendToAptAddOn = function(data)
+    {
         //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
+        var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&site="+String(data.site)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
         $window.location.href = landingurl; //send user to apt add on
     }
 
-    $scope.sendToSms = function(data){
+    $scope.sendToSms = function(data)
+    {
         //prepare the redirect url with the selected patient's parameters for prefilling
         var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
         $window.location.href = landingurl; //send user to apt add on

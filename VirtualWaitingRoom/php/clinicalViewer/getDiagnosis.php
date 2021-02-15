@@ -2,6 +2,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\DiagnosisInterface;
 
 $diagnosisList = array_map(function($x) {
@@ -11,7 +12,7 @@ $diagnosisList = array_map(function($x) {
     ];
 },DiagnosisInterface::getUsedDiagnosisCodeList());
 
-$resources = utf8_encode_recursive($diagnosisList);
+$resources = Encoding::utf8_encode_recursive($diagnosisList);
 echo json_encode($diagnosisList);
 
 

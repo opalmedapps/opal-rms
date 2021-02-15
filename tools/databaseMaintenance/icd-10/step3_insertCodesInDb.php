@@ -5,7 +5,7 @@ require_once __DIR__ ."/../../../vendor/autoload.php";
 
 use Orms\Database;
 
-$data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json"),TRUE);
+$data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json") ?: "",TRUE);
 
 $dbh = Database::getOrmsConnection();
 $dbh->query("SET FOREIGN_KEY_CHECKS = 0;");
@@ -26,7 +26,7 @@ insertSubcodes($dbh,$data["subcodes"]);
 addDiagnosisColumnToVwr($dbh);
 
 ############################################
-function createDiagnosisChapterTable($dbh)
+function createDiagnosisChapterTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS DiagnosisChapter;");
     $dbh->query("
@@ -43,7 +43,7 @@ function createDiagnosisChapterTable($dbh)
     ");
 }
 
-function createDiagnosisCodeTable($dbh)
+function createDiagnosisCodeTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS DiagnosisCode;");
     $dbh->query("
@@ -64,7 +64,7 @@ function createDiagnosisCodeTable($dbh)
     ");
 }
 
-function createDiagnosisSubcodeTable($dbh)
+function createDiagnosisSubcodeTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS DiagnosisSubcode;");
     $dbh->query("
@@ -84,7 +84,7 @@ function createDiagnosisSubcodeTable($dbh)
     ");
 }
 
-function createPatientDiagnosisTable($dbh)
+function createPatientDiagnosisTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS PatientDiagnosis;");
     $dbh->query("
@@ -109,7 +109,7 @@ function createPatientDiagnosisTable($dbh)
     ");
 }
 
-function createPatientDiagnosisMHTable($dbh)
+function createPatientDiagnosisMHTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS PatientDiagnosisMH;");
     $dbh->query("
@@ -137,7 +137,7 @@ function createPatientDiagnosisMHTable($dbh)
     ");
 }
 
-function createPatientDiagnosisMHTriggers($dbh)
+function createPatientDiagnosisMHTriggers(PDO $dbh): void
 {
     $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_insert;");
     $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_update;");
@@ -195,7 +195,8 @@ function createPatientDiagnosisMHTriggers($dbh)
     ");
 }
 
-function insertChapters($dbh,array $chapters)
+/** @param mixed[] $chapters */
+function insertChapters(PDO $dbh,array $chapters): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisChapter(Chapter,Description)
@@ -210,7 +211,8 @@ function insertChapters($dbh,array $chapters)
     }
 }
 
-function insertCodes($dbh,array $codes)
+/** @param mixed[] $codes */
+function insertCodes(PDO $dbh,array $codes): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisCode(Code,DiagnosisChapterId,Category,Description)
@@ -232,7 +234,8 @@ function insertCodes($dbh,array $codes)
     }
 }
 
-function insertSubcodes($dbh,array $subcodes)
+/** @param mixed[] $subcodes */
+function insertSubcodes(PDO $dbh,array $subcodes): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisSubcode(Subcode,DiagnosisCodeId,Description)
@@ -252,7 +255,7 @@ function insertSubcodes($dbh,array $subcodes)
     }
 }
 
-function addDiagnosisColumnToVwr($dbh)
+function addDiagnosisColumnToVwr(PDO $dbh): void
 {
     $dbh->prepare("
         INSERT INTO ProfileColumnDefinition(ColumnName,DisplayName,Glyphicon,Description,Speciality)

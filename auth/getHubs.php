@@ -3,6 +3,7 @@
 
 require __DIR__."/../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 $dbh = Database::getOrmsConnection();
@@ -21,7 +22,6 @@ $specialityGroups = array_reduce($query->fetchAll(),function($x,$y) {
     return $x;
 },[]);
 
-
-echo json_encode(utf8_encode_recursive($specialityGroups));
+echo json_encode(Encoding::utf8_encode_recursive($specialityGroups));
 
 ?>

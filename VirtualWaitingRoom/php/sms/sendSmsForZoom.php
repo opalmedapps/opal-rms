@@ -20,12 +20,12 @@ $dbh = Database::getOrmsConnection();
 
 $queryOrms = $dbh->prepare("
     SELECT
-        Patient.SMSAlertNum,
-    Patient.LanguagePreference
+        P.SMSAlertNum,
+        P.LanguagePreference
     FROM
-        Patient
+        Patient P
     WHERE
-        Patient.PatientSerNum = :pSer
+        P.PatientSerNum = :pSer
 ");
 $queryOrms->execute([
     ":pSer" => $patientId,

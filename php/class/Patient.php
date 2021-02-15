@@ -2,229 +2,126 @@
 
 namespace Orms;
 
-use \Exception;
+use Exception;
 
 use Orms\Database;
+use Orms\DateTime;
 
+/** @psalm-immutable */
 class Patient
 {
-    #definition of a Patient
-    public ?int $patientSer                 = NULL;
+    private function __construct(
+        public int $id,
+        public string $firstName,
+        public string $lastName,
+        public string $ramq,
+        public ?DateTime $ramqExpirationDate,
+        public string $mrn,
+        public ?string $smsNum,
+        public int $opalPatient,
+        public ?string $languagePreference,
+    ) {}
 
-    public ?string $firstName               = NULL;
-    public ?string $lastName                = NULL;
-    public ?string $ssn                     = NULL;
-    public ?string $ssnExpDate              = NULL;
-    public ?string $patientId               = NULL;
-    public ?string $patientId_MGH           = NULL;
-    public ?string $smsNum                  = NULL;
-    public ?string $opalPatient             = NULL;
-    public ?string $languagePreference      = NULL;
-
-    /**
-     *
-     * @param mixed[]|null $args
-     * @return void
-     */
-    public function __construct(array $args = NULL)
+    /*a few rules for inserting and updating patients:
+        * if the patient has no ramq, use the mrn as the ramq (set the ramq to expired)
+        * uppercase all names and ramqs
+        * all mrns are exactly 7 digits (zero-pad those that aren't)
+        * all ramqs have this format: XXXXYYMMDD
+    */
+    static function insertNewPatient(
+        string $firstName,
+        string $lastName,
+        string $mrn,
+        ?string $ramq,
+        ?DateTime $ramqExpiration
+    ): self
     {
-        foreach(array_keys(get_object_vars($this)) as $field) {
-            $this->$field = (isset($args[$field])) ? $args[$field] : NULL;
-        }
+        $mrn = str_pad($mrn,7,"0",STR_PAD_LEFT);
+        $ramq = preg_match("/^[a-zA-Z]{4}[0-9]{8}$/",$ramq ?? "") ? $ramq : NULL;
 
-        $this->_sanitizeObject();
-    }
-
-    #updates the Patient object with a serial number from the ORMS database
-    #if the patientSer is already set, the function simply returns the ser num
-    public function getPatientSer(): ?int
-    {
-        if(empty($this->patientSer)) {
-            $this->_completeObject();
-        }
-
-        return $this->patientSer;
-    }
-
-    //inserts a new patient row in the ORMS database
-    //also updates the patientSer property
-    public function insertPatientInDatabase(): int
-    {
         $dbh = Database::getOrmsConnection();
-
-        $insertPatient = $dbh->prepare("
-            INSERT INTO Patient(FirstName,LastName,SSN,SSNExpDate,PatientId)
-            VALUES (:fn,:ln,:ssn,:ssnExp,:patId)"
-        );
-
-        $insertPatient->execute([
-            ":fn"       => $this->firstName,
-            ":ln"       => $this->lastName,
-            ":ssn"      => $this->ssn,
-            ":ssnExp"   => $this->ssnExpDate,
-            ":patId"    => $this->patientId,
+        $dbh->prepare("
+            INSERT INTO Patient
+            SET
+                FirstName       = :fn,
+                LastName        = :ln,
+                SSN             = :ssn,
+                SSNExpDate      = :ssnExpDate,
+                PatientId       = :mrn
+        ")->execute([
+            ":fn"           => strtoupper($firstName),
+            ":ln"           => strtoupper($lastName),
+            ":ssn"          => strtoupper($ramq ?? $mrn),
+            ":ssnExpDate"   => $ramqExpiration?->format("ym") ?? 0,
+            ":mrn"          => $mrn
         ]);
 
-        $this->patientSer = (int) $dbh->lastInsertId();
-        if($this->patientSer === 0) {
-            throw new Exception("Could not insert new patient");
-        }
-
-        return $this->patientSer;
+        $patient = self::getPatientById((int) $dbh->lastInsertId()) ?? throw new Exception("Failed to insert patient with mrn $mrn");
+        return $patient;
     }
 
-    #updates the patient ssn and/or expiration date in the ORMS database
-    public function updateSSNInDatabase(): void
+    static function updateDemographics(
+        int $id,
+        string $firstName,
+        string $lastName,
+        string $mrn,
+        ?string $ramq,
+        ?DateTime $ramqExpiration
+    ): self
     {
-        $dbh = Database::getOrmsConnection();
+        $mrn = str_pad($mrn,7,"0",STR_PAD_LEFT);
+        $ramq = preg_match("/^[a-zA-Z]{4}[0-9]{8}$/",$ramq ?? "") ? $ramq : NULL;
 
-        if($this->patientSer === NULL) {
-            throw new Exception("No patient ser");
-        }
-
-        $updateSSN = $dbh->prepare("
+        Database::getOrmsConnection()->prepare("
             UPDATE Patient
             SET
-                Patient.SSN = CASE
-                        WHEN Patient.SSN != :ssn1 THEN :ssn2
-                        ELSE Patient.SSN
-                      END,
-                Patient.SSNExpDate = CASE
-                        WHEN (Patient.SSN != :ssn3 OR Patient.SSNExpDate < :expDate1) THEN :expDate2
-                        ELSE Patient.SSNExpDate
-                      END
+                FirstName       = :fn,
+                LastName        = :ln,
+                SSN             = :ssn,
+                SSNExpDate      = :ssnExpDate,
+                PatientId       = :mrn
             WHERE
-                Patient.PatientSerNum = :serNum");
-
-        $updateSSN->execute([
-            ":ssn1" => $this->ssn,
-            ":ssn2" => $this->ssn,
-            ":ssn3" => $this->ssn,
-            ":expDate1" => $this->ssnExpDate,
-            ":expDate2" => $this->ssnExpDate,
-            ":serNum" => $this->patientSer
+                PatientSerNum = :id
+        ")->execute([
+            ":fn"           => strtoupper($firstName),
+            ":ln"           => strtoupper($lastName),
+            ":ssn"          => strtoupper($ramq ?? $mrn),
+            ":ssnExpDate"   => $ramqExpiration?->format("ym") ?? 0,
+            ":mrn"          => $mrn,
+            ":id"           => $id
         ]);
+
+        $patient = self::getPatientByMrn($mrn) ?? throw new Exception("Failed to update patient with mrn $mrn");
+        return $patient;
     }
 
-    #completes the Patient object by getting missing data from the ORMS database
-    #uses the ramq and the patient id
-    #available modes are 'ONLY_PATIENT_SER' OR 'ALL'
-    private function _completeObject(string $mode = "ONLY_PATIENT_SER"): void
+    static function updateOpalStatus(self $patient,int $opalStatus): self
     {
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
-            SELECT DISTINCT
-                Patient.PatientSerNum,
-                Patient.LastName,
-                Patient.FirstName,
-                Patient.SSN,
-                Patient.SSNExpDate,
-                Patient.PatientId,
-                Patient.PatientId_MGH,
-                Patient.SMSAlertNum,
-                Patient.SMSSignupDate,
-                Patient.OpalPatient,
-                Patient.LanguagePreference
-            FROM
-                Patient
+        Database::getOrmsConnection()->prepare("
+            UPDATE Patient
+            SET
+                OpalPatient = :status
             WHERE
-                Patient.PatientId = :patId OR Patient.PatientId_MGH = :patIdMGH");
-        $query->execute([
-            ":patId" => $this->patientId,
-            ":patIdMGH" => $this->patientId_MGH
+                PatientSerNum = :id
+        ")->execute([
+            ":status" => $opalStatus,
+            ":id"     => $patient->id
         ]);
 
-        $result = $query->fetch();
-        if($result !== FALSE)
-        {
-            if($mode === "ONLY_PATIENT_SER")
-            {
-                $this->patientSer = (int) $result["PatientSerNum"];
-            }
-            elseif($mode === "ALL")
-            {
-                $this->patientSer              = (int) $result["PatientSerNum"];
-                $this->firstName               = $result["FirstName"];
-                $this->lastName                = $result["LastName"];
-                $this->ssn                     = $result["SSN"];
-                $this->ssnExpDate              = $result["SSNExpDate"];
-                $this->patientId               = $result["PatientId"];
-                $this->patientId_MGH           = $result["PatientId_MGH"];
-                $this->smsNum                  = $result["SMSAlertNum"];
-                $this->opalPatient             = $result["OpalPatient"];
-                $this->languagePreference      = $result["LanguagePreference"];
-            }
-        }
-
-        $this->_sanitizeObject();
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update opal status");
     }
 
-     #function to convert appointment fields into an ORMS db compatible form
-     private function _sanitizeObject(): void
-     {
-        foreach(array_keys(get_object_vars($this)) as $field)
-        {
-            #apply some regex
-            if(gettype($this->$field) === "string")
-            {
-                $this->$field = str_replace("\\","",$this->$field); #remove backslashes
-                #$this->$field = str_replace("'","\'",$this->$field); #escape quotes
-                $this->$field = str_replace('"',"",$this->$field); #remove double quotes
-                $this->$field = preg_replace("/\n|\r/","",$this->$field); #remove new lines and tabs
-                $this->$field = preg_replace("/\s+/"," ",$this->$field ?? ""); #remove multiple spaces
-                $this->$field = preg_replace("/^\s/","",$this->$field ?? ""); #remove spaces at the start
-                $this->$field = preg_replace("/\s$/","",$this->$field ?? ""); #remove space at the end
-
-                if(is_array($this->$field)
-                    || ctype_space($this->$field ?? "")
-                    || $this->$field === "") $this->$field = NULL;
-            }
-        }
-
-        #insert zeros for incomplete MRNs
-        if($this->patientId !== NULL) {
-            $this->patientId = str_pad($this->patientId,7,"0",STR_PAD_LEFT);
-        }
-
-        #remove the ramq if the ramq is just a placeholder (XXXXYYMMDD)
-        if(preg_match("/^[A-Z]{4}[0-9]{6}$/",$this->ssn ?? "")) {
-            $this->ssn = NULL;
-            $this->ssnExpDate = "0000";
-        }
-
-        #if the patient has no ramq, use the mrn as the ramq
-        if($this->ssn === NULL) {
-            $this->ssn = $this->patientId;
-            $this->ssnExpDate = "0000";
-        }
-        elseif($this->ssnExpDate === NULL) {
-            $this->ssnExpDate = "0000";
-        }
-
-        #uppercase names and ssn
-        if($this->firstName !== NULL) {
-            $this->firstName = strtoupper($this->firstName);
-        }
-        if($this->lastName !== NULL) {
-            $this->lastName = strtoupper($this->lastName);
-        }
-        if($this->ssn !== NULL) {
-            $this->ssn = strtoupper($this->ssn);
-        }
-    }
-
-    static function getPatientById(int $id): Patient
+    static function getPatientById(int $id): ?self
     {
         return self::_fetchPatient($id);
     }
 
-    static function getPatientByMrn(string $mrn): Patient
+    static function getPatientByMrn(string $mrn): ?self
     {
         return self::_fetchPatient($mrn);
     }
 
-    // int|string $identifier
-    private static function _fetchPatient(int|string $identifier): Patient
+    private static function _fetchPatient(int|string $identifier): ?self
     {
         $column = match(gettype($identifier)) {
             "integer" => "PatientSerNum",
@@ -241,7 +138,6 @@ class Patient
                 SSN,
                 SSNExpDate,
                 PatientId,
-                PatientId_MGH,
                 SMSAlertNum,
                 SMSSignupDate,
                 OpalPatient,
@@ -255,22 +151,23 @@ class Patient
             ":iden" => $identifier
         ]);
 
-        $row = $query->fetchAll()[0];
+        $row = $query->fetchAll()[0] ?? NULL;
 
-        $fields = [
-            "patientSer"            => (int) $row["PatientSerNum"],
-            "firstName"             => $row["FirstName"],
-            "lastName"              => $row["LastName"],
-            "ssn"                   => $row["SSN"],
-            "ssnExpDate"            => $row["SSNExpDate"],
-            "patientId"             => $row["PatientId"],
-            "patientId_MGH"         => $row["PatientId_MGH"],
-            "smsNum"                => $row["SMSAlertNum"],
-            "opalPatient"           => $row["OpalPatient"],
-            "languagePreference"    => $row["LanguagePreference"],
-        ];
+        if($row === NULL) return NULL;
 
-        return new Patient($fields);
+        $expirationDate = ($row["SSNExpDate"] === "0") ? NULL : DateTime::createFromFormatN("ym",$row["SSNExpDate"])?->modifyN("first day of")?->modifyN("midnight");
+
+        return new Patient(
+            id:                    (int) $row["PatientSerNum"],
+            firstName:             $row["FirstName"],
+            lastName:              $row["LastName"],
+            ramq:                  $row["SSN"],
+            ramqExpirationDate:    $expirationDate,
+            mrn:                   $row["PatientId"],
+            smsNum:                $row["SMSAlertNum"],
+            opalPatient:           (int) $row["OpalPatient"],
+            languagePreference:    $row["LanguagePreference"],
+        );
     }
 }
 

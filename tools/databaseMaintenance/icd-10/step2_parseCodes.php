@@ -3,7 +3,7 @@
 #convert ICD-10 data to a more convient format
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-$data = json_decode(file_get_contents(__DIR__."/data/raw_codes.json"),TRUE);
+$data = json_decode(file_get_contents(__DIR__."/data/raw_codes.json") ?: "",TRUE);
 
 #do some cleaning up
 $data = array_map("addElementForCodesWithoutSubcodes",$data);
@@ -56,8 +56,12 @@ file_put_contents(__DIR__."/data/processed_codes.json",json_encode([
 
 
 ##############################################
-#adds a subcode for codes with no subcodes (the code itself is used as a subcode)
-function addElementForCodesWithoutSubcodes(array $node)
+/**
+ * adds a subcode for codes with no subcodes (the code itself is used as a subcode)
+ * @param mixed[] $node
+ * @return mixed[]
+ */
+function addElementForCodesWithoutSubcodes(array $node): array
 {
     if($node["data"] === NULL && !preg_match("/\./",$node["name"])) {
         $node["data"] = [$node];
@@ -69,8 +73,12 @@ function addElementForCodesWithoutSubcodes(array $node)
     return $node;
 }
 
-#removes additional code ranges (like C00-C75) by attaching the leaf nodes to the first code range (group) node
-function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE)
+/**
+ * removes additional code ranges (like C00-C75) by attaching the leaf nodes to the first code range (group) node
+ * @param mixed[] $node
+ * @return mixed[]
+ */
+function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE): array
 {
     if($getLeafNodes === TRUE)
     {
@@ -94,8 +102,12 @@ function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE)
     return $node;
 }
 
-#removes the name of the concept from the description string
-function stripNameFromNodes($node)
+/**
+ * removes the name of the concept from the description string
+ * @param mixed[] $node
+ * @return mixed[]
+ */
+function stripNameFromNodes(array $node): array
 {
     $node["desc"] = preg_replace("/$node[name] /","",$node["desc"]);
     $node["data"] = ($node["data"] === NULL) ? NULL : array_map("stripNameFromNodes",$node["data"]);

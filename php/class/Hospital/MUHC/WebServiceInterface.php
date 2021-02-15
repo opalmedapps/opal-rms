@@ -4,10 +4,10 @@ namespace Orms\Hospital\MUHC;
 
 use Exception;
 use SoapClient;
-use Orms\Config;
-use Utility\ArrayUtil;
 
+use Orms\Config;
 use Orms\DateTime;
+
 use Orms\Hospital\MUHC\Patient;
 
 //Class that connects to the hospital ADT webservices

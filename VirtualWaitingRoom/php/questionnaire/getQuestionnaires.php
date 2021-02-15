@@ -9,6 +9,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Opal;
 
 $mrn = $_GET["mrn"] ?? NULL;
@@ -18,6 +19,6 @@ if($mrn === NULL) {
     exit("Empty mrn!");
 }
 
-echo json_encode(utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($mrn)));
+echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($mrn)));
 
 ?>

@@ -4,22 +4,22 @@
     <title>MUHC ORMS Waiting Room Management System</title>
 </head>
 
-<body ng-init="setDate();" ng-app="myApp" ng-controller="main" style="margin-left: 8px;">
+<body ng-app="myApp" ng-controller="main" style="margin-left: 8px;">
     <center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Instant Appointment Add-On</u></h2></center>
 
     <table border="0" width="50%" padding="5">
-        <tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in Medivisit.</font></td></tr>
+        <tr><td valign="top"> Instantly add on appointments that are not in the waiting room management system. <br>Note: this tool does not create an appointment in other softwares/systems.</font></td></tr>
     </table>
     <br>
 
     <form ng-submit="createAddOn()">
         <table border="0" width="60%" padding="2">
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
-            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.pid" id="pid" required></td></tr>
-            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" required><font color="red"> use <b>MRN</b> for out-of-province or none</font></td></tr>
-            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" placeholder="1234" pattern="[0-9]{4}"> if unknown use "0000"</td></tr>
-            <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" required></td></tr>
-            <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" required></td></tr>
+            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.pid" id="pid" disabled></td></tr>
+            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" disabled></tr>
+            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" disabled></td></tr>
+            <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" disabled></td></tr>
+            <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" disabled></td></tr>
             <tr><td></td></td>
 
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
@@ -42,8 +42,7 @@
 
             <tr><td><b>Appointment Date/Time</b></td>
             <td>
-            <input type="date" id="myDate" ng-model="pageFields.AppointDate"/>
-            <input type="time" id="myTime" ng-model="pageFields.AppointTime"/>
+            <input type="datetime-local" id="myDate" ng-model="pageFields.AppointDate"/>
             </td>
             </tr>
 
@@ -89,7 +88,7 @@ app.config(['$locationProvider',function ($locationProvider)
     });
 }]);
 
-app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$location)
+app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$location)
 {
     //Ensure that page is refreshed when using back button
     if(!!$window.performance && $window.performance.navigation.type == 2)
@@ -99,21 +98,22 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     var pageParams = $location.search();
 
-    $scope.currentDateTime = new Date();
-
     //Pre fill the form with the specified patient params from the AddOnOnc_PRE page
     $scope.pageFields = {
         first: pageParams.first,
         last: pageParams.last,
         pid: pageParams.pid,
+        site: pageParams.site,
         Ramq: pageParams.ramq,
         RamqExpiryDate: pageParams.ramqExp,
         speciality: $cookies.get("speciality"),
-        AppointDate: null,
-        AppointTime: null,
+        AppointDate: new Date(),
         resourceCode: null,
         resourceDescription: null
     };
+
+    $scope.pageFields.AppointDate.setSeconds(0);
+    $scope.pageFields.AppointDate.setMilliseconds(0);
 
     if(!$scope.pageFields.Ramq || $scope.pageFields.Ramq === "null") {
         $scope.pageFields.Ramq = $scope.pageFields.pid;
@@ -121,36 +121,6 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
 
     if(!$scope.pageFields.RamqExpiryDate || $scope.pageFields.RamqExpiryDate === "null") {
         $scope.pageFields.RamqExpiryDate = "0000";
-    }
-
-    $scope.setDate = function()
-    {
-        var date = new Date();
-
-        var day = date.getDate();
-        var month = date.getMonth() + 1;
-        var year = date.getFullYear();
-
-        var hour = date.getHours();
-        var min  = date.getMinutes();
-
-        if (month < 10) month = "0" + month;
-        if (day < 10) day = "0" + day;
-
-        if (hour < 10) hour = "0" + hour;
-        if (min < 10) min = "0" + min;
-
-        var today = year + "-" + month + "-" + day;
-        var now = hour + ":" + min + ":00";
-        var todayANDnow = today + " " + now;
-
-        var date = new Date();
-        $scope.pageFields.AppointDate = new Date(date.getFullYear(),date.getMonth(),date.getDate());
-        $scope.pageFields.AppointTime = new Date(date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes());
-        // document.getElementById('myDate').value = today;
-        // document.getElementById('myTime').value = now;
-
-        $scope.timestamp = today +" "+ now;
     }
 
     $scope.updateSelectedResource = resource => {
@@ -176,7 +146,7 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
         $timeout(function () {$('.selectpicker').selectpicker('refresh')});
     });
 
-    $scope.createAddOn = function()
+    $scope.createAddOn = async function()
     {
         if(!$scope.pageFields.AppointCode) {
             alert("Please select an appointment code");
@@ -188,43 +158,106 @@ app.controller('main', function($scope,$timeout,$http,$filter,$cookies,$window,$
             return;
         }
 
-        //since we need to make a post request, simply navigating to another page won't work
-        //we need to create a form manually and submit it
-        let mapForm = document.createElement("form");
-        mapForm.method = "POST";
-        mapForm.action = "/php/system/processAppointmentFromAddOn.php";
+        //check if patient exists
+        let patientExists = await $http({
+            url: "/php/api/public/v1/patient/checkIfPatientExists.php",
+            method: "POST",
+            data: {
+                "mrn": $scope.pageFields.pid,
+                "site": $scope.pageFields.site
+            }
+        })
+        .then(r => JSON.parse(r.data.data))
+        .catch(_ => {
+            alert("Unknown error");
+            throw new Error("Unknown error");
+        });
 
-        let fields = {
-            Action: "S12",
-            AppointCode: $scope.pageFields.AppointCode,
-            AppointDate: $filter('date')($scope.pageFields.AppointDate,"yyyy-MM-dd"),
-            AppointId: "ORMS"+$scope.pageFields.pid+"-"+$scope.timestamp,
-            AppointSys: "InstantAddOn",
-            AppointTime: $filter('date')($scope.pageFields.AppointTime,"HH:mm"),
-            CreationDate: $filter('date')($scope.currentDateTime,"yyyy-MM-dd HH:mm"),
-            PatFirstName: $scope.pageFields.first,
-            PatLastName: $scope.pageFields.last,
-            PatientId: $scope.pageFields.pid,
-            Ramq: $scope.pageFields.Ramq,
-            RamqExpireDate: $scope.pageFields.RamqExpiryDate,
-            ResourceCode: $scope.pageFields.resourceCode,
-            ResourceName: $scope.pageFields.resourceDescription,
-            SpecialityGroup: $scope.pageFields.speciality,
-            Status: "Open"
-        };
-
-        for(let field in fields)
+        //create the patient if it doesn't exist already
+        if(patientExists !== true)
         {
-            let mapInput = document.createElement("input");
-            mapInput.type = "text";
-            mapInput.name = field;
-            mapInput.value = fields[field];
-
-            mapForm.appendChild(mapInput);
+            await $http({
+                url: "/php/api/public/v1/patient/updatePatientDemographics.php",
+                method: "POST",
+                data: {
+                    firstName:          $scope.pageFields.first,
+                    lastName:           $scope.pageFields.last,
+                    ramq:               $scope.pageFields.Ramq,
+                    ramqExpiration:     ($scope.pageFields.RamqExpiryDate === "0000") ? null : convertDatetimeToString(new Date($scope.pageFields.RamqExpiryDate)),
+                    mrns: [
+                        {
+                            mrn: $scope.pageFields.pid,
+                            site: $scope.pageFields.site,
+                            active: 1
+                        }
+                    ]
+                }
+            })
+            .catch(_ => {
+                alert("Unable to register patient");
+                throw new Error("Unable to register patient");
+            });
         }
 
-        document.body.appendChild(mapForm);
-        mapForm.submit();
+        //create the add-on
+        await $http({
+            url: "/php/api/public/v1/appointment/insertOrUpdateAppointment.php",
+            method: "POST",
+            data: {
+                appointmentCode:                $scope.pageFields.AppointCode,
+                // appointmentCodeDescription
+                clinics: [
+                    {
+                        clinicCode: $scope.pageFields.resourceCode,
+                        clinicDescription: $scope.pageFields.resourceDescription
+                    }
+                ],
+                creationDatetime:               convertDatetimeToString(new Date()),
+                mrn:                            $scope.pageFields.pid,
+                scheduledDatetime:              convertDatetimeToString($scope.pageFields.AppointDate),
+                site:                           $scope.pageFields.site,
+                specialityGroup:                $scope.pageFields.speciality,
+                sourceId:                       "ORMS"+$scope.pageFields.pid+"-"+(new Date().getTime()),
+                sourceSystem:                   "InstantAddOn",
+                status:                         "Open",
+            }
+        })
+        .catch(_ => {
+            alert("Unable to register patient");
+            throw new Error("Unable to register patient");
+        });
+
+        //check in should be called on appointment creation success
+        $http({
+            url: "/php/api/public/v1/patient/checkInToLocation.php",
+            method: "POST",
+            data: {
+                mrn: $scope.pageFields.pid,
+                site: $scope.pageFields.site,
+                room: "ADDED ON BY RECEPTION"
+            }
+        })
+        .then(_ => {
+            alert("Success");
+        })
+        .catch(_ => {
+            alert("Unable to check in patient.");
+        });
+
+    }
+
+    function convertDatetimeToString(datetime)
+    {
+        let year = datetime.getFullYear();
+        let month = datetime.getMonth() +1;
+        month = (month < 10) ? "0"+month : month;
+
+        let day = (datetime.getDate() < 10) ? "0"+datetime.getDate() : datetime.getDate();
+        let hour = (datetime.getHours() < 10) ? "0"+datetime.getHours() : datetime.getHours();
+        let minute = (datetime.getMinutes() < 10) ? "0"+datetime.getMinutes() : datetime.getMinutes();
+        let second = (datetime.getSeconds() < 10) ? "0"+datetime.getSeconds() : datetime.getSeconds();
+
+        return year+"-"+month+"-"+day+" "+hour+":"+minute+":"+second;
     }
 });
 

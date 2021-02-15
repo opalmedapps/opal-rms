@@ -37,18 +37,21 @@ class Config
 
         //create required configs
         $environment = new EnvironmentConfig(
-            basePath:   $parsedData["path"]["BASE_PATH"],
-            baseUrl:    $parsedData["path"]["BASE_URL"],
-            imagePath:  $parsedData["path"]["IMAGE_PATH"],
-            imageUrl:   $parsedData["path"]["IMAGE_URL"],
-            logPath:    $parsedData["path"]["LOG_PATH"],
-            site:       $parsedData["orms"]["SITE"],
+            basePath:       $parsedData["path"]["BASE_PATH"],
+            baseUrl:        $parsedData["path"]["BASE_URL"],
+            imagePath:      $parsedData["path"]["IMAGE_PATH"],
+            imageUrl:       $parsedData["path"]["IMAGE_URL"],
+            logPath:        $parsedData["path"]["LOG_PATH"],
+            oieUrl:         $parsedData["path"]["OIE_URL"] ?? NULL,
+            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL,
+            site:           $parsedData["orms"]["SITE"],
         );
 
         $system = new SystemConfig(
             emails:          $parsedData["alert"]["EMAIL"] ?? [],
             firebaseUrl:     $parsedData["vwr"]["FIREBASE_URL"],
-            firebaseSecret:  $parsedData["vwr"]["FIREBASE_SECRET"]
+            firebaseSecret:  $parsedData["vwr"]["FIREBASE_SECRET"],
+            sendWeights:     (bool) ($parsedData["vwr"]["SEND_WEIGHTS"] ?? FALSE)
         );
 
         $ormsDb = new DatabaseConfig(
@@ -105,8 +108,6 @@ class Config
 
         try {
             $opal = new OpalConfig(
-                checkInUrl:         $parsedData["opal"]["OPAL_CHECKIN_URL"],
-                notificationUrl:    $parsedData["opal"]["OPAL_NOTIFICATION_URL"],
                 opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"]
             );
         } catch(TypeError) {$opal = NULL;}
@@ -163,6 +164,8 @@ class EnvironmentConfig
         public string $imagePath,
         public string $imageUrl,
         public string $logPath,
+        public ?string $oieUrl,
+        public ?string $highchartsUrl,
         public string $site
     ) {}
 }
@@ -189,7 +192,7 @@ class SystemConfig
         public array $emails,
         public string $firebaseUrl,
         public string $firebaseSecret,
-        //public bool sendWeights //not being used in php, only perl
+        public bool $sendWeights
     ) {}
 }
 
@@ -213,8 +216,6 @@ class SmsConfig
 class OpalConfig
 {
     function __construct(
-        public string $checkInUrl,
-        public string $notificationUrl,
         public string $opalAdminUrl
     ) {}
 }

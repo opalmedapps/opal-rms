@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 //====================================================================================
-// php code to query the MySQL (for Medivisit) databases and
+// php code to query the database and
 // extract the list of options, which includes resources, appointments, and rooms
 //====================================================================================
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Database;
 
 //get webpage parameters
@@ -19,11 +20,10 @@ $appointments = [];
 $intermediateVenues = [];
 $treatmentVenues = [];
 $examRooms = [];
-$clinics = [];
 
 //==================================================================
 // Connect to WRM database
-//==================================================================
+//======================s============================================
 $dbh = Database::getOrmsConnection();
 
 //==================================================================
@@ -74,13 +74,10 @@ $query4->execute([$clinicalArea]);
 // Process results
 foreach($query4->fetchAll() as $row)
 {
-    if(preg_match('/(TX AREA|RT TX ROOM)/',$row['AriaVenueId']))
-    {
+    if(preg_match('/(TX AREA|RT TX ROOM)/',$row['AriaVenueId'])) {
         $treatmentVenues[] = $row['AriaVenueId'];
-
     }
-    else
-    {
+    else {
         $intermediateVenues[] = $row['AriaVenueId'];
     }
 }
@@ -93,27 +90,15 @@ foreach($query4->fetchAll() as $row)
 //get all appointments from WRM
 $query6 = $dbh->prepare("
     SELECT DISTINCT
-        LTRIM(RTRIM(MediVisitAppointmentList.AppointmentCode)) AS AppointmentCode
+        LTRIM(RTRIM(MV.AppointmentCode)) AS AppointmentCode
     FROM
-        MediVisitAppointmentList
-        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MediVisitAppointmentList.ClinicResourcesSerNum
+        MediVisitAppointmentList MV
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             AND ClinicResources.Speciality = ?"
 );
 $query6->execute([$speciality]);
 
 $appointments = array_map(fn($x) => $x["AppointmentCode"], $query6->fetchAll());
-
-//get all clinics
-$query7 = $dbh->prepare("
-    SELECT DISTINCT
-        LTRIM(RTRIM(ClinicSchedule.ClinicName)) AS ClinicName
-    FROM
-        ClinicSchedule
-        INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-");
-$query7->execute();
-
-$clinics = array_map(fn($x) => $x["ClinicName"], $query7->fetchAll());
 
 //====================================================
 //organize json array
@@ -133,10 +118,6 @@ sort($treatmentVenues);
 //foreach($examRooms as &$val) {$val = utf8_encode($val);}
 $examRooms = array_filter(array_unique($examRooms));
 sort($examRooms);
-
-//foreach($clinics as &$val) {$val = utf8_encode($val);}
-$clinics = array_filter(array_unique($clinics));
-sort($clinics);
 
 //add the type to each element of the arrays and then add them to the json return object
 $json['Resources'] = [];
@@ -165,15 +146,9 @@ foreach($examRooms as $val)
     $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
 }
 
-$json['Clinics'] = [];
-foreach($clinics as $val)
-{
-    $json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
-}
-
 //return results in json format
 
-$json = utf8_encode_recursive($json);
+$json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json);
 
 ?>

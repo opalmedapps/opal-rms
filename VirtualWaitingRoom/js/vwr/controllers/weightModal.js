@@ -1,316 +1,161 @@
 angular.module('vwr').component('weightModal',
 {
-        templateUrl: 'js/vwr/templates/weightModal.htm',
-        controllerAs: 'weightModalController',
-        bindToController: true
+    templateUrl: 'js/vwr/templates/weightModal.htm',
+    controllerAs: 'weightModalController',
+    bindToController: true
 });
 
 function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
 {
-    $scope.weightEntered = false; //tells us if the patient's weight has been updated
-    $scope.heightsAdded = false; //indicates if the height series has been inserted in the highchart
-    $scope.bsaAdded = false;
+    let weightEntered = false; //tells us if the patient's weight has been updated
 
     $scope.invalidIdDetected = false; //indicates if an Id not belonging to the patient was in one of the weights
-    $scope.invalidIdDetected = false; //indicates if an Id not belonging to the patient was in one of the weights
-
     $scope.patient =
     {
-        Height: patient.Height,
-        Weight: patient.Weight,
-        BSA: patient.BSA,
-        FirstName: patient.FirstName,
-        LastName: patient.LastName,
-        Mrn: patient.Mrn,
-        PatientId: patient.PatientId
+        height: patient.Height,
+        weight: patient.Weight,
+        bsa: patient.BSA,
+        firstName: patient.FirstName,
+        lastName: patient.LastName,
+        mrn: patient.Mrn,
+        patientId: patient.PatientId
     }
 
-    $scope.mostRecentHeight;
-    $scope.mostRecentWeight;
-    $scope.mostRecentBSA;
+    let mostRecentHeight;
+    let mostRecentWeight;
+    let mostRecentBSA;
 
     $scope.warnForWeight = false;
     $scope.warnForHeight = false;
     $scope.warnForBSA = false;
     $scope.updateConfirmed = true;
 
+    $scope.historicalChart = {
+        config: {}
+    };
+
+    getHistoricalMeasurementsAsync().then(r => {$scope.historicalChart.config = r});
+
     //calculate a new BSA for the patient when the height or weight are changed
-    $scope.recalculateBSA = function()
+    function recalculateBSA()
     {
         //use the Dubois formula
-        $scope.patient.BSA = 0.007184*Math.pow($scope.patient.Weight,0.425)*Math.pow($scope.patient.Height,0.725);
-        $scope.patient.BSA = Math.round($scope.patient.BSA*100)/100;
-    }
+        $scope.patient.bsa = 0.007184*Math.pow($scope.patient.weight,0.425)*Math.pow($scope.patient.height,0.725);
+        $scope.patient.bsa = Math.round($scope.patient.bsa*100)/100;
+    };
 
     //ensure the height and BSA don't differ too much from the previous tiime the patient was measured
     //we don't expect the height or bsa to vary significantly
     //threshold is 10% difference for weight, 5% for height and BSA
     $scope.verifyMeasurements = function()
     {
-        $scope.recalculateBSA();
+        recalculateBSA();
 
-        var weightDiff = ($scope.mostRecentWeight != 0) ? 100 * Math.abs($scope.patient.Weight - $scope.mostRecentWeight) / $scope.mostRecentWeight : 0;
-        var heightDiff = ($scope.mostRecentHeight != 0) ? 100 * Math.abs($scope.patient.Height - $scope.mostRecentHeight) / $scope.mostRecentHeight : 0;
-        var bsaDiff = ($scope.mostRecentBSA != 0)?  100 * Math.abs($scope.patient.BSA - $scope.mostRecentBSA) / $scope.mostRecentBSA : 0;
+        var weightDiff = (mostRecentWeight !== 0) ? 100 * Math.abs($scope.patient.weight - mostRecentWeight) / mostRecentWeight : 0;
+        var heightDiff = (mostRecentHeight !== 0) ? 100 * Math.abs($scope.patient.height - mostRecentHeight) / mostRecentHeight : 0;
+        var bsaDiff = (mostRecentBSA !== 0) ? 100 * Math.abs($scope.patient.bsa - mostRecentBSA) / mostRecentBSA : 0;
 
-        $scope.warnForWeight = (weightDiff > 10) ? true : false;
-        $scope.warnForHeight = (heightDiff > 5) ? true : false;
-        $scope.warnForBSA = (bsaDiff > 5) ? true : false;
+        $scope.warnForWeight = (weightDiff > 10);
+        $scope.warnForHeight = (heightDiff > 5);
+        $scope.warnForBSA = (bsaDiff > 5);
 
-        $scope.updateConfirmed = (!$scope.warnForHeight && !$scope.warnForBSA) ? true : false;
+        $scope.updateConfirmed = (!$scope.warnForHeight && !$scope.warnForBSA);
     }
 
     $scope.updateWeightChart = function()
     {
-        if(!$scope.patient.Height)
+        if(!$scope.patient.height)
         {
-            $scope.patient.Height = 0;
-            $scope.patient.BSA = 0;
+            $scope.patient.height = 0;
+            $scope.patient.bsa = 0;
         }
 
         if(!$scope.updateConfirmed)
         {
             $scope.updateConfirmed = true;
-            return 0;
+            return false;
         }
 
         $http({
-            url: "php/weight/updatePatientMeasurements.php",
+            url: "php/measurement/updatePatientMeasurements.php",
             method: "GET",
             params: {
-                patientId: patient.PatientId,
-                ssnFirstThree: patient.SSN,
-                height: $scope.patient.Height,
-                weight: $scope.patient.Weight,
-                bsa: $scope.patient.BSA,
-                appointmentId: patient.AppointmentId
+                patientId: $scope.patient.patientId,
+                height: $scope.patient.height,
+                weight: $scope.patient.weight,
+                bsa: $scope.patient.bsa,
+                sourceId: patient.SourceId,
+                sourceSystem: patient.CheckinSystem
             }
-        }).then(function (response)
+        }).then(function(_)
         {
-            $scope.weightEntered = true;
-            $scope.heightsAdded = false;
-            $scope.bsaAdded = false;
-            $scope.getHistoricalMeasurements(); //update the chart with the new value
+            weightEntered = true;
+            //update the chart with the new value
+            getHistoricalMeasurementsAsync().then(r => {$scope.historicalChart.config = r});
         });
     }
 
     //close the modal when the user presses the close button
     $scope.accept = function()
     {
-        $uibModalInstance.close($scope.weightEntered);
-    }
-
-    /*$scope.cancel = function()
-    {
-        $uibModalInstance.dismiss();
-    }*/
-
-    //===================================================
-    // Create a graph using highcharts for the patient's historical height and weight
-    //===================================================
-    $scope.historicalChart =
-    {
-        config: {}
+        $uibModalInstance.close(weightEntered);
     };
 
-    $scope.getHistoricalMeasurements = function()
+    //create a highcharts graph using highcharts for the patient's historical height and weight
+    function getHistoricalMeasurementsAsync()
     {
-        //get the patient's previous heights and weights
-        $http({
-            url: "php/weight/getHistoricalMeasurements.php",
+        return $http({
+            url: "php/measurement/getPatientMeasurementChart.php",
             method: "GET",
             params: {
-                    patientId: patient.PatientId,
-                }
+                patientId: $scope.patient.patientId
+            }
         }).then(function (response)
         {
-            //separate the weight and height and format data for highcharts
-            var weights = [];
-            var heights = [];
-            var bsas = [];
+            let chart = response.data;
 
-            angular.forEach(response.data,function (measurement)
+            //add the tooltip function for the display
+            chart.tooltip =
             {
-                var dotColorWeight = 'blue';
-                var dotColorHeight = 'green';
-                var dotColorBSA = 'purple';
-
-                //check if the patient id of the weight is valid
-                if(measurement.Mrn != patient.Mrn)
+                formatter: function()
                 {
-                    $scope.invalidIdDetected = true;
-                    dotColorWeight = 'red';
-                    dotColorHeight = 'red';
-                    dotColorBSA = 'red';
-                }
+                    if(this.x % 2 === 0)
+                    {
+                        tooltipString = '<span style="font-size: 10px">'+$filter('date')(this.x,'EEEE, MMM dd, yyyy');
+                        angular.forEach(this.points,function (point)
+                        {
+                            tooltipString += '</span><br/><span style="color:'+point.color+'">\u25CF</span> '+point.series.name+': <b>'+point.y+'</b><br/>';
+                        });
 
-                //parse the date
-                var year = measurement.Date.substring(0,4);
-                var month = measurement.Date.substring(5,7);
-                var day = measurement.Date.substring(8,10);
+                        return tooltipString;
+                    }
+                    else {return false;}
+                },
+                useHTML: true,
+                shared: true,
+                snap: 10,
+            };
 
-                //subtract a month since january is 0
-                weights.push({x: Date.UTC(year,month-1,day) +86400000,y: measurement.Weight, color: dotColorWeight});
-                heights.push({x: Date.UTC(year,month-1,day) +86400000,y: measurement.Height, color: dotColorHeight});
-                bsas.push({x: Date.UTC(year,month-1,day) +86400000,y: measurement.BSA, color: dotColorBSA});
-            });
+            //if any of the dots are red, then there is an invalid id for one of the measurements
+            $scope.invalidIdDetected = chart.series[0].data.some(x => x.color === "red");
 
-            //if there are only two points, the x axis in highcharts bugs out so we add another point
-            //we'll remove it's tooltip later
-            if(weights.length === 2)
-            {
-                weights = [weights[0],{x:weights[0][0]+1,y:weights[0][1],noTooltip:true},weights[1]];
-            }
+            //store the most recent measurement for display and verification
+            mostRecentWeight = chart.series[0].data.slice(-1)[0].y;
+            mostRecentHeight = chart.series[1].data.slice(-1)[0].y;
+            mostRecentBSA    = chart.series[2].data.slice(-1)[0].y;
 
-            //store the most recent measurement for verification
-            $scope.mostRecentWeight = weights[weights.length -1].y;
-            $scope.mostRecentHeight = heights[heights.length -1].y;
-            $scope.mostRecentBSA = bsas[bsas.length -1].y;
+            $scope.patient.weight = mostRecentWeight;
+            $scope.patient.height = mostRecentHeight;
+            $scope.patient.bsa = mostRecentBSA;
 
-            $scope.patient.Weight = $scope.mostRecentWeight;
-            $scope.patient.Height = $scope.mostRecentHeight;
-            $scope.patient.BSA = $scope.mostRecentBSA;
+            //don't display the heights and bsas by default
+            chart.series[1].visible = false;
+            chart.series[2].visible = false;
 
             //verify the measurements
             $scope.verifyMeasurements();
 
-            //generate chart
-
-            //generate only a chart with weights at first
-            $scope.historicalChart =
-            {
-                config:
-                {
-                    chart: {
-                        type: 'line',
-                        panning: true,
-                        //zoomType: 'x',
-                        //panKey: 'shift'
-                        events: {
-                            load: function(event)
-                            {
-                                if($scope.heightsAdded == false && $scope.bsaAdded == false)
-                                {
-                                    if($scope.weightEntered == true)
-                                    {
-                                        //get the current graph with only the weights
-                                        var weightsOnlyChart = angular.copy(this);
-
-                                        $scope.heightsAdded = true; //put this here or else highcharts goes in an infinite loop and causes a stack error
-                                        $scope.bsaAdded = true;
-
-                                        //create and send a pdf to Oacis
-                                        //also convert our hightchart into svg, encode it, and give it to the script
-                                        $http({
-                                            url: "perl/createWeightDocument.pl",
-                                            method: "POST",
-                                            data: window.btoa(weightsOnlyChart.getSVG()),
-                                            params:
-                                            {
-                                                    patientId: patient.PatientId,
-                                                    firstName: patient.FirstName,
-                                                    lastName: patient.LastName
-                                            }
-                                        });
-                                    }
-
-                                    //add in the heights now
-                                    $scope.historicalChart.config.series =
-                                    [
-                                        {
-                                            showInLegend: true,
-                                            name: "Weight (kg)",
-                                            color: "blue",
-                                            unit: ' kg',
-                                            data: weights
-                                        },
-                                        {
-                                            showInLegend: true,
-                                            name: "Height (cm)",
-                                            color: 'green',
-                                            unit: ' cm',
-                                            data: heights,
-                                            visible: false
-                                        },
-                                        {
-                                            showInLegend: true,
-                                            name: "BSA (m<sup>2</sup>)",
-                                            color: "purple",
-                                            unit: ' m<sup>2</sup>',
-                                            data: bsas,
-                                            visible: false
-                                        }
-                                    ];
-
-                                    $scope.heightsAdded = true;
-                                    $scope.bsaAdded = true;
-                                }
-                            }
-                        }
-                    },
-                    title: {text:'Historical Measurements'},
-                    rangeSelector: {
-                        enabled: true,
-                        selected: 1
-                    },
-                    xAxis: {
-                        type:'datetime',
-                        crosshair: true
-                    },
-                    yAxis: {
-                        title: {text: "Measurement"}
-                    },
-                    legend: {
-                        useHTML: true
-                    },
-                    plotOptions: {
-                        series: {
-                            marker: {enabled: true,},
-                            point: {
-                                events: {
-                                    //click: function() {console.log(this);},
-                                    //mouseOver: function() {console.log(this);}
-                                }
-                            },
-                            stickyTracking: false,
-                            //findNearestPointBy: 'xy'
-                        }
-                    },
-                    tooltip: {
-                        formatter: function()
-                        {
-                            if(this.x % 2 === 0)
-                            {
-                                tooltipString = '<span style="font-size: 10px">'+$filter('date')(this.x,'EEEE, MMM dd, yyyy');
-                                angular.forEach(this.points,function (point)
-                                {
-                                    tooltipString += '</span><br/><span style="color:'+point.color+'">\u25CF</span> '+point.series.name+': <b>'+point.y+'</b><br/>';
-                                });
-
-                                return tooltipString;
-                            }
-                            else {return false;}
-                        },
-                        useHTML: true,
-                        shared: true,
-                        snap: 10
-                    },
-                    series: [
-                        {
-                            showInLegend:true,
-                            name: "Weight (kg)",
-                            color: "blue",
-                            unit: ' kg',
-                            data: weights
-                        }
-                    ],
-                    exporting:{fallbackToExportServer: false}
-                }
-            };
+            return chart;
         });
-    }
-    $scope.getHistoricalMeasurements();
-
-    //End Highcharts Section =================================================
-
+    };
 }

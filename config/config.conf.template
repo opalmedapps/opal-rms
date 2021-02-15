@@ -11,6 +11,9 @@ IMAGE_PATH                      =
 IMAGE_URL                       =
 LOG_PATH                        =
 
+OIE_URL                         =
+HIGHCHARTS_URL                  =
+
 [alert]
 EMAIL[]                         =
 
@@ -44,8 +47,6 @@ QUESTIONNAIRE_USERNAME          =
 QUESTIONNAIRE_PASSWORD          =
 
 [opal]
-OPAL_CHECKIN_URL                =
-OPAL_NOTIFICATION_URL           =
 OPAL_ADMIN_URL                  =
 
 [sms]

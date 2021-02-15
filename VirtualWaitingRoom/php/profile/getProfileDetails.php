@@ -3,13 +3,13 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\Database;
 
 //get webpage parameters
-$profileId = utf8_decode_recursive($_GET["profileId"]);
-$clinicalArea = utf8_decode_recursive($_GET["clinicalArea"] ?? NULL);
-$ignoreAutoResources = $_GET['ignoreAutoResources'] ?? 0;
+$profileId = Encoding::utf8_decode_recursive($_GET["profileId"]);
+$clinicalArea = Encoding::utf8_decode_recursive($_GET["clinicalArea"] ?? NULL);
 
 $json = []; //output array
 
@@ -18,7 +18,6 @@ $appointments = [];
 $intermediateVenues = [];
 $treatmentVenues = [];
 $examRooms = [];
-$clinics = [];
 
 //connect to db
 $dbh = Database::getOrmsConnection();
@@ -32,10 +31,7 @@ $queryProfile = $dbh->prepare("
         Profile.ProfileId,
         Profile.Category,
         Profile.Speciality,
-        Profile.ClinicalArea,
-        Profile.FetchResourcesFromVenues,
-        Profile.FetchResourcesFromClinics,
-        Profile.ShowCheckedOutAppointments
+        Profile.ClinicalArea
     FROM
         Profile
     WHERE
@@ -44,32 +40,27 @@ $queryProfile = $dbh->prepare("
 //process results
 $queryProfile->execute([$profileId]);
 
-$row = $queryProfile->fetchAll()[0] ?? NULL;
+$profile = $queryProfile->fetchAll()[0] ?? NULL;
 
-if($row === NULL) {
+if($profile === NULL) {
     echo "{}";
     exit;
 }
 
-$json['ProfileSer'] = $row['ProfileSer'];
-$json['ProfileId'] = $row['ProfileId'];
-$json['Category'] = $row['Category'];
-$json['Speciality'] = $row['Speciality'];
-$json['ClinicalArea'] = $row['ClinicalArea'];
-$json['FetchResourcesFromVenues'] = $row['FetchResourcesFromVenues'];
-$json['FetchResourcesFromClinics'] = $row['FetchResourcesFromClinics'];
-$json['ShowCheckedOutAppointments'] = $row['ShowCheckedOutAppointments'];
-$json['WaitingRoom'] = "WAITING ROOM";
-$json['IntermediateVenues'] = [];
-$json['TreatmentVenues'] = [];
-$json['Resources'] = [];
-$json['ExamRooms'] = [];
-$json['Clinics'] = [];
-$json['Appointments'] = [];
-$json['ColumnsDisplayed'] = [];
+$json['ProfileSer']           = $profile['ProfileSer'];
+$json['ProfileId']            = $profile['ProfileId'];
+$json['Category']             = $profile['Category'];
+$json['Speciality']           = $profile['Speciality'];
+$json['ClinicalArea']         = $profile['ClinicalArea'];
+$json['WaitingRoom']          = "WAITING ROOM";
+$json['IntermediateVenues']   = [];
+$json['TreatmentVenues']      = [];
+$json['Resources']            = [];
+$json['ExamRooms']            = [];
+$json['Appointments']         = [];
+$json['ColumnsDisplayed']     = [];
 
 //if there profile has no assigned clinical area, use the one provided by the user
-//if the user provided a clinical area, use it
 if($clinicalArea) $json['ClinicalArea'] = $clinicalArea;
 
 //if a location is specified, set the associated waiting room
@@ -143,153 +134,6 @@ foreach($queryOptions->fetchAll() as $row)
         $json['ExamRooms'][] = $row;
     }
     else if($row['Type'] == 'Resource') {$resources[] = $row['Options'];}
-    else if($row['Type'] == 'Clinic')
-    {
-        $clinics[] = $row['Options'];
-    }
-}
-
-//=============================================================
-//Get additional settings
-//=============================================================
-if($ignoreAutoResources != 1)
-{
-    //we only get exam rooms/resources from clinics that are "active"
-    $rightNow = date("D-H");
-    $rightNow = explode("-",$rightNow); //index 0 is the week day, index 1 the time (hour)
-
-    if($rightNow[1] < 12) {$rightNow[1] = 'AM';}
-    else {$rightNow[1] = 'PM';}
-
-    //if the profile has an intermediate venue (probably because its a profile meant to be used at a specific location), we get all associated resources and exam rooms
-    //however, we only do this if the profile autofetch feature is on
-    if($json['FetchResourcesFromVenues'] and ($intermediateVenues or $treatmentVenues))
-    {
-        $interVenueList = implode("','",$intermediateVenues+$treatmentVenues);
-
-        //get associated exam rooms from venues
-        $queryExamRooms = $dbh->prepare("
-            SELECT DISTINCT
-                ExamRoom.AriaVenueId
-            FROM
-                IntermediateVenue
-                INNER JOIN ExamRoom ON ExamRoom.IntermediateVenueSerNum = IntermediateVenue.IntermediateVenueSerNum
-            WHERE
-                IntermediateVenue.AriaVenueId IN ('$interVenueList')
-        ");
-        $queryExamRooms->execute();
-
-        foreach($queryExamRooms->fetchAll() as $row)
-        {
-            $examRooms[] = $row['AriaVenueId'];
-        }
-
-        //get associated resources from venues
-
-        //in the database, all most resources for the TX areas are associated with TX AREA A even though they should also be associated to other areas
-        //so we have to convert some of the intermediate venues
-        $convertedVenues = [];
-        foreach($intermediateVenues+$treatmentVenues as $val)
-        {
-            $convertedVenues[] = $val;
-        }
-
-        foreach($convertedVenues as &$val)
-        {
-            if($val == 'TX AREA B'
-                || $val == 'TX AREA C'
-                || $val == 'TX AREA D'
-                || $val == 'TX AREA E'
-                || $val == 'TX AREA F'
-                || $val == 'TX AREA G'
-                || $val == 'TX AREA H'
-                || $val == 'TX AREA U'
-                || $val == 'pharmacy'
-                || $val == 'PodA'
-                || $val == 'PodB'
-                || $val == 'PodC')
-            {$val = 'TX AREA A';}
-        }
-
-        $queryResources = $dbh->prepare("
-            SELECT DISTINCT
-            ClinicResources.ResourceName
-        FROM
-            ClinicResources
-            INNER JOIN ClinicSchedule ON ClinicSchedule.ClinicScheduleSerNum = ClinicResources.ClinicScheduleSerNum
-                AND ClinicSchedule.Day = '$rightNow[0]'
-                AND ClinicSchedule.AMPM = '$rightNow[1]'
-            INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
-            INNER JOIN IntermediateVenue ON IntermediateVenue.IntermediateVenueSerNum = ExamRoom.IntermediateVenueSerNum
-                AND IntermediateVenue.AriaVenueId IN ('". implode("','",$convertedVenues) ."')
-        WHERE
-            ClinicResources.Speciality = '$json[Speciality]'
-        ");
-        $queryResources->execute();
-
-        foreach($queryResources->fetchAll() as $row)
-        {
-            $resources[] = $row['ResourceName'];
-        }
-    }
-
-    //same thing for clinics
-    //if the FetchResourcesFromClinic is on we get exam rooms and resources associated with the clinics
-    if($json['FetchResourcesFromClinics'] and $clinics)
-    {
-        //get associated exam rooms from clinics
-        $queryExamRooms = $dbh->prepare("
-            SELECT DISTINCT
-                ExamRoom.AriaVenueId
-            FROM
-                ClinicSchedule
-                INNER JOIN ExamRoom ON ExamRoom.ExamRoomSerNum = ClinicSchedule.ExamRoomSerNum
-            WHERE
-                ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
-                AND ClinicSchedule.Day = '$rightNow[0]'
-                AND ClinicSchedule.AMPM = '$rightNow[1]'
-        ");
-        $queryExamRooms->execute();
-
-        foreach($queryExamRooms->fetchAll() as $row)
-        {
-            $examRooms[] = $row['AriaVenueId'];
-        }
-
-        //get associated resources from clinics
-        $queryResources = $dbh->prepare("
-            SELECT DISTINCT
-                ClinicResources.ResourceName
-            FROM
-                ClinicSchedule
-                INNER JOIN ClinicResources ON ClinicResources.ClinicScheduleSerNum = ClinicSchedule.ClinicScheduleSerNum
-            WHERE
-                ClinicSchedule.ClinicName IN ('". implode("','",$clinics) ."')
-                AND ClinicSchedule.Day = '$rightNow[0]'
-                AND ClinicSchedule.AMPM = '$rightNow[1]'
-        ");
-        $queryResources->execute();
-
-        foreach($queryResources->fetchAll() as $row)
-        {
-            $resources[] = $row['ResourceName'];
-        }
-    }
-
-
-    //filter, uniquify and sort arrays
-    $resources = array_filter(array_unique($resources));
-    sort($resources);
-
-    $intermediateVenues = array_filter(array_unique($intermediateVenues));
-    sort($intermediateVenues);
-
-    $treatmentVenues = array_filter(array_unique($treatmentVenues));
-    sort($treatmentVenues);
-
-    $examRooms = array_filter(array_unique($examRooms));
-    sort($examRooms);
-
 }
 
 //add the type to each element of the arrays and then add them to the json return object
@@ -318,19 +162,17 @@ foreach($examRooms as $val)
 {
     $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
 }
-foreach($clinics as $val)
-{
-    $json['Clinics'][] = ['Name'=>$val,'Type'=>'Clinic'];
-}
 
-//get firebase settings
-$configs = Config::getApplicationSettings()->system;
+//get page settings
+$configs = Config::getApplicationSettings();
 
-$json["FirebaseUrl"] = $configs->firebaseUrl;
-$json["FirebaseSecret"] = $configs->firebaseSecret;
+$json["FirebaseUrl"] = $configs->system->firebaseUrl;
+$json["FirebaseSecret"] = $configs->system->firebaseSecret;
+
+$json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/checkin/{$profile['Speciality']}.json";
 
 //encode and return the json object
-$json = utf8_encode_recursive($json);
+$json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json,JSON_NUMERIC_CHECK);
 
 ?>

@@ -4,6 +4,7 @@ require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 use Orms\Database;
+use Orms\DateTime;
 use Orms\Hospital\MUHC\WebServiceInterface;
 
 $ramq = $_GET["ramq"] ?? NULL;
@@ -27,7 +28,7 @@ $query = $dbh->prepare("
         LastName,
         FirstName,
         SSN,
-        CASE WHEN SSNExpDate = 0 THEN '0000' ELSE SSNExpDate END AS SSNExpDate,
+        SSNExpDate,
         PatientId
     FROM
         Patient
@@ -38,13 +39,14 @@ $query->execute([
     ":identifier" => ($ramq !== NULL) ? $ramq : $mrn
 ]);
 
-$patients = array_map(function($x) {
+$patients = array_map(function($x) use($mrnSite) {
     return [
         "last"      => $x["LastName"],
         "first"     => $x["FirstName"],
         "ramq"      => $x["SSN"],
-        "ramqExp"   => $x["SSNExpDate"],
+        "ramqExp"   => ($x["SSNExpDate"] === "0") ? NULL : DateTime::createFromFormatN("ym",$x["SSNExpDate"])?->modifyN("first day of")?->format("Y-m-d"),
         "pid"       => $x["PatientId"],
+        "site"      => $mrnSite
     ];
 },$query->fetchAll());
 
@@ -52,6 +54,17 @@ if($patients === [])
 {
     if($ramq !== NULL) $patients = WebServiceInterface::findPatientByRamq($ramq);
     else               $patients = WebServiceInterface::findPatientByMrnAndSite($mrn,$mrnSite);
+
+    $patients = array_map(function($x) use($mrnSite) {
+        return [
+            "last"      => $x->lastName,
+            "first"     => $x->firstName,
+            "ramq"      => $x->ramqNumber,
+            "ramqExp"   => $x->ramqExpDate,
+            "pid"       => array_values(array_filter($x->mrns,fn($y) => $y->mrnType === $mrnSite && $y->active === "1"))[0]->mrn,
+            "site"      => $mrnSite
+        ];
+    },$patients);
 }
 
 echo json_encode([

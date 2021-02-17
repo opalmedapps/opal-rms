@@ -6,7 +6,7 @@
         "files": ["php/GlobalFunctions.php"]
     },
     "require": {
-        "php": "8.0.1",
+        "php": "8.0.2",
         "twilio/sdk": "^6.10",
         "guzzlehttp/guzzle": "^7.0",
         "ulrichsg/getopt-php": "^3.4"

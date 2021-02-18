@@ -2,7 +2,7 @@
 
 namespace Orms\Util;
 
-use Orms\ArrayUtil;
+use Orms\Util\ArrayUtil;
 
 class Csv
 {

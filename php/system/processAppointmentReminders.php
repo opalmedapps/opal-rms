@@ -4,7 +4,7 @@ require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Database;
 use Orms\Sms;
-use Orms\ArrayUtil;
+use Orms\Util\ArrayUtil;
 
 #get the list of aria appointments to process
 #group appointments by patient

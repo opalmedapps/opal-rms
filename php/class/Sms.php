@@ -10,7 +10,7 @@ use Orms\Config;
 use Orms\SmsConfig;
 use Orms\Database;
 use Orms\Sms\{SmsTwilio,SmsCdyne,SmsInterface,SmsReceivedMessage};
-use Orms\ArrayUtil;
+use Orms\Util\ArrayUtil;
 use Orms\Logger;
 use PDOException;
 

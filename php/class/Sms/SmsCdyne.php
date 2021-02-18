@@ -10,7 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 
 use Orms\Config;
-use Orms\ArrayUtil;
+use Orms\Util\ArrayUtil;
 use Orms\Sms\{SmsInterface,SmsReceivedMessage};
 
 class SmsCdyne implements SmsInterface

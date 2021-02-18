@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Orms\Config;
 use Orms\Database;
 use Orms\Sms;
-use Orms\ArrayUtil;
+use Orms\Util\ArrayUtil;
 
 $checkInScriptUrl = Config::getApplicationSettings()->environment->baseUrl ."/php/system/checkInPatientAriaMedi.php";
 

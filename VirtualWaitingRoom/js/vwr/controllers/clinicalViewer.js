@@ -416,6 +416,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             $scope.tableData = $scope.tableData.filter(function(app) {
                 return !/blood/.test(app.appName);
             });
+            for (data of $scope.tableData){
+                data.zoomLinkSent = false;
+            }
 
             if($scope.inputs.type == 'all') {$scope.titleLabel = 'All';}
             else if($scope.inputs.type == 'specific') {$scope.titleLabel = clinics;}
@@ -517,7 +520,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                         resName: appoint.appName
                     }
             });
-            $scope.zoomLinkSent = true;
+            appoint.zoomLinkSent = true;
             alert("The message should have been sent.");
         }
         else{
@@ -657,9 +660,9 @@ app.factory('callScript',function($http,$q)
             }
 
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType + qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&clinic="+speciality).then(function (response){
-
-
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+
+                notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType +
+                qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&clinic="+speciality).then(function (response){
                 let info = {};
                 info = response.data;
                 defer.resolve(info);

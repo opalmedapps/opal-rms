@@ -462,9 +462,9 @@
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
                 <td ng-class="(diagnosisUsed) ? 'textStyleRed': ''">{{appoint.diagnosis}}</td>
-                <td><button ng-show="appoint.SMSAlertNum && !zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && zoomLink && zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td>
+                <td><button ng-show="appoint.SMSAlertNum && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
+                    <button ng-show="appoint.SMSAlertNum && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
+                    <button ng-show="appoint.SMSAlertNum && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td>
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{appoint.QStatus}}"></span></button></center></td>
 
             </tr>

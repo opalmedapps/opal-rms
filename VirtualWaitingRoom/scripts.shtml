@@ -40,6 +40,7 @@
 <script src="js/vwr/controllers/virtualWaitingRoom.js"></script>
 <script src="js/vwr/bootstrapper.js"></script>
 <script src="js/vwr/controllers/callModal.js"></script>
+<script src="js/vwr/controllers/authDialog.js"></script>
 <script src="js/vwr//controllers/diagnosisModal.js"></script>
 <script src="js/vwr/controllers/formModal.js"></script>
 <script src="js/vwr/controllers/selectorModal.js"></script>

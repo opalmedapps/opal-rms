@@ -274,8 +274,8 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                                 password: $scope.page.password
                             }
                         })
-                            .then( response => response.data.valid)
-                            .catch( _ => null);
+                        .then( response => response.data.valid)
+                        .catch( _ => null);
 
                         $scope.page.password = ""; //clear the password field
 

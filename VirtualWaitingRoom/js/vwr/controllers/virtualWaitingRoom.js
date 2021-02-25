@@ -710,7 +710,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         }
         else
         {
-            var modalInstance = $uibModal.open({
+            $uibModal.open({
                 animation: true,
                 templateUrl: 'js/vwr/templates/callModal.htm',
                 controller: callModalController,
@@ -723,7 +723,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                         return selectedLocations;
                     }
                 }
-            }).result.then(function (result)
+            }).result.then(function(result)
             {
                 var selectedLocation = result.selectedLocation;
                 var occupyingIds = result.occupyingIds;
@@ -760,9 +760,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     };
 
     //initialize the modal function that lets us select resources/locations/appointments
-    $scope.openSelectorModal = function (options,selectedOptions,title)
+    $scope.openSelectorModal = function(options,selectedOptions,title)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/selectorModal.htm',
@@ -785,9 +785,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the questionnaire modal
     //=========================================================================
-    $scope.openQuestionnaireModal = function (patient)
+    $scope.openQuestionnaireModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/questionnaireModal.htm',
@@ -799,9 +799,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function(response)
-        {
-
         });
     }
 
@@ -809,9 +806,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the SMS modal
     //=========================================================================
-    $scope.openSMSRegistrationModal = function (patient)
+    $scope.openSMSRegistrationModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/registerSMSModal.htm',
@@ -823,9 +820,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function(response)
-        {
-
         });
     }
 
@@ -833,9 +827,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the weigh patient modal
     //=========================================================================
-    $scope.openWeightModal = function (patient)
+    $scope.openWeightModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/weightModal.htm',
@@ -847,7 +841,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function (response)
+        }).result.then(function(response)
         {
             //if the weight was updated, remove the patient from the ToBeWeighed FB array
             if(response)
@@ -864,9 +858,28 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     }
 
     //=========================================================================
+    // Open the Diagnosis modal
+    //=========================================================================
+    $scope.openDiagnosisModal = function (patient)
+    {
+        $uibModal.open({
+            animation: true,
+            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            controller: diagnosisModalController,
+            windowClass: 'diagnosisModal',
+            size: 'lg',
+            //backdrop: 'static',
+            resolve:
+            {
+                patient: function() {return patient;}
+            }
+        })
+    }
+
+    //=========================================================================
     // Open the form modal
     //=========================================================================
-    $scope.openFormModal = function (patient)
+    $scope.openFormModal = function(patient)
     {
         /*
         var modalInstance = $uibModal.open(
@@ -888,7 +901,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         $scope.completeAppointment(patient);
     }
 
-    $scope.logMessage = function (identifier,type,message)
+    $scope.logMessage = function(identifier,type,message)
     {
         $http({
             url: "php/logMessage.php",
@@ -972,25 +985,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         else if(patient.RowType === "Completed") cssClass.push("row-completed");
 
         return cssClass;
-    }
-
-    //=========================================================================
-    // Open the Diagnosis modal
-    //=========================================================================
-    $scope.openDiagnosisModal = function (patient)
-    {
-        $uibModal.open({
-            animation: true,
-            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
-            controller: diagnosisModalController,
-            windowClass: 'diagnosisModal',
-            size: 'lg',
-            //backdrop: 'static',
-            resolve:
-            {
-                patient: function() {return patient;}
-            }
-        })
     }
 
 });

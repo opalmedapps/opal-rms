@@ -88,8 +88,22 @@ class Diagnosis
      * @return Diagnosis[]
      * @throws PDOException
      */
-    static function getSubcodeList(): array
+    static function getSubcodeList(?string $filter = NULL): array
     {
+        $queryFilters = "";
+        $paramFilter = [];
+
+        if($filter !== NULL)
+        {
+            $queryFilters = "
+                AND (
+                    DS.Subcode LIKE :filter
+                    OR DS.Description LIKE :filter
+                )
+            ";
+            $paramFilter = [":filter" => "%$filter%"];
+        }
+
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
@@ -105,10 +119,11 @@ class Diagnosis
                 DiagnosisSubcode DS
                 INNER JOIN DiagnosisCode DC ON DC.DiagnosisCodeId = DS.DiagnosisCodeId
                 INNER JOIN DiagnosisChapter DH ON DH.DiagnosisChapterId = DC.DiagnosisChapterId
+                    $queryFilters
             ORDER BY
                 DS.Subcode
         ");
-        $query->execute();
+        $query->execute($paramFilter);
 
         return array_map(function($x) {
             return new Diagnosis(

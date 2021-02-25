@@ -3,7 +3,7 @@ angular.module('vwr').component('diagnosisModal',{
     controller: diagnosisModalController
 });
 
-function diagnosisModalController($scope,$http,$mdDialog,$filter,patient,diagnosisList)
+function diagnosisModalController($scope,$http,NgTableParams,patient)
 {
     $scope.patient = patient;
 
@@ -16,10 +16,10 @@ function diagnosisModalController($scope,$http,$mdDialog,$filter,patient,diagnos
     $scope.searchList = function(searchText)
     {
         if(searchText === "") {
-            return diagnosisList
+            return [];
         }
 
-        return diagnosisList.filter(x => x.subcode.includes(searchText) || x.subcodeDescription.includes(searchText));
+        return getDiagnosisCodes(searchText);
     }
 
     $scope.addPatientDiagnosis = function(diag)
@@ -52,6 +52,17 @@ function diagnosisModalController($scope,$http,$mdDialog,$filter,patient,diagnos
         .then( _ => loadPatientDiagnosis());
     }
 
+    function getDiagnosisCodes(filter)
+    {
+        return $http({
+            url: "php/diagnosis/getDiagnosisCodeList.php",
+            method: "GET",
+            params: {
+                filter: filter
+            }
+        }).then(x => x.data);
+    }
+
     function loadPatientDiagnosis()
     {
         $http({
@@ -62,7 +73,12 @@ function diagnosisModalController($scope,$http,$mdDialog,$filter,patient,diagnos
             }
         })
         .then(res => {
-            $scope.patientDiagnosisList = res.data;
+            $scope.patientDiagnosisList = new NgTableParams({
+                count: 10
+            },{
+                counts: [],
+                dataset: res.data
+            });
         });
     }
 }

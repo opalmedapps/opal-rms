@@ -195,14 +195,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 $scope.resourceLoadingEnabled = 1;
             });
 
-            $http({
-                url: "php/diagnosis/getDiagnosisCodeList.php",
-                method: "GET"
-            }).then(function (response)
-            {
-                $scope.allDiagnosisCodes = response.data;
-            });
-
             //make sure we have the right waiting room
             $scope.pageSettings.WaitingRoom = "BACK TO WAITING ROOM";
 
@@ -996,7 +988,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             //backdrop: 'static',
             resolve:
             {
-                diagnosisList: function() {return $scope.allDiagnosisCodes;},
                 patient: function() {return patient;}
             }
         })

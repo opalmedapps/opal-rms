@@ -80,7 +80,9 @@ class Opal
         return array_map(function($x) {
             return [
                 "isExternalSystem"  => 1,
-                // "diagnosisDate"     => new DateTime($x[""])
+                "status"            => "Active",
+                "createdDate"       => $x["CreationDate"],
+                "updatedDate"       => $x["LastUpdated"],
                 "diagnosis"         => [
                     "subcode"               => $x["DiagnosisCode"],
                     "subcodeDescription"    => $x["Description_EN"]

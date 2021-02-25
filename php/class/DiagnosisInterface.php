@@ -28,9 +28,9 @@ class DiagnosisInterface
      * @return Diagnosis[]
      * @throws PDOException
      */
-    static function getDiagnosisCodeList(): array
+    static function getDiagnosisCodeList(?string $filter = NULL): array
     {
-        return Diagnosis::getSubcodeList();
+        return Diagnosis::getSubcodeList($filter);
     }
 
     /**

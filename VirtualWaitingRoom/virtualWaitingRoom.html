@@ -141,10 +141,7 @@
                         </span>
                     </span>
 
-                    <span ng-switch-when="Diagnosis">
-                        <a ng-if="patient.DiagnosisCode" ng-click="openDiagnosisModal(patient)">{{patient.DiagnosisDescription}}</a>
-                        <a ng-if="!patient.DiagnosisCode" ng-click="openDiagnosisModal(patient)">Add Diagnosis</a>
-                    </span>
+                    <button ng-switch-when="Diagnosis" ng-click="openDiagnosisModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative;background-color: #6dbd16;border-color: #379009;">View</button>
 
                     <span ng-switch-when="PatientName">
                         {{patient.LastName}}, {{patient.FirstName}}<br>

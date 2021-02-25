@@ -23,7 +23,7 @@
       padding-top: 12px;
       padding-bottom: 12px;
       text-align: left;
-      background-color: #4CAF50;
+      background-color: #4CAF50 !important;
       color: white;
     }
 
@@ -47,14 +47,14 @@
 
         <div style="display: flex;margin: 10px">
             <div style="width: 40%;">
-                <!-- md-delay="1000" -->
-                <!-- look at https://material.angularjs.org/latest/api/directive/mdAutocomplete#asynchronous-results for calling the backend -->
                 <md-autocomplete
                     md-selected-item="userSelectedDiagnosis"
                     md-items="diag in searchList(diagSearchText)"
                     md-item-text="diag.subcode"
                     placeholder="Select Diagnosis"
                     md-search-text="diagSearchText"
+                    md-delay="1000"
+                    md-min-length=3
                     md-menu-container-class="custom-container"
                     class="custom-container"
                 >
@@ -77,21 +77,22 @@
             </div>
         </div>
 
-        <table class="diag-list">
-            <tr>
+        <table ng-table="patientDiagnosisList" class="diag-list">
+            <!-- <tr>
                 <th>ICD-10 Code</th>
                 <th>Diagnosis Description</th>
                 <th>Diagnosis Date</th>
                 <th>Action</th>
-            </tr>
-            <tr ng-repeat="diag in patientDiagnosisList">
-                <td>{{diag.diagnosis.subcode}}</td>
-                <td>{{diag.diagnosis.subcodeDescription}}</td>
-                <td>{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
-                <td>
+            </tr> -->
+            <tr ng-repeat="diag in $data" ng-style="{ 'background-color' : (diag.isExternalSystem === 1) ? '#b9b9b9' : 'white' }">
+                <td title="'ICD-10 Code'" sortable="'diagnosis.subcode'">{{diag.diagnosis.subcode}}</td>
+                <td title="'Diagnosis Description'" sortable="'diagnosis.subcodeDescription'">{{diag.diagnosis.subcodeDescription}}</td>
+                <td title="'Diagnosis Date'" sortable="'diagnosisDate'">{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
+                <td title="'Action'" sortable="'isExternalSystem'" style="text-align: center;">
                     <div ng-if="diag.isExternalSystem !== 1" class="text-center animate-show" ng-click="deletePatientDiagnosis(diag)">
                         <input type="button" class="btn btn-danger btn-block btn-que" value="Delete"/>
                     </div>
+                    <span ng-if="diag.isExternalSystem === 1">From Opal</span>
                 </td>
             </tr>
         </table>

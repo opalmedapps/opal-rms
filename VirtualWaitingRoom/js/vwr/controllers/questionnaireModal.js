@@ -39,7 +39,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
             templateUrl: './js/vwr/templates/authDialog.htm',
             controller: authDialogController
         })
-        .ariaLabel('Auth Dialog')
         .clickOutsideToClose(true);
 
         $mdDialog.show(answer).then( result => {

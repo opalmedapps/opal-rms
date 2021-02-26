@@ -3,7 +3,7 @@ angular.module('vwr').component('diagnosisModal',{
     controller: diagnosisModalController
 });
 
-function diagnosisModalController($scope,$http,NgTableParams,patient)
+function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
 {
     $scope.patient = patient;
 
@@ -24,32 +24,44 @@ function diagnosisModalController($scope,$http,NgTableParams,patient)
 
     $scope.addPatientDiagnosis = function(diag)
     {
-        $http({
-            url: "./php/diagnosis/insertPatientDiagnosis.php",
-            method: "GET",
-            params: {
-                patientId: patient.PatientId,
-                diagnosisId: diag.id,
-                diagnosisDate: (new Date($scope.userSelectedDate)).toLocaleDateString()
-            }
-        })
-        .then( _ => loadPatientDiagnosis());
+        let func = function(username)
+        {
+            return $http({
+                url: "./php/diagnosis/insertPatientDiagnosis.php",
+                method: "GET",
+                params: {
+                    patientId: patient.PatientId,
+                    diagnosisId: diag.id,
+                    diagnosisDate: (new Date($scope.userSelectedDate)).toLocaleDateString(),
+                    user: username
+                }
+            })
+            .then( _ => loadPatientDiagnosis())
+        }
+
+        authenticateUser(func);
     }
 
     $scope.deletePatientDiagnosis = function(patientDiagnosis)
     {
-        $http({
-            url: "./php/diagnosis/updatePatientDiagnosis.php",
-            method: "GET",
-            params: {
-                patientId: patientDiagnosis.patientId,
-                patientDiagnosisId: patientDiagnosis.id,
-                diagnosisId: patientDiagnosis.diagnosis.id,
-                diagnosisDate: patientDiagnosis.diagnosisDate,
-                status: "Deleted"
-            }
-        })
-        .then( _ => loadPatientDiagnosis());
+        let func = function(username)
+        {
+            $http({
+                url: "./php/diagnosis/updatePatientDiagnosis.php",
+                method: "GET",
+                params: {
+                    patientId: patientDiagnosis.patientId,
+                    patientDiagnosisId: patientDiagnosis.id,
+                    diagnosisId: patientDiagnosis.diagnosis.id,
+                    diagnosisDate: patientDiagnosis.diagnosisDate,
+                    status: "Deleted",
+                    user: username
+                }
+            })
+            .then( _ => loadPatientDiagnosis());
+        }
+
+        authenticateUser(func);
     }
 
     function getDiagnosisCodes(filter)
@@ -80,5 +92,17 @@ function diagnosisModalController($scope,$http,NgTableParams,patient)
                 dataset: res.data
             });
         });
+    }
+
+    function authenticateUser(func)
+    {
+        let answer = $mdDialog.confirm(
+        {
+            templateUrl: './js/vwr/templates/authDialog.htm',
+            controller: authDialogController
+        })
+        .clickOutsideToClose(true);
+
+        $mdDialog.show(answer).then( username => func(username));
     }
 }

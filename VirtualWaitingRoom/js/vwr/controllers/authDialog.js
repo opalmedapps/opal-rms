@@ -10,7 +10,7 @@ function authDialogController($scope,$http,$cookies,$mdDialog)
         password: "",
         message: ""
     };
-    $scope.Title = 'Login to mark as Reviewed';
+    $scope.Title = "Authenticate to complete action";
 
     $scope.authenticate = async function()
     {

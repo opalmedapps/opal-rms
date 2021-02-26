@@ -115,23 +115,24 @@ class PatientDiagnosis
         );
     }
 
-    static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate): int
+    static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate,string $user): int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             INSERT INTO PatientDiagnosis(PatientSerNum,DiagnosisSubcodeId,DiagnosisDate,Status,UpdatedBy)
-            VALUES (:pId,:dId,:dDate,'Active','SYSTEM')
+            VALUES (:pId,:dId,:dDate,'Active',:user)
         ");
         $query->execute([
             ":pId"      => $patientId,
             ":dId"      => $diagnosisSubcodeId,
-            ":dDate"    => $diagnosisDate->format("Y-m-d H:i:s")
+            ":dDate"    => $diagnosisDate->format("Y-m-d H:i:s"),
+            ":user"     => $user
         ]);
 
         return (int) $dbh->lastInsertId();
     }
 
-    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status): int
+    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status,string $user): int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -140,6 +141,7 @@ class PatientDiagnosis
                 DiagnosisSubcodeId = :codeId
                 ,DiagnosisDate = :dDate
                 ,Status = :status
+                ,UpdatedBy = :user
             WHERE
                 PatientDiagnosisId = :pdId
         ");
@@ -147,7 +149,8 @@ class PatientDiagnosis
             ":pdId"     => $patientDiagnosisId,
             ":codeId"   => $diagnosisId,
             "dDate"     => $diagnosisDate->format("Y-m-d H:i:s"),
-            ":status"   => $status
+            ":status"   => $status,
+            ":user"     => $user
         ]);
 
         return $patientDiagnosisId;

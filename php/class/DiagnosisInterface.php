@@ -9,16 +9,16 @@ use PDOException;
 
 class DiagnosisInterface
 {
-    static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate): PatientDiagnosis
+    static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate,string $user): PatientDiagnosis
     {
-       $insertedId = PatientDiagnosis::insertPatientDiagnosis($patientId,$diagnosisSubcodeId,$diagnosisDate);
+       $insertedId = PatientDiagnosis::insertPatientDiagnosis($patientId,$diagnosisSubcodeId,$diagnosisDate,$user);
 
        return PatientDiagnosis::getDiagnosisById($insertedId);
     }
 
-    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status): PatientDiagnosis
+    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status,string $user): PatientDiagnosis
     {
-        $updatedId = PatientDiagnosis::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status);
+        $updatedId = PatientDiagnosis::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status,$user);
 
         return PatientDiagnosis::getDiagnosisById($updatedId);
     }

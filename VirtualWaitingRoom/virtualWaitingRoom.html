@@ -6,9 +6,6 @@
 
 <!--#include virtual="./scripts.shtml" -->
 
-<!-- css -->
-<link rel="stylesheet" href="/VirtualWaitingRoom/css/vwrStyle.css">
-
 </head>
 
 <body>
@@ -141,14 +138,30 @@
                         </span>
                     </span>
 
-                    <button ng-switch-when="Diagnosis" ng-click="openDiagnosisModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative;background-color: #6dbd16;border-color: #379009;">View</button>
+                    <div ng-switch-when="Diagnosis" class="diagnosis-hover">
+                        <button ng-click="openDiagnosisModal(patient)" class="btn btn-info btn-diagnosis" ng-mouseover="loadPatientDiagnosis(patient)">View</button>
+                        <span class="diagnosis-table">
+                            <table style="width: 100%;margin: 5px">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                </tr>
+                                <tr ng-repeat="diag in lastPatientDiagnosisList">
+                                    <td>{{diag.diagnosis.subcode}}</td>
+                                    <td>{{diag.diagnosis.subcodeDescription}}</td>
+                                    <td>{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
+                                </tr>
+                            </table>
+                        </span>
+                    </div>
 
                     <span ng-switch-when="PatientName">
                         {{patient.LastName}}, {{patient.FirstName}}<br>
                         <span>({{patient.Mrn}})</span>
                     </span>
 
-                    <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{patient.QStatus}}"></span></button>
+                    <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info btn-questionnaire">View<span class="alert-circle {{patient.QStatus}}"></span></button>
 
                     <span ng-switch-when="RemainingTime" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">

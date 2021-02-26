@@ -876,6 +876,20 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         })
     }
 
+    $scope.loadPatientDiagnosis = function(patient)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: patient.PatientId
+            }
+        })
+        .then(res => {
+            $scope.lastPatientDiagnosisList = res.data
+        });
+    }
+
     //=========================================================================
     // Open the form modal
     //=========================================================================

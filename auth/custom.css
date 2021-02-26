@@ -202,7 +202,7 @@ html { height:100%; }
     border-width: 5px;
     border-style: solid;
     border-color: transparent transparent black transparent;
-  }
+}
 
 .help-text {
     visibility: hidden;

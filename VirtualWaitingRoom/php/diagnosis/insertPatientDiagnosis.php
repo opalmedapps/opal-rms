@@ -7,11 +7,12 @@ use Orms\DateTime;
 use Orms\Patient;
 use Orms\Opal;
 
-$patientId = (int) $_GET["patientId"];
-$diagnosisId = (int) $_GET["diagnosisId"];
-$diagnosisDate = new DateTime($_GET["diagnosisDate"]);
+$patientId      = (int) $_GET["patientId"];
+$diagnosisId    = (int) $_GET["diagnosisId"];
+$diagnosisDate  = new DateTime($_GET["diagnosisDate"]);
+$user           = $_GET["user"];
 
-$newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId,$diagnosisId,$diagnosisDate);
+$newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId,$diagnosisId,$diagnosisDate,$user);
 
 //export the diagnosis to external systems
 $mrn = Patient::getPatientById($patientId)->patientId;

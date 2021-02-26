@@ -59,12 +59,12 @@ $queryInsertPreviousCheckIn->execute([$patientLocationSerNum,$patientLocationRev
 // remove appointment from PatientLocation table
 $sql_delete_previousCheckin= "DELETE FROM PatientLocation WHERE PatientLocationSerNum= $patientLocationSerNum";
 
-$result = $dbh->query($sql_delete_previousCheckin);
+$dbh->query($sql_delete_previousCheckin);
 
 
 // update MediVisitAppointmentList table to show that appointment is no longer open
 $sql_closeApt = "UPDATE MediVisitAppointmentList SET Status = 'Completed' WHERE AppointmentSerNum = $appointmentSerNum";
-$result = $dbh->query($sql_closeApt);
+$dbh->query($sql_closeApt);
 
 //#############################################################################################
 //### At this stage the patient has been discharged from the specified appointment ###

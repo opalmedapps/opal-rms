@@ -20,21 +20,6 @@ $wsResponseFR = 'R�ponse';
 $LastValueEN = 'Final Value';
 $LastValueFR = 'TR_Final Value';
 
-$wsNameEN = 'Name';
-$wsNameFR = 'Nom';
-
-$wsAgeEN = 'Age';
-$wsAgeFR = '�ge';
-
-$wsSexEN = 'Sex';
-$wsSexFR = 'Sexe';
-
-$wsLanguageEN = 'Language';
-$wsLanguageFR = 'Langue';
-
-$day = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-$month = ["janvier", "f�vrier", "mars", "avril", "mai", "juin", "juillet", "ao�t", "septembre", "octobre", "novembre", "d�cembre"];
-
 // Get Patient ID
 $wsPatientID = $_GET['mrn'] ?? NULL;
 
@@ -47,21 +32,11 @@ $wsReportID = $_GET['rptID'] ?? NULL;
 // Exit if Report ID is empty
 if ($wsReportID === NULL) exit("No questionnaire id!");
 
-$wsExportFlag = 0;
-
 // Connect to the database
 $connection = Database::getQuestionnaireConnection();
 $connectionOpal = Database::getOpalConnection();
 
 if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
-
-// Get the title of the report
-$qSQLTitle = $connectionOpal->prepare("Select * from QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
-$qSQLTitle->execute();
-$rowTitle = $qSQLTitle->fetchAll()[0];
-
-$wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
-$wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
 // Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
 $qSQLPI = $connectionOpal->prepare("
@@ -116,10 +91,6 @@ foreach($qSQLSeries->fetchAll() as $rowSQLSeries)
 if($wsLanguage === "EN")
 {
     $wsResponse = $wsResponseEN;
-    $wsReportTitle = $wsReportTitleEN;
-    $wsName = $wsNameEN;
-    $wsAge = $wsAgeEN;
-    $wsSex = $wsSexEN;
     $wsLastValue = $LastValueEN;
 
     $wsMonth = $wsMonthEN;
@@ -129,10 +100,6 @@ if($wsLanguage === "EN")
 else
 {
     $wsResponse = $wsResponseFR;
-    $wsReportTitle = $wsReportTitleFR;
-    $wsName = $wsNameFR;
-    $wsAge = $wsAgeFR;
-    $wsSex = $wsSexFR;
     $wsLastValue = $LastValueFR;
 
     $wsMonth = $wsMonthFR;
@@ -151,7 +118,6 @@ $jstring = [
     "qData" => []
 ];
 
-$wsSeries_Title = '';
 $wsChartCounter = 0;
 
 //for each question in the questionnaire, generate a highcharts object and add it to the JSON return string

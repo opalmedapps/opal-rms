@@ -151,7 +151,7 @@ usort($resources,function($x,$y) {
 
 #create a "Summary" resource containing all the data from all the resources
 $summary = [];
-foreach($resources as $res => $val) {
+foreach($resources as $val) {
     $summary[] = $val;
 }
 $summary = array_merge_recursive(...$summary);

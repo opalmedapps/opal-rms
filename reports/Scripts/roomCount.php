@@ -63,8 +63,6 @@ $query->execute([
     ":eTime" => $eTime,
 ]);
 
-$usageCounts = []; #indicates the number of times a room was used for an specific appointment name
-
 $dataArr = ArrayUtil::groupArrayByKeyRecursive(utf8_encode_recursive($query->fetchAll()),"CheckinVenueName","ResourceName");
 
 $flattenedArr = [];

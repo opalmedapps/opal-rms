@@ -30,7 +30,6 @@ $appcType = $_GET["ctype"] ?? NULL;
 $cspecificApp = $_GET["cspecificType"] ?? "NULL";
 $appdType = $_GET["dtype"] ?? NULL;
 $dspecificApp = $_GET["dspecificType"] ?? "NULL";
-$checkRamqExpiration = isset($_GET["checkRamqExpiration"]) ? TRUE : NULL;
 $qType = $_GET["qtype"] ?? NULL;
 $qspecificApp = $_GET["qspecificType"] ?? "NULL";
 $qDateInit = $_GET["qselectedDate"] ?? NULL;
@@ -276,16 +275,6 @@ if(!$afilter) {
         else $filterAppointment = FALSE;
 
         if ($filterAppointment) continue;
-
-        #if ramq expiration checking is enabled, check if the ramq is expired
-        /*
-            $ramqExpired = FALSE;
-            if ($checkRamqExpiration) {
-                $ramqInfo = AdtWebservice::getRamqInformation($row["SSN"]);
-                $row["ssnExp"] = $ramqInfo["Expiration"];
-                if ($ramqInfo["Status"] === "Expired" || $ramqInfo["Status"] === "Error") $ramqExpired = TRUE;
-            }
-        */
 
         #perform some processing
         if (isset($row["ssnExp"]) && $row["ssnExp"] !== NULL) $row["ssnExp"] = (new DateTime($row["ssnExp"]))->format("ym");

@@ -1,47 +1,12 @@
 <?php declare(strict_types=1);
-/*
-rptID 11 = Patient Satisfactory Questionnaires
-rptID 19 = Opal Feedback
-rptID 20 = Patient Acceptibility
-rptID 21 = Information about diagnosis and prognosis of cancer disease
-*/
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
 use Orms\Database;
 
 // define some constants
-$wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
-$wsShortMonthEN = "'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'";
-$wsWeekDaysEN = "'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'";
-
-$wsMonthFR = "'Janvier', 'F�vrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao�t', 'Septembre', 'Octobre', 'Novembre', 'D�cembre'";
-$wsShortMonthFR = "'jan', 'f�v', 'mar', 'avr', 'mai', 'juin', 'juil', 'ao�', 'sep', 'oct', 'nov', 'd�c'";
-$wsWeekDaysFR = "'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'";
-
-$wsResponseEN = 'Response';
-$wsResponseFR = 'R�ponse';
-
-$LastValueEN = 'Final Value';
-$LastValueFR = 'TR_Final Value';
-
-$wsNameEN = 'Name';
-$wsNameFR = 'Nom';
-
-$wsAgeEN = 'Age';
-$wsAgeFR = '�ge';
-
-$wsSexEN = 'Sex';
-$wsSexFR = 'Sexe';
-
-$wsLanguageEN = 'Language';
-$wsLanguageFR = 'Langue';
-
 $day = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 $month = ["janvier", "f�vrier", "mars", "avril", "mai", "juin", "juillet", "ao�t", "septembre", "octobre", "novembre", "d�cembre"];
-
-$wsBackgroundColor = '#33B8FF';
 
 // Get Patient ID
 // Get Patient ID
@@ -53,21 +18,11 @@ if ($wsPatientID === NULL) exit("No mrn!");
 // Get Report ID
 $wsReportID = $_GET['rptID'] ?? NULL;
 
-$wsExportFlag = 0;
-
 // Connect to the database
 $connection = Database::getQuestionnaireConnection();
 $connectionOpal = Database::getOpalConnection();
 
 if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
-
-// Get the title of the report
-$qSQLTitle = $connectionOpal->prepare("Select * from QuestionnaireControl where QuestionnaireDBSerNum = $wsReportID;");
-$qSQLTitle->execute();
-$rowTitle = $qSQLTitle->fetchAll()[0];
-
-$wsReportTitleEN = $rowTitle['QuestionnaireName_EN'];
-$wsReportTitleFR = $rowTitle['QuestionnaireName_FR'];
 
 // Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
 $qSQLPI = $connectionOpal->prepare("
@@ -82,26 +37,6 @@ $wsPatientSerNum = $rowPI['PatientSerNum'];
 
 // Get the patient preferred language
 $wsLanguage = $rowPI['Language'];
-// $wsLanguage = 'FR'; // TEST ONLY
-
-// Prepare the display based on the language
-// EN = Enlgish Else French
-if($wsLanguage === "EN")
-{
-    $wsResponse = $wsResponseEN;
-    $wsReportTitle = $wsReportTitleEN;
-    $wsName = $wsNameEN;
-    $wsAge = $wsAgeEN;
-    $wsSex = $wsSexEN;
-}
-else
-{
-    $wsResponse = $wsResponseFR;
-    $wsReportTitle = $wsReportTitleFR;
-    $wsName = $wsNameFR;
-    $wsAge = $wsAgeFR;
-    $wsSex = $wsSexFR;
-};
 
 // Prepare the query to retrieve the questionnaires that only has responses
 $qSQLQR = $connection->prepare("CALL getCompletedQuestionnaireInfo($wsPatientSerNum, $wsReportID);");

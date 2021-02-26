@@ -15,7 +15,6 @@ $baseURL = Config::getApplicationSettings()->environment->baseUrl;
 $ariaURL = Config::getApplicationSettings()->aria?->checkInUrl;
 
 // Extract the webpage parameters
-$PushNotification   = 0; # default of zero
 $CheckinVenue       = !empty($_GET["CheckinVenue"]) ? $_GET["CheckinVenue"] : NULL;
 $PatientId          = !empty($_GET["PatientId"]) ? $_GET["PatientId"] : NULL;
 $PushNotification   = !empty($_GET["PushNotification"]) ? $_GET["PushNotification"] : NULL;
@@ -62,15 +61,7 @@ $queryApptMedivisit->execute();
 // output data of each row
 foreach($queryApptMedivisit->fetchAll() as $row)
 {
-    #$MV_PatientId = $row["PatientId"];
-    $MV_PatientFirstName        = $row["FirstName"];
-    $MV_PatientLastName         = $row["LastName"];
-    $MV_ScheduledStartTime      = $row["ScheduledDateTime"];
-    $MV_ApptDescription         = $row["AppointmentCode"];
-    $MV_Resource                = $row["ResourceDescription"];
-    $MV_AptTimeSinceMidnight    = $row["AptTimeSinceMidnight"];
     $MV_AppointmentSerNum       = $row["AppointmentSerNum"];
-    $MV_Status                  = $row["Status"];
 
     # since a script exists for this, best to call it here rather than rewrite the wheel
     try {

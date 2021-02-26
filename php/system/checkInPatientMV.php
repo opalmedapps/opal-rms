@@ -60,7 +60,7 @@ if($PatientLocationSerNum)
     $sql_insert_previousCheckin= "INSERT INTO PatientLocationMH(PatientLocationSerNum,PatientLocationRevCount,AppointmentSerNum,CheckinVenueName,ArrivalDateTime) VALUES ('$PatientLocationSerNum','$PatientLocationRevCount','$AppointmentSerNum','$CheckinVenueName','$ArrivalDateTime')";
     echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
 
-    $result = $conn->query($sql_insert_previousCheckin);
+    $conn->query($sql_insert_previousCheckin);
 }
 
 #---------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ if($PatientLocationSerNum)
     echo "deleting existing entry in PatientLocation table<br>";
     $sql_delete_previousCheckin= "DELETE FROM PatientLocation WHERE PatientLocationSerNum=$PatientLocationSerNum";
 
-    $result = $conn->query($sql_delete_previousCheckin);
+    $conn->query($sql_delete_previousCheckin);
 
     echo "deleted...<b>";
 }

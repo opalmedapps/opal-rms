@@ -43,9 +43,6 @@ class Sms
             $serviceNumber = self::$configs->longCodes[array_rand(self::$configs->longCodes)];
         }
 
-        $messageId = NULL;
-        $result = NULL;
-
         try
         {
             $messageId = self::$smsProvider->sendSms($clientNumber,$serviceNumber,$message);

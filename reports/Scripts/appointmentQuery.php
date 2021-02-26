@@ -26,7 +26,7 @@ $notArrived     = $_GET["notArrived"];
 $clinic         = $_GET["clinic"];
 $appType        = $_GET["type"];
 $specificType   = $_GET["specificType"];
-$updateRamq     = $_GET["updateRamq"];
+// $updateRamq     = $_GET["updateRamq"];
 $mediAbsent     = $_GET["mediAbsent"];
 $mediAddOn      = $_GET["mediAddOn"];
 $mediCancelled  = $_GET["mediCancelled"];
@@ -54,8 +54,6 @@ if($appType === "specific") {
 else {
     $typeFilter = "";
 }
-
-$dateFormat = '%Y-%m-%d %H:%M:%S';
 
 #-----------------------------------------------------
 #connect to database and run queries
@@ -148,10 +146,6 @@ $appointments = array_filter($appointments,function($x) use ($arrived,$notArrive
 });
 
 $appointments = array_map(function($x) {
-
-    $creationDate = new DateTime($x["CreationDate"]);
-    $today = new DateTime();
-
     return [
         "fname"                 => $x["FirstName"],
         "lname"                 => $x["LastName"],

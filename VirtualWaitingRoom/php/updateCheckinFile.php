@@ -141,7 +141,6 @@ foreach($queryWRM->fetchAll() as $row)
         $queryOpal->execute([":mrn" => $row["Mrn"]]);
         $resultOpal = $queryOpal->fetchAll()[0] ?? [];
 
-        $lastCompleted = $resultOpal["CompletionDate"] ?? NULL;
         $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
         $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
 

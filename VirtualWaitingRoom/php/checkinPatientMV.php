@@ -67,7 +67,7 @@ if($patientLocationSerNum and !$mhSerNum)
 
     //echo "sql_insert_previousCheckin: $sql_insert_previousCheckin";
 
-    $result = $dbh->query($sql_insert_previousCheckin);
+    $dbh->query($sql_insert_previousCheckin);
 }
 
 #---------------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ if($patientLocationSerNum)
         DELETE FROM PatientLocation
         WHERE PatientLocationSerNum = $patientLocationSerNum";
 
-    $result = $dbh->query($sql_delete_previousCheckin);
+    $dbh->query($sql_delete_previousCheckin);
 
     echo "deleted...<b>";
 }

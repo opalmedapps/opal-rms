@@ -1,4 +1,4 @@
-let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies']);
+let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies','ngTable']);
 
 app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
 {
@@ -436,6 +436,36 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             }).result.then(function(response)
         {
 
+        });
+    }
+
+    $scope.openDiagnosisModal = function(appoint)
+    {
+        $uibModal.open({
+            animation: true,
+            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            controller: diagnosisModalController,
+            windowClass: 'diagnosisModal',
+            size: 'lg',
+            //backdrop: 'static',
+            resolve:
+            {
+                patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn};}
+            }
+        })
+    }
+
+    $scope.loadPatientDiagnosis = function(appoint)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: appoint.patientId
+            }
+        })
+        .then(res => {
+            $scope.lastPatientDiagnosisList = res.data
         });
     }
 

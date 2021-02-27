@@ -13,8 +13,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // Get today's date
     var today = new Date();
     var dateToday = today.getDate();
-    var monthToday = today.getMonth()+1; //January is 0!
-    var yearToday = today.getFullYear();
 
     var loadHour = today.getHours();
 
@@ -88,22 +86,17 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // Get any images that will be needed
     //=================================================
     $scope.opalLogo = "";
-    toDataURL("./images/opal_logo.png", dataUrl => {$scope.opalLogo = dataUrl;});
 
-    function toDataURL(url, callback)
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function()
     {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-          var reader = new FileReader();
-          reader.onloadend = function() {
-            callback(reader.result);
-          }
-          reader.readAsDataURL(xhr.response);
-        };
-        xhr.open('GET', url);
-        xhr.responseType = 'blob';
-        xhr.send();
-    }
+        let reader = new FileReader();
+        reader.onloadend = _ => {$scope.opalLogo = reader.result;}
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET","./images/opal_logo.png");
+    xhr.responseType = "blob";
+    xhr.send();
 
     //=========================================================================
     // Set the firebase connection
@@ -860,7 +853,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the Diagnosis modal
     //=========================================================================
-    $scope.openDiagnosisModal = function (patient)
+    $scope.openDiagnosisModal = function(patient)
     {
         $uibModal.open({
             animation: true,

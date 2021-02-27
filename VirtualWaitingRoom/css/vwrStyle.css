@@ -339,6 +339,16 @@ input[type="search"]::-webkit-search-cancel-button {
     border-color: #379009;
 }
 
+.btn-diagnosis.active.focus, .btn-diagnosis.active:focus, .btn-diagnosis.active:hover, .btn-diagnosis:active.focus, .btn-diagnosis:active:focus, .btn-diagnosis:active:hover, .open>.dropdown-toggle.btn-diagnosis.focus, .open>.dropdown-toggle.btn-diagnosis:focus, .open>.dropdown-toggle.btn-diagnosis:hover {
+    background-color: #5c9b19;
+    border-color: #379009;
+}
+
+.btn-diagnosis:hover, .btn-diagnosis:active, .btn-diagnosis:active:hover, .btn-diagnosis.focus, .btn-diagnosis:focus {
+    background-color: #5c9b19;
+    border-color: #379009;
+}
+
 .diagnosis-table {
     visibility: hidden;
     width: 500px;

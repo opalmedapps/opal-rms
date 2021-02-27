@@ -31,6 +31,20 @@
         z-index: 100000 !important;
 
     }
+
+    .text-scroll:hover {
+        position: absolute;
+
+        /* Apply animation to this element */
+        animation: text-scroll 5s linear infinite;
+        overflow: hidden;
+    }
+
+    @keyframes text-scroll {
+        0%   { transform: translateX(0%); }
+        100% { transform: translateX(-100%); }
+    }
+
 </style>
 
 <div class="modal-header">
@@ -46,21 +60,22 @@
         <h2 style="text-align:center;margin-top: 0;margin-bottom: 20px;">Diagnosis List</h2>
 
         <div style="display: flex;margin: 10px">
-            <div style="width: 40%;">
+            <div style="width: 60%;">
                 <md-autocomplete
                     md-selected-item="userSelectedDiagnosis"
                     md-items="diag in searchList(diagSearchText)"
-                    md-item-text="diag.subcode"
+                    md-item-text="diag.subcode +' : '+ diag.subcodeDescription"
                     placeholder="Select Diagnosis"
                     md-search-text="diagSearchText"
                     md-delay="1000"
                     md-min-length=3
+                    md-floating-label="Enter diagnosis code or description"
                     md-menu-container-class="custom-container"
                     class="custom-container"
                 >
                     <md-item-template>
                         <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.subcode}}</span>
-                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;">{{diag.subcodeDescription}}</span>
+                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;" class="text-scroll">{{diag.subcodeDescription}}</span>
                     </md-item-template>
                     <md-not-found>
                         No matches!
@@ -84,7 +99,7 @@
                 <th>Diagnosis Date</th>
                 <th>Action</th>
             </tr> -->
-            <tr ng-repeat="diag in $data" ng-style="{ 'background-color' : (diag.isExternalSystem === 1) ? '#b9b9b9' : 'white' }">
+            <tr ng-repeat="diag in $data" ng-style="{ 'background-color' : (diag.isExternalSystem === 1) ? '#c0ff9f' : 'white' }">
                 <td title="'ICD-10 Code'" sortable="'diagnosis.subcode'">{{diag.diagnosis.subcode}}</td>
                 <td title="'Diagnosis Description'" sortable="'diagnosis.subcodeDescription'">{{diag.diagnosis.subcodeDescription}}</td>
                 <td title="'Diagnosis Date'" sortable="'diagnosisDate'">{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>

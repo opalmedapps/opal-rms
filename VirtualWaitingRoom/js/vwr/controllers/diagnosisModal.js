@@ -64,6 +64,21 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         authenticateUser(func);
     }
 
+    $scope.addAnimationIfOverflowed = function(event)
+    {
+        text = angular.element(event.currentTarget)[0].parentElement;
+        row = text.parentElement;
+
+        if(text.offsetWidth >= row.offsetWidth) {
+            text.classList.add("text-scroll");
+        }
+    }
+
+    $scope.removeAnimation = function(event)
+    {
+        angular.element(event.currentTarget)[0].classList.remove("test-scroll");
+    }
+
     function getDiagnosisCodes(filter)
     {
         return $http({

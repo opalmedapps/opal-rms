@@ -34,10 +34,7 @@
 
     .text-scroll:hover {
         position: absolute;
-
-        /* Apply animation to this element */
         animation: text-scroll 5s linear infinite;
-        overflow: hidden;
     }
 
     @keyframes text-scroll {
@@ -74,8 +71,10 @@
                     class="custom-container"
                 >
                     <md-item-template>
-                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.subcode}}</span>
-                        <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;" class="text-scroll">{{diag.subcodeDescription}}</span>
+                        <span ng-mouseover="addAnimationIfOverflowed($event)" ng-mouseleave="removeAnimation($event)">
+                            <span md-highlight-text="diagSearchText" md-highlight-flags="ig">{{diag.subcode}}</span>
+                            <span md-highlight-text="diagSearchText" md-highlight-flags="ig" style="font-style: italic;">{{diag.subcodeDescription}}</span>
+                        </span>
                     </md-item-template>
                     <md-not-found>
                         No matches!
@@ -83,11 +82,11 @@
                 </md-autocomplete>
             </div>
 
-            <div style="width: 15%;margin-left: 20px">
+            <div style="width: 15%;margin-left: 20px;transform: translateY(25%);">
                 <input type="date" ng-model="userSelectedDate" />
             </div>
 
-            <div class="text-center animate-show" style="width: 15%;margin-left: 40px" ng-click="addPatientDiagnosis(userSelectedDiagnosis)">
+            <div class="text-center animate-show" style="width: 15%;margin-left: 40px;transform: translateY(25%);" ng-click="addPatientDiagnosis(userSelectedDiagnosis)">
                 <input type="button" class="btn btn-info btn-block btn-que" value="Add Diagnosis" ng-disabled="userSelectedDiagnosis === null || userSelectedDate === null"/>
             </div>
         </div>

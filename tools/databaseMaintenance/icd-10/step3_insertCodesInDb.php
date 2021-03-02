@@ -3,11 +3,11 @@
 #insert diagnosis codes in database
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\Config;
+use Orms\Database;
 
 $data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json"),TRUE);
 
-$dbh = Config::getDatabaseConnection("ORMS");
+$dbh = Database::getOrmsConnection();
 $dbh->query("SET FOREIGN_KEY_CHECKS = 0;");
 
 createDiagnosisChapterTable($dbh);
@@ -22,6 +22,8 @@ $dbh->query("SET FOREIGN_KEY_CHECKS = 1;");
 insertChapters($dbh,$data["chapters"]);
 insertCodes($dbh,$data["codes"]);
 insertSubcodes($dbh,$data["subcodes"]);
+
+addDiagnosisColumnToVwr($dbh);
 
 ############################################
 function createDiagnosisChapterTable($dbh)
@@ -248,6 +250,22 @@ function insertSubcodes($dbh,array $subcodes)
             ":description"  => $x["description"]
         ]);
     }
+}
+
+function addDiagnosisColumnToVwr($dbh)
+{
+    $dbh->prepare("
+        INSERT INTO ProfileColumnDefinition(ColumnName,DisplayName,Glyphicon,Description,Speciality)
+        VALUES('Diagnosis','Diagnosis','glyphicon-tint','Patient Diagnosis','All')
+        ON DUPLICATE KEY UPDATE
+            ColumnName     = VALUES(ColumnName),
+            DisplayName    = VALUES(DisplayName),
+            Glyphicon      = VALUES(Glyphicon),
+            Description    = VALUES(Description),
+            Speciality     = VALUES(Speciality)
+    ")->execute();
+
+    $dbh->query("CALL VerifyProfileColumns()");
 }
 
 ?>

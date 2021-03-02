@@ -240,9 +240,13 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         // $scope.inputs.cspecificType = $scope.codes[0];
     });
 
-    $http.get("./php/clinicalViewer/getDiagnosis.php?").then(function(response)
+    $http.get("./php/diagnosis/getDiagnosisCodeList.php?").then(function(response)
     {
         $scope.diagnosis = response.data;
+        for ($x of $scope.diagnosis)
+        {
+            $x["Name"] = $x["subcode"]+"-"+$x["subcodeDescription"];
+        }
         //$scope.inputs.dspecificType = $scope.diagnosis[0];
     })
 
@@ -418,6 +422,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }
     };
 
+    //=========================================================================
+    // Open the Questionnaire modal
+    //=========================================================================
     $scope.openQuestionnaireModal = function (appoint)
     {
         var modalInstance = $uibModal.open(
@@ -439,20 +446,37 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         });
     }
 
+    //=========================================================================
+    // Open the Diagnosis modal
+    //=========================================================================
     $scope.openDiagnosisModal = function(appoint)
     {
         $uibModal.open({
             animation: true,
-            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            templateUrl: './js/vwr/templates/diagnosisModal.htm',
             controller: diagnosisModalController,
             windowClass: 'diagnosisModal',
             size: 'lg',
             //backdrop: 'static',
             resolve:
-            {
-                patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn};}
+                {
+                    patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId,};}
+                }
+        })
+    }
+
+    $scope.loadPatientDiagnosis = function(patient)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: patient.PatientId
             }
         })
+            .then(res => {
+                $scope.lastPatientDiagnosisList = res.data
+            });
     }
 
     $scope.loadPatientDiagnosis = function(appoint)
@@ -469,6 +493,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         });
     }
 
+    //=========================================================================
+    // Open the Selector modal
+    //=========================================================================
     $scope.openSelectorModal = function (options,selectedOptions,title)
     {
         var modalInstance = $uibModal.open(

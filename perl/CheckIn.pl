@@ -278,6 +278,8 @@ $location_image = $DRC_3 if $location eq "DRC_3";
 
 $location_image = $DS1_1 if $location eq "DS1_1";
 $location_image = $DS1_2 if $location eq "DS1_2";
+$location_image = $DS1_1 if $location eq "DS1_3";
+
 
 $location_image = $Ortho_1 if $location eq "Ortho_1";
 $location_image = $Ortho_2 if $location eq "Ortho_2";
@@ -296,6 +298,11 @@ if($PatientId eq "DS1_1")
 if($PatientId eq "DS1_2")
 {
   $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"0\; URL=$checkin_script?location=DS1_2\">" ;
+  printUI();
+}
+if($PatientId eq "DS1_3")
+{
+  $reload = "<META HTTP-EQUIV=\"refresh\" CONTENT=\"0\; URL=$checkin_script?location=DS1_3\">" ;
   printUI();
 }
 
@@ -519,7 +526,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     $Aptinfo_en = "<b> Appointment:</b> <span style=\"background-color: #ffff00\">$Appt_type_en </span>" if ($TreatmentRoom =~ m/TB_/i || $TreatmentRoom =~ m/STX_/i);
 
     # destination is upstairs but checkin location is downstairs
-    if($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DRC" && ($location eq "DS1_1" || $location eq "DS1_2"))
+    if($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DRC" && ($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3"))
     {
       $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
       $MainMessage_en         = "Please go to the reception";
@@ -795,6 +802,7 @@ sub printUI
   my $whitespace_DRC_3        = "<a href=\"$checkin_script?verbose=$verboselink&location=DRC_3\"><font color = \"$verboseColor\">DRC_3</font></a>";
   my $whitespace_DS1_1        = "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_1\"><font color = \"$verboseColor\">DS1_1</font></a>";
   my $whitespace_DS1_2        = "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_2\"><font color = \"$verboseColor\">DS1_2</font></a>";
+  my $whitespace_DS1_3        = "<a href=\"$checkin_script?verbose=$verboselink&location=DS1_3\"><font color = \"$verboseColor\">DS1_3</font></a>";
   my $whitespace_Ortho_1        = "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_1\"><font color = \"$verboseColor\">Ortho_1</font></a>";
   my $whitespace_Ortho_2        = "<a href=\"$checkin_script?verbose=$verboselink&location=Ortho_2\"><font color = \"$verboseColor\">Ortho_2</font></a>";
   my $whitespace_ReceptionRC = "<a href=\"$checkin_script?verbose=$verboselink&location=ReceptionRC\"><font color = \"$verboseColor\">Reception - RC</font></a>";
@@ -944,6 +952,21 @@ sub printUI
 
   # location = DS1_2
   if($location eq "DS1_2")
+  {
+    $direction = "up"         if $DestinationWaitingRoom eq "DRC";
+    $direction = "left"     if $DestinationWaitingRoom eq "DS1";
+    $direction = "left"     if $DestinationWaitingRoom eq "reception";
+    $direction = "left"     if $DestinationWaitingRoom eq "STX_1";
+    $direction = "left"     if $DestinationWaitingRoom eq "STX_2";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_3";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_4";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_5";
+    $direction = "left"     if $DestinationWaitingRoom eq "TB_6";
+    $direction = "up"         if $DestinationWaitingRoom eq "TestCentre";
+  }
+
+# location = DS1_3
+  if($location eq "DS1_3")
   {
     $direction = "up"         if $DestinationWaitingRoom eq "DRC";
     $direction = "left"     if $DestinationWaitingRoom eq "DS1";
@@ -1398,7 +1421,7 @@ sub CheckinPatient
     $CheckinVenueName = "D RC WAITING ROOM";
     print "Checkin venue is: $CheckinVenueName<br>" if $verbose;
   }
-  elsif($location eq "DS1_1" || $location eq "DS1_2")
+  elsif($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3")
   {
     $CheckinVenue = 8226;
     $CheckinVenueName = "D S1 WAITING ROOM";

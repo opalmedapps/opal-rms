@@ -132,11 +132,10 @@ class Opal
         self::getHttpClient()->request("POST","master-source/insert/diagnoses",[
             "form_params" => [
                 [
-                    "source"        => 5, //"ORMS", // id 5
+                    "source"        => "ORMS",
                     "externalId"    => $id,
                     "code"          => $code,
                     "description"   => $desc
-                    // "creationDate"  =>
                 ]
             ],
             "cookies" => self::getOpalSessionCookie()

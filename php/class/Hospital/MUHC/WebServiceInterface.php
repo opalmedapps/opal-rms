@@ -120,6 +120,7 @@ class WebServiceInterface
             "MR_PCS" => "RVH",
             "MG_PCS" => "MGH",
             "MC_ADT" => "MCH",
+            "LA_ADT" => "LAC",
             default  => throw new Exception("Unknown Oacis code")
         };
     }
@@ -130,6 +131,7 @@ class WebServiceInterface
             "RVH"   => "MR_PCS",
             "MGH"   => "MG_PCS",
             "MCH"   => "MC_ADT",
+            "LAC"   => "LA_ADT",
             default => throw new Exception("Unknown hospital code")
         };
     }

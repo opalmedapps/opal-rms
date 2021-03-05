@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 
 use Orms\Config;
 use Orms\Database;
+use Orms\Opal;
 
 $conn = Database::getOrmsConnection();
 
@@ -95,36 +96,7 @@ foreach($queryApptMedivisit->fetchAll() as $row)
     }
 }
 
-// Send patientID to James and Yick's OpalCheckin script to synchronize the checkin state with OpalDB and send notifications
-if($PushNotification == 1)
-{
-    $opalCheckinURL = Config::getApplicationSettings()->opal?->checkInUrl;
-
-    if($opalCheckinURL !== NULL)
-    {
-        try {
-            $response = $client->request("GET",$opalCheckinURL,[
-                "query" => [
-                    "PatientId" => $PatientId
-                ]
-            ])->getBody()->getContents();
-        }
-        catch(Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
-        }
-    }
-
-    $response = $response ?? "";
-
-    if(strpos($response, 'Error')){
-    $response = ['error' => $response];
-    } else {
-    $response = ['success' => explode(',',  trim($response))];
-    }
-
-    $response = json_encode($response);
-
-    print($response);
-} # End of push notification
+//send a push notification to opal for the patient
+if($PushNotification == 1) Opal::sendCheckInNotification($PatientId);
 
 ?>

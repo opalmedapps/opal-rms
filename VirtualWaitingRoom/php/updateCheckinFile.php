@@ -8,44 +8,10 @@ require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 use Orms\Database;
+use Orms\Opal;
 
 // Create MySQL DB connection
 $dbh = Database::getOrmsConnection();
-
-// Create Opal DB connection
-//perform additional check to see if opal db exists -> Opal and ORMS are independent so we can't have queries failing if the opal db is moved/modified
-//for now assume that only RVH patients have a questionniare
-try {
-    $dbOpal = Database::getOpalConnection();
-}
-catch (PDOException) {
-    $dbOpal = NULL;
-}
-
-$queryOpal = NULL;
-if($dbOpal !== NULL)
-{
-    $sqlOpal = "
-        SELECT
-            Patient.PatientId,
-            Patient.PatientId2,
-            Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
-            CASE
-                WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
-                ELSE 0
-            END AS CompletedWithinLastWeek
-        FROM
-            Patient
-            INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
-                AND Questionnaire.CompletedFlag = 1
-                AND Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW()
-        WHERE
-            Patient.PatientId = :mrn
-        ORDER BY Questionnaire.CompletionDate DESC
-        LIMIT 1";
-
-    $queryOpal = $dbOpal->prepare($sqlOpal);
-}
 
 $json = [];
 
@@ -66,12 +32,12 @@ $queryWRM = $dbh->prepare("
         MediVisitAppointmentList.Status,
         LTRIM(RTRIM(MediVisitAppointmentList.ResourceDescription)) AS ResourceName,
         MediVisitAppointmentList.ScheduledDateTime AS ScheduledStartTime,
-        hour(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_hh,
-        minute(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_mm,
+        HOUR(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_hh,
+        MINUTE(MediVisitAppointmentList.ScheduledDateTime) AS ScheduledStartTime_mm,
         TIMESTAMPDIFF(MINUTE,NOW(), MediVisitAppointmentList.ScheduledDateTime) AS TimeRemaining,
         TIMESTAMPDIFF(MINUTE,PatientLocation.ArrivalDateTime,NOW()) AS WaitTime,
-        hour(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_hh,
-        minute(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_mm,
+        HOUR(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_hh,
+        MINUTE(PatientLocation.ArrivalDateTime) AS ArrivalDateTime_mm,
         PatientLocation.CheckinVenueName AS VenueId,
         MediVisitAppointmentList.AppointSys AS CheckinSystem,
         SUBSTRING(Patient.SSN,1,3) AS SSN,
@@ -132,28 +98,38 @@ foreach($queryWRM->fetchAll() as $row)
     $row["ArrivalDateTime"] = $row["ArrivalDateTime"] ?? ""; //just to get psalm to stop complaining
 
     if($row["Status"] === "Completed")          $row["RowType"] = "Completed";
-    elseif($row["ArrivalDateTime"] === "")    $row["RowType"] = "NotCheckedIn";
+    elseif($row["ArrivalDateTime"] === "")      $row["RowType"] = "NotCheckedIn";
     else                                        $row["RowType"] = "CheckedIn";
 
     //cross query OpalDB for questionnaire information
-    if($queryOpal !== NULL)
+    if($row["OpalPatient"] === "1")
     {
-        $queryOpal->execute([":mrn" => $row["Mrn"]]);
-        $resultOpal = $queryOpal->fetchAll()[0] ?? [];
+        try {
+            $questionnaire = Opal::getLastCompletedPatientQuestionnaire($row["Mrn"]);
+        }
+        catch(Exception) {
+            $questionnaire = [];
+        }
 
-        $lastCompleted = $resultOpal["QuestionnaireCompletionDate"] ?? NULL;
-        $completedWithinWeek = $resultOpal["CompletedWithinLastWeek"] ?? NULL;
+        if($questionnaire !== [])
+        {
+            $lastCompleted = $questionnaire["QuestionnaireCompletionDate"] ?? NULL;
+            $completedWithinWeek = $questionnaire["CompletedWithinLastWeek"] ?? NULL;
 
-        $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : NULL;
+            $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : NULL;
 
-        if(
-            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
-            ||
-            (
-            ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
-            && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($row["LastQuestionnaireReview"]))->getTimestamp()
-            )
-        ) $row["QStatus"] = "red-circle";
+            if(
+                (
+                    $lastCompleted !== NULL
+                    && $row["LastQuestionnaireReview"] === NULL
+                )
+                ||
+                (
+                    ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
+                    && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($row["LastQuestionnaireReview"]))->getTimestamp()
+                )
+            ) $row["QStatus"] = "red-circle";
+        }
     }
 
     //set certain fields to int

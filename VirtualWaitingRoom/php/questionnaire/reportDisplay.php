@@ -2,252 +2,101 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
-use Orms\Database;
+use Orms\Opal;
 
-// define some constants
-$wsMonthEN = "'Janurary', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'";
-$wsShortMonthEN = "'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'";
-$wsWeekDaysEN = "'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'";
+$mrn = $_GET["mrn"] ?? NULL;
+$questionnaireId = $_GET["rptID"] ?? NULL;
 
-$wsMonthFR = "'Janvier', 'F�vrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao�t', 'Septembre', 'Octobre', 'Novembre', 'D�cembre'";
-$wsShortMonthFR = "'jan', 'f�v', 'mar', 'avr', 'mai', 'juin', 'juil', 'ao�', 'sep', 'oct', 'nov', 'd�c'";
-$wsWeekDaysFR = "'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'";
-
-$wsResponseEN = 'Response';
-$wsResponseFR = 'R�ponse';
-
-$LastValueEN = 'Final Value';
-$LastValueFR = 'TR_Final Value';
-
-// Get Patient ID
-$wsPatientID = $_GET['mrn'] ?? NULL;
-
-// Exit if Patient ID is empty
-if ($wsPatientID === NULL) exit("No mrn!");
-
-// Get Report ID
-$wsReportID = $_GET['rptID'] ?? NULL;
-
-// Exit if Report ID is empty
-if ($wsReportID === NULL) exit("No questionnaire id!");
-
-// Connect to the database
-$connection = Database::getQuestionnaireConnection();
-$connectionOpal = Database::getOpalConnection();
-
-if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
-
-// Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
-$qSQLPI = $connectionOpal->prepare("
-    SELECT
-        PatientSerNum
-        ,PatientID
-        ,TRIM(CONCAT(TRIM(FirstName),' ',TRIM(LastName))) AS Name
-        ,LEFT(sex,1) as Sex
-        ,DateOfBirth
-        ,Age
-        ,Language
-    FROM
-        Patient
-    WHERE
-        PatientID = $wsPatientID"
-);
-$qSQLPI->execute();
-$rowPI = $qSQLPI->fetchAll()[0];
-
-// Get the patient preferred language
-$wsLanguage = $rowPI['Language'];
-
-$qSQLQR = $connection->prepare("CALL getLastAnsweredQuestionnaire($rowPI[PatientSerNum],$wsReportID)");
-$qSQLQR->execute();
-$rowQR = $qSQLQR->fetchAll()[0];
-$qSQLQR->closeCursor();
-
-/*$wsSQLSeries = "select Q.QuestionQuestion, Q.QuestionQuestion_FR
-                                from Question Q, QuestionnaireQuestion QQ
-                                where QQ.QuestionnaireSerNum = $wsReportID
-                                    and Q.QuestionSerNum = QQ.QuestionSerNum
-                                order by QQ.OrderNum
-                                ;";
-$qSQLSeries = $connection->query($wsSQLSeries);*/
-#echo $wsReportID;
-$qSQLSeries = $connection->prepare("CALL queryQuestions('$wsReportID')");
-$qSQLSeries->execute();
-
-$wsSeriesID = []; //unique id to select questions when the question texts are identical
-$wsSeries = [];
-$wsSeriesFR = [];
-$wsRowCounter = 0;
-
-foreach($qSQLSeries->fetchAll() as $rowSQLSeries)
-{
-    $wsSeriesID[$wsRowCounter] = $rowSQLSeries['QuestionnaireQuestionSerNum'];
-    $wsSeries[$wsRowCounter] = $rowSQLSeries['QuestionText_EN'];
-    $wsSeriesFR[$wsRowCounter] = $rowSQLSeries['QuestionText_FR'];
-    $wsRowCounter = $wsRowCounter + 1;
+if($mrn === NULL || $questionnaireId === NULL) {
+    http_response_code(400);
+    exit("Missing fields!");
 }
 
-if($wsLanguage === "EN")
-{
-    $wsResponse = $wsResponseEN;
-    $wsLastValue = $LastValueEN;
+$questions = Opal::getPatientAnswersForChartTypeQuestionnaire($mrn,(int) $questionnaireId);
+$questions = utf8_encode_recursive($questions);
 
-    $wsMonth = $wsMonthEN;
-    $wsShortMonth = $wsShortMonthEN;
-    $wsWeekDays = $wsWeekDaysEN;
-}
-else
-{
-    $wsResponse = $wsResponseFR;
-    $wsLastValue = $LastValueFR;
+//get the date of the last questionnaire that the patient answered
+/** @psalm-suppress ArgumentTypeCoercion */
+$lastDateAnswered = max(array_column(array_column($questions,"data"),"0"))[0];
+$lastDateAnswered = (new DateTime())->setTimestamp($lastDateAnswered)->format("Y-m-d");
 
-    $wsMonth = $wsMonthFR;
-    $wsShortMonth = $wsShortMonthFR;
-    $wsWeekDays = $wsWeekDaysFR;
-};
+//convert all unix timestamps to millseconds for highcharts
+$questions = array_map(function($x) {
+    $x["data"] = array_map(function($y) {
+        $y[0] = $y[0] *1000;
+        return $y;
+    },$x["data"]);
 
-//the return string, will be in JSON format
+    return $x;
+},$questions);
+
+//the return array, will be in JSON format
 $jstring = [
-    "langSetting" => [
-        "months" => [$wsMonth],
-        "weekdays" => [$wsWeekDays],
-        "shortMonths" => [$wsShortMonth]
-    ],
-    "lastDateAnswered" => $rowQR["LastDateTimeAnswered"],
+    "lastDateAnswered" => $lastDateAnswered,
     "qData" => []
 ];
 
-$wsChartCounter = 0;
-
-//for each question in the questionnaire, generate a highcharts object and add it to the JSON return string
-for ($x = 0; $x < count($wsSeries); $x++)
+//for each question in the questionnaire, generate a highcharts object and add it to the JSON return array
+foreach($questions as $q)
 {
-
-    $wsChartCounter = $wsChartCounter + 1;
-
-    if ($wsLanguage == 'EN')
-    {
-        $wsSeries_Title = filter_var($wsSeries[$x], FILTER_SANITIZE_STRING);
-    }
-    else
-    {
-        $wsSeries_Title = filter_var($wsSeriesFR[$x], FILTER_SANITIZE_STRING);
-    };
-
-
-    $questionAnswers = GetQuestionnaireData($wsPatientID,$wsSeries[$x],$wsReportID,$wsSeriesID[$x]);
-    $lastValue = end($questionAnswers);
-    $lastValue = $lastValue[1];
+    $lastAnswer = $q["data"][count($q["data"])-1][1] ?? NULL;
 
     $jstring["qData"][] = [
-        "credits" => [
-            "enabled" =>  "false"
+        "credits" => ["enabled" => FALSE],
+        "exporting" => ["enabled" => FALSE],
+        "chart" => [
+            "type" => "line",
+            "zoomType" => "x",
+            "borderWidth" => 0
         ],
-        "exporting" =>  [
-            "enabled" =>  "false",
-            "filename" =>  "Chart$wsChartCounter"
-        ],
-        "chart" =>  [
-            "type" =>  "line",
-            "zoomType" =>  "x",
-            "borderWidth" =>  "0"
-        ],
-        "title" =>  [
-            "text" =>  "$wsSeries_Title"
-        ],
-        "tooltip" =>  [
-            "formatter" =>  "null"
-        ],
-        "xAxis" =>  [
-            "type" =>  "datetime",
-            "minTickInterval" => "". 28*24*3600*1000,
-            "startOnTick" =>  "true",
-            "endOnTick" =>  "true",
-            "labels" =>  [
-                "style" =>  ["fontSize" =>  "14px"],
-                "format" =>  "null"
+        "title" => ["text" => $q["question"]],
+        "tooltip" => ["formatter" => NULL],
+        "xAxis" => [
+            "type" => "datetime",
+            "minTickInterval" => 28*24*3600*1000,
+            "startOnTick" => TRUE,
+            "endOnTick" => TRUE,
+            "labels" => [
+                "style"  => ["fontSize" => "14px"],
+                "format" => NULL
             ]
         ],
-        "yAxis" =>  [
-            "min" =>  "0",
-            "max" =>  "10",
-            "startOnTick" =>  "false",
-            "endOnTick" =>  "false",
-            "title" =>  ["text" =>  "$wsResponse", "style" =>  ["fontSize" =>  "15px"]  ],
-            "labels" =>  ["style" =>  ["fontSize" =>  "15px"] ],
-                "plotLines" =>  [[
-                    "color" =>  "rgba(0,0,0,0)",
-                    "dashStyle" =>  "solid",
-                    "value" =>  "3",
-                    "width" =>  "2",
-                    "label" =>  ["text" =>  "$wsLastValue: $lastValue", "align" =>  "right", "style" =>  ["fontSize" =>  "15px"]]
-                        ]]
-        ],
-        "plotOptions" =>  [
-            "line" =>  [
-                "marker" =>  [
-                    "enabled" =>  "true"
+        "yAxis" => [
+            "min" => 0,
+            "max" => 10,
+            "startOnTick" => FALSE,
+            "endOnTick" => FALSE,
+            "title" => [
+                "text"  => ($q["language"] === "EN") ? "Response" : "Réponse",
+                "style" => ["fontSize" => "15px"]
+            ],
+            "labels" => ["style" => ["fontSize" => "15px"]],
+            "plotLines" => [
+                [
+                    "color" => "rgba(0,0,0,0)",
+                    "dashStyle" => "solid",
+                    "value" => 3,
+                    "width" => 2,
+                    "label" => [
+                        "text"  => ($q["language"] === "EN") ? "Final Value: $lastAnswer" : "Valeur Finale: $lastAnswer",
+                        "align" => "right",
+                        "style" => ["fontSize" => "15px"]
+                    ]
                 ]
             ]
         ],
-        "series" =>  [[
-            "name" =>  "$wsSeries_Title",
-            "showInLegend" =>  "false",
-            "data" =>  $questionAnswers,
-            "tooltip" =>  [
-                "valueDecimals" =>  "0"
+        "plotOptions" => ["line" => ["marker" => ["enabled" => TRUE]]],
+        "series" => [
+            [
+                "name"         => $q["question"],
+                "showInLegend" => FALSE,
+                "data"         => $q["data"],
+                "tooltip"      => ["valueDecimals" => 0]
             ]
-        ]]
-
+        ]
     ];
-
 }
 
-$jstring = utf8_encode_recursive($jstring);
-echo json_encode($jstring,JSON_NUMERIC_CHECK);
-
-/**
- *
- * @return mixed[]
- * @throws Exception
- * @throws PDOException
- */
-function GetQuestionnaireData(string $wsPatientID,string $wsrptID,string $wsQuestionnaireSerNum,string $qstID): array
-{
-    // Patient ID $wsPatientID
-    // Report Name $wsrptID
-    // Questionnaire Sequence Number $wsQuestionnaireSerNum
-    // Unique report ID (QuestionSerNum in the DB)
-
-    // Exit if either Patient ID, Report ID, or Questionnaire ID is empty
-    if ( (strlen(trim($wsPatientID)) == 0) or (strlen(trim($wsrptID)) == 0) or (strlen(trim($wsQuestionnaireSerNum)) == 0) ) {
-        die;
-    }
-
-    // Setup the database connection
-    $dsCrossDatabase = Config::getApplicationSettings()->opalDb?->databaseName;
-
-    // Connect to the database
-    $connection = Database::getQuestionnaireConnection();
-
-    // Prepare the output
-    $output = [];
-
-    if($connection !== NULL)
-    {
-        $query = $connection->prepare("CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')");
-        $query->execute();
-
-        foreach($query->fetchAll() as $row)
-        {
-            // merge the output
-            $output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];
-        }
-    }
-
-    // return the output
-    return $output;
-}
+echo json_encode($jstring);
 
 ?>

@@ -31,8 +31,7 @@
 
 <script src="/node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js"></script>
 
-<!--Firebase libraries >
-<script src="/node_modules/firebase/lib/firebase-web.js"></script-->
+<!--Firebase libraries -->
 <script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
 
 <!--Highcharts -->
@@ -54,14 +53,6 @@
 <link rel="stylesheet" href="/node_modules/ui-select/dist/select.min.css">
 <link rel="stylesheet" href="/node_modules/angular-material/angular-material.min.css">
 <link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
-
-
-
-<!--link media="all" type="text/css" rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/angular-datatables/dist/css/angular-datatables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/jquery-ui-dist/jquery-ui.min.css"-->
 
 <link  media="all" type="text/css" rel="stylesheet" href="./css/vwrStyle.css">
 
@@ -137,12 +128,6 @@
 
     .items tr:nth-child(even){background-color:#f1f1f1;}
     .items th {background-color:#98FB98}
-
-    /*remove date and title on top of printed pages*/
-    /*@page {
-        size: auto;
-        margin-top: 0mm;
-    }*/
 
     /*repeat table headers on each page*/
     @media print {
@@ -271,7 +256,6 @@
                                    ng-click="openSelectorModal(clinics, inputs.selectedclinics,'Clinic(s) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
-                        <!--select ng-show="inputs.type == 'specific'" ng-model="inputs.specificType" ng-options="val.name for val in clinics"></select-->
                         <div ng-show="inputs.type == 'specific'" class = "option-holder" style="width: 500px">
                             <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
@@ -284,7 +268,6 @@
                                    ng-click="openSelectorModal(codes, inputs.selectedcodes,'Clinic Code(s) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
-                        <!--select ng-show="inputs.ctype == 'specific'" ng-model="inputs.cspecificType" ng-options="val.Name for val in codes"></select></td-->
                         <div select ng-show="inputs.ctype == 'specific'" class = "option-holder" style="width: 500px">
                             <span ng-repeat="loc in inputs.selectedcodes"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
@@ -358,7 +341,6 @@
                                    ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
-                        <!--select  ng-show="inputs.dtype == 'specific'" ng-model="inputs.dspecificType" ng-options="val.Name for val in diagnosis"></select></td-->
                         <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
                             <span ng-repeat="loc in inputs.selecteddiagnosis"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
@@ -423,13 +405,11 @@
             <tr style="background-color: #d9edf7; font-size: 15px">
 
                 <th style="text-align: center;">Patient Information (Name, ID)</th>
-                <!--th style="text-align: center;">Patient Information (Name, ID, RAMQ)</th-->
 
                 <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">Opal/SMS</th>
                 <th ng-class="(clinicsUsed)? 'textStyleRed': ''" style="text-align: center;">Clinic/Treatment</th>
                 <th>Code</th>
                 <th ng-class="(codeUsed) ? 'textStyleRed': ''" style="text-align: center;">App. Code</th>
-                <!--th ng-if="!sameDate">Scheduled Date</--th-->
                 <th style="text-align: center;">Scheduled Time</th>
                 <th style="text-align: center;">Checkin Time</th>
                 <th style="text-align: center;">Status</th>
@@ -443,20 +423,14 @@
             <tbody >
             <tr ng-repeat="appoint in tableData">
 
-                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}},{{appoint.ssn.num}}</div>
-                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></td-->
                 <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************</div></td>
-
-                <!--td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}}, {{appoint.ssn.num}}</div>
-                <div ng-if="confid != 'Confidential Mode'"> ***************, ***************, ***************</div></--td-->
 
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td ng-class="(codeUsed) ? 'textStyleRed': ''">{{appoint.appType}}</td>
-                <!--td ng-if="!sameDate">{{appoint.appDay}}</td-->
                 <td>{{appoint.appDay}}
                     {{appoint.appTime}}</td>
                 <td>{{appoint.checkin}}</td>

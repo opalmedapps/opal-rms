@@ -9,29 +9,15 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Config;
-use Orms\Database;
+use Orms\Opal;
 
-// Create DB connection
-$conn = Database::getQuestionnaireConnection();
+$mrn = $_GET["mrn"] ?? NULL;
 
-// Extract the webpage parameters
-$wsPatientID = $_GET["mrn"];
-$crossDbName = Config::getApplicationSettings()->opalDb?->databaseName;
-
-// Prepare the query to fetch only records that have been completed by the patients
-// Flag questionnaires that had been completed within 3 weeks (Will change this logic later)
-
-if($conn !== NULL) {
-    $query = $conn->prepare("CALL getQuestionnaireListORMS(?,?)");
-    $query->execute([$wsPatientID,$crossDbName]);
-
-    $json = utf8_encode_recursive($query->fetchAll());
-}
-else {
-    $json = [];
+if($mrn === NULL) {
+    http_response_code(400);
+    exit("Empty mrn!");
 }
 
-echo json_encode($json);
+echo json_encode(utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($mrn)));
 
 ?>

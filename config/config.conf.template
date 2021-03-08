@@ -46,6 +46,7 @@ QUESTIONNAIRE_PASSWORD          =
 [opal]
 OPAL_CHECKIN_URL                =
 OPAL_NOTIFICATION_URL           =
+OPAL_ADMIN_URL                  =
 
 [sms]
 ENABLED                         =

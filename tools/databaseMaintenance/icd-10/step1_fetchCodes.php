@@ -1,14 +1,17 @@
 <?php declare(strict_types = 1);
 
 #fetches all ICD-10 diagnosis codes from the WHO'd online dictionary
-require_once __DIR__ ."/../../../php/AutoLoader.php";
+require_once __DIR__ ."/../../../vendor/autoload.php";
 
 use GuzzleHttp\Client;
 
 $data = getDataFromWho();
+file_put_contents(__DIR__."/data/raw_codes.json",json_encode($data));
 
-file_put_contents(__DIR__."/codes.json",json_encode($data));
 
+//some codes have extra groups like C00-C75
+
+####################################################
 function getDataFromWho(): array
 {
     $url = "https://icd.who.int/browse10/2019/en/JsonGetRootConcepts?useHtml=false";
@@ -29,6 +32,7 @@ function getConceptData(string $concept): array
     $data = json_decode((new Client())->request("GET","$url&ConceptId=$concept")->getBody()->getContents(),TRUE);
 
     return array_map(function($x) {
+        echo "$x[ID]\n";
         return [
             "name" => $x["ID"],
             "desc" => $x["label"],

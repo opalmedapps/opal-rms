@@ -11,6 +11,7 @@
 <script src="/node_modules/angular-aria/angular-aria.min.js"></script>
 <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 <script src="/node_modules/angular-material/angular-material.js"></script>
+<script src="/node_modules/ng-table/bundles/ng-table.min.js"></script>
 
 <!--Firebase libraries -->
 <script src="/node_modules/firebase/lib/firebase-web.js"></script>
@@ -31,15 +32,18 @@
 <link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
 <link rel="stylesheet" href="/node_modules/ui-select/dist/select.min.css">
 <link rel="stylesheet" href="/node_modules/angular-material/angular-material.min.css">
+<link rel="stylesheet" href="/node_modules/ng-table/bundles/ng-table.min.css">
 <link rel="stylesheet" href="./css/vwrStyle.css">
 
 <!--Custom controllers -->
 <script src="js/vwr/module.js"></script>
 <script src="js/vwr/controllers/virtualWaitingRoom.js"></script>
 <script src="js/vwr/bootstrapper.js"></script>
-<script src="js/vwr/controllers/selectorModal.js"></script>
 <script src="js/vwr/controllers/callModal.js"></script>
-<script src="js/vwr/controllers/questionnaireModal.js"></script>
-<script src="js/vwr/controllers/weightModal.js"></script>
+<script src="js/vwr/controllers/authDialog.js"></script>
+<script src="js/vwr//controllers/diagnosisModal.js"></script>
 <script src="js/vwr/controllers/formModal.js"></script>
+<script src="js/vwr/controllers/selectorModal.js"></script>
+<script src="js/vwr/controllers/questionnaireModal.js"></script>
 <script src="js/vwr/controllers/registerSMSModal.js"></script>
+<script src="js/vwr/controllers/weightModal.js"></script>

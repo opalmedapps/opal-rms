@@ -107,6 +107,7 @@ class Config
             $opal = new OpalConfig(
                 checkInUrl:         $parsedData["opal"]["OPAL_CHECKIN_URL"],
                 notificationUrl:    $parsedData["opal"]["OPAL_NOTIFICATION_URL"],
+                opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"]
             );
         } catch(TypeError) {$opal = NULL;}
 
@@ -214,6 +215,7 @@ class OpalConfig
     function __construct(
         public string $checkInUrl,
         public string $notificationUrl,
+        public string $opalAdminUrl
     ) {}
 }
 

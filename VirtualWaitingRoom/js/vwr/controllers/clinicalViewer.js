@@ -256,48 +256,11 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         let answer = $mdDialog.confirm(
             {
                 templateUrl: './js/vwr/templates/authDialog.htm',
-                controller: function($scope)
-                {
-                    $scope.page = {
-                        username: $cookies.get("lastUsedUsername") ?? "", //if the user has previously authenticated, a cookie with the username should exist
-                        password: "",
-                        message: ""
-                    };
-                    $scope.Title = 'Login to change to Nominal Mode';
-                    $scope.authenticate = async function()
-                    {
-                        let authResult = await $http({
-                            url: "./php/authenticateUser.php",
-                            method: "POST",
-                            data: {
-                                username: $scope.page.username,
-                                password: $scope.page.password
-                            }
-                        })
-                            .then( response => response.data.valid)
-                            .catch( _ => null);
-
-                        $scope.page.password = ""; //clear the password field
-
-                        if(authResult === true)
-                        {
-                            //$cookies.put("lastUsedUsername",$scope.page.username); //store the last authenticated username in case the user is reviewing multiple questionnaires
-                            $mdDialog.hide($scope.page.username);
-                        }
-                        else if(authResult === false) {
-                            $scope.page.message = "Invalid username or password!";
-                        }
-                        else {
-                            $scope.page.message = "Error! Please try again later.";
-                        }
-                    }
-                }
-
+                controller: authDialogController
             })
-            .ariaLabel('Auth Dialog')
             .clickOutsideToClose(true);
 
-        $mdDialog.show(answer).then( result => {
+        $mdDialog.show(answer).then( _ => {
             $scope.confid = 'Confidential Mode';
             sessionStorage.setItem("value",$scope.confid)
             $scope.confidentialTimer();

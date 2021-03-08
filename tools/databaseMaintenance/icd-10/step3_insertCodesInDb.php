@@ -1,0 +1,271 @@
+<?php declare(strict_types = 1);
+
+#insert diagnosis codes in database
+require_once __DIR__ ."/../../../vendor/autoload.php";
+
+use Orms\Database;
+
+$data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json"),TRUE);
+
+$dbh = Database::getOrmsConnection();
+$dbh->query("SET FOREIGN_KEY_CHECKS = 0;");
+
+createDiagnosisChapterTable($dbh);
+createDiagnosisCodeTable($dbh);
+createDiagnosisSubcodeTable($dbh);
+createPatientDiagnosisTable($dbh);
+createPatientDiagnosisMHTable($dbh);
+createPatientDiagnosisMHTriggers($dbh);
+
+$dbh->query("SET FOREIGN_KEY_CHECKS = 1;");
+
+insertChapters($dbh,$data["chapters"]);
+insertCodes($dbh,$data["codes"]);
+insertSubcodes($dbh,$data["subcodes"]);
+
+addDiagnosisColumnToVwr($dbh);
+
+############################################
+function createDiagnosisChapterTable($dbh)
+{
+    $dbh->query("DROP TABLE IF EXISTS DiagnosisChapter;");
+    $dbh->query("
+        CREATE TABLE `DiagnosisChapter` (
+            `DiagnosisChapterId` INT(11) NOT NULL AUTO_INCREMENT,
+            `Chapter` VARCHAR(20) NOT NULL COLLATE 'latin1_swedish_ci',
+            `Description` TEXT NOT NULL COLLATE 'latin1_swedish_ci',
+            PRIMARY KEY (`DiagnosisChapterId`) USING BTREE,
+            UNIQUE INDEX `Chapter` (`Chapter`) USING BTREE
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB
+        ;
+    ");
+}
+
+function createDiagnosisCodeTable($dbh)
+{
+    $dbh->query("DROP TABLE IF EXISTS DiagnosisCode;");
+    $dbh->query("
+        CREATE TABLE `DiagnosisCode` (
+            `DiagnosisCodeId` INT(11) NOT NULL AUTO_INCREMENT,
+            `DiagnosisChapterId` INT(11) NOT NULL,
+            `Code` VARCHAR(20) NOT NULL COLLATE 'latin1_swedish_ci',
+            `Category` TEXT NOT NULL COLLATE 'latin1_swedish_ci',
+            `Description` TEXT NOT NULL COLLATE 'latin1_swedish_ci',
+            PRIMARY KEY (`DiagnosisCodeId`) USING BTREE,
+            UNIQUE INDEX `Code` (`Code`) USING BTREE,
+            INDEX `FK_DiagnosisCode_DiagnosisChapter` (`DiagnosisChapterId`) USING BTREE,
+            CONSTRAINT `FK_DiagnosisCode_DiagnosisChapter` FOREIGN KEY (`DiagnosisChapterId`) REFERENCES `OrmsDatabase`.`DiagnosisChapter` (`DiagnosisChapterId`) ON UPDATE RESTRICT ON DELETE RESTRICT
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB
+        ;
+    ");
+}
+
+function createDiagnosisSubcodeTable($dbh)
+{
+    $dbh->query("DROP TABLE IF EXISTS DiagnosisSubcode;");
+    $dbh->query("
+        CREATE TABLE `DiagnosisSubcode` (
+            `DiagnosisSubcodeId` INT(11) NOT NULL AUTO_INCREMENT,
+            `DiagnosisCodeId` INT(11) NOT NULL,
+            `Subcode` VARCHAR(20) NOT NULL COLLATE 'latin1_swedish_ci',
+            `Description` TEXT NOT NULL COLLATE 'latin1_swedish_ci',
+            PRIMARY KEY (`DiagnosisSubcodeId`) USING BTREE,
+            UNIQUE INDEX `Subcode` (`Subcode`) USING BTREE,
+            INDEX `FK_DiagnosisSubcode_DiagnosisCode` (`DiagnosisCodeId`) USING BTREE,
+            CONSTRAINT `FK_DiagnosisSubcode_DiagnosisCode` FOREIGN KEY (`DiagnosisCodeId`) REFERENCES `OrmsDatabase`.`DiagnosisCode` (`DiagnosisCodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB
+        ;
+    ");
+}
+
+function createPatientDiagnosisTable($dbh)
+{
+    $dbh->query("DROP TABLE IF EXISTS PatientDiagnosis;");
+    $dbh->query("
+        CREATE TABLE `PatientDiagnosis` (
+            `PatientDiagnosisId` INT(11) NOT NULL AUTO_INCREMENT,
+            `PatientSerNum` INT(11) NOT NULL,
+            `DiagnosisSubcodeId` INT(11) NOT NULL,
+            `Status` ENUM('Active','Deleted') NOT NULL DEFAULT 'Active' COLLATE 'latin1_swedish_ci',
+            `DiagnosisDate` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `CreatedDate` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `LastUpdated` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            `UpdatedBy` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
+            PRIMARY KEY (`PatientDiagnosisId`) USING BTREE,
+            INDEX `FK__Patient` (`PatientSerNum`) USING BTREE,
+            INDEX `FK_PatientDiagnosis_DiagnosisSubcode` (`DiagnosisSubcodeId`) USING BTREE,
+            CONSTRAINT `FK_PatientDiagnosis_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `OrmsDatabase`.`DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK__Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB
+        ;
+    ");
+}
+
+function createPatientDiagnosisMHTable($dbh)
+{
+    $dbh->query("DROP TABLE IF EXISTS PatientDiagnosisMH;");
+    $dbh->query("
+        CREATE TABLE `PatientDiagnosisMH` (
+            `PatientDiagnosisMHId` INT NOT NULL AUTO_INCREMENT,
+            `Revision` INT NOT NULL,
+            `PatientDiagnosisId` INT(11) NOT NULL,
+            `PatientSerNum` INT(11) NOT NULL,
+            `DiagnosisSubcodeId` INT(11) NOT NULL,
+            `Status` ENUM('Active','Deleted') NOT NULL DEFAULT 'Active' COLLATE 'latin1_swedish_ci',
+            `DiagnosisDate` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `CreatedDate` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `LastUpdated` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            `UpdatedBy` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
+            INDEX `FK__Patient` (`PatientSerNum`) USING BTREE,
+            INDEX `FK_PatientDiagnosis_DiagnosisSubcode` (`DiagnosisSubcodeId`) USING BTREE,
+            PRIMARY KEY (`PatientDiagnosisMHId`),
+            CONSTRAINT `FK_PatientDiagnosisMH_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `OrmsDatabase`.`DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK__PatientDiagnosisMH_Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK_PatientDiagnosisMH_PatientDiagnosis` FOREIGN KEY (`PatientDiagnosisId`) REFERENCES `OrmsDatabase`.`PatientDiagnosis` (`PatientDiagnosisId`)
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB
+        ;
+    ");
+}
+
+function createPatientDiagnosisMHTriggers($dbh)
+{
+    $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_insert;");
+    $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_update;");
+    $dbh->query("
+        CREATE TRIGGER `PatientDiagnosis_after_insert` AFTER INSERT ON `PatientDiagnosis` FOR EACH ROW BEGIN
+        INSERT INTO PatientDiagnosisMH (
+            Revision
+            ,PatientDiagnosisId
+            ,PatientSerNum
+            ,DiagnosisSubcodeId
+            ,Status
+            ,DiagnosisDate
+            ,CreatedDate
+            ,LastUpdated
+            ,UpdatedBy
+        )
+        VALUES (
+            0
+            ,NEW.PatientDiagnosisId
+            ,NEW.PatientSerNum
+            ,NEW.DiagnosisSubcodeId
+            ,NEW.Status
+            ,NEW.DiagnosisDate
+            ,NEW.CreatedDate
+            ,NEW.LastUpdated
+            ,NEW.UpdatedBy
+        );
+        END;
+    ");
+    $dbh->query("
+        CREATE TRIGGER `PatientDiagnosis_after_update` AFTER UPDATE ON `PatientDiagnosis` FOR EACH ROW BEGIN
+        INSERT INTO PatientDiagnosisMH (
+            Revision
+            ,PatientDiagnosisId
+            ,PatientSerNum
+            ,DiagnosisSubcodeId
+            ,Status
+            ,DiagnosisDate
+            ,CreatedDate
+            ,LastUpdated
+            ,UpdatedBy
+        )
+        VALUES (
+            (SELECT PD.Revision +1 FROM PatientDiagnosisMH PD WHERE PD.PatientDiagnosisId = NEW.PatientDiagnosisId)
+            ,NEW.PatientDiagnosisId
+            ,NEW.PatientSerNum
+            ,NEW.DiagnosisSubcodeId
+            ,NEW.Status
+            ,NEW.DiagnosisDate
+            ,NEW.CreatedDate
+            ,NEW.LastUpdated
+            ,NEW.UpdatedBy
+        );
+        END;
+    ");
+}
+
+function insertChapters($dbh,array $chapters)
+{
+    $query = $dbh->prepare("
+        INSERT INTO DiagnosisChapter(Chapter,Description)
+        VALUES(:chapter,:description);
+    ");
+    foreach($chapters as $x)
+    {
+        $query->execute([
+            ":chapter"      => $x["chapter"],
+            ":description"  => $x["description"]
+        ]);
+    }
+}
+
+function insertCodes($dbh,array $codes)
+{
+    $query = $dbh->prepare("
+        INSERT INTO DiagnosisCode(Code,DiagnosisChapterId,Category,Description)
+        VALUES(
+            :code
+            ,(SELECT DiagnosisChapter.DiagnosisChapterId FROM DiagnosisChapter WHERE DiagnosisChapter.Chapter = :chapter)
+            ,:category
+            ,:description
+        );
+    ");
+    foreach($codes as $x)
+    {
+        $query->execute([
+            ":code"         => $x["code"],
+            ":chapter"      => $x["chapter"],
+            ":category"     => $x["category"],
+            ":description"  => $x["description"]
+        ]);
+    }
+}
+
+function insertSubcodes($dbh,array $subcodes)
+{
+    $query = $dbh->prepare("
+        INSERT INTO DiagnosisSubcode(Subcode,DiagnosisCodeId,Description)
+        VALUES(
+            :subcode
+            ,(SELECT DiagnosisCode.DiagnosisCodeId FROM DiagnosisCode WHERE DiagnosisCode.Code = :code)
+            ,:description
+        );
+    ");
+    foreach($subcodes as $x)
+    {
+        $query->execute([
+            ":subcode"      => $x["subcode"],
+            ":code"         => $x["code"],
+            ":description"  => $x["description"]
+        ]);
+    }
+}
+
+function addDiagnosisColumnToVwr($dbh)
+{
+    $dbh->prepare("
+        INSERT INTO ProfileColumnDefinition(ColumnName,DisplayName,Glyphicon,Description,Speciality)
+        VALUES('Diagnosis','Diagnosis','glyphicon-tint','Patient Diagnosis','All')
+        ON DUPLICATE KEY UPDATE
+            ColumnName     = VALUES(ColumnName),
+            DisplayName    = VALUES(DisplayName),
+            Glyphicon      = VALUES(Glyphicon),
+            Description    = VALUES(Description),
+            Speciality     = VALUES(Speciality)
+    ")->execute();
+
+    $dbh->query("CALL VerifyProfileColumns()");
+}
+
+?>

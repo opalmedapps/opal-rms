@@ -1,8 +1,11 @@
 <?php declare(strict_types = 1);
 
-require_once __DIR__."/../../vendor/autoload.php";
+require_once __DIR__."/../vendor/autoload.php";
 
 use Orms\Authentication;
+
+//script to authenticate a user trying to log into ORMS
+//creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
 
 $postParams = getPostContents();
 
@@ -19,6 +22,9 @@ if(
     exit;
 }
 
+$cookie = Authentication::createUserSession($username);
+
 http_response_code(200);
+echo json_encode($cookie);
 
 ?>

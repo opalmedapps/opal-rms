@@ -2,141 +2,119 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Database;
+use Orms\Opal;
 
-// define some constants
-$day = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-$month = ["janvier", "f�vrier", "mars", "avril", "mai", "juin", "juillet", "ao�t", "septembre", "octobre", "novembre", "d�cembre"];
+$mrn             = $_GET["mrn"] ?? NULL;
+$questionnaireId = $_GET["rptID"] ?? NULL;
 
-// Get Patient ID
-// Get Patient ID
-$wsPatientID = $_GET['mrn'] ?? NULL;
+if($mrn === NULL || $questionnaireId === NULL) {
+    http_response_code(400);
+    exit("Missing fields!");
+}
 
-// Exit if Patient ID is empty
-if ($wsPatientID === NULL) exit("No mrn!");
+$questions = Opal::getPatientAnswersForNonChartTypeQuestionnaire($mrn,(int) $questionnaireId);
 
-// Get Report ID
-$wsReportID = $_GET['rptID'] ?? NULL;
-
-// Connect to the database
-$connection = Database::getQuestionnaireConnection();
-$connectionOpal = Database::getOpalConnection();
-
-if($connection === NULL || $connectionOpal === NULL) exit("Failed to connect to Opal");
-
-// Step 1) Retrieve Patient Information from Opal database from Patient ID ($wsPatientID)
-$qSQLPI = $connectionOpal->prepare("
-    select PatientSerNum, PatientID, trim(concat(trim(FirstName), ' ',trim(LastName))) as Name, left(sex, 1) as Sex, DateOfBirth, Age, Language
-    from Patient
-    where PatientID = $wsPatientID
-");
-$qSQLPI->execute();
-$rowPI = $qSQLPI->fetchAll()[0];
-
-$wsPatientSerNum = $rowPI['PatientSerNum'];
-
-// Get the patient preferred language
-$wsLanguage = $rowPI['Language'];
-
-// Prepare the query to retrieve the questionnaires that only has responses
-$qSQLQR = $connection->prepare("CALL getCompletedQuestionnaireInfo($wsPatientSerNum, $wsReportID);");
-$qSQLQR->execute();
-$allRowQR = $qSQLQR->fetchAll();
-$qSQLQR->closeCursor();
-
-//the return string, will be in JSON format
+//the return array, will be in JSON format
 $jstring = [];
 
-//output the html as a string so that it can be parsed in the controller and then injected in the DOM
-
-$wsPatientQuestionnaireSerNum = -1;
+$lastAnsweredQuestionnaireId = 0;
 
 // begin looping the questionnaires
-foreach($allRowQR as $rowQR)
+foreach($questions as $question)
 {
-    $jstringObj = [];
-
-    // Display the questionnaire sequence number and the date when the patient answered
-    if ($wsPatientQuestionnaireSerNum != $rowQR['PatientQuestionnaireSerNum'])
+    //change the format of the date depending on the language
+    //also set the date to empty if the previous question answered was part of the same patient questionnaire instance
+    $displayDate = "";
+    if($lastAnsweredQuestionnaireId !== $question["PatientQuestionnaireSerNum"])
     {
-        $wsPatientQuestionnaireSerNum = $rowQR['PatientQuestionnaireSerNum'];
+        $lastAnsweredQuestionnaireId = $question["PatientQuestionnaireSerNum"];
+        $displayDate = (new DateTime($question["DateTimeAnswered"]));
 
-        if ($wsLanguage == 'EN') {
-            $wsDisplayDate = date_format(new DateTime($rowQR['DateTimeAnswered']), 'l jS F Y');
-            $wsDisplayQuestionQuestion = $rowQR['QuestionQuestion'] ;
-        } else {
-            $date = explode('|', date( "w|d|n|Y",(new DateTime($rowQR['DateTimeAnswered']))->getTimestamp()));
-            $wsDisplayDate = $day[(int) $date[0]] . ' ' . $date[1] . ' ' . $month[(int) $date[2]-1] . ' ' . $date[3] ;
-            $wsDisplayQuestionQuestion = $rowQR['QuestionQuestion_FR'] ;
-        };
+        $lastUsedDate = $displayDate->format("Y-m-d");
 
-            $jstringObj["DisplayDate"] = $wsDisplayDate;
-    };
+        if($question["Language"] === "EN") {
+            $displayDate = $displayDate->format("l jS F Y");
+        }
+        else
+        {
+            $weekDay = $displayDate->format("l");
+            $month = $displayDate->format("F");
 
-    // Display the question based on the language
-    if ($wsLanguage == 'EN') {
-        $wsDisplayQuestionQuestion = $rowQR['QuestionQuestion'] ;
-    } else {
-        $wsDisplayQuestionQuestion = $rowQR['QuestionQuestion_FR'] ;
-    };
+            $displayDate = $displayDate->format("l d F Y");
 
-    $wsDisplayQuestionQuestion = str_replace("<br />","\\n",$wsDisplayQuestionQuestion);
+            $displayDate = preg_replace(
+                ["/$weekDay/","/$month/"],
+                [convertEnglishWeekDayToFrench($weekDay),convertEnglishMonthToFrench($month)],
+                $displayDate
+            );
+        }
+    }
 
-    $wsDisplayQuestionQuestion = addslashes($wsDisplayQuestionQuestion);
-    $jstringObj["Description"] = $wsDisplayQuestionQuestion;
+    //sanitize question text
+    $questionText = ($question["Language"] === "EN") ? $question["QuestionQuestion"] : $question["QuestionQuestion_FR"];
+    $questionText = str_replace("<br />","\\n",$questionText);
+    $questionText = addslashes($questionText);
 
-    // What kind of choices did the patient have
-    $qSQLQC = $connection->prepare("CALL queryQuestionChoicesORMS($rowQR[QuestionSerNum])");
-    $qSQLQC->execute();
-
-    $wsQuestionnaireChoice = '';
-
-    // The patient have a choice of Min To Max
-    if ($rowQR['QuestionTypeSerNum'] == 2) {
-        // Generate user choice for min to max
-        foreach($qSQLQC->fetchAll() as $rowQC) {
-            // In theory, there should only be two rows
-            // First row is the minimum value
-            if (strlen(trim($wsQuestionnaireChoice)) == 0) {
-                $wsQuestionnaireChoice = $rowQC['ChoiceSerNum'] . ' ' . trim($rowQC['ChoiceDescription']) . str_repeat(" ", 4) . str_repeat(" - ", 15) . str_repeat(" ", 4);
-            } else {
-                // Second Row is the maximum value
-                $wsQuestionnaireChoice = $wsQuestionnaireChoice . $rowQC['ChoiceSerNum'] . ' ' . $rowQC['ChoiceDescription'];
-            };
-        };
-    };
-    $qSQLQC->closeCursor();
-
-    $jstringObj["Choice"] = $wsQuestionnaireChoice;
-
-    // display the response from the patient
-    $qSQLAnswer =  $connection->prepare("CALL getAnswerByAnswerQuestionnaireIdAndQuestionSectionId($rowQR[PatientQuestionnaireSerNum],$rowQR[QuestionnaireQuestionSerNum])");
-    $qSQLAnswer->execute();
-
-    $wsAnswer = "";
-
-    // loop the response for multiple choices
-    foreach($qSQLAnswer->fetchAll() as $rowAnswers)
+    //display the scale if the question has a scale
+    $scale = "";
+    if($question["QuestionTypeSerNum"] === "2")
     {
-        // Add comma if there are more than one answer
-        if (strlen($wsAnswer) == 0) {
-            $wsAnswer = "";
-        } else {
-            $wsAnswer = $wsAnswer . ", ";
-        };
+        //in theory, there should only be two rows
+        //first row is the minimum value, second is the max
+        $min = $question["choices"][0];
+        $max = $question["choices"][1];
 
-        $wsAnswer = $wsAnswer . $rowAnswers['Answer'];
+        $scale = $min["ChoiceSerNum"] ." ". trim($min["ChoiceDescription"]) .str_repeat(" ",4) .str_repeat(" - ",15) .str_repeat(" ",4);
+        $scale .= $max["ChoiceSerNum"] ." ". $max["ChoiceDescription"];
     };
-    $qSQLAnswer->closeCursor();
 
-    $jstringObj["Answer"] = $wsAnswer;
+    //separate the answers by a comma if there's more than one
+    $answers = implode(", ",$question["answers"]);
 
-    $jstring[] = $jstringObj;
+    $jstring[] = [
+        "DisplayDate"  => $displayDate,
+        "Description"  => utf8_encode_recursive($questionText),
+        "Choice"       => utf8_encode_recursive($scale),
+        "Answer"       => utf8_encode_recursive($answers)
+    ];
 
 };
 
-
-$jstring = utf8_encode_recursive($jstring);
 echo json_encode($jstring);
+
+function convertEnglishWeekDayToFrench(string $weekDay): string
+{
+    $weekDays = [
+        "Sunday"    => "Dimanche",
+        "Monday"    => "Lundi",
+        "Tuesday"   => "Mardi",
+        "Wednesday" => "Mercredi",
+        "Thursday"  => "Jeudi",
+        "Friday"    => "Vendredi",
+        "Saturday"  => "Samedi"
+    ];
+
+    return $weekDays[$weekDay];
+}
+
+function convertEnglishMonthToFrench(string $month): string
+{
+    $months = [
+        "January"      => "janvier",
+        "February"     => "février",
+        "March"        => "mars",
+        "April"        => "avril",
+        "May"          => "mai",
+        "June"         => "juin",
+        "July"         => "juillet",
+        "August"       => "août",
+        "September"    => "septembre",
+        "October"      => "octobre",
+        "November"     => "novembre",
+        "December"     => "décembre",
+    ];
+
+    return $months[$month];
+}
 
 ?>

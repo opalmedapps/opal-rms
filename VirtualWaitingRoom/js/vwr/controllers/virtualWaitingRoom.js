@@ -75,9 +75,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 $scope.checkinFile = response.data.checkinFile;
                 loadPatients();
-
-                //also get the opal notification file here
-                $scope.opalNotificationUrl = response.data.opalNotificationUrl;
             });
         }
     };
@@ -366,16 +363,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 //-----------------------------------------------------------------------
                 // Send the patient an SMS message
                 //-----------------------------------------------------------------------
-                $http({
-                    url: "php/sms/sendSMSRoom",
-                    method: "GET",
-                    params:
-                    {
-                        patientId: patient.PatientId,
-                        room_FR: destination.VenueFR,
-                        room_EN: destination.VenueEN
-                    }
-                });
 
                 //-----------------------------------------------------------------------
                 // Attempt to send a push notificiation to the patient's Opal-app enabled
@@ -383,21 +370,20 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 // Opal app or not. The php script will take care of whether the patient
                 // has a phone and Opal or not...
                 //-----------------------------------------------------------------------
-                //for now, only RVH patients have opal
                 let correctSerNum = patient.ScheduledActivitySer;
                 if(patient.CheckinSystem === "Aria") {
                     correctSerNum = patient.AppointmentId.replace(/MEDIAria/,"");
                 }
 
                 $http({
-                    url: $scope.opalNotificationUrl,
+                    url: "php/sms/sendSmsRoom",
                     method: "GET",
                     params:
                     {
-                        patientid: patient.Mrn,
-                        appointment_ariaser: correctSerNum,
-                        room_FR: destination.VenueFR,
-                        room_EN: destination.VenueEN
+                        patientId: patient.PatientId,
+                        appointmentId: correctSerNum,
+                        roomFr: destination.VenueFR,
+                        roomEn: destination.VenueEN
                     }
                 });
             }

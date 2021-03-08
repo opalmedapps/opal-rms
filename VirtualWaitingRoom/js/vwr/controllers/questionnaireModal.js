@@ -83,7 +83,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                     //I think this goes without saying, but this requires a more long term solution in the future...
 
                     //outer for loop iterates over each chart
-                    angular.forEach($scope.selectedQuestionnaire.questions.qData, function(val, key)
+                    angular.forEach($scope.selectedQuestionnaire.questions.qData,function(val,key)
                     {    //inner loop iterates over each data point within a given chart
                         angular.forEach(val.series[0].data, function(innerVal, key){
                             if(typeof innerVal[1] === 'string' || innerVal[1] instanceof String){
@@ -96,8 +96,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
                     $scope.$$postDigest(function()
                     {
-                        Highcharts.setOptions($scope.selectedQuestionnaire.questions.langSetting);
-
                         angular.forEach($scope.selectedQuestionnaire.questions.qData,function(chart,index)
                         {
                             chart.tooltip.formatter = function() {

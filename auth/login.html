@@ -69,91 +69,82 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
     {
         $scope.error = "";
         $http({
-                url: "/auth/authenticateUser.php",
+                url: "/auth/createUserSession.php",
                 method: "POST",
                 data: {
                     "username": $scope.username,
                     "password": $scope.password
                 }
-        }).then(function (response)
-        {
-            createCookieAndRedirect(response.data);
+        })
+        .then(r => createCookieAndRedirect(r.data))
+        .catch(_ => {
+                $scope.error = "Authentication failed";
+                $scope.password = "";
         });
     };
 
-    function createCookieAndRedirect(result)
+    function createCookieAndRedirect(cookie)
     {
-        var status = result[0];
-        var cookie = result[1];
+        $scope.showSpecialitySelection = true;
 
-        if(status === "Authentication success")
+        let answer = $mdDialog.confirm(
         {
-            $scope.showSpecialitySelection = true;
-
-            let answer = $mdDialog.confirm(
+            escapeToClose: false,
+            template: specialityTemplate,
+            locals: {
+                specialityGroups: Object.keys($scope.specialityGroups)
+            },
+            controller: function($scope,specialityGroups)
             {
-                escapeToClose: false,
-                template: specialityTemplate,
-                locals: {
-                    specialityGroups: Object.keys($scope.specialityGroups)
-                },
-                controller: function($scope,specialityGroups)
+                $scope.specialityGroups = specialityGroups;
+                $scope.complete = function (option)
                 {
-                    $scope.specialityGroups = specialityGroups;
-                    $scope.complete = function (option)
-                    {
-                        $mdDialog.hide(option);
-                    }
+                    $mdDialog.hide(option);
                 }
-            })
-            .ariaLabel('Area Dialog')
-            .hasBackdrop(false);
+            }
+        })
+        .ariaLabel('Area Dialog')
+        .hasBackdrop(false);
 
-            $mdDialog.show(answer).then(function(result)
+        $mdDialog.show(answer).then(function(result)
+        {
+            if($scope.specialityGroups[result].length !== 1)
             {
-                if($scope.specialityGroups[result].length !== 1)
+                let answer = $mdDialog.confirm(
                 {
-                    let answer = $mdDialog.confirm(
+                    escapeToClose: false,
+                    template: hubTemplate,
+                    locals: {
+                        hubs: $scope.specialityGroups[result]
+                    },
+                    controller: function($scope,hubs)
                     {
-                        escapeToClose: false,
-                        template: hubTemplate,
-                        locals: {
-                            hubs: $scope.specialityGroups[result]
-                        },
-                        controller: function($scope,hubs)
+                        $scope.hubs = hubs;
+                        $scope.complete = function (option)
                         {
-                            $scope.hubs = hubs;
-                            $scope.complete = function (option)
-                            {
-                                $mdDialog.hide(option);
-                            }
+                            $mdDialog.hide(option);
                         }
-                    })
-                    .ariaLabel('Area Dialog')
-                    .hasBackdrop(false);
+                    }
+                })
+                .ariaLabel('Area Dialog')
+                .hasBackdrop(false);
 
-                    $mdDialog.show(answer).then(function(resultHub)
-                    {
-                        $cookies.put("speciality",result,{path: "/"});
-                        $cookies.put("hub",resultHub,{path: "/"});
-                        $cookies.put(cookie["name"],cookie["key"],{path: "/"});
-                        $window.location.href = $location.absUrl();
-                    });
-                }
-                else
+                $mdDialog.show(answer).then(function(resultHub)
                 {
                     $cookies.put("speciality",result,{path: "/"});
-                    $cookies.put("hub",$scope.specialityGroups[result][0],{path: "/"});
+                    $cookies.put("hub",resultHub,{path: "/"});
                     $cookies.put(cookie["name"],cookie["key"],{path: "/"});
                     $window.location.href = $location.absUrl();
-                }
-            });
-        }
-        else
-        {
-            $scope.error = "Authentication failed";
-            $scope.password = "";
-        }
+                });
+            }
+            else
+            {
+                $cookies.put("speciality",result,{path: "/"});
+                $cookies.put("hub",$scope.specialityGroups[result][0],{path: "/"});
+                $cookies.put(cookie["name"],cookie["key"],{path: "/"});
+                $window.location.href = $location.absUrl();
+            }
+        });
     }
 
 });

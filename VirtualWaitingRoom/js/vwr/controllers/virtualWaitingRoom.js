@@ -13,8 +13,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // Get today's date
     var today = new Date();
     var dateToday = today.getDate();
-    var monthToday = today.getMonth()+1; //January is 0!
-    var yearToday = today.getFullYear();
 
     var loadHour = today.getHours();
 
@@ -88,22 +86,17 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // Get any images that will be needed
     //=================================================
     $scope.opalLogo = "";
-    toDataURL("./images/opal_logo.png", dataUrl => {$scope.opalLogo = dataUrl;});
 
-    function toDataURL(url, callback)
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function()
     {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-          var reader = new FileReader();
-          reader.onloadend = function() {
-            callback(reader.result);
-          }
-          reader.readAsDataURL(xhr.response);
-        };
-        xhr.open('GET', url);
-        xhr.responseType = 'blob';
-        xhr.send();
-    }
+        let reader = new FileReader();
+        reader.onloadend = _ => {$scope.opalLogo = reader.result;}
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET","./images/opal_logo.png");
+    xhr.responseType = "blob";
+    xhr.send();
 
     //=========================================================================
     // Set the firebase connection
@@ -136,8 +129,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             }
 
             if(
-                            ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today) || !$scope.screenRows.hasOwnProperty("zoomLinkSent")
-                    ) firebaseScreenRef.child("zoomLinkSent").set({CreatedOn: today});
+                ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today)
+                || !$scope.screenRows.hasOwnProperty("zoomLinkSent")
+            ) {
+                firebaseScreenRef.child("zoomLinkSent").set({CreatedOn: today});
+            }
 
             //Prepare a simple object to hold metadata - for now just the timestamp of the most recent call
             if(!$scope.screenRows.hasOwnProperty("Metadata"))
@@ -707,7 +703,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         }
         else
         {
-            var modalInstance = $uibModal.open({
+            $uibModal.open({
                 animation: true,
                 templateUrl: 'js/vwr/templates/callModal.htm',
                 controller: callModalController,
@@ -720,7 +716,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                         return selectedLocations;
                     }
                 }
-            }).result.then(function (result)
+            }).result.then(function(result)
             {
                 var selectedLocation = result.selectedLocation;
                 var occupyingIds = result.occupyingIds;
@@ -757,9 +753,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     };
 
     //initialize the modal function that lets us select resources/locations/appointments
-    $scope.openSelectorModal = function (options,selectedOptions,title)
+    $scope.openSelectorModal = function(options,selectedOptions,title)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/selectorModal.htm',
@@ -782,9 +778,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the questionnaire modal
     //=========================================================================
-    $scope.openQuestionnaireModal = function (patient)
+    $scope.openQuestionnaireModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/questionnaireModal.htm',
@@ -796,9 +792,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function(response)
-        {
-
         });
     }
 
@@ -806,9 +799,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the SMS modal
     //=========================================================================
-    $scope.openSMSRegistrationModal = function (patient)
+    $scope.openSMSRegistrationModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/registerSMSModal.htm',
@@ -820,9 +813,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function(response)
-        {
-
         });
     }
 
@@ -830,9 +820,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the weigh patient modal
     //=========================================================================
-    $scope.openWeightModal = function (patient)
+    $scope.openWeightModal = function(patient)
     {
-        var modalInstance = $uibModal.open(
+        $uibModal.open(
         {
             animation: true,
             templateUrl: 'js/vwr/templates/weightModal.htm',
@@ -844,7 +834,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 patient: function() {return patient;}
             }
-        }).result.then(function (response)
+        }).result.then(function(response)
         {
             //if the weight was updated, remove the patient from the ToBeWeighed FB array
             if(response)
@@ -861,9 +851,42 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     }
 
     //=========================================================================
+    // Open the Diagnosis modal
+    //=========================================================================
+    $scope.openDiagnosisModal = function(patient)
+    {
+        $uibModal.open({
+            animation: true,
+            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            controller: diagnosisModalController,
+            windowClass: 'diagnosisModal',
+            size: 'lg',
+            //backdrop: 'static',
+            resolve:
+            {
+                patient: function() {return patient;}
+            }
+        })
+    }
+
+    $scope.loadPatientDiagnosis = function(patient)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: patient.PatientId
+            }
+        })
+        .then(res => {
+            $scope.lastPatientDiagnosisList = res.data
+        });
+    }
+
+    //=========================================================================
     // Open the form modal
     //=========================================================================
-    $scope.openFormModal = function (patient)
+    $scope.openFormModal = function(patient)
     {
         /*
         var modalInstance = $uibModal.open(
@@ -885,7 +908,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         $scope.completeAppointment(patient);
     }
 
-    $scope.logMessage = function (identifier,type,message)
+    $scope.logMessage = function(identifier,type,message)
     {
         $http({
             url: "php/logMessage.php",

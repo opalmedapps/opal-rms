@@ -3,17 +3,13 @@ angular.module('vwr').component('questionnaireModal',{
     controller: questionnaireModalController
 });
 
-function questionnaireModalController($scope,$http,$mdDialog,$cookies,$filter,patient)
+function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 {
     $scope.patient = patient;
     $scope.questionnaireList = [];
 
     $scope.selectedQuestionnaire; //initialize variable so we know it exists
     $scope.questionnaires = [];
-
-    //***********************************************************
-    //questionnaires exist only for RVH patients for now...
-    //***********************************************************
 
     $http({
         url: "./php/questionnaire/getQuestionnaires.php",
@@ -36,63 +32,13 @@ function questionnaireModalController($scope,$http,$mdDialog,$cookies,$filter,pa
         $scope.displayChart($scope.questionnaireList[0]);
     });
 
-
-    //add scoll tracking to the modal to determine when the user has reached the bottom of the modal
-    /*$scope.addScrollFunc = function()
-    {
-        $(".modal").scroll(function()
-        {
-            if($(".modal").scrollTop() + $(".modal").height() == $(".modal")[0].scrollHeight)
-            {
-                console.log("bottom!");
-            }
-        });
-    }*/
-
     $scope.markAsReviewed = function()
     {
         let answer = $mdDialog.confirm(
         {
             templateUrl: './js/vwr/templates/authDialog.htm',
-            controller: function($scope)
-            {
-                $scope.page = {
-                    username: $cookies.get("lastUsedUsername") ?? "", //if the user has previously authenticated, a cookie with the username should exist
-                    password: "",
-                    message: ""
-                };
-                $scope.Title = 'Login to mark as Reviewed';
-                $scope.authenticate = async function()
-                {
-                    let authResult = await $http({
-                        url: "./php/authenticateUser.php",
-                        method: "POST",
-                        data: {
-                            username: $scope.page.username,
-                            password: $scope.page.password
-                        }
-                    })
-                    .then( response => response.data.valid)
-                    .catch( _ => null);
-
-                    $scope.page.password = ""; //clear the password field
-
-                    if(authResult === true)
-                    {
-                        $cookies.put("lastUsedUsername",$scope.page.username); //store the last authenticated username in case the user is reviewing multiple questionnaires
-                        $mdDialog.hide($scope.page.username);
-                    }
-                    else if(authResult === false) {
-                        $scope.page.message = "Invalid username or password!";
-                    }
-                    else {
-                        $scope.page.message = "Error! Please try again later.";
-                    }
-                }
-            }
-
+            controller: authDialogController
         })
-        .ariaLabel('Auth Dialog')
         .clickOutsideToClose(true);
 
         $mdDialog.show(answer).then( result => {
@@ -108,7 +54,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$cookies,$filter,pa
             .then( _ => {$scope.patient.LastQuestionnaireReview = $filter("date")(new Date(),"yyyy-MM-dd HH-mm");});
         });
     }
-
 
     //set which questionnaire to display
     $scope.displayChart = function(que)

@@ -28,6 +28,7 @@
 <script src="/node_modules/angular-audio/app/angular.audio.js"></script>
 <script src="/node_modules/checklist-model/checklist-model.js"></script>
 <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+<script src="/node_modules/ng-table/bundles/ng-table.min.js"></script>
 
 <script src="/node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js"></script>
 
@@ -44,7 +45,7 @@
 
 <!--CSS -->
 <!--<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> use bootstrap v3 css; the css styling can be done later-->
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+<!--<link media="all" type="text/css" rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">-->
 <link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
 <link media="all" type="text/css" rel="stylesheet" href="/node_modules/angular-datatables/dist/css/angular-datatables.min.css">
@@ -58,6 +59,7 @@
 
 <script src = "./js/vwr/controllers/clinicalViewer.js"></script>
 <script src="js/vwr/controllers/authDialog.js"></script>
+<script src="js/vwr//controllers/diagnosisModal.js"></script>
 <script src="./js/vwr/controllers/questionnaireModal.js"></script>
 <script src="./js/vwr/controllers/selectorModal.js"></script>
 <script src="/node_modules/checklist-model/checklist-model.js"></script>
@@ -86,7 +88,7 @@
     .tables tbody>tr>td {
         line-height: 1.42857143;
         vertical-align: middle;
-        border-top: 1px solid #ddd;
+        /*border-top: 1px solid #ddd;*/
         font-size: 15px;
         overflow: auto;
     }
@@ -100,6 +102,14 @@
     .btn.btn-primary.active {
         z-index: 1;
         background-color: #337ab7
+    }
+
+    .btn-primary:not(:disabled):not(.disabled).active,
+    .btn-primary:not(:disabled):not(.disabled):active,
+    .show>.btn-primary.dropdown-toggle{
+        color: #fff;
+        background-color: #0062cc;
+        border-color: #005cbf;
     }
 
     .btn.btn-sr {
@@ -436,7 +446,25 @@
                 <td>{{appoint.checkin}}</td>
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
-                <td ng-class="(diagnosisUsed) ? 'textStyleRed': ''">{{appoint.diagnosis}}</td>
+                <td>
+                    <div class="diagnosis-hover">
+                        <button ng-click="openDiagnosisModal(appoint)" class="btn btn-info btn-diagnosis" ng-mouseover="loadPatientDiagnosis(appoint)">View</button>
+                        <span class="diagnosis-table">
+                            <table style="width: 98%;margin: 5px;color: white;background-color: black;padding:0px 0px;font-size: 14">
+                                <tr style="background-color: black; padding:1px 1px">
+                                    <th style="padding:1px 1px">Code</th>
+                                    <th style="padding:1px 1px">Description</th>
+                                    <th style="padding:1px 1px">Date</th>
+                                </tr>
+                                <tr ng-repeat="diag in lastPatientDiagnosisList" style="background-color: black;padding:0px 0px">
+                                    <td style="padding:1px 1px">{{diag.diagnosis.subcode}}</td>
+                                    <td style="padding:1px 1px">{{diag.diagnosis.subcodeDescription}}</td>
+                                    <td style="padding:1px 1px">{{diag.diagnosisDate | date: 'yyyy-MM-dd'}}</td>
+                                </tr>
+                            </table>
+                        </span>
+                    </div>
+                </td>
                 <td><button ng-show="appoint.SMSAlertNum && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
                     <button ng-show="appoint.SMSAlertNum && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
                     <button ng-show="appoint.SMSAlertNum && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td>

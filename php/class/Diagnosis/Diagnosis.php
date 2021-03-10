@@ -23,12 +23,10 @@ class Diagnosis
 
     /**
      *
-     * @param int $id
-     * @return Diagnosis
      * @throws PDOException
      * @throws Exception
      */
-    static function getDiagnosisFromId(int $id): Diagnosis
+    static function getDiagnosisFromId(int $id): self
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -106,6 +104,48 @@ class Diagnosis
                 DS.Subcode
         ");
         $query->execute($paramFilter);
+
+        return array_map(function($x) {
+            return new Diagnosis(
+                (int) $x["DiagnosisSubcodeId"],
+                $x["Subcode"],
+                $x["SubcodeDescription"],
+                $x["Code"],
+                $x["Category"],
+                $x["CodeDescription"],
+                $x["Chapter"],
+                $x["ChapterDescription"]
+            );
+        },$query->fetchAll());
+    }
+
+    /**
+     *
+     * @return Diagnosis[]
+     * @throws PDOException
+     */
+    static function getUsedSubCodeList(): array
+    {
+        $dbh = Database::getOrmsConnection();
+        $query = $dbh->prepare("
+            SELECT DISTINCT
+                DS.DiagnosisSubcodeId
+                ,DS.Subcode
+                ,DS.Description AS SubcodeDescription
+                ,DC.Code
+                ,DC.Category
+                ,DC.Description AS CodeDescription
+                ,DH.Chapter
+                ,DH.Description AS ChapterDescription
+            FROM
+                PatientDiagnosis PD
+                INNER JOIN DiagnosisSubcode DS ON DS.DiagnosisSubcodeId = PD.DiagnosisSubcodeId
+                INNER JOIN DiagnosisCode DC ON DC.DiagnosisCodeId = DS.DiagnosisCodeId
+                INNER JOIN DiagnosisChapter DH ON DH.DiagnosisChapterId = DC.DiagnosisChapterId
+            ORDER BY
+                DS.Subcode
+        ");
+        $query->execute();
 
         return array_map(function($x) {
             return new Diagnosis(

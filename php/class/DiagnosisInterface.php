@@ -35,6 +35,16 @@ class DiagnosisInterface
 
     /**
      *
+     * @return Diagnosis[]
+     * @throws PDOException
+     */
+    static function getUsedDiagnosisCodeList(): array
+    {
+        return Diagnosis::getUsedSubCodeList();
+    }
+
+    /**
+     *
      * @return PatientDiagnosis[]
      * @throws PDOException
      */

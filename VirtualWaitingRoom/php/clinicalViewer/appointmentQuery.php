@@ -7,6 +7,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Database;
 use Orms\Opal;
+use Orms\DiagnosisInterface;
 
 $sDateInit              = $_GET["sDate"] ?? NULL;
 $eDateInit              = $_GET["eDate"] ?? NULL;
@@ -133,7 +134,6 @@ if($afilter === FALSE)
         if($app["SMSAlertNum"] !== NULL) $app["SMSAlertNum"] = substr($app["SMSAlertNum"],0,3) ."-". substr($app["SMSAlertNum"],3,3) ."-". substr($app["SMSAlertNum"],6,4);
 
         //define opal fields and fill them if the patient is an opal patient
-        $app["Diagnosis"] = "";
         $app["QuestionnaireName"] = "";
         $app["QStatus"] = "";
         $recentlyAnswered = NULL;
@@ -141,10 +141,8 @@ if($afilter === FALSE)
 
         if($app["OpalPatient"] === "1")
         {
-            $opalDiagnosis = Opal::getLatestPatientDiagnosis($app["PatientId"]);
             $opalQuestionnaire = Opal::getLastCompletedPatientQuestionnaireClinicalViewer($app["PatientId"],$qDate);
 
-            $app["Diagnosis"] = $opalDiagnosis["Name_EN"] ?? "";
             $app["QuestionnaireName"] = $opalQuestionnaire["QuestionnaireName"] ?? "";
 
             $lastCompleted = $opalQuestionnaire["QuestionnaireCompletionDate"] ?? NULL;
@@ -170,7 +168,7 @@ if($afilter === FALSE)
         }
 
         if(
-            ($appdType === "all" || in_array($app["Diagnosis"],explode(",",$dspecificApp)) === TRUE)
+            ($appdType === "all" || checkDiagnosis((int) $app["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
             && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered == "1")
             && ($qType === "all" || $answeredQuestionnaire === TRUE)
         ) {
@@ -187,7 +185,6 @@ if($afilter === FALSE)
                 "appTime"       => $app["ScheduledTime"],
                 "checkin"       => $checkInTime,
                 "mediStatus"    => $app["MedivisitStatus"],
-                "diagnosis"     => $app["Diagnosis"],
                 "QStatus"       => $app["QStatus"],
                 "opalpatient"   => $app["OpalPatient"],
                 "SMSAlertNum"   => $app["SMSAlertNum"],
@@ -201,9 +198,8 @@ if($afilter === FALSE)
 if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 {
     $qappFilter = ($qType === "all") ? [] : explode(",",$qspecificApp);
-    $dappFilter = ($appdType === "all") ? [] : explode(",",$dspecificApp);
 
-    $patients = Opal::getOpalPatientsAccordingToVariousFilters($qappFilter,$dappFilter,$qDate);
+    $patients = Opal::getOpalPatientsAccordingToVariousFilters($qappFilter,$qDate);
 
     $queryPatientInformation = $dbh->prepare("
         SELECT
@@ -229,22 +225,23 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 
     foreach($patients as $pat)
     {
-
         //filter as many patients as possible before doing any processing
         $recentlyAnswered = $pat["RecentlyAnswered"] ?? NULL;
 
         if(! (
-            ($appdType === "all" || $pat["Name_EN"] !== NULL)
+            in_array($pat["PatientId"],$mrnList) === FALSE
             && ($offbutton === "OFF" || $recentlyAnswered === "1")
             && ($qType === "all" || $pat["QuestionnaireName"] !== NULL)
-            && in_array($pat["PatientId"],$mrnList) === FALSE
             && $pat["QuestionnaireCompletionDate"] !== NULL
         )) continue;
 
         $queryPatientInformation->execute([":mrn" => $pat["PatientId"]]);
         $ormsInfo = $queryPatientInformation->fetchAll()[0] ?? [];
 
-        if($ormsInfo === []) continue;
+        if(
+            $ormsInfo === []
+            || ($appdType === "all" || checkDiagnosis((int) $ormsInfo["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
+        ) continue;
 
         $completedWithinWeek = $pat["CompletedWithinLastWeek"] ?? NULL;
         $pat["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
@@ -273,7 +270,6 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             "appTime"       => NULL,
             "checkin"       => NULL,
             "mediStatus"    => NULL,
-            "diagnosis"     => $pat["Name_EN"],
             "QStatus"       => $pat["QStatus"],
             "opalpatient"   => $ormsInfo["OpalPatient"],
             "SMSAlertNum"   => $ormsInfo["SMSAlertNum"],
@@ -285,7 +281,19 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 $listOfAppointments = utf8_encode_recursive($listOfAppointments);
 echo json_encode($listOfAppointments);
 
-
-exit;
+/**
+ *
+ * @param mixed[] $diagnosisList
+ */
+function checkDiagnosis(int $patientId,array $diagnosisList): bool
+{
+    $patientDiagnosis = DiagnosisInterface::getDiagnosisListForPatient($patientId);
+    foreach($patientDiagnosis as $d) {
+        if(in_array($d->diagnosis->subcode,$diagnosisList)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
 
 ?>

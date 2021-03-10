@@ -411,132 +411,40 @@ class Opal
 
     /**
      *
-     * @return mixed[]
-     * @throws PDOException
-     */
-    static function getLatestPatientDiagnosis(string $mrn): array
-    {
-        $dbh = Database::getOpalConnection();
-        if($dbh === NULL) return [];
-
-        $query = $dbh->prepare("
-            SELECT
-                DT.Name_EN
-            FROM
-                Patient P
-                INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
-                INNER JOIN DiagnosisCode DC ON DC.DiagnosisCode = D.DiagnosisCode
-                INNER JOIN DiagnosisTranslation DT ON DT.DiagnosisTranslationSerNum = DC.DiagnosisTranslationSerNum
-            WHERE
-                P.PatientId = :mrn
-            ORDER BY
-                D.LastUpdated DESC
-            LIMIT 1"
-        );
-        $query->execute([
-            ":mrn" => $mrn
-        ]);
-
-        return $query->fetchAll()[0] ?? [];
-    }
-
-    /**
-     *
      * @param mixed[] $questionnaireList
-     * @param mixed[] $diagnosisList
      * @return mixed[]
      */
-    static function getOpalPatientsAccordingToVariousFilters(array $questionnaireList,array $diagnosisList,string $questionnaireDate): array
+    static function getOpalPatientsAccordingToVariousFilters(array $questionnaireList,string $questionnaireDate): array
     {
         $dbh = Database::getOpalConnection();
         if($dbh === NULL) return [];
 
         $qappFilter = ($questionnaireList === []) ? "" : " AND QC.QuestionnaireName_EN IN ('" . implode("','",$questionnaireList) . "')";
-        $dappFilter = ($diagnosisList === []) ? "" : " AND DT.Name_EN IN ('" . implode("','",$diagnosisList) . "')";
 
-        //this will return every patient in the opal database, even if all the fields except PatientId are null
+        //if the questionnaire list is emmpty, this will return every patient in the opal database that completed a questionnaire
         $query = $dbh->prepare("
-            SELECT
+            SELECT DISTINCT
                 P.PatientId,
-                (
-                    SELECT
-                        DT.Name_EN
-                    FROM
-                        Diagnosis D
-                        INNER JOIN DiagnosisCode DC ON DC.DiagnosisCode = D.DiagnosisCode
-                        INNER JOIN DiagnosisTranslation DT ON DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
-                        $dappFilter
-                    WHERE
-                        D.PatientSerNum = P.PatientSerNum
-                    ORDER BY
-                        D.LastUpdated DESC
-                    LIMIT 1
-                ) AS Name_EN,
-                (
-                    SELECT
-                        Q.CompletionDate
-                    FROM
-                        Questionnaire Q
-                        INNER JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                            AND Q.CompletedFlag = 1
-                            $qappFilter
-                    WHERE
-                        Q.PatientSerNum = P.PatientSerNum
-                    ORDER BY
-                        Q.CompletionDate DESC
-                    LIMIT 1
-                ) AS QuestionnaireCompletionDate,
-                (
-                    SELECT
-                        QC.QuestionnaireName_EN
-                    FROM
-                        Questionnaire Q
-                        INNER JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                        AND Q.CompletedFlag = 1
-                        $qappFilter
-                    WHERE
-                        Q.PatientSerNum = P.PatientSerNum
-                    ORDER BY
-                        Q.CompletionDate DESC
-                    LIMIT 1
-                ) AS QuestionnaireName,
-                (
-                    SELECT
-                        CASE
-                            WHEN Q.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
-                            ELSE 0
-                            END AS CompletedWithinLastWeek
-                    FROM
-                        Questionnaire Q
-                        INNER JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                        AND Q.CompletedFlag = 1
-                        $qappFilter
-                    WHERE
-                        Q.PatientSerNum = P.PatientSerNum
-                    ORDER BY
-                        Q.CompletionDate DESC
-                    LIMIT 1
-                ) AS CompletedWithinLastWeek,
-                (
-                    SELECT
-                        CASE
-                            WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
-                            ELSE 0
-                            END AS RecentlyAnswered
-                    FROM
-                        Questionnaire Q
-                    INNER JOIN
-                        QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-                        AND Q.CompletedFlag = 1
-                        $qappFilter
-                    WHERE
-                        Q.PatientSerNum = P.PatientSerNum
-                    ORDER BY
-                        Q.CompletionDate DESC
-                    LIMIT 1
-                ) AS RecentlyAnswered
+                MAX(Q.CompletionDate) AS QuestionnaireCompletionDate,
+                QC.QuestionnaireName_EN AS QuestionnaireName,
+                CASE
+                    WHEN Q.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
+                    ELSE 0
+                    END AS CompletedWithinLastWeek,
+                CASE
+                    WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
+                        ELSE 0
+                    END AS RecentlyAnswered
             FROM
                 Patient P
+                INNER JOIN Questionnaire Q ON Q.PatientSerNum = P.PatientSerNum
+                    AND Q.CompletedFlag = 1
+                INNER JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                    $qappFilter
+            GROUP BY
+                P.PatientId
+            ORDER BY
+                Q.CompletionDate DESC
         ");
         $query->execute([":qDate" => $questionnaireDate]);
 

@@ -1,4 +1,4 @@
-let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies']);
+let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies','ngTable']);
 
 app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
 {
@@ -87,6 +87,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
     }
 
+    //=========================================================================
+    // Button and page status features
+    //=========================================================================
     $scope.keepOpalChecked = function (check) {
         if ($scope.inputs.opal == false && $scope.inputs.SMS == false) {
             $scope.inputs[check] = true;
@@ -167,8 +170,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.inputchange();
     };
 
-
-
     $scope.AndOrButton = function(){
         if ($scope.inputs.andbutton === 'And'){
             $scope.inputs.andbutton = 'Or';
@@ -177,6 +178,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.inputchange();
     };
 
+    //=========================================================================
+    // Reset page setting
+    //=========================================================================
     $scope.reset = function (resetPressed)
     {
         $scope.sDate = new Date();
@@ -228,6 +232,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }*/
     }
 
+    //=========================================================================
+    // Get resource, appointment code and diagnosis list
+    //=========================================================================
     $http.get("./php/clinicalViewer/resourceQuery.php?clinic="+speciality).then(function(response)
     {
         $scope.clinics = response.data;
@@ -251,6 +258,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.questionnaireType = response.data;
     })
 
+    //=========================================================================
+    // Open the Login modal
+    //=========================================================================
     $scope.login = function()
     {
         let answer = $mdDialog.confirm(
@@ -267,6 +277,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         });
     };
 
+    //=========================================================================
+    // Initialize the page and query the appointments
+    //=========================================================================
     $scope.runScript = function (firstTime)
     {
         if(firstTime) {
@@ -418,6 +431,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         }
     };
 
+    //=========================================================================
+    // Open the Questionnaire modal
+    //=========================================================================
     $scope.openQuestionnaireModal = function (appoint)
     {
         var modalInstance = $uibModal.open(
@@ -439,6 +455,56 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         });
     }
 
+    //=========================================================================
+    // Open the Diagnosis modal
+    //=========================================================================
+    $scope.openDiagnosisModal = function(appoint)
+    {
+        $uibModal.open({
+            animation: true,
+            templateUrl: './js/vwr/templates/diagnosisModal.htm',
+            controller: diagnosisModalController,
+            windowClass: 'diagnosisModal',
+            size: 'lg',
+            //backdrop: 'static',
+            resolve:
+                {
+                    patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId,};}
+                }
+        })
+    }
+
+    $scope.loadPatientDiagnosis = function(patient)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: patient.PatientId
+            }
+        })
+            .then(res => {
+                $scope.lastPatientDiagnosisList = res.data
+            });
+    }
+
+    $scope.loadPatientDiagnosis = function(appoint)
+    {
+        $http({
+            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            method: "GET",
+            params: {
+                patientId: appoint.patientId
+            }
+        })
+        .then(res => {
+            $scope.lastPatientDiagnosisList = res.data
+        });
+    }
+
+    //=========================================================================
+    // Open the Selector modal
+    //=========================================================================
     $scope.openSelectorModal = function (options,selectedOptions,title)
     {
         var modalInstance = $uibModal.open(
@@ -577,7 +643,7 @@ app.factory('callScript',function($http,$q)
             }
             var diagnosis = "";
             for (i = 0; i < inputs.selecteddiagnosis.length; i++) {
-                diagnosis += ""+inputs.selecteddiagnosis[i].Name + "";
+                diagnosis += ""+inputs.selecteddiagnosis[i].subcode + "";
                 if(i< inputs.selecteddiagnosis.length-1) diagnosis += ",";
             }
 

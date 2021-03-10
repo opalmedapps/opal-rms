@@ -139,25 +139,4 @@ class PatientDiagnosis
 
         return $patientDiagnosisId;
     }
-
-
-    // static function updateDiagnosis(int $patientId,int $patientDiagnosisId,int $diagnosisSubcodeId,string $status)
-    // {
-    //     $dbh = Config::getDatabaseConnection("ORMS");
-    //     $query = $dbh->prepare("
-    //         UPDATE PatientDiagnosisId PD
-    //             PD.DiagnosisSubcodeId = :dId,
-    //             PD.Status = :stat
-    //         WHERE
-    //             PD.PatientSerNum = :pId
-    //             AND PD.PatientDiagnosisId = :pdId
-    //     ");
-    //     $query->execute([
-    //         ":pId"      => $patientId,
-    //         "pdId"      => $patientDiagnosisId,
-    //         ":dId"      => $diagnosisSubcodeId,
-    //         ":stat"     => $status
-    //     ]);
-    // }
-
 }

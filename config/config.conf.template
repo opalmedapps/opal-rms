@@ -1,8 +1,5 @@
 #config file to store all needed configs
 
-[orms]
-SITE                            =
-
 [path]
 BASE_PATH                       =
 BASE_URL                        =

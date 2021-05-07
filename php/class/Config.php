@@ -43,8 +43,7 @@ class Config
             imageUrl:       $parsedData["path"]["IMAGE_URL"],
             logPath:        $parsedData["path"]["LOG_PATH"],
             oieUrl:         $parsedData["path"]["OIE_URL"] ?? NULL,
-            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL,
-            site:           $parsedData["orms"]["SITE"],
+            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL
         );
 
         $system = new SystemConfig(
@@ -165,8 +164,7 @@ class EnvironmentConfig
         public string $imageUrl,
         public string $logPath,
         public ?string $oieUrl,
-        public ?string $highchartsUrl,
-        public string $site
+        public ?string $highchartsUrl
     ) {}
 }
 

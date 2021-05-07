@@ -6,6 +6,7 @@ use Exception;
 
 use Orms\Database;
 use Orms\DateTime;
+use Orms\Patient\Mrn;
 
 /** @psalm-immutable */
 class Patient
@@ -16,10 +17,10 @@ class Patient
         public string $lastName,
         public string $ramq,
         public ?DateTime $ramqExpirationDate,
-        public string $mrn,
         public ?string $smsNum,
         public int $opalPatient,
         public ?string $languagePreference,
+        /** @var Mrn[] $mrns */ public array $mrns
     ) {}
 
     /*a few rules for inserting and updating patients:
@@ -116,7 +117,7 @@ class Patient
         return self::_fetchPatient($id);
     }
 
-    static function getPatientByMrn(string $mrn): ?self
+    static function getPatientByMrn(string $mrn,string $site): ?self
     {
         return self::_fetchPatient($mrn);
     }

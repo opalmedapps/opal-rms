@@ -80,7 +80,7 @@ class Generator
 
     private static function _generateLatexString(Patient $patient,string $chartImagePath): string
     {
-        $measurements   = PatientMeasurement::getMeasurements($patient);;
+        $measurements   = PatientMeasurement::getMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
         $mrn            = $patient->mrn;

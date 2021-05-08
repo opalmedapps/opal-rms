@@ -7,6 +7,7 @@ use Exception;
 use Orms\Database;
 use Orms\DateTime;
 use Orms\Patient\Mrn;
+use Orms\Patient\Insurance;
 
 /** @psalm-immutable */
 class Patient
@@ -15,12 +16,11 @@ class Patient
         public int $id,
         public string $firstName,
         public string $lastName,
-        public string $ramq,
-        public ?DateTime $ramqExpirationDate,
         public ?string $smsNum,
         public int $opalPatient,
         public ?string $languagePreference,
-        /** @var Mrn[] $mrns */ public array $mrns
+        /** @var Mrn[] $mrns */ public array $mrns,
+        /** @var Insurance[] $insurances */ public array $insurances
     ) {}
 
     /*a few rules for inserting and updating patients:
@@ -61,42 +61,71 @@ class Patient
         return $patient;
     }
 
-    static function updateDemographics(
-        int $id,
-        string $firstName,
-        string $lastName,
-        string $mrn,
-        ?string $ramq,
-        ?DateTime $ramqExpiration
-    ): self
+    static function getPatientById(int $id): ?self
     {
-        $mrn = str_pad($mrn,7,"0",STR_PAD_LEFT);
-        $ramq = preg_match("/^[a-zA-Z]{4}[0-9]{8}$/",$ramq ?? "") ? $ramq : NULL;
+        return self::_fetchPatient($id);
+    }
 
+    static function getPatientByMrn(string $mrn,string $site): ?self
+    {
+        $id = Mrn::getPatientIdForMrn($mrn,$site);
+        return self::_fetchPatient($id);
+    }
+
+    private static function _fetchPatient(int $id): ?self
+    {
+        $dbh = Database::getOrmsConnection();
+        $query = $dbh->prepare("
+            SELECT DISTINCT
+                LastName,
+                FirstName,
+                PatientId,
+                SMSAlertNum,
+                SMSSignupDate,
+                OpalPatient,
+                LanguagePreference
+            FROM
+                Patient
+            WHERE
+                PatientSerNum = ?
+        ");
+        $query->execute([$id]);
+
+        $row = $query->fetchAll()[0] ?? NULL;
+
+        if($row === NULL) return NULL;
+
+        return new Patient(
+            id:                    $id,
+            firstName:             $row["FirstName"],
+            lastName:              $row["LastName"],
+            mrns:                  Mrn::getMrnsForPatientId($id),
+            insurances:            Insurance::getInsurancesForPatientId($id),
+            smsNum:                $row["SMSAlertNum"],
+            opalPatient:           (int) $row["OpalPatient"],
+            languagePreference:    $row["LanguagePreference"],
+        );
+    }
+
+    function updateName(string $firstName,string $lastName): self
+    {
         Database::getOrmsConnection()->prepare("
             UPDATE Patient
             SET
-                FirstName       = :fn,
-                LastName        = :ln,
-                SSN             = :ssn,
-                SSNExpDate      = :ssnExpDate,
-                PatientId       = :mrn
+                FirstName = :fn,
+                LastName  = :ln
             WHERE
                 PatientSerNum = :id
         ")->execute([
-            ":fn"           => strtoupper($firstName),
-            ":ln"           => strtoupper($lastName),
-            ":ssn"          => strtoupper($ramq ?? $mrn),
-            ":ssnExpDate"   => $ramqExpiration?->format("ym") ?? 0,
-            ":mrn"          => $mrn,
-            ":id"           => $id
+            ":fn" => strtoupper($firstName),
+            ":ln" => strtoupper($lastName),
+            ":id" => $this->id
         ]);
 
-        $patient = self::getPatientByMrn($mrn) ?? throw new Exception("Failed to update patient with mrn $mrn");
-        return $patient;
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update patient");
     }
 
-    static function updateOpalStatus(self $patient,int $opalStatus): self
+    function updateOpalStatus(int $opalStatus): self
     {
         Database::getOrmsConnection()->prepare("
             UPDATE Patient
@@ -106,69 +135,21 @@ class Patient
                 PatientSerNum = :id
         ")->execute([
             ":status" => $opalStatus,
-            ":id"     => $patient->id
+            ":id"     => $this->id
         ]);
 
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update opal status");
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update opal status");
     }
 
-    static function getPatientById(int $id): ?self
+    function updateMrn(string $mrn,string $site,bool $active): self
     {
-        return self::_fetchPatient($id);
+        Mrn::updateMrnForPatientId($this->id,$mrn,$site,$active);
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update patient");
     }
 
-    static function getPatientByMrn(string $mrn,string $site): ?self
+    function updateInsurance(string $insuranceNumber,string $type,DateTime $expirationDate,bool $active): self
     {
-        return self::_fetchPatient($mrn);
-    }
-
-    private static function _fetchPatient(int|string $identifier): ?self
-    {
-        $column = match(gettype($identifier)) {
-            "integer" => "PatientSerNum",
-            "string"  => "PatientId",
-            default   => "PatientSerNum"
-        };
-
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
-            SELECT DISTINCT
-                PatientSerNum,
-                LastName,
-                FirstName,
-                SSN,
-                SSNExpDate,
-                PatientId,
-                SMSAlertNum,
-                SMSSignupDate,
-                OpalPatient,
-                LanguagePreference
-            FROM
-                Patient
-            WHERE
-                $column = :iden
-        ");
-        $query->execute([
-            ":iden" => $identifier
-        ]);
-
-        $row = $query->fetchAll()[0] ?? NULL;
-
-        if($row === NULL) return NULL;
-
-        $expirationDate = ($row["SSNExpDate"] === "0") ? NULL : DateTime::createFromFormatN("ym",$row["SSNExpDate"])?->modifyN("first day of")?->modifyN("midnight");
-
-        return new Patient(
-            id:                    (int) $row["PatientSerNum"],
-            firstName:             $row["FirstName"],
-            lastName:              $row["LastName"],
-            ramq:                  $row["SSN"],
-            ramqExpirationDate:    $expirationDate,
-            mrn:                   $row["PatientId"],
-            smsNum:                $row["SMSAlertNum"],
-            opalPatient:           (int) $row["OpalPatient"],
-            languagePreference:    $row["LanguagePreference"],
-        );
+        Insurance::
     }
 }
 

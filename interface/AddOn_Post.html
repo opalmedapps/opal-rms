@@ -15,11 +15,12 @@
     <form ng-submit="createAddOn()">
         <table border="0" width="60%" padding="2">
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
-            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.pid" id="pid" disabled></td></tr>
-            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" id="Ramq" disabled></tr>
-            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" id="RamqExpiryDate" disabled></td></tr>
-            <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" id="last" disabled></td></tr>
-            <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" id="first" disabled></td></tr>
+            <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.mrn" disabled></td></tr>
+            <tr><td><b>Site</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.site" disabled></td></tr>
+            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" disabled></tr>
+            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" disabled></td></tr>
+            <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" disabled></td></tr>
+            <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" disabled></td></tr>
             <tr><td></td></td>
 
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
@@ -102,7 +103,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
     $scope.pageFields = {
         first: pageParams.first,
         last: pageParams.last,
-        pid: pageParams.pid,
+        mrn: pageParams.mrn,
         site: pageParams.site,
         Ramq: pageParams.ramq,
         RamqExpiryDate: pageParams.ramqExp,
@@ -114,14 +115,6 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
 
     $scope.pageFields.AppointDate.setSeconds(0);
     $scope.pageFields.AppointDate.setMilliseconds(0);
-
-    if(!$scope.pageFields.Ramq || $scope.pageFields.Ramq === "null") {
-        $scope.pageFields.Ramq = $scope.pageFields.pid;
-    }
-
-    if(!$scope.pageFields.RamqExpiryDate || $scope.pageFields.RamqExpiryDate === "null") {
-        $scope.pageFields.RamqExpiryDate = "0000";
-    }
 
     $scope.updateSelectedResource = resource => {
         resource = JSON.parse(resource);
@@ -163,7 +156,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
             url: "/php/api/public/v1/patient/checkIfPatientExists.php",
             method: "POST",
             data: {
-                "mrn": $scope.pageFields.pid,
+                "mrn": $scope.pageFields.mrn,
                 "site": $scope.pageFields.site
             }
         })
@@ -182,11 +175,11 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
                 data: {
                     firstName:          $scope.pageFields.first,
                     lastName:           $scope.pageFields.last,
-                    ramq:               $scope.pageFields.Ramq,
-                    ramqExpiration:     ($scope.pageFields.RamqExpiryDate === "0000") ? null : convertDatetimeToString(new Date($scope.pageFields.RamqExpiryDate)),
+                    ramq:               ($scope.pageFields.Ramq === "") ? null : $scope.pageFields.Ramq,
+                    ramqExpiration:     ($scope.pageFields.RamqExpiryDate === "") ? null : convertDatetimeToString(new Date($scope.pageFields.RamqExpiryDate)),
                     mrns: [
                         {
-                            mrn: $scope.pageFields.pid,
+                            mrn: $scope.pageFields.mrn,
                             site: $scope.pageFields.site,
                             active: 1
                         }
@@ -213,11 +206,11 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
                     }
                 ],
                 creationDatetime:               convertDatetimeToString(new Date()),
-                mrn:                            $scope.pageFields.pid,
+                mrn:                            $scope.pageFields.mrn,
                 scheduledDatetime:              convertDatetimeToString($scope.pageFields.AppointDate),
                 site:                           $scope.pageFields.site,
                 specialityGroup:                $scope.pageFields.speciality,
-                sourceId:                       "ORMS"+$scope.pageFields.pid+"-"+(new Date().getTime()),
+                sourceId:                       "ORMS-"+$scope.pageFields.mrn+"-"+$scope.pageFields.site+"-"+(new Date().getTime()),
                 sourceSystem:                   "InstantAddOn",
                 status:                         "Open",
             }
@@ -232,7 +225,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
             url: "/php/api/public/v1/patient/checkInToLocation.php",
             method: "POST",
             data: {
-                mrn: $scope.pageFields.pid,
+                mrn: $scope.pageFields.mrn,
                 site: $scope.pageFields.site,
                 room: "ADDED ON BY RECEPTION"
             }

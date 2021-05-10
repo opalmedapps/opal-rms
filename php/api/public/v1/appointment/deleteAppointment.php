@@ -52,13 +52,7 @@ class DeletionClinic
     ) {}
 }
 
-$systemSite = Config::getApplicationSettings()->environment->site;
-
-if($deletedAppointment->site !== $systemSite) {
-    Http::generateResponseJsonAndExit(400,error: "Site is not supported");
-}
-
-$patient = Patient::getPatientByMrn($deletedAppointment->mrn);
+$patient = Patient::getPatientByMrn($deletedAppointment->mrn,$deletedAppointment->site);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");

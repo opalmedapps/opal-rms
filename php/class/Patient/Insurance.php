@@ -36,7 +36,7 @@ class Insurance
             ":insurance" => $insuranceNumber
         ]);
 
-        return (int) $query->fetchAll()[0]["PatientId"] ?? NULL;
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
     }
 
     /**

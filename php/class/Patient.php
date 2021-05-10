@@ -8,6 +8,7 @@ use Orms\Database;
 use Orms\DateTime;
 use Orms\Patient\Mrn;
 use Orms\Patient\Insurance;
+use PDOException;
 
 /** @psalm-immutable */
 class Patient
@@ -23,12 +24,10 @@ class Patient
         /** @var Insurance[] $insurances */ public array $insurances
     ) {}
 
-    /*a few rules for inserting and updating patients:
-        * if the patient has no ramq, use the mrn as the ramq (set the ramq to expired)
-        * uppercase all names and ramqs
-        * all mrns are exactly 7 digits (zero-pad those that aren't)
-        * all ramqs have this format: XXXXYYMMDD
-    */
+    /**
+     * Inserts a new patient in the database. The patient must have at least one mrn.
+     *
+     */
     static function insertNewPatient(
         string $firstName,
         string $lastName,
@@ -69,6 +68,12 @@ class Patient
     static function getPatientByMrn(string $mrn,string $site): ?self
     {
         $id = Mrn::getPatientIdForMrn($mrn,$site);
+        return self::_fetchPatient($id);
+    }
+
+    static function getPatientByInsurance(string $insuranceNumber,string $type): ?self
+    {
+        $id = Insurance::getPatientIdForInsurance($insuranceNumber,$type);
         return self::_fetchPatient($id);
     }
 

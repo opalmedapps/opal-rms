@@ -47,15 +47,18 @@
             <!--  User enters MRN or RAMQ to retrieve info  -->
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
             <tr>
-                <td><b> MRN </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn" id="inputmrn"></td>
+                <td><b>MRN</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn"></td>
 
                 <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
+            </tr>
+            <tr>
+                <td><b>Site</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="site"></td>
             </tr>
             <tr>
                 <td><p> OR  </p></td>
             </tr>
             <tr>
-                <td><b> RAMQ </b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq" id="inputramq"></td>
+                <td><b>RAMQ</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq"></td>
 
                 <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
             </tr>
@@ -70,11 +73,12 @@ Click on any patient data to be brought to add-on page.
         <table id="patients">
             <thead style="font-weight: bold;">
                 <tr>
-                    <td> Last Name </td>
-                    <td> First Name </td>
-                    <td> PatientId </td>
-                    <td> RAMQ </td>
-                    <td> RAMQ Expiry </td>
+                    <td>Last Name</td>
+                    <td>First Name</td>
+                    <td>MRN</td>
+                    <td>Site</td>
+                    <td>RAMQ</td>
+                    <td>RAMQ Expiration</td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -82,11 +86,12 @@ Click on any patient data to be brought to add-on page.
             <tbody>
             <!--  Display the returned patient information  -->
                 <tr ng-repeat="x in patientinfo">
-                    <td style="font-weight: bold; color: red;" id="lastname">{{x.last}}</td>
-                    <td style="font-weight: bold; color: red;" id="firstname">{{x.first}}</td>
-                    <td id="pid" >{{x.pid}}</td>
-                    <td id="ramq" >{{x.ramq}}</td>
-                    <td id="ramqexp">{{x.ramqExp}}</td>
+                    <td style="font-weight: bold; color: red;">{{x.last}}</td>
+                    <td style="font-weight: bold; color: red;">{{x.first}}</td>
+                    <td>{{x.mrn}}</td>
+                    <td>{{x.site}}</td>
+                    <td>{{x.ramq}}</td>
+                    <td>{{x.ramqExp}}</td>
                     <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
                     <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
                 </tr>
@@ -116,8 +121,9 @@ app.config(['$locationProvider',function ($locationProvider)
 
 app.controller('main',function($scope,$http,$window,$location)
 {
-    $scope.mrn = "";
-    $scope.ramq = "";
+    $scope.mrn = null;
+    $scope.site = null;
+    $scope.ramq = null;
 
     //Ensure page is refreshed when using back button
     if (!!$window.performance && $window.performance.navigation.type==2) {
@@ -128,18 +134,15 @@ app.controller('main',function($scope,$http,$window,$location)
     {
         document.getElementById("VerifyPat").style.visibility = "visible";
 
-        let params = {};
+        let params = {
+            mrn: $scope.mrn,
+            site: $scope.site,
+            ramq: $scope.ramq
+        };
 
-        if($scope.mrn) {
-            params = {pid: $scope.mrn};
-        }
-        else if($scope.ramq) {
-            params = {ramq: $scope.ramq};
-        }
-
-        $http.get("/php/script/findPatient.php", {params: params})
+        $http.get("/php/api/private/v1/patient/findPatientForAddOn.php", {params: params})
         .then(response => {
-            let patients = response.data.record;
+            let patients = response.data.data;
             if(patients.length === 0) {
                 alert("No patients were found in the hospital systems.");
             }
@@ -160,14 +163,24 @@ app.controller('main',function($scope,$http,$window,$location)
     $scope.sendToAptAddOn = function(data)
     {
         //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./AddOn_Post.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&site="+String(data.site)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
+        var landingurl = "./AddOn_Post.html?"
+            +"first="+data.first
+            +"&last="+data.last
+            +"&mrn="+data.mrn
+            +"&site="+data.site
+            +"&ramq="+(data.ramq ?? "")
+            +"&ramqExp="+(data.ramqExp ?? "");
         $window.location.href = landingurl; //send user to apt add on
     }
 
     $scope.sendToSms = function(data)
     {
         //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./RegisterSMS.html?first="+String(data.first)+"&last="+String(data.last)+"&pid="+String(data.pid)+"&ramq="+String(data.ramq)+"&ramqExp="+String(data.ramqExp);
+        var landingurl = "./RegisterSMS.html?"
+            +"first="+data.first
+            +"&last="+data.last
+            +"&mrn="+data.mrn
+            +"&ramq="+(data.ramq ?? "");
         $window.location.href = landingurl; //send user to apt add on
     }
 

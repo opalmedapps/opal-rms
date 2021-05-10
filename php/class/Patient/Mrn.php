@@ -35,7 +35,7 @@ class Mrn
             ":mrn"  => $mrn
         ]);
 
-        return (int) $query->fetchAll()[0]["PatientId"] ?? NULL;
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
     }
 
     /**

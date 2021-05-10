@@ -72,13 +72,7 @@ class AppClinic
     ) {}
 }
 
-$systemSite = Config::getApplicationSettings()->environment->site;
-
-if($appointment->site !== $systemSite) {
-    Http::generateResponseJsonAndExit(400,error: "Site not supported");
-}
-
-$patient = Patient::getPatientByMrn($appointment->mrn);
+$patient = Patient::getPatientByMrn($appointment->mrn,$appointment->site);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");

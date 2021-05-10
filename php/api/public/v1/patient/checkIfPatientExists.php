@@ -6,8 +6,6 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient;
-use Orms\Config;
-
 try {
     $fields = Http::parseApiInputs();
 }
@@ -25,14 +23,6 @@ $potentialPatient = new class(
     ) {}
 };
 
-$systemSite = Config::getApplicationSettings()->environment->site;
-
-$patientFound = FALSE;
-
-if($potentialPatient->site === $systemSite)
-{
-    $patient = Patient::getPatientByMrn($potentialPatient->mrn);
-    if($patient !== NULL) $patientFound = TRUE;
-}
+$patientFound = Patient::getPatientByMrn($potentialPatient->mrn,$potentialPatient->site) !== NULL;
 
 Http::generateResponseJsonAndExit(200,$patientFound);

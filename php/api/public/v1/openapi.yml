@@ -147,10 +147,7 @@ paths:
                         type: string
                       active:
                         description: Status of the mrn
-                        type: integer
-                        enum:
-                          - 0
-                          - 1
+                        type: boolean
               required:
                 - firstName
                 - lastName

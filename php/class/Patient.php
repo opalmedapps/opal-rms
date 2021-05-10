@@ -33,31 +33,31 @@ class Patient
         string $firstName,
         string $lastName,
         string $mrn,
-        ?string $ramq,
-        ?DateTime $ramqExpiration
+        string $site,
+        bool $mrnStatus
     ): self
     {
-        $mrn = str_pad($mrn,7,"0",STR_PAD_LEFT);
-        $ramq = preg_match("/^[a-zA-Z]{4}[0-9]{8}$/",$ramq ?? "") ? $ramq : NULL;
-
         $dbh = Database::getOrmsConnection();
+        $dbh->beginTransaction();
         $dbh->prepare("
             INSERT INTO Patient
             SET
                 FirstName       = :fn,
-                LastName        = :ln,
-                SSN             = :ssn,
-                SSNExpDate      = :ssnExpDate,
-                PatientId       = :mrn
+                LastName        = :ln
         ")->execute([
             ":fn"           => strtoupper($firstName),
-            ":ln"           => strtoupper($lastName),
-            ":ssn"          => strtoupper($ramq ?? $mrn),
-            ":ssnExpDate"   => $ramqExpiration?->format("ym") ?? 0,
-            ":mrn"          => $mrn
+            ":ln"           => strtoupper($lastName)
         ]);
 
-        $patient = self::getPatientById((int) $dbh->lastInsertId()) ?? throw new Exception("Failed to insert patient with mrn $mrn");
+        $patient = self::getPatientById((int) $dbh->lastInsertId());
+        if($patient === NULL) {
+            throw new Exception("Failed to insert patient with mrn $mrn and site $site");
+        }
+
+        $patient = $patient->updateMrn($mrn,$site,$mrnStatus);
+
+        $dbh->commit();
+
         return $patient;
     }
 
@@ -122,7 +122,7 @@ class Patient
             ":id" => $this->id
         ]);
 
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update patient");
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update name for patient $this->id");
     }
 
     function updateOpalStatus(int $opalStatus): self
@@ -144,12 +144,13 @@ class Patient
     function updateMrn(string $mrn,string $site,bool $active): self
     {
         Mrn::updateMrnForPatientId($this->id,$mrn,$site,$active);
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update patient");
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update mrns for patient $this->id");
     }
 
     function updateInsurance(string $insuranceNumber,string $type,DateTime $expirationDate,bool $active): self
     {
-        Insurance::
+        Insurance::updateInsuranceForPatientId($this->id,$insuranceNumber,$type,$expirationDate,$active);
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update insurance for patient $this->id");
     }
 }
 

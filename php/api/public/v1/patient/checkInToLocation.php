@@ -3,7 +3,6 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Config;
 use Orms\Patient;
 use Orms\Location;
 
@@ -25,13 +24,7 @@ catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
 }
 
-$systemSite = Config::getApplicationSettings()->environment->site;
-
-if($checkIn->site !== $systemSite) {
-    Http::generateResponseJsonAndExit(400,error: "Site is not supported");
-}
-
-$patient = Patient::getPatientByMrn($checkIn->mrn);
+$patient = Patient::getPatientByMrn($checkIn->mrn,$checkIn->site);
 
 if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");

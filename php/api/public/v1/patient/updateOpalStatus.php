@@ -27,19 +27,13 @@ $opal = new class(
     ) {}
 };
 
-$systemSite = Config::getApplicationSettings()->environment->site;
-
-if($opal->site !== $systemSite) {
-    Http::generateResponseJsonAndExit(400,error: "Site is not supported");
-}
-
-$patient = Patient::getPatientByMrn($opal->mrn);
+$patient = Patient::getPatientByMrn($opal->mrn,$opal->site);
 
 if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");
 }
 
-Patient::updateOpalStatus($patient,$opal->opalStatus);
+$patient->updateOpalStatus($opal->opalStatus);
 
 Http::generateResponseJsonAndExit(200);
 

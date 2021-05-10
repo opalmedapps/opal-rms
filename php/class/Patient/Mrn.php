@@ -74,6 +74,8 @@ class Mrn
      */
     static function updateMrnForPatientId(int $patientId,string $mrn,string $site,bool $active): void
     {
+        // $mrn = str_pad($mrn,7,"0",STR_PAD_LEFT);
+        // $ramq = preg_match("/^[a-zA-Z]{4}[0-9]{8}$/",$ramq ?? "") ? $ramq : NULL;
         $dbh = Database::getOrmsConnection();
 
         //check if the mrn current exists

@@ -27,7 +27,7 @@ $demographics = new class(
     mrns:               $fields["mrns"]
 ) {
     public ?DateTime $ramqExpiration;
-    /** @var Mrn[] $mrns */ public array $mrns;
+    /** @var ApiMrn[] $mrns */ public array $mrns;
 
     /**
      *
@@ -42,43 +42,48 @@ $demographics = new class(
     ) {
         $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
 
-        $this->mrns = array_map(fn($x) => new Mrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$mrns);
+        $this->mrns = array_map(fn($x) => new ApiMrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$mrns);
     }
 };
 
-class Mrn
+class ApiMrn
 {
     function __construct(
         public string $mrn,
         public string $site,
-        public int $active
+        public bool $active
     ) {}
 }
 
-//use the site and mrn to check if the patient exists
-$systemSite = Config::getApplicationSettings()->environment->site;
-$mrn = array_values(array_filter($demographics->mrns,fn($x) => $x->site === $systemSite && $x->active === 1))[0] ?? NULL;
-
-if($mrn === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "No valid mrn for $systemSite");
-}
-
-//see if the patient exists in ORMS
-$patient = Patient::getPatientByMrn($mrn->mrn);
-
-if($patient === NULL)
+//see if the patient exists in ORMS with any of the mrns
+$patient = NULL;
+foreach($demographics->mrns as $mrn)
 {
-    //if the patient doesn't, an expired mrn may be in the system
-    $expiredMrn = array_values(array_filter($demographics->mrns,fn($x) => $x->site === $systemSite && $x->active === 0))[0] ?? [];
-
-    if($expiredMrn !== []) $patient = Patient::getPatientByMrn($expiredMrn->mrn);
+    $patient = Patient::getPatientByMrn($mrn->mrn,$mrn->site);
+    if($patient !== NULL) break;
 }
 
+//if not, create the patient in the system and fill out their information
+//otherwise, update the demographic info
 if($patient === NULL) {
-    Patient::insertNewPatient($demographics->firstName,$demographics->lastName,$mrn->mrn,$demographics->ramq,$demographics->ramqExpiration);
+    $patient = Patient::insertNewPatient(
+        $demographics->firstName,
+        $demographics->lastName,
+        $demographics->mrns[0]->mrn,
+        $demographics->mrns[0]->site,
+        $demographics->mrns[0]->active
+    );
 }
 else {
-    Patient::updateDemographics($patient->id,$demographics->firstName,$demographics->lastName,$mrn->mrn,$demographics->ramq,$demographics->ramqExpiration);
+    $patient = $patient->updateName($demographics->firstName,$demographics->lastName);
+}
+
+foreach($demographics->mrns as $mrn) {
+    $patient = $patient->updateMrn($mrn->mrn,$mrn->site,$mrn->active);
+}
+
+if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
+    $patient = $patient->updateInsurance($demographics->ramq,"RAMQ",$demographics->ramqExpiration,TRUE);
 }
 
 Http::generateResponseJsonAndExit(200);

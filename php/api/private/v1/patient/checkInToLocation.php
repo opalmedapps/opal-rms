@@ -13,19 +13,17 @@ $patientId        = $params["patientId"] ?? NULL;
 $room             = $params["room"] ?? NULL;
 
 if($room === NULL) {
-    http_response_code(400);
-    exit("Room is invalid");
+    Http::generateResponseJsonAndExit(400,error: "Room is invalid");
 }
 
 $patient = Patient::getPatientById((int) $patientId);
 
 if($patient === NULL)  {
-    http_response_code(400);
-    exit("Patient not found");
+    Http::generateResponseJsonAndExit(400,error: "Patient not found");
 }
 
 Location::movePatientToLocation($patient,$room,$appointmentId);
 
-http_response_code(200);
+Http::generateResponseJsonAndExit(200);
 
 ?>

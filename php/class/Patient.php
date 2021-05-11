@@ -143,7 +143,29 @@ class Patient
             ":id"     => $this->id
         ]);
 
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update opal status");
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update opal status for patient $this->id");
+    }
+
+    function updatePhoneNumber(string $phoneNumber,string $languagePreference): self
+    {
+        //phone number must be exactly 10 digits
+        if(!preg_match("/[0-9]{10}/",$phoneNumber)) throw new Exception("Invalid phone number");
+
+        Database::getOrmsConnection()->prepare("
+            UPDATE Patient
+            SET
+                SMSAlertNum = :smsNum,
+                SMSSignupDate = IF(SMSSignupDate IS NULL,NOW(),SMSSignupDate),
+                LanguagePreference = :language
+            WHERE
+                PatientSerNum = :id
+        ")->execute([
+            ":smsNum"   => $phoneNumber,
+            ":language" => $languagePreference,
+            ":id"       => $this->id
+        ]);
+
+        return self::getPatientById($this->id) ?? throw new Exception("Failed to update phone number for patient $this->id");
     }
 
     function updateMrn(string $mrn,string $site,bool $active): self

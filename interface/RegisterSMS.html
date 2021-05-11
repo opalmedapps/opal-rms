@@ -13,21 +13,24 @@
     </table>
     <p>
 
-    <form action="../php/script/registerSMS.php">
-    <input type="hidden" name="Speciality" value="{{speciality}}">
+    <form action="/php/api/private/v1/patient/registerPhoneNumber.php">
+    <input type="hidden" name="speciality" value="{{speciality}}">
+    <input type="hidden" name="mrn" value="{{mrn}}">
+    <input type="hidden" name="site" value="{{site}}">
     <table border="0" width="50%" padding="2">
 
     <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Register Patient</font></th></tr>
     <tr><td><b>MRN</b></td><td colspan="3"> <input
-        maxlength="40" size="20" name="PatientId"
+        maxlength="40" size="20"
         placeholder="1234567"
         pattern="[0-9]{7}"
-        ng-model="pid"
+        ng-model="mrn"
         required
+        disabled
         ></td></tr>
-    <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" name="Ramq" ng-model="Ramq" required></td></tr>
+    <tr><td><b>Site</b></td><td colspan="3"><input maxlength="40" size="20" name="site" ng-model="site" required disabled></td></tr>
     <tr><td><b>Mobile number</b></td><td colspan="3"> <input type="tel"
-        maxlength="40" size="20" name="SMSAlertNum"
+        maxlength="40" size="20" name="phoneNumber"
         placeholder="1234567890"
         pattern="[0-9]{10}"
         required
@@ -35,7 +38,7 @@
     <tr><td></td></tr>
     <tr><td><b>Language Preference</b></td>
     <td>
-        <select name="LanguagePreference">
+        <select name="languagePreference">
            <option value="French" selected>French</option>
            <option value="English">English</option>
         </select>
@@ -97,14 +100,13 @@ app.controller('main', function($scope,$location,$cookies)
 {
     var pageParams = $location.search();
 
-    $scope.pid = pageParams.mrn;
-    $scope.Ramq = pageParams.ramq;
+    $scope.mrn = pageParams.mrn;
+    $scope.site = pageParams.site;
 
     $scope.speciality = $cookies.get("speciality");
 
 });
 
 </script>
-
 
 </html>

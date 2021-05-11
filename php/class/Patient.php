@@ -8,7 +8,6 @@ use Orms\Database;
 use Orms\DateTime;
 use Orms\Patient\Mrn;
 use Orms\Patient\Insurance;
-use PDOException;
 
 /** @psalm-immutable */
 class Patient
@@ -53,7 +52,7 @@ class Patient
             throw new Exception("Failed to insert patient with mrn $mrn and site $site");
         }
 
-        $patient = $patient->updateMrn($mrn,$site,$mrnStatus);
+        $patient = self::updateMrn($patient,$mrn,$site,$mrnStatus);
 
         $dbh->commit();
 
@@ -112,7 +111,7 @@ class Patient
         );
     }
 
-    function updateName(string $firstName,string $lastName): self
+    static function updateName(self $patient,string $firstName,string $lastName): self
     {
         Database::getOrmsConnection()->prepare("
             UPDATE Patient
@@ -124,13 +123,13 @@ class Patient
         ")->execute([
             ":fn" => strtoupper($firstName),
             ":ln" => strtoupper($lastName),
-            ":id" => $this->id
+            ":id" => $patient->id
         ]);
 
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update name for patient $this->id");
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update name for patient $patient->id");
     }
 
-    function updateOpalStatus(int $opalStatus): self
+    static function updateOpalStatus(self $patient,int $opalStatus): self
     {
         Database::getOrmsConnection()->prepare("
             UPDATE Patient
@@ -140,44 +139,96 @@ class Patient
                 PatientSerNum = :id
         ")->execute([
             ":status" => $opalStatus,
-            ":id"     => $this->id
+            ":id"     => $patient->id
         ]);
 
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update opal status for patient $this->id");
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update opal status for patient $patient->id");
     }
 
-    function updatePhoneNumber(string $phoneNumber,string $languagePreference): self
+    /**
+     * Updates a patient's phone number. Can also remove a patient's phone number.
+     *
+     */
+    static function updatePhoneNumber(self $patient,?string $phoneNumber,?string $languagePreference): self
+    {
+        if($phoneNumber === NULL && $languagePreference === NULL)
+        {
+            Database::getOrmsConnection()->prepare("
+                UPDATE Patient
+                SET
+                    SMSAlertNum = NULL,
+                    SMSSignupDate = NULL,
+                    SMSLastUpdated = NOW(),
+                    LanguagePreference = NULL
+                WHERE
+                    PatientSerNum = :id
+            ")->execute([
+                ":id"       => $patient->id
+            ]);
+        }
+        elseif($phoneNumber !== NULL && $languagePreference !== NULL)
+        {
+            //phone number must be exactly 10 digits
+            if(!preg_match("/[0-9]{10}/",$phoneNumber)) throw new Exception("Invalid phone number");
+
+            Database::getOrmsConnection()->prepare("
+                UPDATE Patient
+                SET
+                    SMSAlertNum = :smsNum,
+                    SMSSignupDate = IF(SMSSignupDate IS NULL,NOW(),SMSSignupDate),
+                    SMSLastUpdated = NOW(),
+                    LanguagePreference = :language
+                WHERE
+                    PatientSerNum = :id
+            ")->execute([
+                ":smsNum"   => $phoneNumber,
+                ":language" => $languagePreference,
+                ":id"       => $patient->id
+            ]);
+        }
+        else {
+            throw new Exception("Invalid inputs for updating phone number");
+        }
+
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update phone number for patient $patient->id");
+    }
+
+    static function updateMrn(self $patient,string $mrn,string $site,bool $active): self
+    {
+        Mrn::updateMrnForPatientId($patient->id,$mrn,$site,$active);
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update mrns for patient $patient->id");
+    }
+
+    static function updateInsurance(self $patient,string $insuranceNumber,string $type,DateTime $expirationDate,bool $active): self
+    {
+        Insurance::updateInsuranceForPatientId($patient->id,$insuranceNumber,$type,$expirationDate,$active);
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update insurance for patient $patient->id");
+    }
+
+    /**
+     * Finds all patients who have the input phone number and unregisters that phone number. Returns an array of patients who had their numbers removed
+     * @return self[]
+     */
+    static function unregisterPhoneNumberFromPatients(string $phoneNumber): array
     {
         //phone number must be exactly 10 digits
         if(!preg_match("/[0-9]{10}/",$phoneNumber)) throw new Exception("Invalid phone number");
 
-        Database::getOrmsConnection()->prepare("
-            UPDATE Patient
-            SET
-                SMSAlertNum = :smsNum,
-                SMSSignupDate = IF(SMSSignupDate IS NULL,NOW(),SMSSignupDate),
-                LanguagePreference = :language
+        //find all patient's with the phone number
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PatientSerNum
+            FROM
+                Patient
             WHERE
-                PatientSerNum = :id
-        ")->execute([
-            ":smsNum"   => $phoneNumber,
-            ":language" => $languagePreference,
-            ":id"       => $this->id
-        ]);
+                SMSAlertNum = ?
+        ");
+        $query->execute([$phoneNumber]);
 
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update phone number for patient $this->id");
-    }
-
-    function updateMrn(string $mrn,string $site,bool $active): self
-    {
-        Mrn::updateMrnForPatientId($this->id,$mrn,$site,$active);
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update mrns for patient $this->id");
-    }
-
-    function updateInsurance(string $insuranceNumber,string $type,DateTime $expirationDate,bool $active): self
-    {
-        Insurance::updateInsuranceForPatientId($this->id,$insuranceNumber,$type,$expirationDate,$active);
-        return self::getPatientById($this->id) ?? throw new Exception("Failed to update insurance for patient $this->id");
+        return array_map(function($x) {
+            $patient = self::getPatientById((int) $x["PatientSerNum"]) ?? throw new Exception("Unknown patient");
+            return self::updatePhoneNumber($patient,NULL,NULL);
+        },$query->fetchAll());
     }
 }
 

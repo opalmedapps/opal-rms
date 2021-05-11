@@ -1,8 +1,5 @@
 <?php declare(strict_types=1);
-//====================================================================================
-// php code to insert patients' cell phone numbers and languqge preferences
-// into ORMS
-//====================================================================================
+
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
@@ -31,7 +28,7 @@ if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-$patient = $patient->updatePhoneNumber($phoneNumber,$languagePreference);
+Patient::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
 
 //send the patient a registration success message
 $messageList = Sms::getPossibleSmsMessages();

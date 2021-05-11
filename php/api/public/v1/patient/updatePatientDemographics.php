@@ -6,7 +6,6 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Config;
 use Orms\Patient;
 use Orms\DateTime;
 use Orms\Util\Encoding;
@@ -75,15 +74,15 @@ if($patient === NULL) {
     );
 }
 else {
-    $patient = $patient->updateName($demographics->firstName,$demographics->lastName);
+    $patient = Patient::updateName($patient,$demographics->firstName,$demographics->lastName);
 }
 
 foreach($demographics->mrns as $mrn) {
-    $patient = $patient->updateMrn($mrn->mrn,$mrn->site,$mrn->active);
+    $patient = Patient::updateMrn($patient,$mrn->mrn,$mrn->site,$mrn->active);
 }
 
 if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
-    $patient = $patient->updateInsurance($demographics->ramq,"RAMQ",$demographics->ramqExpiration,TRUE);
+    $patient = Patient::updateInsurance($patient,$demographics->ramq,"RAMQ",$demographics->ramqExpiration,TRUE);
 }
 
 Http::generateResponseJsonAndExit(200);

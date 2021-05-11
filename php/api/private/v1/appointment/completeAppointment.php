@@ -14,20 +14,17 @@ $patientId     = $params["patientId"] ?? NULL;
 $room          = $params["room"] ?? NULL;
 
 if($room === NULL) {
-    http_response_code(400);
-    exit("Room is invalid");
+    Http::generateResponseJsonAndExit(400,error: "Room is invalid");
 }
 
 if($appointmentId === NULL) {
-    http_response_code(400);
-    exit("Appointment id is invalid");
+    Http::generateResponseJsonAndExit(400,error: "Appointment id is invalid");
 }
 
 $patient = Patient::getPatientById((int) $patientId);
 
 if($patient === NULL)  {
-    http_response_code(400);
-    exit("Patient not found");
+    Http::generateResponseJsonAndExit(400,error: "Patient not found");
 }
 
 //after completing the appointment, un-check out the patient for that appointment

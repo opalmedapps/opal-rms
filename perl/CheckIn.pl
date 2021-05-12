@@ -37,7 +37,7 @@ my $systemPaths = LoadConfigs::GetConfigs("path");
 
 my $checkin_script = "$systemPaths->{'BASE_URL'}/perl/CheckIn.pl";
 my $images = $systemPaths->{'IMAGE_URL'};
-my $SMS_url = "$systemPaths->{'BASE_PATH'}/php/script/sendSMSCheckedIn.php";
+my $SMS_url = "$systemPaths->{'BASE_PATH'}/php/api/private/v1/patient/sendSms.php";
 my $logfile_location = "$systemPaths->{'LOG_PATH'}/kiosk";
 my $logging = 1; # Log data to a text file
 my $adtConnected = 0;
@@ -446,7 +446,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     # $message_FR = "HGM - Orthopédie: Votre(vos) rendez-vous est(sont) enregistré(s)";
     # }
 
-    my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
+    my $SMS_message = "php $SMS_url --patientId=\"$PatientSerNum\" --messageEN=\"$message_EN\" --messageFR=\"$message_FR\"";
     my $response = `$SMS_message`;
 
     print "SMS_message: $SMS_message<br>" if $verbose;
@@ -473,7 +473,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     # $message_FR = "HGM - Orthopédie: Impossible d'enregistrer un ou plusieurs de vos rendez-vous. SVP vérifier à la réception";
     # }
 
-    my $SMS_message = "php $SMS_url --PatientId=\"$PatientId\" --message_EN=\"$message_EN\" --message_FR=\"$message_FR\"";
+    my $SMS_message = "php $SMS_url --patientId=\"$PatientSerNum\" --messageEN=\"$message_EN\" --messageFR=\"$message_FR\"";
     my $response = `$SMS_message`;
 
     print "SMS_message: $SMS_message<br>" if $verbose;

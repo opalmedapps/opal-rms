@@ -158,7 +158,7 @@
 
                     <span ng-switch-when="PatientName">
                         {{patient.LastName}}, {{patient.FirstName}}<br>
-                        <span>({{patient.Mrn}})</span>
+                        <span>({{patient.Mrn +"-"+ patient.Site}})</span>
                     </span>
 
                     <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info btn-questionnaire">View<span class="alert-circle {{patient.QStatus}}"></span></button>

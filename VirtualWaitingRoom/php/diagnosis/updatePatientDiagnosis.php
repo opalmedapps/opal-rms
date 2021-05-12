@@ -23,7 +23,7 @@ if($patient !== NULL)
 {
     if($status === "Active") {
         Export::exportPatientDiagnosis(
-            $patient->mrns[0],
+            $patient,
             $updatedDiag->diagnosis->id, // $newDiag->id,
             $updatedDiag->diagnosis->subcode,
             $updatedDiag->createdDate,
@@ -33,7 +33,7 @@ if($patient !== NULL)
     }
     elseif($status === "Deleted") {
         Export::exportPatientDiagnosisDeletion(
-            $patient->mrns[0],
+            $patient,
             $updatedDiag->diagnosis->id
         );
     }

@@ -30,7 +30,7 @@ $query = $dbh->prepare("
         Venues.AriaVenueId AS LocationId,
         PL.ArrivalDateTime,
         COALESCE(P.PatientSerNum,'Nobody') AS PatientId,
-        P.PatientId AS Mrn
+        CONCAT(P.LastName,', ',P.FirstName) AS Name
     FROM
     (
         SELECT IntermediateVenue.AriaVenueId

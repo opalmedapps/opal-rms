@@ -30,32 +30,30 @@ class PatientMeasurement
         #gets the lastest measurement taken during each date to take into account the fact that a patient in be reweighed (in case of an error, etc)
         $query = $dbh->prepare("
             SELECT
-                PatientMeasurement.PatientMeasurementSer,
-                PatientMeasurement.Date,
-                PatientMeasurement.Time,
-                PatientMeasurement.Weight,
-                PatientMeasurement.Height,
-                PatientMeasurement.BSA,
-                PatientMeasurement.PatientId,
-                PatientMeasurement.AppointmentId
+                PM.PatientMeasurementSer,
+                PM.Date,
+                PM.Time,
+                PM.Weight,
+                PM.Height,
+                PM.BSA,
+                PM.PatientId,
+                PM.AppointmentId
             FROM
-                PatientMeasurement
+                PatientMeasurement PM
                 INNER JOIN (
                     SELECT
-                        P.FirstName,
-                        P.LastName,
-                        PatientMeasurement.PatientMeasurementSer
+                        MM.PatientMeasurementSer
                     FROM
-                        PatientMeasurement
-                        INNER JOIN Patient ON P.PatientSerNum = PatientMeasurement.PatientSer
+                        PatientMeasurement MM
+                        INNER JOIN Patient P ON P.PatientSerNum = MM.PatientSer
                             AND P.PatientSerNum = :id
                     GROUP BY
-                        PatientMeasurement.Date
+                        MM.Date
                     ORDER BY
-                        PatientMeasurement.Date DESC,
-                        PatientMeasurement.Time DESC
-                ) AS PM ON PM.PatientMeasurementSer = PatientMeasurement.PatientMeasurementSer
-            ORDER BY PatientMeasurement.Date
+                        MM.Date DESC,
+                        MM.Time DESC
+                ) AS PMM ON PMM.PatientMeasurementSer = PM.PatientMeasurementSer
+            ORDER BY PM.Date
         ");
         $query->execute([
             ":id" => $patient->id

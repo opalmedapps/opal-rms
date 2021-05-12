@@ -176,7 +176,7 @@ class Opal
      * @return mixed[]
      * @throws PDOException
      */
-    static function getLastCompletedPatientQuestionnaire(string $mrn): array
+    static function getLastCompletedPatientQuestionnaire(string $mrn,string $site): array
     {
         $dbh = Database::getOpalConnection();
         if($dbh === NULL) return [];
@@ -190,15 +190,19 @@ class Opal
                 END AS CompletedWithinLastWeek
             FROM
                 Patient P
+                INNER JOIN Patient_Hospital_Identifier PH ON PH.PatientSerNum = P.PatientSerNum
+                    AND PH.Hospital_Identifier_Type_Code = :site
+                    AND PH.MRN = :mrn
                 INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = P.PatientSerNum
                     AND Questionnaire.CompletedFlag = 1
                     AND Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW()
-            WHERE
-                P.PatientId = :mrn
             ORDER BY Questionnaire.CompletionDate DESC
             LIMIT 1
         ");
-        $queryOpal->execute([":mrn" => $mrn]);
+        $queryOpal->execute([
+            ":mrn" => $mrn,
+            ":site" => $site
+        ]);
 
         return $queryOpal->fetchAll()[0] ?? [];
     }

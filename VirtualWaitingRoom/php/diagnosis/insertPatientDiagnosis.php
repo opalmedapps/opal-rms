@@ -19,7 +19,7 @@ $patient = Patient::getPatientById($patientId);
 
 if($patient !== NULL) {
     Export::exportPatientDiagnosis(
-        $patient->mrns[0],
+        $patient,
         $newDiag->diagnosis->id, // $newDiag->id,
         $newDiag->diagnosis->subcode,
         $newDiag->createdDate,

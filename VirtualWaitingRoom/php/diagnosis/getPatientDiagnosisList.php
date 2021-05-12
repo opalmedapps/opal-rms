@@ -13,7 +13,7 @@ $diagArr = DiagnosisInterface::getDiagnosisListForPatient($patientId);
 // get additional diagnoses from Opal
 $patient = Patient::getPatientById($patientId);
 if($patient !== NULL) {
-    $diagArr = array_merge($diagArr,Fetch::getPatientDiagnosis($patient->mrns[0]));
+    $diagArr = array_merge($diagArr,Fetch::getPatientDiagnosis($patient));
 }
 
 echo json_encode($diagArr);

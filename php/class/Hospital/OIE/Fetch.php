@@ -2,8 +2,7 @@
 
 namespace Orms\Hospital\OIE;
 
-use Orms\Config;
-use Orms\Patient;
+use Orms\Patient\Mrn;
 use Orms\Hospital\OIE\Internal\Connection;
 
 class Fetch
@@ -12,12 +11,12 @@ class Fetch
      *
      * @return mixed[]
      */
-    static function getPatientDiagnosis(Patient $patient): array
+    static function getPatientDiagnosis(Mrn $patient): array
     {
         $response = Connection::getOpalHttpClient()?->request("POST","diagnosis/get/patient-diagnoses",[
             "form_params" => [
                 "mrn"       => $patient->mrn,
-                "site"      => Config::getApplicationSettings()->environment->site,
+                "site"      => $patient->site,
                 "source"    => "ORMS",
                 "include"   => 0,
                 "startDate" =>"2000-01-01",

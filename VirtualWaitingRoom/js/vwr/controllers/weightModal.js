@@ -9,7 +9,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
 {
     let weightEntered = false; //tells us if the patient's weight has been updated
 
-    $scope.invalidIdDetected = false; //indicates if an Id not belonging to the patient was in one of the weights
+    $scope.invalidMrnDetected = false; //indicates if an Id not belonging to the patient was in one of the weights
     $scope.patient =
     {
         height: patient.Height,
@@ -137,7 +137,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
             };
 
             //if any of the dots are red, then there is an invalid id for one of the measurements
-            $scope.invalidIdDetected = chart.series[0].data.some(x => x.color === "red");
+            $scope.invalidMrnDetected = chart.series[0].data.some(x => x.color === "red");
 
             //store the most recent measurement for display and verification
             mostRecentWeight = chart.series[0].data.slice(-1)[0].y;

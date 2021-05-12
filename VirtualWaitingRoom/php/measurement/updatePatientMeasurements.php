@@ -33,7 +33,7 @@ if($height === NULL
     exit("Incomplete measurements");
 }
 
-PatientMeasurement::insertMeasurement($patient,(float) $height,(float) $weight,(float) $bsa,$sourceId,$sourceSystem,$patient->mrn);
+PatientMeasurement::insertMeasurement($patient,(float) $height,(float) $weight,(float) $bsa,$sourceId,$sourceSystem);
 
 //print a message and close the connection so that the client does not wait
 ob_start();

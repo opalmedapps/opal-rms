@@ -3,17 +3,24 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
+use Orms\Patient;
+use Orms\Http;
 use Orms\Opal;
 
-$mrn = $_GET["mrn"] ?? NULL;
+$patientId = $_GET["patientId"] ?? NULL;
 $questionnaireId = $_GET["rptID"] ?? NULL;
 
-if($mrn === NULL || $questionnaireId === NULL) {
-    http_response_code(400);
-    exit("Missing fields!");
+if($patientId === NULL || $questionnaireId === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Missing fields!");
 }
 
-$questions = Opal::getPatientAnswersForChartTypeQuestionnaire($mrn,(int) $questionnaireId);
+$patient = Patient::getPatientById((int) $patientId);
+
+if($patient === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+}
+
+$questions = Opal::getPatientAnswersForChartTypeQuestionnaire($patient,(int) $questionnaireId);
 $questions = Encoding::utf8_encode_recursive($questions);
 
 //get the date of the last questionnaire that the patient answered

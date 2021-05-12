@@ -14,7 +14,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     $http({
         url: "./php/questionnaire/getQuestionnaires.php",
         method: "GET",
-        params: {mrn: $scope.patient.Mrn}
+        params: {patientId: $scope.patient.PatientId}
     }).then(function (response)
     {
         $scope.questionnaireList = response.data;
@@ -72,7 +72,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                 url: "./php/questionnaire/reportDisplay.php",
                 method: "GET",
                 params: {
-                    mrn: $scope.patient.Mrn,
+                    patientId: $scope.patient.PatientId,
                     rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
                 }
             }).then(function (response) {
@@ -115,7 +115,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                 url: "./php/questionnaire/reportDisplayNonChart.php",
                 method: "GET",
                 params: {
-                    mrn: $scope.patient.Mrn,
+                    patientId: $scope.patient.PatientId,
                     rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
                 }
             }).then(function (response) {

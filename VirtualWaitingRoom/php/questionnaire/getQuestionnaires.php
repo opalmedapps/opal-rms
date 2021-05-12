@@ -10,15 +10,22 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
+use Orms\Http;
+use Orms\Patient;
 use Orms\Opal;
 
-$mrn = $_GET["mrn"] ?? NULL;
+$patientId = $_GET["patientId"] ?? NULL;
 
-if($mrn === NULL) {
-    http_response_code(400);
-    exit("Empty mrn!");
+if($patientId === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Empty id");
 }
 
-echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($mrn)));
+$patient = Patient::getPatientById((int) $patientId);
+
+if($patient === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+}
+
+echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($patient)));
 
 ?>

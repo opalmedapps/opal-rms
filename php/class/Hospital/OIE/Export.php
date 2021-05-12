@@ -4,7 +4,6 @@ namespace Orms\Hospital\OIE;
 
 use Orms\Config;
 use Orms\Patient;
-use Orms\Patient\Mrn;
 use Orms\Document\Measurement\Generator;
 use Orms\Hospital\OIE\Internal\Connection;
 
@@ -65,12 +64,12 @@ class Export
         ]);
     }
 
-    static function exportPatientDiagnosis(Mrn $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr): void
+    static function exportPatientDiagnosis(Patient $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr): void
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
-                "mrn"           => $patient->mrn,
-                "site"          => $patient->site,
+                "mrn"           => $patient->mrns[0]->mrn,
+                "site"          => $patient->mrns[0]->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId,
                 "code"          => $diagSubcode,
@@ -81,12 +80,12 @@ class Export
         ]);
     }
 
-    static function exportPatientDiagnosisDeletion(Mrn $patient,int $diagId): void
+    static function exportPatientDiagnosisDeletion(Patient $patient,int $diagId): void
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/delete/patient-diagnosis",[
             "form_params" => [
-                "mrn"           => $patient->mrn,
-                "site"          => $patient->site,
+                "mrn"           => $patient->mrns[0]->mrn,
+                "site"          => $patient->mrns[0]->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId
             ]

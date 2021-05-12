@@ -18,6 +18,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         firstName: patient.FirstName,
         lastName: patient.LastName,
         mrn: patient.Mrn,
+        site: patient.Site,
         patientId: patient.PatientId
     }
 

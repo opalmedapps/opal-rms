@@ -1,6 +1,6 @@
 <?php
 //====================================================================================
-// updateCheckinFile.php - php code to query the database and extract the list of patients
+// php code to query the database and extract the list of patients
 // who are currently checked in for open appointments today
 //====================================================================================
 
@@ -20,13 +20,14 @@ $queryWRM = $dbh->prepare("
     SELECT
         MV.AppointmentSerNum AS AppointmentId,
         MV.AppointId AS SourceId,
-        ClinicResources.Speciality,
+        CR.Speciality,
         PL.ArrivalDateTime,
         LTRIM(RTRIM(MV.AppointmentCode)) AS AppointmentName,
         P.LastName,
         P.FirstName,
         P.PatientSerNum AS PatientId,
-        P.PatientId AS Mrn,
+        PH.MedicalRecordNumber AS Mrn,
+        H.HospitalCode AS Site,
         P.OpalPatient,
         P.SMSAlertNum,
         CASE WHEN P.LanguagePreference IS NOT NULL THEN P.LanguagePreference ELSE 'French' END AS LanguagePreference,
@@ -44,28 +45,32 @@ $queryWRM = $dbh->prepare("
         SUBSTRING(P.SSN,1,3) AS SSN,
         SUBSTRING(P.SSN,9,2) AS DAYOFBIRTH,
         SUBSTRING(P.SSN,7,2) AS MONTHOFBIRTH,
-        PatientMeasurement.Date AS WeightDate,
-        PatientMeasurement.Weight,
-        PatientMeasurement.Height,
-        PatientMeasurement.BSA,
-        (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = P.PatientSerNum) AS LastQuestionnaireReview
+        PM.Date AS WeightDate,
+        PM.Weight,
+        PM.Height,
+        PM.BSA,
+        (SELECT DATE_FORMAT(MAX(ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE PatientSer = P.PatientSerNum) AS LastQuestionnaireReview
     FROM
         MediVisitAppointmentList MV
-        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MV.ResourceDescription
+        INNER JOIN ClinicResources CR ON CR.ResourceName = MV.ResourceDescription
         INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.Active = 1
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
         LEFT JOIN PatientLocation PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
-        LEFT JOIN PatientMeasurement ON PatientMeasurement.PatientMeasurementSer =
+        LEFT JOIN PatientMeasurement PM ON PM.PatientMeasurementSer =
             (
                 SELECT
-                    PM.PatientMeasurementSer
+                    PMM.PatientMeasurementSer
                 FROM
-                    PatientMeasurement PM
+                    PatientMeasurement PMM
                 WHERE
-                    PM.PatientSer = P.PatientSerNum
-                    AND PM.Date BETWEEN DATE_SUB(CURDATE(), INTERVAL 21 DAY) AND NOW()
+                    PMM.PatientSer = P.PatientSerNum
+                    AND PMM.Date BETWEEN DATE_SUB(CURDATE(), INTERVAL 21 DAY) AND NOW()
                 ORDER BY
-                    PM.Date DESC,
-                    PM.Time DESC
+                    PMM.Date DESC,
+                    PMM.Time DESC
                 LIMIT 1
             )
     WHERE
@@ -103,7 +108,8 @@ foreach($queryWRM->fetchAll() as $row)
     if($row["OpalPatient"] === "1")
     {
         try {
-            $questionnaire = Opal::getLastCompletedPatientQuestionnaire($row["Mrn"]);
+            $questionnaire = Opal::getLastCompletedPatientQuestionnaire($row["Mrn"],$row["Site"]);
+            print_r($questionnaire);
         }
         catch(Exception) {
             $questionnaire = [];

@@ -12,7 +12,7 @@ class PatientMeasurement
     private function __construct(
         public string $id,
         public string $appointmentId,
-        public string $mrn,
+        public string $mrnSite,
         public DateTime $datetime,
         public float $weight,
         public float $height,
@@ -65,7 +65,7 @@ class PatientMeasurement
             return new PatientMeasurement(
                id:              $x["PatientMeasurementSer"],
                appointmentId:   $x["AppointmentId"],
-               mrn:             $x["PatientId"],
+               mrnSite:         $x["PatientId"],
                datetime:        new DateTime($x["Date"] ." ". $x["Time"]),
                weight:          (float) $x["Weight"],
                height:          (float) $x["Height"],
@@ -74,7 +74,7 @@ class PatientMeasurement
         },$query->fetchAll());
     }
 
-    static function insertMeasurement(Patient $patient,float $height,float $weight,float $bsa,string $appointmentSourceId,string $appointmentSourceSystem,string $mrn): void
+    static function insertMeasurement(Patient $patient,float $height,float $weight,float $bsa,string $appointmentSourceId,string $appointmentSourceSystem): void
     {
         Database::getOrmsConnection()->prepare("
             INSERT INTO PatientMeasurement
@@ -93,7 +93,7 @@ class PatientMeasurement
             ":weight"   => $weight,
             ":bsa"      => $bsa,
             ":appId"    => "$appointmentSourceSystem-$appointmentSourceId",
-            ":mrn"      => $mrn
+            ":mrn"      => $patient->mrns[0]->mrn ."-". $patient->mrns[0]->site
         ]);
     }
 

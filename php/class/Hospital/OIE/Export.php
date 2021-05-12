@@ -4,6 +4,7 @@ namespace Orms\Hospital\OIE;
 
 use Orms\Config;
 use Orms\Patient;
+use Orms\Patient\Mrn;
 use Orms\Document\Measurement\Generator;
 use Orms\Hospital\OIE\Internal\Connection;
 
@@ -38,7 +39,8 @@ class Export
         try {
             Connection::getOpalHttpClient()?->request("GET","publisher/php/sendCallPatientNotification.php",[
                 "query" => [
-                    "PatientId"             => $patient->mrn,
+                    "PatientId"             => $patient->mrns[0]->mrn,
+                    //"site" => $mrn->site //the site is missing from the api...
                     "appointment_ariaser"   => $appointmentId,
                     "room_EN"               => $roomNameEn,
                     "room_FR"               => $roomNameFr,
@@ -56,19 +58,19 @@ class Export
 
         Connection::getHttpClient()?->request("POST","exportWeightPdf",[
             "json"  => [
-                "mrn"   => $patient->mrn,
-                "site"  => Config::getApplicationSettings()->environment->site,
+                "mrn"   => $patient->mrns[0]->mrn,
+                "site"  => $patient->mrns[0]->site,
                 "pdf"   => Generator::generatePdfString($patient)
             ]
         ]);
     }
 
-    static function exportPatientDiagnosis(Patient $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr): void
+    static function exportPatientDiagnosis(Mrn $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr): void
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
                 "mrn"           => $patient->mrn,
-                "site"          => Config::getApplicationSettings()->environment->site,
+                "site"          => $patient->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId,
                 "code"          => $diagSubcode,
@@ -79,12 +81,12 @@ class Export
         ]);
     }
 
-    static function exportPatientDiagnosisDeletion(Patient $patient,int $diagId): void
+    static function exportPatientDiagnosisDeletion(Mrn $patient,int $diagId): void
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/delete/patient-diagnosis",[
             "form_params" => [
                 "mrn"           => $patient->mrn,
-                "site"          => Config::getApplicationSettings()->environment->site,
+                "site"          => $patient->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId
             ]

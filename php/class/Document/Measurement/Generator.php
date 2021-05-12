@@ -40,7 +40,7 @@ class Generator
                 $series["data"][] = [
                     "x"     => $measurement->datetime->getTimestamp() *1000,
                     "y"     => $value,
-                    "color" => ($measurement->mrn === $patient->mrn) ? $series["color"] : "red",
+                    "color" => in_array($measurement->mrnSite,array_map(fn($x) => $x->mrn ."-". $x->site,$patient->mrns)) ? $series["color"] : "red",
                 ];
 
             }
@@ -83,7 +83,8 @@ class Generator
         $measurements   = PatientMeasurement::getMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
-        $mrn            = $patient->mrn;
+        $mrn            = $patient->mrns[0]->mrn;
+        $site           = $patient->mrns[0]->site;
         $imagePath      = Config::getApplicationSettings()->environment->imagePath;
 
         //convert english month abreviation to french
@@ -148,7 +149,7 @@ class Generator
             \\end{minipage}
 
             \\begin{center}
-            \\textbf{{$lname}, {$fname} (RVH-$mrn)}
+            \\textbf{{$lname}, {$fname} ($site-$mrn)}
             \\newline
             \\includegraphics[height=4.3in]{{$chartImagePath}}
             \\end{center}
@@ -175,7 +176,7 @@ class Generator
                 |p{0.15\\linewidth}
                 |
             }
-            \\rowcolor{white}\\multicolumn{6}{l}{\\textbf{{$lname}, $fname (RVH-$mrn)}}\\\\
+            \\rowcolor{white}\\multicolumn{6}{l}{\\textbf{{$lname}, $fname ($site-$mrn)}}\\\\
             \\rowcolor{white}\\multicolumn{6}{l}{\\color{white}{ }}\\\\
             \\hline
             \\rowcolor{babyblueeyes}

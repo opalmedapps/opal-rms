@@ -14,7 +14,7 @@
         <tr>
             <td>BSA (Dubois): </td>
             <td><input type="number" class="weight-modal-input" ng-model="patient.bsa" step="any" disabled /> m<sup>2</sup></td>
-            <td><button class="btn btn-primary weight-update-button" ng-class="updateConfirmed ? '' : 'weight-update-button-warning'" ng-click="updateWeightChart()" ng-disabled="!patient.weight || invalidIdDetected">{{updateConfirmed ? 'Update' : 'Confirm'}}</button></td>
+            <td><button class="btn btn-primary weight-update-button" ng-class="updateConfirmed ? '' : 'weight-update-button-warning'" ng-click="updateWeightChart()" ng-disabled="!patient.weight || invalidMrnDetected">{{updateConfirmed ? 'Update' : 'Confirm'}}</button></td>
             <td></td>
         </tr>
     </table>
@@ -23,7 +23,7 @@
     <p style="text-align: center; font: 16px; color: red;" ng-if="warnForWeight"><b>Significant weight change since last appointment.</b></p>
     <p style="text-align: center; font: 16px; color: red;" ng-if="warnForHeight"><b>Significant height change since last appointment.</b></p>
     <p style="text-align: center; font: 16px; color: red;" ng-if="warnForBSA"><b>Significant BSA change since last appointment.</b></p>
-    <p style="text-align: center; font: 16px; color: red;" ng-if="invalidIdDetected"><b>Invalid weight detected for this patient. Please contact opal@muhc.mcgill.ca for assistance.</b></p>
+    <p style="text-align: center; font: 16px; color: red;" ng-if="invalidMrnDetected"><b>Invalid weight detected for this patient. Please contact opal@muhc.mcgill.ca for assistance.</b></p>
 
     <highchart config="historicalChart.config" id="hisChart"></highchart>
 </div>

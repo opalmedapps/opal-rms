@@ -3,17 +3,24 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
+use Orms\Patient;
+use Orms\Http;
 use Orms\Opal;
 
-$mrn             = $_GET["mrn"] ?? NULL;
+$patientId = $_GET["patientId"] ?? NULL;
 $questionnaireId = $_GET["rptID"] ?? NULL;
 
-if($mrn === NULL || $questionnaireId === NULL) {
-    http_response_code(400);
-    exit("Missing fields!");
+if($patientId === NULL || $questionnaireId === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Missing fields!");
 }
 
-$questions = Opal::getPatientAnswersForNonChartTypeQuestionnaire($mrn,(int) $questionnaireId);
+$patient = Patient::getPatientById((int) $patientId);
+
+if($patient === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+}
+
+$questions = Opal::getPatientAnswersForNonChartTypeQuestionnaire($patient,(int) $questionnaireId);
 
 //the return array, will be in JSON format
 $jstring = [];

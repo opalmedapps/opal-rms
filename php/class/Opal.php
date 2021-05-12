@@ -7,6 +7,7 @@ use PDOException;
 
 use Orms\Config;
 use Orms\Database;
+use Orms\Patient;
 
 class Opal
 {
@@ -40,7 +41,7 @@ class Opal
 
     /**
      * Returns an array of arrays with the following fields:
-     *  - PatientId
+     *  - PatientId (this is the RVH mrn)
      *  - CompletionDate
      *  - Status
      *  - QuestionnaireDBSerNum
@@ -52,12 +53,15 @@ class Opal
      * @return array<int,array<string,string>>
      * @throws PDOException
      */
-    static function getListOfQuestionnairesForPatient(string $mrn): array
+    static function getListOfQuestionnairesForPatient(Patient $patient): array
     {
         $dbh = Database::getQuestionnaireConnection();
         $opalDb = Config::getApplicationSettings()->opalDb?->databaseName;
 
         if($dbh === NULL || $opalDb === NULL) return [];
+
+        //get the RVH mrn as this is all that this stored procedure currently supports
+        $mrn = array_values(array_filter($patient->mrns,fn($x) => $x->site === "RVH"))[0]->mrn ?? NULL;
 
         $query = $dbh->prepare("CALL getQuestionnaireListORMS(?,?)");
         $query->execute([$mrn,$opalDb]);
@@ -70,13 +74,13 @@ class Opal
      * @return mixed[]
      * @throws PDOException
      */
-    static function getPatientAnswersForChartTypeQuestionnaire(string $mrn,int $questionnaireId): array
+    static function getPatientAnswersForChartTypeQuestionnaire(Patient $patient,int $questionnaireId): array
     {
         $dbh = Database::getQuestionnaireConnection();
         $opalDb = Config::getApplicationSettings()->opalDb?->databaseName;
-        $patient = self::_getOpalDatabasePatient($mrn);
+        $opalPatient = self::_getOpalDatabasePatient($patient);
 
-        if($dbh === NULL || $opalDb === NULL || $patient === NULL) return [];
+        if($dbh === NULL || $opalDb === NULL || $opalPatient === NULL) return [];
 
         //fetch the questions in the questionnaire
         $queryQuestions = $dbh->prepare("CALL queryQuestions(?)");
@@ -87,10 +91,10 @@ class Opal
         $queryAnswers = $dbh->prepare("CALL getQuestionNameAndAnswerByID(:mrn,:questionnaireId,:questionText,:opalDb,:questionId)");
 
         //for each question, get all answers the patient submitted for that particular question
-        return array_map(function($x) use($mrn,$patient,$opalDb,$questionnaireId,$queryAnswers) {
+        return array_map(function($x) use($opalPatient,$opalDb,$questionnaireId,$queryAnswers) {
 
             $queryAnswers->execute([
-                ":mrn"              => $mrn,
+                ":mrn"              => $opalPatient["PatientId"],
                 ":questionnaireId"  => $questionnaireId,
                 ":questionText"     => $x["QuestionText_EN"],
                 ":opalDb"           => $opalDb,
@@ -108,11 +112,11 @@ class Opal
             //sort answers by datetime answered
             usort($answers,fn($a,$b) => $a[0] <=> $b[0]);
 
-            $questionText = ($patient["Language"] === "EN") ? $x["QuestionText_EN"] : $x["QuestionText_FR"];
+            $questionText = ($opalPatient["Language"] === "EN") ? $x["QuestionText_EN"] : $x["QuestionText_FR"];
 
             return  [
                 "question" => filter_var($questionText,FILTER_SANITIZE_STRING),
-                "language" => $patient["Language"],
+                "language" => $opalPatient["Language"],
                 "data"  => $answers
             ];
         },$questions);
@@ -123,22 +127,22 @@ class Opal
      * @return mixed[]
      * @throws PDOException
      */
-    static function getPatientAnswersForNonChartTypeQuestionnaire(string $mrn,int $questionnaireId): array
+    static function getPatientAnswersForNonChartTypeQuestionnaire(Patient $patient,int $questionnaireId): array
     {
         $dbh = Database::getQuestionnaireConnection();
-        $patient = self::_getOpalDatabasePatient($mrn);
+        $opalPatient = self::_getOpalDatabasePatient($patient);
 
-        if($dbh === NULL || $patient === NULL) return [];
+        if($dbh === NULL || $opalPatient === NULL) return [];
 
         //fetch the questions in the questionnaire
         $queryQuestions = $dbh->prepare("CALL getCompletedQuestionnaireInfo(?,?);");
-        $queryQuestions->execute([$patient["PatientSerNum"],$questionnaireId]);
+        $queryQuestions->execute([$opalPatient["PatientSerNum"],$questionnaireId]);
         $questions = $queryQuestions->fetchAll();
         $queryQuestions->nextRowset();
 
         //attach the patient's language
-        $questions = array_map(function($x) use($patient) {
-            $x["Language"] = $patient["Language"];
+        $questions = array_map(function($x) use($opalPatient) {
+            $x["Language"] = $opalPatient["Language"];
             return $x;
         },$questions);
 
@@ -285,27 +289,35 @@ class Opal
      * @return null|mixed[]
      * @throws PDOException
      */
-    private static function _getOpalDatabasePatient(string $mrn): ?array
+    private static function _getOpalDatabasePatient(Patient $patient): ?array
     {
         $dbh = Database::getOpalConnection();
 
         if($dbh === NULL) return NULL;
 
+        //use the first mrn the patient has in ORMS as the the patient should have the exact same mrns in Opal
+        $mrn = $patient->mrns[0]->mrn;
+        $site = $patient->mrns[0]->site;
+
         $query = $dbh->prepare("
             SELECT
-                PatientSerNum
-                ,PatientId
-                ,CONCAT(TRIM(FirstName),' ',TRIM(LastName)) AS Name
-                ,LEFT(sex,1) as Sex
-                ,DateOfBirth
-                ,Age
-                ,Language
+                P.PatientSerNum
+                ,P.PatientId
+                ,CONCAT(TRIM(P.FirstName),' ',TRIM(P.LastName)) AS Name
+                ,LEFT(P.sex,1) as Sex
+                ,P.DateOfBirth
+                ,P.Age
+                ,P.Language
             FROM
-                Patient
-            WHERE
-                PatientId = ?
+                Patient P
+                INNER JOIN Patient_Hospital_Identifier PH ON PH.PatientSerNum = P.PatientSerNum
+                    AND PH.Hospital_Identifier_Type_Code = :site
+                    AND PH.MRN = :mrn
         ");
-        $query->execute([$mrn]);
+        $query->execute([
+            ":site" => $site,
+            ":mrn"  => $mrn
+        ]);
 
         return $query->fetchAll()[0] ?? NULL;
     }

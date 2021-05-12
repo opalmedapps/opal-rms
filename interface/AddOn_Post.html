@@ -124,7 +124,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
 
     //load list of oncology resources
     $http({
-        url: "/php/script/getClinicResources.php",
+        url: "/php/api/private/v1/appointment/getClinicResources.php",
         method: "GET",
         params:
         {

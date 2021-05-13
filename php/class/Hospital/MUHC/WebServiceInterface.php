@@ -6,7 +6,6 @@ use Exception;
 use SoapClient;
 
 use Orms\Config;
-use Orms\DateTime;
 
 use Orms\Hospital\MUHC\Patient;
 

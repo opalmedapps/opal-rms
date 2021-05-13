@@ -24,15 +24,13 @@ class Patient
     ) {}
 
     /**
-     * Inserts a new patient in the database. The patient must have at least one mrn.
-     *
+     * Inserts a new patient in the database. The patient must have at least one active mrn.
+     * @param list<array{mrn: string,site: string,active: bool}> $mrns
      */
     static function insertNewPatient(
         string $firstName,
         string $lastName,
-        string $mrn,
-        string $site,
-        bool $mrnStatus
+        array $mrns
     ): self
     {
         $dbh = Database::getOrmsConnection();
@@ -49,13 +47,22 @@ class Patient
 
         $patient = self::getPatientById((int) $dbh->lastInsertId());
         if($patient === NULL) {
-            throw new Exception("Failed to insert patient with mrn $mrn and site $site");
+            throw new Exception("Failed to insert patient");
         }
 
-        $patient = self::updateMrn($patient,$mrn,$site,$mrnStatus);
+        //make sure an active mrn is inserted first
+        usort($mrns,fn($x) => ($x["active"] === TRUE) ? 1 : 0);
+
+        foreach($mrns as $m) {
+            $patient = self::updateMrn($patient,$m["mrn"],$m["site"],$m["active"]);
+        }
+
+        //verify that the patient has an active mrn
+        if(count($patient->getActiveMrns()) === 0) {
+            throw new Exception("Failed to create patient with no active mrns");
+        }
 
         $dbh->commit();
-
         return $patient;
     }
 
@@ -195,8 +202,19 @@ class Patient
 
     static function updateMrn(self $patient,string $mrn,string $site,bool $active): self
     {
+        $dbh = Database::getOrmsConnection();
+        $dbh->beginTransaction();
+
         Mrn::updateMrnForPatientId($patient->id,$mrn,$site,$active);
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update mrns for patient $patient->id");
+        $patient = self::getPatientById($patient->id) ?? throw new Exception("Failed to update mrns for patient $patient->id");
+
+        //verify that the patient has an active mrn
+        if(count($patient->getActiveMrns()) === 0) {
+            throw new Exception("Failed to update patient with no active mrns");
+        }
+
+        $dbh->commit();
+        return $patient;
     }
 
     static function updateInsurance(self $patient,string $insuranceNumber,string $type,DateTime $expirationDate,bool $active): self
@@ -229,6 +247,22 @@ class Patient
             $patient = self::getPatientById((int) $x["PatientSerNum"]) ?? throw new Exception("Unknown patient");
             return self::updatePhoneNumber($patient,NULL,NULL);
         },$query->fetchAll());
+    }
+
+    /**
+     *
+     * @return Mrn[]
+     */
+    function getActiveMrns(): array
+    {
+        $mrns = array_values(array_filter($this->mrns,fn($x) => $x->active === TRUE));
+
+        //sort the mrns to guarentee that they're always in the same order
+        usort($mrns,function($a,$b) {
+            return [$a->mrn,$a->site] <=> [$b->mrn,$b->site];
+        });
+
+        return $mrns;
     }
 }
 

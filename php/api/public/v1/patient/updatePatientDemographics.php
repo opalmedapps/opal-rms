@@ -68,17 +68,17 @@ if($patient === NULL) {
     $patient = Patient::insertNewPatient(
         $demographics->firstName,
         $demographics->lastName,
-        $demographics->mrns[0]->mrn,
-        $demographics->mrns[0]->site,
-        $demographics->mrns[0]->active
+        array_map(function($x) {
+            return [
+                "mrn"    => $x->mrn,
+                "site"   => $x->site,
+                "active" => $x->active
+            ];
+        },$demographics->mrns)
     );
 }
 else {
     $patient = Patient::updateName($patient,$demographics->firstName,$demographics->lastName);
-}
-
-foreach($demographics->mrns as $mrn) {
-    $patient = Patient::updateMrn($patient,$mrn->mrn,$mrn->site,$mrn->active);
 }
 
 if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {

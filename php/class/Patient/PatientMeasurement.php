@@ -91,7 +91,7 @@ class PatientMeasurement
             ":weight"   => $weight,
             ":bsa"      => $bsa,
             ":appId"    => "$appointmentSourceSystem-$appointmentSourceId",
-            ":mrn"      => $patient->mrns[0]->mrn ."-". $patient->mrns[0]->site
+            ":mrn"      => $patient->getActiveMrns()[0]->mrn ."-". $patient->getActiveMrns()[0]->site
         ]);
     }
 

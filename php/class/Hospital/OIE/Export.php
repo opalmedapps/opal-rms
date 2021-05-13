@@ -38,7 +38,7 @@ class Export
         try {
             Connection::getOpalHttpClient()?->request("GET","publisher/php/sendCallPatientNotification.php",[
                 "query" => [
-                    "PatientId"             => $patient->mrns[0]->mrn,
+                    "PatientId"             => $patient->getActiveMrns()[0]->mrn,
                     //"site" => $mrn->site //the site is missing from the api...
                     "appointment_ariaser"   => $appointmentId,
                     "room_EN"               => $roomNameEn,
@@ -57,8 +57,8 @@ class Export
 
         Connection::getHttpClient()?->request("POST","exportWeightPdf",[
             "json"  => [
-                "mrn"   => $patient->mrns[0]->mrn,
-                "site"  => $patient->mrns[0]->site,
+                "mrn"   => $patient->getActiveMrns()[0]->mrn,
+                "site"  => $patient->getActiveMrns()[0]->site,
                 "pdf"   => Generator::generatePdfString($patient)
             ]
         ]);
@@ -68,8 +68,8 @@ class Export
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/insert/patient-diagnosis",[
             "form_params" => [
-                "mrn"           => $patient->mrns[0]->mrn,
-                "site"          => $patient->mrns[0]->site,
+                "mrn"           => $patient->getActiveMrns()[0]->mrn,
+                "site"          => $patient->getActiveMrns()[0]->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId,
                 "code"          => $diagSubcode,
@@ -84,8 +84,8 @@ class Export
     {
         Connection::getOpalHttpClient()?->request("POST","diagnosis/delete/patient-diagnosis",[
             "form_params" => [
-                "mrn"           => $patient->mrns[0]->mrn,
-                "site"          => $patient->mrns[0]->site,
+                "mrn"           => $patient->getActiveMrns()[0]->mrn,
+                "site"          => $patient->getActiveMrns()[0]->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId
             ]

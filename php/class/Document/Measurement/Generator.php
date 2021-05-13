@@ -83,8 +83,8 @@ class Generator
         $measurements   = PatientMeasurement::getMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
-        $mrn            = $patient->mrns[0]->mrn;
-        $site           = $patient->mrns[0]->site;
+        $mrn            = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
+        $site           = "RV";
         $imagePath      = Config::getApplicationSettings()->environment->imagePath;
 
         //convert english month abreviation to french

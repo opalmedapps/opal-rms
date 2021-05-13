@@ -300,8 +300,7 @@ class Opal
         if($dbh === NULL) return NULL;
 
         //use the first mrn the patient has in ORMS as the the patient should have the exact same mrns in Opal
-        $mrn = $patient->mrns[0]->mrn;
-        $site = $patient->mrns[0]->site;
+        $mrn = $patient->getActiveMrns()[0];
 
         $query = $dbh->prepare("
             SELECT
@@ -319,8 +318,8 @@ class Opal
                     AND PH.MRN = :mrn
         ");
         $query->execute([
-            ":site" => $site,
-            ":mrn"  => $mrn
+            ":site" => $mrn->mrn,
+            ":mrn"  => $mrn->site
         ]);
 
         return $query->fetchAll()[0] ?? NULL;

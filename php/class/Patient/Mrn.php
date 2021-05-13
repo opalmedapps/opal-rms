@@ -70,7 +70,8 @@ class Mrn
 
     /**
      * Updates a patient's mrn by comparing it to what the patient has in the database.
-     * If the mrn doesn't exist, it is inserted
+     * If the mrn doesn't exist, it is inserted.
+     * A patient must always have an active mrn.
      */
     static function updateMrnForPatientId(int $patientId,string $mrn,string $site,bool $active): void
     {

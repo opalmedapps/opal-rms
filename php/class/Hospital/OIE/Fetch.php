@@ -15,8 +15,8 @@ class Fetch
     {
         $response = Connection::getOpalHttpClient()?->request("POST","diagnosis/get/patient-diagnoses",[
             "form_params" => [
-                "mrn"       => $patient->mrns[0]->mrn,
-                "site"      => $patient->mrns[0]->site,
+                "mrn"       => $patient->getActiveMrns()[0]->mrn,
+                "site"      => $patient->getActiveMrns()[0]->site,
                 "source"    => "ORMS",
                 "include"   => 0,
                 "startDate" =>"2000-01-01",

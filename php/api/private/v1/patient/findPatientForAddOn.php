@@ -21,14 +21,18 @@ elseif($ramq !== NULL) {
 
 //if the patient was found, return it
 //otherwise look in the ADT to find the patient
-if($patient !== NULL) {
+if($patient !== NULL)
+{
+    $searchedMrn = array_values(array_filter($patient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site))[0];
+
     $response =  [[
         "last"      => $patient->lastName,
         "first"     => $patient->firstName,
         "ramq"      => array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->number ?? NULL,
         "ramqExp"   => (array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->expiration ?? NULL)?->modifyN("first day of")?->format("Y-m-d"),
-        "mrn"       => $patient->mrns[0]->mrn,
-        "site"      => $patient->mrns[0]->site
+        "mrn"       => $searchedMrn->mrn,
+        "site"      => $searchedMrn->site,
+        "active"    => $searchedMrn->active
     ]];
 
     Http::generateResponseJsonAndExit(200,$response);
@@ -44,14 +48,17 @@ elseif($ramq !== NULL) {
     $patients = WebServiceInterface::findPatientByRamq($ramq);
 }
 
-$patients = array_map(function($x) {
+$patients = array_map(function($x) use($mrn,$site) {
+    $searchedMrn = array_values(array_filter($x->mrns,fn($x) => $x->mrn === $mrn && $x->mrnType === $site))[0];
+
     return [
         "last"      => $x->lastName,
         "first"     => $x->firstName,
         "ramq"      => $x->ramqNumber,
         "ramqExp"   => $x->ramqExpDate,
-        "mrn"       => $x->mrns[0]->mrn,
-        "site"      => $x->mrns[0]->mrnType
+        "mrn"       => $searchedMrn->mrn,
+        "site"      => $searchedMrn->mrnType,
+        "active"    => $searchedMrn->active
     ];
 },$patients);
 

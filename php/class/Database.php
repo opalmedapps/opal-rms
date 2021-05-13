@@ -9,6 +9,11 @@ use Orms\Config;
 //returns db connection handles to a requested database
 class Database
 {
+    private static ?PDO $ormsConnection = NULL;
+    private static ?PDO $logsConnection = NULL;
+    private static ?PDO $opalConnection = NULL;
+    private static ?PDO $questionnaireConnection = NULL;
+
     /** @var array<int,int> */
     private static array $pdoOptions = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -17,26 +22,42 @@ class Database
 
     static function getOrmsConnection(): PDO
     {
-        $dbInfo = Config::getApplicationSettings()->ormsDb;
-        return self::_getDatabaseConnection($dbInfo);
+        if(self::$ormsConnection === NULL) {
+            $dbInfo = Config::getApplicationSettings()->ormsDb;
+            self::$ormsConnection = self::_getDatabaseConnection($dbInfo);
+        }
+
+        return self::$ormsConnection;
     }
 
     static function getLogsConnection(): PDO
     {
-        $dbInfo = Config::getApplicationSettings()->logDb;
-        return self::_getDatabaseConnection($dbInfo);
+        if(self::$logsConnection === NULL) {
+            $dbInfo = Config::getApplicationSettings()->logDb;
+            self::$logsConnection = self::_getDatabaseConnection($dbInfo);
+        }
+
+        return self::$logsConnection;
     }
 
     static function getOpalConnection(): ?PDO
     {
-        $dbInfo = Config::getApplicationSettings()->opalDb;
-        return $dbInfo === NULL ? NULL : self::_getDatabaseConnection($dbInfo);
+        if(self::$opalConnection === NULL) {
+            $dbInfo = Config::getApplicationSettings()->opalDb;
+            self::$opalConnection = ($dbInfo === NULL) ? NULL : self::_getDatabaseConnection($dbInfo);
+        }
+
+        return self::$opalConnection;
     }
 
     static function getQuestionnaireConnection(): ?PDO
     {
-        $dbInfo = Config::getApplicationSettings()->questionnaireDb;
-        return $dbInfo === NULL ? NULL : self::_getDatabaseConnection($dbInfo);
+        if(self::$questionnaireConnection === NULL) {
+            $dbInfo = Config::getApplicationSettings()->questionnaireDb;
+            self::$questionnaireConnection = ($dbInfo === NULL) ? NULL : self::_getDatabaseConnection($dbInfo);
+        }
+
+        return self::$questionnaireConnection;
     }
 
     private static function _getDatabaseConnection(DatabaseConfig $dbConf): PDO

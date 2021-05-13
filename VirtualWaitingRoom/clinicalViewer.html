@@ -433,7 +433,7 @@
             <tbody >
             <tr ng-repeat="appoint in tableData">
 
-                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn}}</div>
+                <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn +"-"+ appoint.site}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************</div></td>
 
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>

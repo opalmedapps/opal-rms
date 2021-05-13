@@ -50,7 +50,17 @@ class Opal
      *  - Sex
      *  - Age
      *  - Visualization
-     * @return array<int,array<string,string>>
+     * @return list<array{
+     *      PatientId: string,
+     *      CompletionDate: string,
+     *      Status: string,
+     *      QuestionnaireDBSerNum: string,
+     *      QuestionnaireName_EN: string,
+     *      Total: string,
+     *      Sex: string,
+     *      Age: string,
+     *      Visualization: string,
+     *   }>
      * @throws PDOException
      */
     static function getListOfQuestionnairesForPatient(Patient $patient): array
@@ -66,6 +76,40 @@ class Opal
         $query = $dbh->prepare("CALL getQuestionnaireListORMS(?,?)");
         $query->execute([$mrn,$opalDb]);
 
+        /** @phpstan-ignore-next-line */
+        return $query->fetchAll();
+    }
+
+    /**
+     * Version of getListOfQuestionnairesForPatient used in the clinical viewer
+     * @return list<array{
+     *      PatientId: string,
+     *      CompletionDate: string,
+     *      Status: string,
+     *      QuestionnaireDBSerNum: string,
+     *      QuestionnaireName_EN: string,
+     *      Total: string,
+     *      Sex: string,
+     *      Age: string,
+     *      Visualization: string,
+     *   }>
+     */
+    static function getListOfQuestionnairesForPatientClinicalViewer(string $mrn,string $site): array
+    {
+        $dbh = Database::getQuestionnaireConnection();
+        $opalDb = Config::getApplicationSettings()->opalDb?->databaseName;
+
+        if($dbh === NULL || $opalDb === NULL) return [];
+
+        //get the RVH mrn as this is all that this stored procedure currently supports
+        if($site !== "RVH") {
+            return [];
+        }
+
+        $query = $dbh->prepare("CALL getQuestionnaireListORMS(?,?)");
+        $query->execute([$mrn,$opalDb]);
+
+        /** @phpstan-ignore-next-line */
         return $query->fetchAll();
     }
 
@@ -212,7 +256,7 @@ class Opal
      * @return mixed[]
      * @throws PDOException
      */
-    static function getLastCompletedPatientQuestionnaireClinicalViewer(string $mrn,string $questionnaireDate): array
+    static function getLastCompletedPatientQuestionnaireClinicalViewer(string $mrn,string $site,string $questionnaireDate): array
     {
         $dbh = Database::getOpalConnection();
         if($dbh === NULL) return [];
@@ -230,16 +274,18 @@ class Opal
                     END AS RecentlyAnswered
             FROM
                 Patient P
+                INNER JOIN Patient_Hospital_Identifier PH ON PH.PatientSerNum = P.PatientSerNum
+                    AND PH.Hospital_Identifier_Type_Code = :site
+                    AND PH.MRN = :mrn
                 INNER JOIN Questionnaire Q ON Q.PatientSerNum = P.PatientSerNum
                     AND Q.CompletedFlag = 1
-            WHERE
-                P.PatientId = :mrn
             ORDER BY
                 Q.CompletionDate DESC
             LIMIT 1
         ");
         $query->execute([
             ":mrn"   => $mrn,
+            "site"   => $site,
             ":qDate" => $questionnaireDate
         ]);
 
@@ -261,7 +307,8 @@ class Opal
         //if the questionnaire list is emmpty, this will return every patient in the opal database that completed a questionnaire
         $query = $dbh->prepare("
             SELECT DISTINCT
-                P.PatientId,
+                P.PatientId AS Mrn,
+                'RVH' AS Site,
                 MAX(Q.CompletionDate) AS QuestionnaireCompletionDate,
                 QC.QuestionnaireName_EN AS QuestionnaireName,
                 CASE

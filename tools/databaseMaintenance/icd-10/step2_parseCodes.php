@@ -90,7 +90,7 @@ function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE): array
 
         return $leaves;
     }
-    elseif(preg_match("/-/",$node["name"]) && $getLeafNodes === FALSE)
+    elseif(preg_match("/-/",$node["name"]))
     {
         $node["data"] = removeNestedCodeRanges($node,TRUE);
     }

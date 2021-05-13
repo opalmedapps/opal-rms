@@ -446,7 +446,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 //backdrop: 'static',
                 resolve:
                     {
-                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn, 'QStatus': appoint.QStatus,'LastQuestionnaireReview':appoint.LastReview,};},
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn,'Site': appoint.site, 'QStatus': appoint.QStatus,'LastQuestionnaireReview':appoint.LastReview,};},
                         //confidMode: function() {return $scope.confid}
                     }
             }).result.then(function(response)
@@ -469,7 +469,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             //backdrop: 'static',
             resolve:
                 {
-                    patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId,};}
+                    patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn, 'Site': appoint.site};}
                 }
         })
     }

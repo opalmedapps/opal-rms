@@ -73,7 +73,8 @@ $queryAppointments = $dbh->prepare("
         MV.AppointmentSerNum,
         P.FirstName,
         P.LastName,
-        P.PatientId,
+        PH.MedicalRecordNumber,
+        H.HospitalCode,
         P.PatientSerNum,
         MV.ResourceDescription,
         MV.Resource,
@@ -98,13 +99,17 @@ $queryAppointments = $dbh->prepare("
             $statusFilter
             $appFilter
             $cappFilter
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.Active = 1
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
     ORDER BY
         MV.ScheduledDate,
         MV.ScheduledTime
 ");
 
 $listOfAppointments = [];
-$mrnList = [];
+$patientList = [];
 
 //get ORMS patients if the appointment filter is disabled
 if($afilter === FALSE)
@@ -128,8 +133,8 @@ if($afilter === FALSE)
         if($filterAppointment === TRUE) continue;
 
         //mark this patient as seen
-        if(in_array($app["PatientId"],$mrnList) === FALSE) {
-            $mrnList[] = $app["PatientId"];
+        if(in_array($app["PatientSerNum"],$patientList) === FALSE) {
+            $patientList[] = $app["PatientSerNum"];
         }
 
         if($app["SMSAlertNum"] !== NULL) $app["SMSAlertNum"] = substr($app["SMSAlertNum"],0,3) ."-". substr($app["SMSAlertNum"],3,3) ."-". substr($app["SMSAlertNum"],6,4);
@@ -142,7 +147,7 @@ if($afilter === FALSE)
 
         if($app["OpalPatient"] === "1")
         {
-            $opalQuestionnaire = Opal::getLastCompletedPatientQuestionnaireClinicalViewer($app["PatientId"],$qDate);
+            $opalQuestionnaire = Opal::getLastCompletedPatientQuestionnaireClinicalViewer($app["MedicalRecordNumber"],$app["HospitalCode"],$qDate);
 
             $app["QuestionnaireName"] = $opalQuestionnaire["QuestionnaireName"] ?? "";
 
@@ -162,7 +167,7 @@ if($afilter === FALSE)
             ) $app["QStatus"] = "red-circle";
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
-            $listOfPatientQuestionnaires = array_column(Opal::getListOfQuestionnairesForPatient($app["PatientId"]),"QuestionnaireName_EN");
+            $listOfPatientQuestionnaires = array_column(Opal::getListOfQuestionnairesForPatientClinicalViewer($app["MedicalRecordNumber"],$app["HospitalCode"]),"QuestionnaireName_EN");
             $userSelectedQuestionnaires = explode(",",$qspecificApp);
 
             $answeredQuestionnaire = (array_intersect($listOfPatientQuestionnaires,$userSelectedQuestionnaires) !== []);
@@ -176,7 +181,8 @@ if($afilter === FALSE)
             $listOfAppointments[] = [
                 "fname"         => $app["FirstName"],
                 "lname"         => $app["LastName"],
-                "mrn"           => $app["PatientId"],
+                "mrn"           => $app["MedicalRecordNumber"],
+                "site"          => $app["HospitalCode"],
                 "patientId"     => $app["PatientSerNum"],
                 "appName"       => $app["ResourceDescription"],
                 "appClinic"     => $app["Resource"],
@@ -200,16 +206,19 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 {
     $qappFilter = ($qType === "all") ? [] : explode(",",$qspecificApp);
 
+    //we need to know which site to look
+
     $patients = Opal::getOpalPatientsAccordingToVariousFilters($qappFilter,$qDate);
 
     $queryPatientInformation = $dbh->prepare("
         SELECT
-            FirstName,
-            LastName,
-            PatientId,
-            PatientSerNum,
-            OpalPatient,
-            SMSAlertNum,
+            P.FirstName,
+            P.LastName,
+            PH.MedicalRecordNumber,
+            H.HospitalCode,
+            P.PatientSerNum,
+            P.OpalPatient,
+            P.SMSAlertNum,
             (
                 SELECT
                     DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i')
@@ -220,8 +229,11 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             ) AS LastQuestionnaireReview
         FROM
             Patient P
-        WHERE
-            P.PatientId = :mrn
+            INNER JOIN Hospital H ON H.HospitalCode = :site
+            INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+                AND PH.HospitalId = H.HospitalId
+                AND PH.Active = 1
+                AND PH.MedicalRecordNumber = :mrn
     ");
 
     foreach($patients as $pat)
@@ -230,13 +242,16 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
         $recentlyAnswered = $pat["RecentlyAnswered"] ?? NULL;
 
         if(! (
-            in_array($pat["PatientId"],$mrnList) === FALSE
+            in_array($pat["PatientSerNum"],$patientList) === FALSE
             && ($offbutton === "OFF" || $recentlyAnswered === "1")
             && ($qType === "all" || $pat["QuestionnaireName"] !== NULL)
             && $pat["QuestionnaireCompletionDate"] !== NULL
         )) continue;
 
-        $queryPatientInformation->execute([":mrn" => $pat["PatientId"]]);
+        $queryPatientInformation->execute([
+            ":mrn" => $pat["Mrn"],
+            ":site" => $pat["Site"]
+        ]);
         $ormsInfo = $queryPatientInformation->fetchAll()[0] ?? [];
 
         if(
@@ -261,7 +276,8 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
         $listOfAppointments[] = [
             "fname"         => $ormsInfo["FirstName"],
             "lname"         => $ormsInfo["LastName"],
-            "mrn"           => $pat["PatientId"],
+            "mrn"           => $pat["MedicalRecordNumber"],
+            "site"          => $pat["HospitalCode"],
             "patientId"     => $ormsInfo["PatientSerNum"],
             "appName"       => NULL,
             "appClinic"     => NULL,

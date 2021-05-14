@@ -26,7 +26,8 @@ $sql = "
         PL.AppointmentSerNum,
         P.FirstName,
         P.LastName,
-        P.PatientId,
+        PH.MedicalRecordNumber,
+        H.HospitalCode,
         PL.PatientLocationRevCount,
         CAST(PL.ArrivalDateTime AS DATE) AS Date,
         PL.ArrivalDateTime AS Arrival,
@@ -43,6 +44,10 @@ $sql = "
             AND PL.ArrivalDateTime BETWEEN :sDate AND :eDate
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             AND CR.Speciality = :spec
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.Active = 1
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
     ORDER BY
         P.LastName,
         P.FirstName,
@@ -75,7 +80,8 @@ $resources = array_map(function($checkIn) use ($method) {
                 "!$checkIn[AppointmentSerNum]"  => [
                     "fname"     => [$checkIn["FirstName"]],
                     "lname"     => [$checkIn["LastName"]],
-                    "pID"       => [$checkIn["PatientId"]],
+                    "mrn"       => [$checkIn["MedicalRecordNumber"]],
+                    "site"      => [$checkIn["HospitalCode"]],
                     "room"      => [$checkIn["CheckinVenueName"]],
                     "day"       => [$checkIn["Date"]],
                     "waitTime"  => [$checkIn["waitTime"]],
@@ -112,7 +118,8 @@ $resources = array_map(function($resource) {
         return [
             "fname"         => $patient["fname"][0] ?? NULL,
             "lname"         => $patient["lname"][0] ?? NULL,
-            "pID"           => $patient["pID"][0] ?? NULL,
+            "mrn"           => $patient["mrn"][0] ?? NULL,
+            "site"          => $patient["site"][0] ?? NULL,
             "room"          => $patient["room"][0] ?? NULL,
             "day"           => $patient["day"][0] ?? NULL,
             "waitTime"      => $waitTime,

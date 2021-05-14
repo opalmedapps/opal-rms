@@ -50,7 +50,7 @@ $specificType = preg_replace("/'/","\'",$specificType);
 $specialityFilter = "AND CR.Speciality = '$clinic' ";
 
 if($appType === "specific") {
-    $typeFilter = "AND MV.ResourceDescription = '$specificType' " ;
+    $typeFilter = "AND CR.ResourceName = '$specificType' " ;
 }
 else {
     $typeFilter = "";
@@ -66,11 +66,9 @@ $queryClinics = $dbh->prepare("
         MV.ResourceDescription,
         MV.Resource
     FROM
-        MediVisitAppointmentList MV,
-        ClinicResources CR
-    WHERE
-        MV.ClinicResourcesSerNum = CR.ClinicResourcesSerNum
-        $specialityFilter
+        MediVisitAppointmentList MV
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            $specialityFilter
     ORDER BY
         MV.ResourceDescription,
         MV.Resource
@@ -90,7 +88,8 @@ $queryAppointments = $dbh->prepare("
         MV.AppointmentSerNum,
         P.FirstName,
         P.LastName,
-        P.PatientId,
+        PH.MedicalRecordNumber,
+        H.HospitalCode,
         P.SSN,
         P.SSNExpDate,
         MV.ResourceDescription,
@@ -105,13 +104,18 @@ $queryAppointments = $dbh->prepare("
         (select PLM.ArrivalDateTime from PatientLocationMH PLM where PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 limit 1) as ArrivalDateTimePLM,
         MV.MedivisitStatus
     FROM
-        Patient
+        Patient P
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
-            AND MV.ResourceDescription in (Select distinct CR.ResourceName from ClinicResources CR Where trim(CR.ResourceName) not in ('', 'null') $specialityFilter)
             AND MV.Status != 'Deleted'
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
             $appFilter
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            $specialityFilter
             $typeFilter
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.Active = 1
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
     WHERE
         P.PatientId NOT LIKE '999999%'
     ORDER BY ScheduledDate,ScheduledTime
@@ -148,7 +152,8 @@ $appointments = array_map(function($x) {
     return [
         "fname"                 => $x["FirstName"],
         "lname"                 => $x["LastName"],
-        "pID"                   => $x["PatientId"],
+        "mrn"                   => $x["MedicalRecordNumber"],
+        "site"                  => $x["HospitalCode"],
         "ssn"                   => [
             "num"                   => $x["SSN"],
             "expDate"               => (strlen($x["SSNExpDate"]) === 3) ? "0$x[SSNExpDate]" : $x["SSNExpDate"],

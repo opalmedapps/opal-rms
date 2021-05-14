@@ -52,7 +52,7 @@ $queryWRM = $dbh->prepare("
         (SELECT DATE_FORMAT(MAX(ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE PatientSer = P.PatientSerNum) AS LastQuestionnaireReview
     FROM
         MediVisitAppointmentList MV
-        INNER JOIN ClinicResources CR ON CR.ResourceName = MV.ResourceDescription
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
         INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
@@ -109,7 +109,6 @@ foreach($queryWRM->fetchAll() as $row)
     {
         try {
             $questionnaire = Opal::getLastCompletedPatientQuestionnaire($row["Mrn"],$row["Site"]);
-            print_r($questionnaire);
         }
         catch(Exception) {
             $questionnaire = [];

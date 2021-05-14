@@ -113,7 +113,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="sp in selectedPatients">
-                            <td>{{sp.lname}}, {{sp.fname}} ({{sp.pID}})</td>
+                            <td>{{sp.lname}}, {{sp.fname}} ({{sp.mrn +"-"+ sp.site}})</td>
                             <td>{{sp.room}}</td>
                             <td>{{sp.day}}</td>
                             <td>{{sp.waitPeriod}}</td>

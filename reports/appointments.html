@@ -214,7 +214,7 @@
             <tr ng-repeat="appoint in tableData">
             <td>{{appoint.lname}}</td>
             <td>{{appoint.fname}}</td>
-            <td>{{appoint.pID}}</td>
+            <td>{{appoint.mrn +"-"+ appoint.site}}</td>
             <td>{{appoint.ssn.num}}</td>
             <td ng-if="!hideType">{{appoint.appName}}</td>
             <td>{{appoint.appClinic}}</td>

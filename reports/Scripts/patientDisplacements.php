@@ -1,5 +1,9 @@
 <?php declare(strict_types = 1);
 
+//
+// NOT IN USE
+//
+
 // legacy report script refactored from perl
 
 #---------------------------------------------------------------------------------------------------------------

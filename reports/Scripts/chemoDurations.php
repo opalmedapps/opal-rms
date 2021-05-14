@@ -29,7 +29,8 @@ $query = $dbh->prepare("
     SELECT DISTINCT
         P.LastName,
         P.FirstName,
-        P.PatientId,
+        PH.MedicalRecordNumber AS Mrn,
+        H.HospitalCode AS Site,
         MV.Resource,
         MV.ResourceDescription,
         MV.AppointmentCode,
@@ -54,10 +55,12 @@ $query = $dbh->prepare("
                     PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
                     AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
             )
-    WHERE
-        P.PatientId NOT IN ('9999994','9999995','9999996','9999997','9999998','CCCC')
-        AND P.PatientId NOT LIKE 'Opal%'
-    ORDER BY MV.ScheduledDateTime, P.PatientId
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.Active = 1
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+    ORDER BY MV.ScheduledDateTime, Site, Mrn
 ");
 $query->execute([
     ":sDate" => $sDate,

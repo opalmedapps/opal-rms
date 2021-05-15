@@ -90,8 +90,9 @@ $queryAppointments = $dbh->prepare("
         P.LastName,
         PH.MedicalRecordNumber,
         H.HospitalCode,
-        P.SSN,
-        P.SSNExpDate,
+        I.InsuranceCode,
+        PI.InsuranceNumber,
+        PI.ExpirationDate,
         MV.ResourceDescription,
         MV.Resource,
         MV.AppointmentCode,
@@ -116,6 +117,8 @@ $queryAppointments = $dbh->prepare("
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
             AND PH.Active = 1
         INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+        LEFT JOIN Insurance I ON I.InsuranceCode = 'RAMQ'
+        LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
     WHERE
         P.PatientId NOT LIKE '999999%'
     ORDER BY ScheduledDate,ScheduledTime
@@ -154,10 +157,9 @@ $appointments = array_map(function($x) {
         "lname"                 => $x["LastName"],
         "mrn"                   => $x["MedicalRecordNumber"],
         "site"                  => $x["HospitalCode"],
-        "ssn"                   => [
-            "num"                   => $x["SSN"],
-            "expDate"               => (strlen($x["SSNExpDate"]) === 3) ? "0$x[SSNExpDate]" : $x["SSNExpDate"],
-            "expired"               => 1,
+        "ramq"                  => [
+            "num"                   => $x["InsuranceNumber"],
+            "expDate"               => $x["ExpirationDate"],
         ],
         "appName"               => $x["ResourceDescription"],
         "appClinic"             => $x["Resource"],

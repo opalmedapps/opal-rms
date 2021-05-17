@@ -51,7 +51,7 @@ my $ariaSettings = LoadConfigs::GetConfigs("aria");
 my $ariaCheckinUrl = $ariaSettings->{"ARIA_CHECKIN_URL"};
 my $ariaPhotoUrl = $ariaSettings->{"PHOTO_URL"};
 
-my $site = LoadConfigs::GetConfigs("orms")->{"SITE"};
+my $site = "RVH";
 
 #user agent for http calls
 my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
@@ -1093,23 +1093,57 @@ sub findPatient
 {
   #------------------------------------------------------------------------
   # Hospital IDs are numeric only. If there are letters in the ID then it is
-  # the SSN, so search by SSN
+  # the ramq, so search by ramq
   #------------------------------------------------------------------------
-  my $PatientIdentifier = "";
+  my $queryPatient = "";
   if($PatientId =~ /[a-zA-Z]/)
   {
     # the scanned barcode only contains LASFYYMMDDX
-    print "Patient SSN: $PatientId<br>" if $verbose;
+    print "Patient Ramq: $PatientId<br>" if $verbose;
 
     $PatientId = substr($PatientId,0,12);
-    print "Patient SSN, after truncation: $PatientId<br>" if $verbose;
+    print "Patient Ramq, after truncation: $PatientId<br>" if $verbose;
 
-    $PatientIdentifier = "SSN = \'$PatientId\'";
+    $queryPatient = "
+        SELECT
+            P.LastName,
+            P.FirstName,
+            P.PatientSerNum,
+            PI.ExpirationDate
+        FROM
+            Patient P
+            INNER JOIN PatientInsuranceIdentifier PI ON PI.PatientId = P.PatientSerNum
+                AND PI.InsuranceNumber = '$PatientId'
+            INNER JOIN Insurance I ON I.InsuranceId = PI.InsuranceId
+                AND I.InsuranceCode = 'RAMQ'
+    ";
   }
   else
   {
     print "Patient ID: $PatientId<br>" if $verbose;
-    $PatientIdentifier = "PatientId = \'$PatientId\'";
+
+    $queryPatient = "
+        SELECT
+            P.LastName,
+            P.FirstName,
+            P.PatientSerNum,
+            COALESCE(PI.ExpirationDate,NULL) AS ExpirationDate
+        FROM
+            Patient P
+            INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+                AND PH.MedicalRecordNumber = '$PatientId'
+            INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+                AND H.HospitalCode = '$site'
+            LEFT JOIN (
+                SELECT
+                    PI.PatientId,
+                    PI.ExpirationDate
+                FROM
+                    PatientInsuranceIdentifier PI
+                    INNER JOIN Insurance I ON I.InsuranceId = PI.InsuranceId
+                        AND I.InsuranceCode = 'RAMQ'
+            ) PI ON PI.PatientId = P.PatientSerNum
+    ";
   }
 
   #============================================================================================
@@ -1120,29 +1154,16 @@ sub findPatient
   my $PatientSerNum     = "NULL"; # PatientSer is NULL until filled
   my $PatientLastName;
   my $PatientFirstName;
-  my $PatientSSN;
-  my $PatientSSNExpiration;
+  my $PatientRamqExpiration;
 
   #------------------------------------------------------------------------
   # Database initialisation stuff
   #------------------------------------------------------------------------
   my $dbh_mysql = LoadConfigs::GetDatabaseConnection("ORMS") or print CHECKINLOG "###$now, $location ERROR - Couldn't connect to database: \n\n";
 
-  $sqlID = "
-    SELECT DISTINCT
-        LastName,
-        FirstName,
-        PatientSerNum,
-        SSN,
-        SSNExpDate
-    FROM
-        Patient
-    WHERE
-        $PatientIdentifier
-  ";
-  print "SQLID: $sqlID>br>" if $verbose;
+  print "SQLID: $queryPatient>br>" if $verbose;
 
-  my $query= $dbh_mysql->prepare($sqlID)
+  my $query= $dbh_mysql->prepare($queryPatient)
     #or die "Couldn't prepare MySQL sqlID statement: " . $dbh_mysql->errstr;
     or print CHECKINLOG "###$now, $location ERROR - Couldn't prepre MySQL sqlID statement: " . $dbh_mysql->errstr . "\n\n";
 
@@ -1153,28 +1174,26 @@ sub findPatient
   my @data = $query->fetchrow_array();
 
   # grab data from MySQL
-  $PatientLastName     = $data[0] if $data[0];
-  $PatientFirstName    = $data[1] if $data[1];
-  $PatientSerNum    = $data[2] if $data[2];
-  $PatientSSN        = $data[3] if $data[3];
-  $PatientSSNExpiration = $data[4] if $data[4];
+  $PatientLastName       = $data[0] if $data[0];
+  $PatientFirstName      = $data[1] if $data[1];
+  $PatientSerNum         = $data[2] if $data[2];
+  $PatientRamqExpiration = $data[3] if $data[3];
 
   print "Patient LastName: $PatientLastName <br>" if $verbose;
   print "Patient FirstName: $PatientFirstName <br>" if $verbose;
-  print "Patient SSN in MV : $PatientSSN<br>" if $verbose;
   print "PatientSer in findPatient: $PatientSer <br>" if $verbose;
   print "PatientSerNum in findPatient: $PatientSerNum <br>" if $verbose;
 
   #######################################################################
-  # Check that the SSN has not expired
+  # Check that the Ramq has not expired
   #######################################################################
   my $RAMQCardExpired = 0;
 
-  if($PatientSSNExpiration)
+  if($PatientRamqExpiration)
   {
-    my $expiration = Time::Piece->strptime($PatientSSNExpiration,'%y%m');
+    my $expiration = Time::Piece->strptime($PatientRamqExpiration,'%Y-%m-%d');
 
-    $RAMQCardExpired = 1 if($expiration <= Time::Piece->new->add_months(-1));  #ramqs last until the end of the month they expire on
+    $RAMQCardExpired = 1 if($expiration <= Time::Piece->new);
   }
 
   print "Is ramq expired? : $RAMQCardExpired<br>" if $verbose;
@@ -1182,11 +1201,8 @@ sub findPatient
 
   #######################################################################
 
-  # Set the patient's display name for the screen using the SSN
-#   my $PatientSSNLetters = substr($PatientSSN,0,3);
-  my $PatientSSNLetters = substr($PatientLastName,0,3);
-  my $PatientDAYOFBIRTH = substr($PatientSSN,8,2);
-  my $PatientDisplayName = "$PatientFirstName $PatientSSNLetters****";
+  # Set the patient's display name for the screen
+  my $PatientDisplayName = "$PatientFirstName ". substr($PatientLastName,0,3) ."****";
 
   #######################################################################
   # Exit function

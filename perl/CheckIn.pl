@@ -1255,7 +1255,7 @@ sub CheckinPatient
   ##############################################################################################
   my $sqlAppt = "
       SELECT DISTINCT
-        P.PatientId,
+        PH.MedicalRecordNumber,
         P.FirstName,
         P.LastName,
         MV.ScheduledDateTime,
@@ -1267,16 +1267,16 @@ sub CheckinPatient
         MV.AppointSys,
         MV.AppointId
     FROM
-        Patient P,
-        MediVisitAppointmentList MV
-     WHERE
-        MV.PatientSerNum = P.PatientSerNum
-        AND MV.PatientSerNum = $PatientSerNum
-                AND ( MV.ScheduledDateTime >= \'$startOfToday_mysql\' )
-                AND ( MV.ScheduledDateTime < \'$endOfToday_mysql\' )
-        AND ( MV.Status = 'Open' OR MV.Status = 'In Progress')
-
-        ORDER BY MV.ScheduledDateTime
+        Patient P
+        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
+            AND MV.PatientSerNum = $PatientSerNum
+            AND MV.ScheduledDateTime >= \'$startOfToday_mysql\'
+            AND MV.ScheduledDateTime < \'$endOfToday_mysql\'
+            AND ( MV.Status = 'Open' OR MV.Status = 'In Progress')
+        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+            AND H.HospitalCode = '$site'
+    ORDER BY MV.ScheduledDateTime
   ";
 
   print "sqlAppt: $sqlAppt<br>" if $verbose;
@@ -1555,9 +1555,9 @@ sub CheckinPatient
     my $photoResult = $ua->get("$ariaPhotoUrl?mrn=$mrn&site=$site")->content;
 
     my $json = JSON->new->allow_nonref;
-    $photoResult = $json->decode($photoResult);
+    $photoResult = eval { $json->decode($photoResult) };
 
-    $PhotoOk = 0 if(!$photoResult->{"hasPhoto"} eq "1");
+    $PhotoOk = 0 if(defined $photoResult and !$photoResult->{"hasPhoto"} eq "1");
   }
 
 

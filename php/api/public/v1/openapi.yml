@@ -226,6 +226,9 @@ paths:
                 appointmentCode:
                   description: Appointment code
                   type: string
+                appointmentCodeDescription:
+                  description: Appointment code description
+                  type: string
                 clinics:
                   description: List of clinics attached to be appointment
                   type: array
@@ -280,6 +283,7 @@ paths:
                     - Deleted
               required:
                 - appointmentCode
+                - appointmentCodeDescription
                 - clinics
                 - creationDatetime
                 - mrn

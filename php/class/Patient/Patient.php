@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Orms;
+namespace Orms\Patient;
 
 use Exception;
 

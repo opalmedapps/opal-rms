@@ -3,7 +3,7 @@
 namespace Orms\Hospital\OIE;
 
 use Orms\Config;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Document\Measurement\Generator;
 use Orms\Hospital\OIE\Internal\Connection;
 

@@ -4,7 +4,7 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Config;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Appointment;
 use Orms\DateTime;
 use Orms\Util\Encoding;

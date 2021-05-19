@@ -11,7 +11,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Http;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Opal;
 
 $patientId = $_GET["patientId"] ?? NULL;

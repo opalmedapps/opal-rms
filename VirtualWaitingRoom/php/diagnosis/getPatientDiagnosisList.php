@@ -3,7 +3,7 @@
 require __DIR__ ."/../../../vendor/autoload.php";
 
 use Orms\DiagnosisInterface;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Fetch;
 
 $patientId = (int) $_GET["patientId"];

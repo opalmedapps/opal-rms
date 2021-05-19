@@ -5,7 +5,7 @@ require __DIR__."/../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Database;
 use Orms\Sms;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Location;
 use Orms\Util\ArrayUtil;
 

@@ -4,7 +4,7 @@ require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Appointment;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Location;
 
 $params = Http::getPostContents();

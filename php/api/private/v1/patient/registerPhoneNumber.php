@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Sms;
 
 $mrn                = $_GET["mrn"] ?? NULL;

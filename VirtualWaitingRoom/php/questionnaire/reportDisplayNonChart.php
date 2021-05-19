@@ -3,7 +3,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Http;
 use Orms\Opal;
 

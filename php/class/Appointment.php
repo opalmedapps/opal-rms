@@ -2,7 +2,7 @@
 
 namespace Orms;
 
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\DateTime;
 use Orms\Resource;
 use Orms\Mail;

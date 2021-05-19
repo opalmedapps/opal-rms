@@ -10,7 +10,7 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use GetOpt\GetOpt;
 
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Sms;
 
 // Extract the command line parameters

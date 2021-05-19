@@ -5,7 +5,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Patient\PatientMeasurement;
 use Orms\Hospital\OIE\Export;
 

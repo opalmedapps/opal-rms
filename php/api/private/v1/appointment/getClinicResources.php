@@ -11,40 +11,37 @@ $dbh = Database::getOrmsConnection();
 
 #get the list of possible appointments and their resources
 $queryClinicResources = $dbh->prepare("
-    SELECT
-        ResourceCode,
-        ResourceName
+    SELECT DISTINCT
+        MV.Resource,
+        MV.ResourceDescription
     FROM
-        ClinicResources
-    WHERE
-        Speciality = :spec
-    ORDER BY ResourceName
+        MediVisitAppointmentList MV
+        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            AND ClinicResources.Speciality = :spec
+    ORDER BY MV.ResourceDescription
 ");
 $queryClinicResources->execute([":spec" => $speciality]);
 
 $resources = array_map(function($x) {
     return [
-        "code"          => $x["ResourceCode"],
-        "description"   => $x["ResourceName"]
+        "code"          => $x["Resource"],
+        "description"   => $x["ResourceDescription"]
     ];
 },$queryClinicResources->fetchAll());
 
 $queryAppointmentCodes = $dbh->prepare("
-    SELECT
-        AppointmentCode,
-        AppointmentCodeDescription
+    SELECT DISTINCT
+        MV.AppointmentCode
     FROM
-        AppointmentCode
-    WHERE
-        Speciality = :spec
+        MediVisitAppointmentList MV
+    INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+        AND ClinicResources.Speciality = :spec
+    ORDER BY MV.AppointmentCode
 ");
 $queryAppointmentCodes->execute([":spec" => $speciality]);
 
 $appointments = array_map(function($x) {
-    return [
-        "code"          => $x["AppointmentCode"],
-        "description"   => $x["AppointmentCodeDescription"]
-    ];
+    return $x["AppointmentCode"];
 },$queryAppointmentCodes->fetchAll());
 
 echo json_encode([

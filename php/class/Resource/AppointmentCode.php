@@ -27,15 +27,14 @@ class AppointmentCode
         return $id ?: NULL;
     }
 
-    static function insertAppointmentCode(string $code,string $description,string $specialityGroup,string $system): int
+    static function insertAppointmentCode(string $code,string $specialityGroup,string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("
-            INSERT INTO AppointmentCode(AppointmentCode,AppointmentCodeDescription,Speciality,SourceSystem)
-            VALUES(:code,:desc,:spec,:sys)
+            INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
+            VALUES(:code,:spec,:sys)
         ")->execute([
             ":code" => $code,
-            ":desc" => $description,
             ":spec" => $specialityGroup,
             ":sys"  => $system
         ]);

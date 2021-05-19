@@ -13,7 +13,6 @@ class Appointment
     static function createOrUpdateAppointment(
         Patient $patient,
         string $appointmentCode,
-        string $appointmentCodeDescription,
         DateTime $creationDate,
         ?string $referringMd,
         string $clinicCode,
@@ -31,7 +30,7 @@ class Appointment
         if($clinicId === NULL) $clinicId = Resource\ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
 
         $appCodeId = Resource\AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
-        if($appCodeId === NULL) $appCodeId = Resource\AppointmentCode::insertAppointmentCode($appointmentCode,$appointmentCodeDescription,$specialityGroup,$system);
+        if($appCodeId === NULL) $appCodeId = Resource\AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);
 
         //check if an sms entry for the resource combinations exists and create if it doesn't
         $smsAppointmentId = Resource\SmsAppointment::getSmsAppointmentId($clinicId,$appCodeId);

@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Hospital\MUHC\WebServiceInterface;
 
 $ramq = $_GET["ramq"] ?? NULL;

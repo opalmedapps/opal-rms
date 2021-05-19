@@ -5,7 +5,7 @@ namespace Orms;
 use PDOException;
 
 use Orms\Database;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Aria;
 use Orms\Hospital\OIE\Export;
 

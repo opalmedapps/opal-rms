@@ -4,7 +4,7 @@
 
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Document\Measurement\Generator;
 
 $patientId = (int) ($_GET["patientId"] ?? NULL);

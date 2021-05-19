@@ -4,7 +4,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\DiagnosisInterface;
 use Orms\DateTime;
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Export;
 
 $patientId           = (int) $_GET["patientId"];

@@ -2,7 +2,7 @@
 
 namespace Orms\Hospital\OIE;
 
-use Orms\Patient;
+use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Internal\Connection;
 
 class Fetch

@@ -7,7 +7,7 @@ use PDOException;
 
 use Orms\Config;
 use Orms\Database;
-use Orms\Patient;
+use Orms\Patient\Patient;
 
 class Opal
 {

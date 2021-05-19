@@ -27,8 +27,8 @@
 
             <tr><td><b>Appointment Code</b></td>
             <td>
-                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="userSelectedAppointment" ng-change="updateSelectedAppointment(userSelectedAppointment)" required>
-                    <option ng-repeat="appointment in loadedAppointments" data-subtext={{appointment.code}} value="{{appointment}}">{{appointment.description}}</option>
+                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" required>
+                    <option ng-repeat="appointment in loadedAppointments">{{appointment}}</option>
                 </select>
             </td>
             </tr>
@@ -122,12 +122,6 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         $scope.pageFields.resourceDescription = resource.description
     }
 
-    $scope.updateSelectedAppointment = appointment => {
-        appointment = JSON.parse(appointment);
-        $scope.pageFields.appointmentCode = appointment.code;
-        $scope.pageFields.appointmentDescription = appointment.description
-    }
-
     //load list of oncology resources
     $http({
         url: "/php/api/private/v1/appointment/getClinicResources.php",
@@ -147,7 +141,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
 
     $scope.createAddOn = async function()
     {
-        if(!$scope.pageFields.appointmentCode) {
+        if(!$scope.pageFields.AppointCode) {
             alert("Please select an appointment code");
             return;
         }
@@ -203,8 +197,8 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
             url: "/php/api/public/v1/appointment/insertOrUpdateAppointment.php",
             method: "POST",
             data: {
-                appointmentCode:                $scope.pageFields.appointmentCode,
-                appointmentCodeDescription:     $scope.pageFields.appointmentDescription,
+                appointmentCode:                $scope.pageFields.AppointCode,
+                // appointmentCodeDescription
                 clinics: [
                     {
                         clinicCode: $scope.pageFields.resourceCode,

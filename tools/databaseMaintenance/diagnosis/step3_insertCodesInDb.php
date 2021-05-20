@@ -270,5 +270,3 @@ function addDiagnosisColumnToVwr(PDO $dbh): void
 
     $dbh->query("CALL VerifyProfileColumns()");
 }
-
-?>

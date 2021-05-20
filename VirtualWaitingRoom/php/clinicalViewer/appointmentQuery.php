@@ -312,5 +312,3 @@ function checkDiagnosis(int $patientId,array $diagnosisList): bool
     }
     return FALSE;
 }
-
-?>

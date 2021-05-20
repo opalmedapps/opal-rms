@@ -85,5 +85,3 @@ $columnNameString = implode("|||",array_map(function ($obj) {
 $queryColumns = $dbh->prepare("CALL UpdateProfileColumns(?,?)");
 $queryColumns->execute([$profile["ProfileId"],$columnNameString]);
 $queryColumns->closeCursor();
-
-?>

@@ -94,5 +94,3 @@ Appointment::createOrUpdateAppointment(
 );
 
 Http::generateResponseJsonAndExit(200);
-
-?>

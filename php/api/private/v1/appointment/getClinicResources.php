@@ -47,5 +47,3 @@ echo json_encode([
     "resources"     => Encoding::utf8_encode_recursive($resources),
     "appointments"  => Encoding::utf8_encode_recursive($appointments)
 ]);
-
-?>

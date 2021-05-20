@@ -265,5 +265,3 @@ class Patient
         return $mrns;
     }
 }
-
-?>

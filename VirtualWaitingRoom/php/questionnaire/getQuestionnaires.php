@@ -27,5 +27,3 @@ if($patient === NULL) {
 }
 
 echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnairesForPatient($patient)));
-
-?>

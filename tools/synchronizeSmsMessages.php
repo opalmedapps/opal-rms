@@ -78,6 +78,3 @@ $newFile = preg_replace("/\.csv/","_new.csv",$csvFile);
 $return = Csv::writeCsvFromData($newFile,$newCombs);
 
 echo "$return\n";
-
-
-?>

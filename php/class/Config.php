@@ -234,5 +234,3 @@ class AriaConfig
         //public string photoUrl //not being used in php, only perl
     ) {}
 }
-
-?>

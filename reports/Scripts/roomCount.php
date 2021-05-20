@@ -76,5 +76,3 @@ foreach($dataArr as $roomKey => $room) {
 }
 
 echo json_encode($flattenedArr);
-
-?>

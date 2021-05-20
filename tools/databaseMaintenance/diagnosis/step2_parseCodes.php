@@ -114,5 +114,3 @@ function stripNameFromNodes(array $node): array
 
     return $node;
 }
-
-?>

@@ -115,5 +115,3 @@ class QuestionnaireScrapperService
         return $t2 - $t1;
     }
 }
-
-?>

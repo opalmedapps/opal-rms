@@ -124,5 +124,3 @@ function convertEnglishMonthToFrench(string $month): string
 
     return $months[$month];
 }
-
-?>

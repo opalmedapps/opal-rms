@@ -46,5 +46,3 @@ flush();
 
 //send the update to external systems
 Export::exportMeasurementPdf($patient);
-
-?>

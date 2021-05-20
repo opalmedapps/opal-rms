@@ -6,5 +6,3 @@ use Orms\Util\Encoding;
 use Orms\Opal;
 
 echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnaires()));
-
-?>

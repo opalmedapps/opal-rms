@@ -67,5 +67,3 @@ Appointment::deleteSimilarAppointments(
 );
 
 Http::generateResponseJsonAndExit(200);
-
-?>

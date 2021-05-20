@@ -33,5 +33,3 @@ Appointment::completeAppointment($appointmentId);
 
 Location::removePatientLocationForAppointment($appointmentId);
 Location::movePatientToLocation($patient,$room,$appointmentId);
-
-?>

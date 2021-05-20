@@ -20,5 +20,3 @@ $historicalChart = Generator::generateChartArray($patient);
 
 //encode and return the chart as a json object
 echo json_encode($historicalChart,JSON_NUMERIC_CHECK);
-
-?>

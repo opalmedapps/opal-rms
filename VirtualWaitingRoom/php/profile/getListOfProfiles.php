@@ -34,5 +34,3 @@ $query->execute([$speciality]);
 
 $json = Encoding::utf8_encode_recursive($query->fetchAll());
 echo json_encode($json);
-
-?>

@@ -28,5 +28,3 @@ $query->execute([
     ":type"     => $type,
     ":message"  => $message,
 ])
-
-?>

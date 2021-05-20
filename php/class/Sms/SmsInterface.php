@@ -14,5 +14,3 @@ interface SmsInterface
      */
     function getReceivedMessages(array $availableNumbers,DateTime $timestamp): array;
 }
-
-?>

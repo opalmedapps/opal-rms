@@ -11,5 +11,3 @@ echo json_encode([
     "FirebaseUrl"       => $configs->firebaseUrl,
     "FirebaseSecret"    => $configs->firebaseSecret
 ]);
-
-?>

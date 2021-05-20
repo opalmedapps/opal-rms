@@ -28,5 +28,3 @@ class DateTime extends \DateTime implements JsonSerializable
     }
 
 }
-
-?>

@@ -174,5 +174,3 @@ $json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/chec
 //encode and return the json object
 $json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json,JSON_NUMERIC_CHECK);
-
-?>

@@ -181,5 +181,3 @@ echo json_encode([
     "clinics"       => $clinics,
     "tableData"     => $appointments
 ]);
-
-?>

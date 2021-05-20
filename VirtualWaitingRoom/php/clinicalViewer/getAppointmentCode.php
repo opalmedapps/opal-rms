@@ -32,6 +32,3 @@ $resources = array_map(function($x) {
 
 $resources = Encoding::utf8_encode_recursive($resources);
 echo json_encode($resources);
-
-
-?>

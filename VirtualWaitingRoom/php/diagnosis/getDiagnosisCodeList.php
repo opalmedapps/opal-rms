@@ -7,5 +7,3 @@ use Orms\DiagnosisInterface;
 $filter = $_GET["filter"] ?? NULL;
 
 echo json_encode(DiagnosisInterface::getDiagnosisCodeList($filter));
-
-?>

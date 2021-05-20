@@ -146,7 +146,3 @@ class Insurance
         }
     }
 }
-
-
-
-?>

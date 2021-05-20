@@ -35,5 +35,3 @@ if($patient === NULL)  {
 Patient::updateOpalStatus($patient,$opal->opalStatus);
 
 Http::generateResponseJsonAndExit(200);
-
-?>

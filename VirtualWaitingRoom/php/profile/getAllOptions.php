@@ -150,5 +150,3 @@ foreach($examRooms as $val)
 
 $json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json);
-
-?>

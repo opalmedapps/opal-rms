@@ -86,5 +86,3 @@ if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
 }
 
 Http::generateResponseJsonAndExit(200);
-
-?>

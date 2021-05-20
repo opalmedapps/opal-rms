@@ -22,5 +22,3 @@ $questionnaireAnswers = $questServ->fetchQuestionnaires($dbConn,$patientId,$lang
 $chartImagesDir = $chartsServ->buildQuestionnaireCharts($patientId,$questionnaireAnswers);
 
 $pdfBuilder->buildPDF($patientId,$name,$mrn,$questionnaireAnswers,$chartImagesDir);
-
-?>

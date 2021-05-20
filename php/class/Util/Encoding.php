@@ -31,5 +31,3 @@ class Encoding
         return $data;
     }
 }
-
-?>

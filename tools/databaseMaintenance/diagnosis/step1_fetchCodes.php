@@ -43,5 +43,3 @@ function getConceptData(string $concept): array
         ];
     },$data);
 }
-
-?>

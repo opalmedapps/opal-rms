@@ -153,5 +153,3 @@ function logReminderData(string $mrn,string $phoneNumber,string $message,string 
     ");
     $query->execute([$mrn,$phoneNumber,$message,$appSer,$appName]);
 }
-
-?>

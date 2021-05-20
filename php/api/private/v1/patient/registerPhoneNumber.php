@@ -42,5 +42,3 @@ if($message === NULL) {
 Sms::sendSms($phoneNumber,$message);
 
 Http::generateResponseJsonAndExit(200);
-
-?>

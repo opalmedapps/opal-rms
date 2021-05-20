@@ -245,5 +245,3 @@ function assignColor(string $room): string
 
     return $color;
 }
-
-?>

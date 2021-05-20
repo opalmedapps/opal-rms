@@ -69,5 +69,3 @@ else
     #send sms
     Sms::sendSms($smsAlertNum,$message);
 }
-
-?>

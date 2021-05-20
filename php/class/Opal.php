@@ -372,5 +372,3 @@ class Opal
         return $query->fetchAll()[0] ?? NULL;
     }
 }
-
-?>

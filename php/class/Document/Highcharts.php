@@ -32,5 +32,3 @@ class Highcharts
         return $request;
     }
 }
-
-?>

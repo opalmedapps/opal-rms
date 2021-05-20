@@ -50,5 +50,3 @@ else {
 Sms::sendSms($smsAlertNum,$message);
 
 echo "message should have been sent...";
-
-?>

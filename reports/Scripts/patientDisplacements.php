@@ -118,5 +118,3 @@ $rows = array_map(function($x) {
 },$query->fetchAll());
 
 echo json_encode($rows);
-
-?>

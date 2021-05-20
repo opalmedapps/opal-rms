@@ -26,5 +26,3 @@ function exportDiagnosisCode(int $id,string $code,string $desc): void
         ]
     ]);
 }
-
-?>

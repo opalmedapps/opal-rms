@@ -66,5 +66,3 @@ if(count($json) == 0)
 
 $json = Encoding::utf8_encode_recursive($json);
 echo json_encode($json);
-
-?>

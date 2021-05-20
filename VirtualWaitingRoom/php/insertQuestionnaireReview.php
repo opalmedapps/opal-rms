@@ -22,5 +22,3 @@ $dbh->prepare("
 ]);
 
 echo "Record inserted";
-
-?>

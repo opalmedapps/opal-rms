@@ -34,5 +34,3 @@ Sms::sendSms($patient->smsNum,$message);
 
 //send a notification to Opal if the patient is an Opal patient
 Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);
-
-?>

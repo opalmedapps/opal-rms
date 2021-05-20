@@ -68,5 +68,3 @@ $query->execute([
 ]);
 
 echo json_encode($query->fetchAll());
-
-?>

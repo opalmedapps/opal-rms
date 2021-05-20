@@ -40,5 +40,3 @@ class Pdf
         return $base64String;
     }
 }
-
-?>

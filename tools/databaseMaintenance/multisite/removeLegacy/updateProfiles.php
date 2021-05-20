@@ -11,5 +11,3 @@ function removeLegacyProfileColumns(PDO $dbh): void
         DROP COLUMN `ShowCheckedOutAppointments`;
     ;");
 }
-
-?>

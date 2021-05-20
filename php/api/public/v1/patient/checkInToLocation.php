@@ -33,5 +33,3 @@ if($patient === NULL)  {
 Location::movePatientToLocation($patient,$checkIn->room);
 
 Http::generateResponseJsonAndExit(200);
-
-?>

@@ -138,5 +138,3 @@ class SmsCdyne implements SmsInterface
     }
 
 }
-
-?>

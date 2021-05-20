@@ -47,5 +47,3 @@ Sms::sendSms(
 );
 
 echo "Message should have been sent...";
-
-?>

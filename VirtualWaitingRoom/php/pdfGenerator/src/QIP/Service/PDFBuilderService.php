@@ -194,5 +194,3 @@ class PDFBuilderService
         return $result;
     }
 }
-
-?>

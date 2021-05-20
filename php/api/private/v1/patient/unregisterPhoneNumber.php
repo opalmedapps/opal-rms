@@ -20,5 +20,3 @@ $responseString = "Removed number for: ";
 $responseString .= implode(" | ",$patients);
 
 Http::generateResponseJsonAndExit(200,$responseString);
-
-?>

@@ -23,5 +23,3 @@ $specialityGroups = array_reduce($query->fetchAll(),function($x,$y) {
 },[]);
 
 echo json_encode(Encoding::utf8_encode_recursive($specialityGroups));
-
-?>

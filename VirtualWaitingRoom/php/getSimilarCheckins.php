@@ -36,5 +36,3 @@ $query->execute([
 ]);
 
 echo $query->fetchAll()[0]["numSimilarNames"] ?? 0;
-
-?>

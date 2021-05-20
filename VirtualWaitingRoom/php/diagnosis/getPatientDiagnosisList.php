@@ -17,5 +17,3 @@ if($patient !== NULL) {
 }
 
 echo json_encode($diagArr);
-
-?>

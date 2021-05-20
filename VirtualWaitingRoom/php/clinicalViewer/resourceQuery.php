@@ -35,7 +35,3 @@ $resources = Encoding::utf8_encode_recursive($resources);
 echo json_encode($resources);
 
 #get the full list of appointment resources depending on the site
-
-
-
-?>

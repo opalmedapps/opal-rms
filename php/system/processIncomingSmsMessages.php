@@ -251,5 +251,3 @@ function setLastRun(DateTime $timestamp): void
     ");
     $query->execute([$timestamp->format("Y-m-d H:i:s")]);
 }
-
-?>

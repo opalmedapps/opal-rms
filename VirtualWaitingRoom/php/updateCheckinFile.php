@@ -202,5 +202,3 @@ foreach($files as $file)
     fwrite($handle,"[]");
     fclose($handle);
 }
-
-?>

@@ -63,5 +63,3 @@ $patients = array_map(function($x) use($mrn,$site) {
 },$patients);
 
 Http::generateResponseJsonAndExit(200,$patients);
-
-?>

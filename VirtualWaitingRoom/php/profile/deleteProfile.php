@@ -21,5 +21,3 @@ echo $sqlDeleteProfile;
 $queryDeleteProfile = $dbh->query($sqlDeleteProfile);
 
 if($queryDeleteProfile) {echo "Profile deleted";}
-
-?>

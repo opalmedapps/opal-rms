@@ -1,9 +1,8 @@
 <?php declare(strict_types = 1);
 
-//update appointment table so that the sourceId + sourceSystem is a unique key
-
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+//update appointment table so that the sourceId + sourceSystem is a unique key
 function createSourceSystemKey(PDO $dbh): void
 {
     $dbh->query("

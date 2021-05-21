@@ -51,6 +51,3 @@ function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
         ]);
     }
 }
-
-
-// MediVisitAppointmentList, AppointmentCode, and ProfileOptions

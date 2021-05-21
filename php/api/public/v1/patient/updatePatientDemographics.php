@@ -21,10 +21,12 @@ catch(\Exception $e) {
 $demographics = new class(
     firstName:          $fields["firstName"],
     lastName:           $fields["lastName"],
+    dateOfBirth:        $fields["dateOfBirth"],
     ramq:               $fields["ramq"] ?? NULL,
     ramqExpiration:     $fields["ramqExpiration"] ?? NULL,
     mrns:               $fields["mrns"]
 ) {
+    public DateTime $dateOfBirth;
     public ?DateTime $ramqExpiration;
     /** @var ApiMrn[] $mrns */ public array $mrns;
 
@@ -35,10 +37,12 @@ $demographics = new class(
     function __construct(
         public string $firstName,
         public string $lastName,
+        string $dateOfBirth,
         public ?string $ramq,
         ?string $ramqExpiration,
         array $mrns
     ) {
+        $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date");
         $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
 
         $this->mrns = array_map(fn($x) => new ApiMrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$mrns);
@@ -68,6 +72,7 @@ if($patient === NULL) {
     $patient = Patient::insertNewPatient(
         $demographics->firstName,
         $demographics->lastName,
+        $demographics->dateOfBirth,
         array_map(function($x) {
             return [
                 "mrn"    => $x->mrn,
@@ -79,6 +84,7 @@ if($patient === NULL) {
 }
 else {
     $patient = Patient::updateName($patient,$demographics->firstName,$demographics->lastName);
+    $patient = Patient::updateDateOfBirth($patient,$demographics->dateOfBirth);
 }
 
 if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {

@@ -141,8 +141,6 @@ foreach($queryWRM->fetchAll() as $row)
         "ScheduledStartTime_mm",
         "TimeRemaining",
         "WaitTime",
-        "DAYOFBIRTH",
-        "MONTHOFBIRTH",
         "OpalPatient",
         "PatientId",
         "AppointmentId"] as $x) {

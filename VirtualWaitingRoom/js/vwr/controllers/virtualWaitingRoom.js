@@ -251,39 +251,22 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             params:
             {
                 firstName: patient.FirstName,
-                lastNameFirstThree: patient.SSN,
+                lastNameFirstThree: patient.LastName.substring(0,3),
                 patientId: patient.PatientId
             }
         }).then(function (response)
         {
             $scope.numNames = response.data;
 
-            var pseudoLastName;
+            let pseudoLastName;
 
             if($scope.numNames == 0)
             {
-                pseudoLastName = patient.SSN + "*****"; // first three digits of last name
+                pseudoLastName = patient.LastName.substring(0,3) + "*****"; // first three digits of last name
             }
             else
             {
-                // The Medicare number has 50 added on to the month of birth for women
-                // If > 50, then subtract off 50
-                if(patient.MONTHOFBIRTH > 50){patient.MONTHOFBIRTH -= 50;}
-
-                if(patient.MONTHOFBIRTH == 1){patient.MONTHOFBIRTH = "Jan";}
-                if(patient.MONTHOFBIRTH == 2){patient.MONTHOFBIRTH = "Fev / Feb";}
-                if(patient.MONTHOFBIRTH == 3){patient.MONTHOFBIRTH = "Mar";}
-                if(patient.MONTHOFBIRTH == 4){patient.MONTHOFBIRTH = "Avr / Apr";}
-                if(patient.MONTHOFBIRTH == 5){patient.MONTHOFBIRTH = "Mai / May";}
-                if(patient.MONTHOFBIRTH == 6){patient.MONTHOFBIRTH = "Jui / Jun";}
-                if(patient.MONTHOFBIRTH == 7){patient.MONTHOFBIRTH = "Jul";}
-                if(patient.MONTHOFBIRTH == 8){patient.MONTHOFBIRTH = "Aou / Aug";}
-                if(patient.MONTHOFBIRTH == 9){patient.MONTHOFBIRTH = "Sep";}
-                if(patient.MONTHOFBIRTH == 10){patient.MONTHOFBIRTH = "Oct";}
-                if(patient.MONTHOFBIRTH == 11){patient.MONTHOFBIRTH = "Nov";}
-                if(patient.MONTHOFBIRTH == 12){patient.MONTHOFBIRTH = "Dec";}
-
-                pseudoLastName = patient.SSN + " (Naissance/Birthday: " + patient.DAYOFBIRTH + " " + patient.MONTHOFBIRTH + ")";
+                pseudoLastName = patient.LastName.substring(0,3) + "***** (Naissance/Birthday: " + patient.Birthday + ")";
             }
 
             //-----------------------------------------------------------------------

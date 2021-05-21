@@ -26,8 +26,14 @@ class Appointment
     ): void
     {
         //get the necessary ids that are attached to the appointment
-        $clinicId = Resource\ClinicResource::getClinicResourceId($clinicCode,$clinicDescription,$specialityGroup);
-        if($clinicId === NULL) $clinicId = Resource\ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
+        $clinicId = Resource\ClinicResource::getClinicResourceId($clinicCode,$specialityGroup);
+        if($clinicId === NULL) {
+            $clinicId = Resource\ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
+        }
+        else {
+            Resource\ClinicResource::updateClinicResource($clinicId,$clinicDescription);
+        }
+
 
         $appCodeId = Resource\AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
         if($appCodeId === NULL) $appCodeId = Resource\AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);

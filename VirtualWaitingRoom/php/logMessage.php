@@ -27,4 +27,4 @@ $query->execute([
     ":id"       => $identifier,
     ":type"     => $type,
     ":message"  => $message,
-])
+]);

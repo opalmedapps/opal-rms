@@ -121,7 +121,7 @@ class Insurance
                 ":pid"          => $patientId,
                 ":number"       => $insuranceNumber,
                 ":type"         => $insuranceType,
-                ":expiration"   => $expirationDate,
+                ":expiration"   => $expirationDate->format("Y-m-d H:i:s"),
                 ":active"       => $active
             ]);
         }

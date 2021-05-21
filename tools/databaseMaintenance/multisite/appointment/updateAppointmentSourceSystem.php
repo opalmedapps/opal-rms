@@ -12,7 +12,7 @@ function createSourceSystemKey(PDO $dbh): void
     ;");
 }
 
-function removeSourceSystemConstrain(PDO $dbh): void
+function removeSourceSystemConstraint(PDO $dbh): void
 {
     $dbh->query("
         ALTER TABLE `MediVisitAppointmentList`

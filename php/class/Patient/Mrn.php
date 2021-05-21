@@ -120,7 +120,7 @@ class Mrn
                 ":pid"    => $patientId,
                 ":mrn"    => $mrn,
                 ":site"   => $site,
-                ":active" => $active
+                ":active" => (int) $active
             ]);
         }
         elseif((bool) $mrnActive !== $active)
@@ -137,7 +137,7 @@ class Mrn
                 ":pid"    => $patientId,
                 ":mrn"    => $mrn,
                 ":site"   => $site,
-                ":active" => $active
+                ":active" => (int) $active
             ]);
         }
     }

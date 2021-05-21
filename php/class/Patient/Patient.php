@@ -16,6 +16,7 @@ class Patient
         public int $id,
         public string $firstName,
         public string $lastName,
+        public Datetime $dateOfBirth,
         public ?string $smsNum,
         public int $opalPatient,
         public ?string $languagePreference,
@@ -30,6 +31,7 @@ class Patient
     static function insertNewPatient(
         string $firstName,
         string $lastName,
+        DateTime $dateOfBirth,
         array $mrns
     ): self
     {
@@ -39,10 +41,12 @@ class Patient
             INSERT INTO Patient
             SET
                 FirstName       = :fn,
-                LastName        = :ln
+                LastName        = :ln,
+                DateOfBirth     = :dob
         ")->execute([
             ":fn"           => strtoupper($firstName),
-            ":ln"           => strtoupper($lastName)
+            ":ln"           => strtoupper($lastName),
+            ":dob"          => $dateOfBirth->format("Y-m-d H:i:s")
         ]);
 
         $patient = self::getPatientById((int) $dbh->lastInsertId());
@@ -51,7 +55,7 @@ class Patient
         }
 
         //make sure an active mrn is inserted first
-        usort($mrns,fn($x) => ($x["active"] === TRUE) ? 1 : 0);
+        usort($mrns,fn($x) => ($x["active"] === TRUE) ? 0 : 1);
 
         foreach($mrns as $m) {
             $patient = self::updateMrn($patient,$m["mrn"],$m["site"],$m["active"]);
@@ -90,9 +94,8 @@ class Patient
             SELECT DISTINCT
                 LastName,
                 FirstName,
-                PatientId,
+                DateOfBirth,
                 SMSAlertNum,
-                SMSSignupDate,
                 OpalPatient,
                 LanguagePreference
             FROM
@@ -110,6 +113,7 @@ class Patient
             id:                    $id,
             firstName:             $row["FirstName"],
             lastName:              $row["LastName"],
+            dateOfBirth:           new DateTime($row["DateOfBirth"]),
             mrns:                  Mrn::getMrnsForPatientId($id),
             insurances:            Insurance::getInsurancesForPatientId($id),
             smsNum:                $row["SMSAlertNum"],
@@ -131,6 +135,22 @@ class Patient
             ":fn" => strtoupper($firstName),
             ":ln" => strtoupper($lastName),
             ":id" => $patient->id
+        ]);
+
+        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update name for patient $patient->id");
+    }
+
+    static function updateDateOfBirth(self $patient,DateTime $dateOfBirth): self
+    {
+        Database::getOrmsConnection()->prepare("
+            UPDATE Patient
+            SET
+                DateOfBirth = :dob
+            WHERE
+                PatientSerNum = :id
+        ")->execute([
+            ":dob" => $dateOfBirth->format("Y-m-d H:i:s"),
+            ":id"  => $patient->id
         ]);
 
         return self::getPatientById($patient->id) ?? throw new Exception("Failed to update name for patient $patient->id");
@@ -203,7 +223,12 @@ class Patient
     static function updateMrn(self $patient,string $mrn,string $site,bool $active): self
     {
         $dbh = Database::getOrmsConnection();
-        $dbh->beginTransaction();
+
+        $alreadyInTransaction = $dbh->inTransaction();
+
+        if($alreadyInTransaction === FALSE) {
+            $dbh->beginTransaction();
+        }
 
         Mrn::updateMrnForPatientId($patient->id,$mrn,$site,$active);
         $patient = self::getPatientById($patient->id) ?? throw new Exception("Failed to update mrns for patient $patient->id");
@@ -213,7 +238,10 @@ class Patient
             throw new Exception("Failed to update patient with no active mrns");
         }
 
-        $dbh->commit();
+        if($alreadyInTransaction === FALSE) {
+            $dbh->commit();
+        }
+
         return $patient;
     }
 

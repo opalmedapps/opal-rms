@@ -124,6 +124,10 @@ paths:
                 lastName:
                   description: The patient's last name
                   type: string
+                dateOfBirth:
+                  description: The patient's date of birth
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
                 ramq:
                   description: The patient's ramq
                   type: string
@@ -151,6 +155,7 @@ paths:
               required:
                 - firstName
                 - lastName
+                - dateOfBirth
                 - mrns
       responses:
         200:

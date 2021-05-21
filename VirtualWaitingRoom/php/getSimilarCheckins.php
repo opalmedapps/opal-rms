@@ -17,13 +17,13 @@ $dbh = Database::getOrmsConnection();
 
 $query = $dbh->prepare("
     SELECT
-        COUNT(DISTINCT P.SSN) AS numSimilarNames
+        COUNT(*) AS numSimilarNames
     FROM
         PatientLocation PL
         INNER JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PL.AppointmentSerNum
         INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
             AND P.FirstName = :first
-            AND P.SSN LIKE :last
+            AND P.LastName LIKE :last
             AND P.PatientSerNum != :pSer
     WHERE
         PL.ArrivalDateTime >= CURDATE()

@@ -2,11 +2,73 @@
 
 namespace Orms\Hospital\OIE;
 
+use Exception;
+use Orms\DateTime;
 use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Internal\Connection;
+use Orms\Hospital\OIE\Internal\ExternalInsurance;
+use Orms\Hospital\OIE\Internal\ExternalPatient;
+use Orms\Hospital\OIE\Internal\ExternalMrn;
 
 class Fetch
 {
+    static function getExternalPatientByMrnAndSite(string $mrn,string $site): ?ExternalPatient
+    {
+        $response = Connection::getHttpClient()?->request("POST","patient/get",[
+            "json" => [
+                "mrn"  => $mrn,
+                "site" => $site
+            ]
+        ])?->getBody()?->getContents();
+
+        return ($response === NULL) ? NULL : self::_generateExternalPatient($response);
+    }
+
+    static function getExternalPatientByRamq(string $ramq): ?ExternalPatient
+    {
+        $response = Connection::getHttpClient()?->request("POST","patient/get",[
+            "json" => [
+                "ramq"  => $ramq
+            ]
+        ])?->getBody()?->getContents();
+
+        return ($response === NULL) ? NULL : self::_generateExternalPatient($response);
+    }
+
+    private static function _generateExternalPatient(string $data): ExternalPatient
+    {
+        $data = json_decode($data,TRUE);
+
+        $mrns = array_map(function($x) {
+            return new ExternalMrn(
+                $x["mrn"],
+                $x["site"],
+                $x["active"]
+            );
+        },$data["mrns"]);
+
+        $insurances = [];
+        $ramq = $data["ramq"] ?? NULL;
+        $ramqExpiration = $data["ramqExpiration"] ?? NULL;
+
+        if($ramq !== NULL && $ramqExpiration !== NULL) {
+            $insurances[] = new ExternalInsurance(
+                $ramq,
+                DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration) ?? throw new Exception("Invalid ramq expiration date"),
+                "RAMQ",
+                TRUE
+            );
+        }
+
+        return new ExternalPatient(
+            firstName:          $data["firstName"],
+            lastName:           $data["lastName"],
+            dateOfBirth:        DateTime::createFromFormatN("Y-m-d H:i:s",$data["dateOfBirth"]) ?? throw new Exception("Invalid date of birth"),
+            mrns:               $mrns,
+            insurances:         $insurances
+        );
+    }
+
     /**
      *
      * @return mixed[]

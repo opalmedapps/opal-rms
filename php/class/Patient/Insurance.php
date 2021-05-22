@@ -12,7 +12,8 @@ class Insurance
         public string $number,
         public DateTime $expiration,
         public string $type,
-        public bool $active
+        public bool $active,
+        public int $patientId
     ) {}
 
     /**
@@ -47,6 +48,7 @@ class Insurance
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
+                PI.PatientId,
                 PI.InsuranceNumber,
                 PI.ExpirationDate,
                 PI.Active,
@@ -64,7 +66,8 @@ class Insurance
                 $x["InsuranceNumber"],
                 new DateTime($x["ExpirationDate"]),
                 $x["InsuranceCode"],
-                (bool) $x["Active"]
+                (bool) $x["Active"],
+                (int) $x["PatientId"]
             );
         },$query->fetchAll());
     }

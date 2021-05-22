@@ -169,9 +169,7 @@ app.controller('main',function($scope,$http,$window,$location)
             +"first="+data.first
             +"&last="+data.last
             +"&mrn="+data.mrn
-            +"&site="+data.site
-            +"&ramq="+(data.ramq ?? "")
-            +"&ramqExp="+(data.ramqExp ?? "");
+            +"&site="+data.site;
         $window.location.href = landingurl; //send user to apt add on
     }
 

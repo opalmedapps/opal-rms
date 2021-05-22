@@ -6,6 +6,7 @@ require_once __DIR__."/removeLegacy/updateProfiles.php";
 require_once __DIR__."/appointment/updateAppointmentSourceSystem.php";
 require_once __DIR__."/appointment/updateCodes.php";
 require_once __DIR__."/patient/updatePatientTable.php";
+require_once __DIR__."/room/updateRooms.php";
 
 use Orms\Database;
 
@@ -16,6 +17,7 @@ removeLegacyProfileColumns($dbh);
 removeSourceSystemConstraint($dbh);
 createSourceSystemKey($dbh);
 addDateOfBirthColumn($dbh);
+extendRoomNameLength($dbh);
 
 //data changes
 $dbh->beginTransaction();

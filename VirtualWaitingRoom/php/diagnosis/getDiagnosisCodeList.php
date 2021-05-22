@@ -2,7 +2,7 @@
 
 require __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\DiagnosisInterface;
+use Orms\Diagnosis\DiagnosisInterface;
 
 $filter = $_GET["filter"] ?? NULL;
 

@@ -3,6 +3,6 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Opal;
+use Orms\Hospital\Opal;
 
 echo json_encode(Encoding::utf8_encode_recursive(Opal::getListOfQuestionnaires()));

@@ -6,7 +6,7 @@ use PDOException;
 
 use Orms\Database;
 use Orms\Patient\Patient;
-use Orms\Aria;
+use Orms\Hospital\Aria;
 use Orms\Hospital\OIE\Export;
 
 class Location

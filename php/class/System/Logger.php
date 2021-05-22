@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Orms;
+namespace Orms\System;
 
 use \DateTime;
+use Orms\Database;
 use PDOException;
-
-use Orms\Config;
 
 class Logger
 {

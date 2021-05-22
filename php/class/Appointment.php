@@ -5,7 +5,7 @@ namespace Orms;
 use Orms\Patient\Patient;
 use Orms\DateTime;
 use Orms\Resource;
-use Orms\Mail;
+use Orms\System\Mail;
 use Orms\Hospital\OIE\Export;
 
 class Appointment

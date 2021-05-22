@@ -6,7 +6,7 @@ use Orms\Util\Encoding;
 use Orms\Database;
 use Orms\Sms\SmsInterface;
 use Orms\Patient\Patient;
-use Orms\Location;
+use Orms\Appointment\Location;
 use Orms\Util\ArrayUtil;
 
 //get all the message that we received since the last time we checked

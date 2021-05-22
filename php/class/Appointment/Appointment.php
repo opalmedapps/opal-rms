@@ -1,10 +1,13 @@
 <?php declare(strict_types = 1);
 
-namespace Orms;
+namespace Orms\Appointment;
 
 use Orms\Patient\Patient;
 use Orms\DateTime;
-use Orms\Resource;
+use Orms\Database;
+use Orms\Appointment\Internal\ClinicResource;
+use Orms\Appointment\Internal\AppointmentCode;
+use Orms\Appointment\Internal\SmsAppointment;
 use Orms\System\Mail;
 use Orms\Hospital\OIE\Export;
 
@@ -26,20 +29,20 @@ class Appointment
     ): void
     {
         //get the necessary ids that are attached to the appointment
-        $clinicId = Resource\ClinicResource::getClinicResourceId($clinicCode,$specialityGroup);
+        $clinicId = ClinicResource::getClinicResourceId($clinicCode,$specialityGroup);
         if($clinicId === NULL) {
-            $clinicId = Resource\ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
+            $clinicId = ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
         }
         else {
-            Resource\ClinicResource::updateClinicResource($clinicId,$clinicDescription);
+            ClinicResource::updateClinicResource($clinicId,$clinicDescription);
         }
 
 
-        $appCodeId = Resource\AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
-        if($appCodeId === NULL) $appCodeId = Resource\AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);
+        $appCodeId = AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
+        if($appCodeId === NULL) $appCodeId = AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);
 
         //check if an sms entry for the resource combinations exists and create if it doesn't
-        $smsAppointmentId = Resource\SmsAppointment::getSmsAppointmentId($clinicId,$appCodeId);
+        $smsAppointmentId = SmsAppointment::getSmsAppointmentId($clinicId,$appCodeId);
 
         if($smsAppointmentId === NULL)
         {
@@ -48,7 +51,7 @@ class Appointment
             //so we disable inserting sms appointments for add-ons
             if($system !== "InstantAddOn")
             {
-                Resource\SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroup,$system);
+                SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroup,$system);
 
                 Mail::sendEmail("ORMS - New appointment type detected",
                     "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroup speciality group from system $system."

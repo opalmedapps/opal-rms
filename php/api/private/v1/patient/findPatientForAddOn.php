@@ -4,62 +4,48 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient\Patient;
-use Orms\Hospital\MUHC\WebServiceInterface;
+use Orms\Hospital\OIE\Fetch;
 
 $ramq = $_GET["ramq"] ?? NULL;
 $mrn  = $_GET["mrn"] ?? NULL;
 $site = $_GET["site"] ?? NULL;
 
 //use the http params to fetch the patient from ORMS
+//if the patient doesn't exist in ORMS, try looking in the ADT
 $patient = NULL;
 if($mrn !== NULL && $site !== NULL) {
-    $patient = Patient::getPatientByMrn($mrn,$site);
+    $patient = Patient::getPatientByMrn($mrn,$site) ?? Fetch::getExternalPatientByMrnAndSite($mrn,$site);
 }
 elseif($ramq !== NULL) {
-    $patient = Patient::getPatientByInsurance($ramq,"RAMQ");
+    $patient = Patient::getPatientByInsurance($ramq,"RAMQ") ?? Fetch::getExternalPatientByRamq($ramq);
 }
 
 //if the patient was found, return it
-//otherwise look in the ADT to find the patient
 if($patient !== NULL)
 {
-    $searchedMrn = array_values(array_filter($patient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site))[0];
+    //if the patient searched with mrn + site, only display that mrn
+    //if they searched by ramq, display all mrns the patient has
+    $displayMrns = array_filter($patient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site);
+    if($displayMrns === []) {
+        $displayMrns = $patient->mrns;
+    }
 
-    $response =  [[
-        "last"      => $patient->lastName,
-        "first"     => $patient->firstName,
-        "ramq"      => array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->number ?? NULL,
-        "ramqExp"   => (array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->expiration ?? NULL)?->modifyN("first day of")?->format("Y-m-d"),
-        "mrn"       => $searchedMrn->mrn,
-        "site"      => $searchedMrn->site,
-        "active"    => $searchedMrn->active
-    ]];
+    $response = [];
+    foreach($displayMrns as $mrn)
+    {
+        $response[] = [
+            "last"      => $patient->lastName,
+            "first"     => $patient->firstName,
+            "ramq"      => array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->number ?? NULL,
+            "ramqExp"   => (array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->expiration ?? NULL)?->modifyN("first day of")?->format("Y-m-d"),
+            "mrn"       => $mrn->mrn,
+            "site"      => $mrn->site,
+            "active"    => $mrn->active
+        ];
+    }
 
     Http::generateResponseJsonAndExit(200,$response);
 }
 
-//in theory, it's possible to get multiple patients back from the adt (we don't control it)
-
-$patients = [];
-if($mrn !== NULL && $site !== NULL) {
-    $patients = WebServiceInterface::findPatientByMrnAndSite($mrn,$site);
-}
-elseif($ramq !== NULL) {
-    $patients = WebServiceInterface::findPatientByRamq($ramq);
-}
-
-$patients = array_map(function($x) use($mrn,$site) {
-    $searchedMrn = array_values(array_filter($x->mrns,fn($x) => $x->mrn === $mrn && $x->mrnType === $site))[0];
-
-    return [
-        "last"      => $x->lastName,
-        "first"     => $x->firstName,
-        "ramq"      => $x->ramqNumber,
-        "ramqExp"   => $x->ramqExpDate,
-        "mrn"       => $searchedMrn->mrn,
-        "site"      => $searchedMrn->mrnType,
-        "active"    => $searchedMrn->active
-    ];
-},$patients);
-
-Http::generateResponseJsonAndExit(200,$patients);
+//if no patient was found, just return an empty array
+Http::generateResponseJsonAndExit(200,[]);

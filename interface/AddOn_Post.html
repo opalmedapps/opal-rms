@@ -17,8 +17,6 @@
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Patient Information</font></th></tr>
             <tr><td><b>MRN</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.mrn" disabled></td></tr>
             <tr><td><b>Site</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.site" disabled></td></tr>
-            <tr><td><b>RAMQ</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.Ramq" disabled></tr>
-            <tr><td><b>RAMQ Expire Date</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.RamqExpiryDate" disabled></td></tr>
             <tr><td><b>Patient Last Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.last" disabled></td></tr>
             <tr><td><b>Patient First Name</b></td><td colspan="3"> <input maxlength="40" size="20" ng-model="pageFields.first" disabled></td></tr>
             <tr><td></td></td>
@@ -105,8 +103,6 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         last: pageParams.last,
         mrn: pageParams.mrn,
         site: pageParams.site,
-        Ramq: pageParams.ramq,
-        RamqExpiryDate: pageParams.ramqExp,
         speciality: $cookies.get("speciality"),
         AppointDate: new Date(),
         resourceCode: null,
@@ -170,20 +166,11 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         if(patientExists !== true)
         {
             await $http({
-                url: "/php/api/public/v1/patient/updatePatientDemographics.php",
+                url: "/php/api/public/v1/patient/importPatient.php",
                 method: "POST",
                 data: {
-                    firstName:          $scope.pageFields.first,
-                    lastName:           $scope.pageFields.last,
-                    ramq:               ($scope.pageFields.Ramq === "") ? null : $scope.pageFields.Ramq,
-                    ramqExpiration:     ($scope.pageFields.RamqExpiryDate === "") ? null : convertDatetimeToString(new Date($scope.pageFields.RamqExpiryDate)),
-                    mrns: [
-                        {
-                            mrn: $scope.pageFields.mrn,
-                            site: $scope.pageFields.site,
-                            active: 1
-                        }
-                    ]
+                    mrn: $scope.pageFields.mrn,
+                    site: $scope.pageFields.site
                 }
             })
             .catch(_ => {

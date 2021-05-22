@@ -42,7 +42,7 @@ $demographics = new class(
         ?string $ramqExpiration,
         array $mrns
     ) {
-        $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date");
+        $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date of birth");
         $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
 
         $this->mrns = array_map(fn($x) => new ApiMrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$mrns);

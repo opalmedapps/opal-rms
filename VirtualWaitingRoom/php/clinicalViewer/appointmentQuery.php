@@ -7,7 +7,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Database;
-use Orms\Opal;
+use Orms\Hospital\Opal;
 use Orms\Diagnosis\DiagnosisInterface;
 
 $sDateInit              = $_GET["sDate"] ?? NULL;

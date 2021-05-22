@@ -5,7 +5,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Patient\Patient;
 use Orms\Http;
-use Orms\Opal;
+use Orms\Hospital\Opal;
 
 $patientId = $_GET["patientId"] ?? NULL;
 $questionnaireId = $_GET["rptID"] ?? NULL;

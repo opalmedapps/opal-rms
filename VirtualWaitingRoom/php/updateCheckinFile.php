@@ -9,7 +9,7 @@ require_once __DIR__."/../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\Database;
-use Orms\Opal;
+use Orms\Hospital\Opal;
 
 // Create MySQL DB connection
 $dbh = Database::getOrmsConnection();

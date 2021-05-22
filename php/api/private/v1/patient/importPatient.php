@@ -26,6 +26,7 @@ if($externalPatient === NULL) {
 }
 
 //insert patient
+/** @psalm-suppress ArgumentTypeCoercion */
 $patient = Patient::insertNewPatient(
     $externalPatient->firstName,
     $externalPatient->lastName,

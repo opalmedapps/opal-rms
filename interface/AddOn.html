@@ -47,18 +47,25 @@
             <!--  User enters MRN or RAMQ to retrieve info  -->
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
             <tr>
-                <td><b>MRN</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="mrn"></td>
+                <td><b>MRN</b></td>
+                <td colspan="3"><input maxlength="40" size="20" ng-model="mrn"></td>
 
                 <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
             </tr>
             <tr>
-                <td><b>Site</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="site"></td>
+                <td><b>Site</b></td>
+                <td colspan="3">
+                    <select ng-model="site">
+                        <option ng-repeat="s in sites">{{s.HospitalCode}}</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <td><p> OR  </p></td>
             </tr>
             <tr>
-                <td><b>RAMQ</b></td><td colspan="3"><input maxlength="40" size="20" ng-model="ramq"></td>
+                <td><b>RAMQ</b></td>
+                <td colspan="3"><input maxlength="40" size="20" ng-model="ramq"></td>
 
                 <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
             </tr>
@@ -131,6 +138,15 @@ app.controller('main',function($scope,$http,$window,$location)
     if (!!$window.performance && $window.performance.navigation.type==2) {
         $window.location.reload();
     }
+
+    //load list of oncology resources
+    $http({
+        url: "/php/api/private/v1/hospital/getSites.php",
+        method: "GET",
+    }).then(function(response)
+    {
+        $scope.sites = response.data.data;
+    });
 
     $scope.fetchPatients = function()
     {

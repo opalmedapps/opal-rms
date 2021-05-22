@@ -13,7 +13,7 @@ use Orms\SmsConfig;
 use Orms\Database;
 use Orms\Sms\Internal\{SmsTwilio,SmsCdyne,SmsClassInterface,SmsReceivedMessage};
 use Orms\Util\ArrayUtil;
-use Orms\Logger;
+use Orms\System\Logger;
 
 SmsInterface::__init();
 

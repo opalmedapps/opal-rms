@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Resource;
+namespace Orms\Appointment\Internal;
 
 use Orms\Database;
 

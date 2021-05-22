@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Sms;
+namespace Orms\Sms\Internal;
 
 use DateTime;
 use DateTimeZone;
@@ -11,9 +11,9 @@ use RuntimeException;
 
 use Orms\Config;
 use Orms\Util\ArrayUtil;
-use Orms\Sms\{SmsInterface,SmsReceivedMessage};
+use Orms\Sms\Internal\{SmsClassInterface,SmsReceivedMessage};
 
-class SmsCdyne implements SmsInterface
+class SmsCdyne implements SmsClassInterface
 {
     private string $sendMessageUrl = "https://messaging.cdyne.com/Messaging.svc/SendMessage";
     private string $getUnreadMessagesUrl = "https://messaging.cdyne.com/Messaging.svc/ReadIncomingMessages";

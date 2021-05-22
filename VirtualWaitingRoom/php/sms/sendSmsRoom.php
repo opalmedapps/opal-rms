@@ -5,7 +5,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Patient\Patient;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 use Orms\Hospital\OIE\Export;
 
 // Extract the webpage parameters
@@ -30,7 +30,7 @@ else {
     $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $preposition $roomFr pour votre rendez-vous. Votre équipe vous verra sous peu.";
 }
 
-Sms::sendSms($patient->smsNum,$message);
+SmsInterface::sendSms($patient->smsNum,$message);
 
 //send a notification to Opal if the patient is an Opal patient
 Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);

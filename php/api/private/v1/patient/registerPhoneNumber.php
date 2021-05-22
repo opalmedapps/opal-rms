@@ -4,7 +4,7 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient\Patient;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 
 $mrn                = $_GET["mrn"] ?? NULL;
 $site               = $_GET["site"] ?? NULL;
@@ -31,7 +31,7 @@ if($patient === NULL) {
 Patient::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
 
 //send the patient a registration success message
-$messageList = Sms::getPossibleSmsMessages();
+$messageList = SmsInterface::getPossibleSmsMessages();
 
 $message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? NULL;
 
@@ -39,6 +39,6 @@ if($message === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Registration message not defined");
 }
 
-Sms::sendSms($phoneNumber,$message);
+SmsInterface::sendSms($phoneNumber,$message);
 
 Http::generateResponseJsonAndExit(200);

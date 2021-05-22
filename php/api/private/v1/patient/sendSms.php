@@ -11,7 +11,7 @@ require __DIR__."/../../../../../vendor/autoload.php";
 use GetOpt\GetOpt;
 
 use Orms\Patient\Patient;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 
 // Extract the command line parameters
 $opts = new GetOpt([
@@ -41,7 +41,7 @@ if($patient->smsNum === NULL || $patient->languagePreference === NULL) {
 }
 
 //send the sms
-Sms::sendSms(
+SmsInterface::sendSms(
     $patient->smsNum,
     ($patient->languagePreference === "English") ? $messageEN : $messageFR
 );

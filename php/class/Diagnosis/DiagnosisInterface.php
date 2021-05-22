@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace Orms;
+namespace Orms\Diagnosis;
 
-use Orms\Diagnosis\Diagnosis;
-use Orms\Diagnosis\PatientDiagnosis;
+use Orms\Diagnosis\Internal\Diagnosis;
+use Orms\Diagnosis\Internal\PatientDiagnosis;
 use Orms\DateTime;
 use PDOException;
 

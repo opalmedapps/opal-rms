@@ -3,7 +3,7 @@
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
 use Orms\Hospital\OIE\Internal\Connection;
-use Orms\DiagnosisInterface;
+use Orms\Diagnosis\DiagnosisInterface;
 
 //get list of diagnosis codes in database
 $diagList = DiagnosisInterface::getDiagnosisCodeList();

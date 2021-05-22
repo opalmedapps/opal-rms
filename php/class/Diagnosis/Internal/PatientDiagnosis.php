@@ -1,13 +1,13 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Diagnosis;
+namespace Orms\Diagnosis\Internal;
 
 use Exception;
 use PDOException;
 
 use Orms\Database;
 use Orms\DateTime;
-use Orms\Diagnosis\Diagnosis;
+use Orms\Diagnosis\Internal\Diagnosis;
 
 /** @psalm-immutable */
 class PatientDiagnosis

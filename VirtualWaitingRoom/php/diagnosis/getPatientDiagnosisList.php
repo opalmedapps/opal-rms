@@ -2,7 +2,7 @@
 
 require __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\DiagnosisInterface;
+use Orms\Diagnosis\DiagnosisInterface;
 use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Fetch;
 

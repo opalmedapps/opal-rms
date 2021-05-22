@@ -3,7 +3,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\DiagnosisInterface;
+use Orms\Diagnosis\DiagnosisInterface;
 
 $diagnosisList = array_map(function($x) {
     return [

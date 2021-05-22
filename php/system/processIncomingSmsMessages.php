@@ -4,7 +4,7 @@ require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Database;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 use Orms\Patient\Patient;
 use Orms\Location;
 use Orms\Util\ArrayUtil;
@@ -19,7 +19,7 @@ setLastRun($currentRun);
 
 $timeLimit = $currentRun->modify("-5 minutes");
 
-$messages = Sms::getNewReceivedMessages($lastRun->modify("-5 minutes"));
+$messages = SmsInterface::getNewReceivedMessages($lastRun->modify("-5 minutes"));
 
 #log all received messages immediately in case the script dies in the middle of processing
 foreach($messages as $message) {
@@ -37,7 +37,7 @@ $messages = array_filter($messages,function($message) use($timeLimit) {
 });
 
 #get default messages
-$messageList = Sms::getPossibleSmsMessages();
+$messageList = SmsInterface::getPossibleSmsMessages();
 $checkInLocation = "CELL PHONE";
 
 #process messages
@@ -65,7 +65,7 @@ foreach($messages as $message)
     {
         $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
 
-        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
@@ -79,7 +79,7 @@ foreach($messages as $message)
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
 
         continue;
@@ -117,14 +117,14 @@ foreach($messages as $message)
 
         Location::movePatientToLocation($patient,$checkInLocation);
 
-        Sms::sendSms($message->clientNumber,$appointmentString,$message->serviceNumber);
+        SmsInterface::sendSms($message->clientNumber,$appointmentString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$appointmentString,"Success");
     }
     catch(\Exception $e)
     {
         $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
 
-        Sms::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
+        SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Error: ". $e->getTraceAsString());
     }
 }

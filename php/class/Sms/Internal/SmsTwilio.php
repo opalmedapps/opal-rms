@@ -1,14 +1,14 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Sms;
+namespace Orms\Sms\Internal;
 
 use DateTime;
 use Orms\Config;
-use Orms\Sms\{SmsReceivedMessage,SmsInterface};
+use Orms\Sms\Internal\{SmsReceivedMessage,SmsClassInterface};
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Client;
 
-class SmsTwilio implements SmsInterface
+class SmsTwilio implements SmsClassInterface
 {
     private Client $client;
 

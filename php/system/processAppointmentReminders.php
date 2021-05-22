@@ -5,14 +5,14 @@ require __DIR__."/../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Util\ArrayUtil;
 use Orms\Database;
-use Orms\Sms;
+use Orms\Sms\SmsInterface;
 
 #get the list of appointments to process
 #group appointments by patient
 $appointments = getAppointments();
 $patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments,"mrn");
 
-$messageList = Sms::getPossibleSmsMessages();
+$messageList = SmsInterface::getPossibleSmsMessages();
 
 #merge appointment entries for the same patient
 #combine all appointments a patient has into a string with the appropriate messages(s)
@@ -62,7 +62,7 @@ $patients = array_map(function($x) use ($messageList) {
 foreach($patients as $pat)
 {
     if($pat["appString"] !== "") {
-        Sms::sendSms($pat["phoneNumber"],$pat["appString"]);
+        SmsInterface::sendSms($pat["phoneNumber"],$pat["appString"]);
     }
     logReminderData($pat["mrn"],$pat["phoneNumber"],$pat["appString"],$pat["appSer"],$pat["appName"]);
     #sleep first to make sure the previous text message had time to be sent

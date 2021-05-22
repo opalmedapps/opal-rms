@@ -12,17 +12,29 @@ use Orms\Database;
 
 $dbh = Database::getOrmsConnection();
 
-//table structure changes
+//non patient table structure changes
 removeLegacyProfileColumns($dbh);
 removeSourceSystemConstraint($dbh);
 createSourceSystemKey($dbh);
-addDateOfBirthColumn($dbh);
 extendRoomNameLength($dbh);
 
-//data changes
+//non-patient data changes
 $dbh->beginTransaction();
 
 removeAriaPrefixFromSourceId($dbh);
 fixAriaAppointmentCodes($dbh,__DIR__."/appointment/misnamed_appointment_codes.csv");
 
 $dbh->commit();
+
+//patient data and structure changes
+addDateOfBirthColumn($dbh);
+updateSmsSignupDate($dbh);
+
+$dbh->beginTransaction();
+
+fixSmsDates($dbh);
+migratePatientDemographics($dbh);
+
+$dbh->commit();
+
+removeDeprecatedColumns($dbh);

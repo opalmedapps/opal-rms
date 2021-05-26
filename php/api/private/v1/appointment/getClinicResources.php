@@ -13,7 +13,8 @@ $dbh = Database::getOrmsConnection();
 $queryClinicResources = $dbh->prepare("
     SELECT
         ResourceCode,
-        ResourceName
+        ResourceName,
+        SourceSystem
     FROM
         ClinicResources
     WHERE
@@ -25,13 +26,15 @@ $queryClinicResources->execute([":spec" => $speciality]);
 $resources = array_map(function($x) {
     return [
         "code"          => $x["ResourceCode"],
-        "description"   => $x["ResourceName"]
+        "description"   => $x["ResourceName"],
+        "system"        => $x["SourceSystem"]
     ];
 },$queryClinicResources->fetchAll());
 
 $queryAppointmentCodes = $dbh->prepare("
     SELECT
-        AppointmentCode
+        AppointmentCode,
+        SourceSystem
     FROM
         AppointmentCode
     WHERE
@@ -40,7 +43,10 @@ $queryAppointmentCodes = $dbh->prepare("
 $queryAppointmentCodes->execute([":spec" => $speciality]);
 
 $appointments = array_map(function($x) {
-    return $x["AppointmentCode"];
+    return [
+        "code"   => $x["AppointmentCode"],
+        "system" => $x["SourceSystem"]
+    ];
 },$queryAppointmentCodes->fetchAll());
 
 echo json_encode([

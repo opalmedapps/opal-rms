@@ -23,20 +23,22 @@
 
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Appointment Information</font></th></tr>
 
-            <tr><td><b>Appointment Code</b></td>
-            <td>
-                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" required>
-                    <option ng-repeat="appointment in loadedAppointments">{{appointment}}</option>
-                </select>
-            </td>
+            <tr>
+                <td><b>Clinic Name</b></td>
+                <td>
+                    <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select clinic" ng-model="pageProperties.userSelectedResource" ng-change="updateSelectedResource(pageProperties.userSelectedResource)" required>
+                        <option ng-repeat="resource in pageProperties.loadedResources" data-subtext={{resource.code}} value="{{resource}}">{{resource.description}}</option>
+                    </select>
+                </td>
             </tr>
 
-            <tr><td><b>Clinic Name</b></td>
-            <td>
-                <select class="selectpicker" data-style="border-select" data-live-search="true" title="Select clinic" ng-model="userSelectedResource" ng-change="updateSelectedResource(userSelectedResource)" required>
-                    <option ng-repeat="resource in loadedResources" data-subtext={{resource.code}} value="{{resource}}">{{resource.description}}</option>
-                </select>
-            </td>
+            <tr>
+                <td><b>Appointment Code</b></td>
+                <td>
+                    <select ng-disabled="pageProperties.appointmentCodeSelectionEnabled !== true" class="selectpicker" data-style="border-select" data-live-search="true" title="Select appointment" ng-model="pageFields.AppointCode" required>
+                        <option ng-repeat="appointment in pageProperties.loadedAppointmentsFiltered">{{appointment.code}}</option>
+                    </select>
+                </td>
             </tr>
 
             <tr><td><b>Appointment Date/Time</b></td>
@@ -97,6 +99,14 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
 
     var pageParams = $location.search();
 
+    $scope.pageProperties = {
+        loadedResources: [],
+        loadedAppointments: [],
+        loadedAppointmentsFiltered: [],
+        appointmentCodeSelectionEnabled: false,
+        userSelectedResource: null
+    }
+
     //Pre fill the form with the specified patient params from the AddOnOnc_PRE page
     $scope.pageFields = {
         first: pageParams.first,
@@ -105,6 +115,7 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         site: pageParams.site,
         speciality: $cookies.get("speciality"),
         AppointDate: new Date(),
+        AppointCode: null,
         resourceCode: null,
         resourceDescription: null
     };
@@ -116,6 +127,14 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         resource = JSON.parse(resource);
         $scope.pageFields.resourceCode = resource.code;
         $scope.pageFields.resourceDescription = resource.description
+
+        //create a list of appointments codes for the user to select based on the system on the resource code
+        $scope.pageFields.AppointCode = null;
+        $scope.pageProperties.loadedAppointmentsFiltered = $scope.pageProperties.loadedAppointments.filter(x => x.system === resource.system);
+        $scope.pageProperties.appointmentCodeSelectionEnabled = true;
+
+        //initialize the bootstrap select
+        $timeout(function () {$('.selectpicker').selectpicker('refresh')});
     }
 
     //load list of oncology resources
@@ -128,8 +147,8 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         }
     }).then(function (response)
     {
-        $scope.loadedResources = response.data.resources;
-        $scope.loadedAppointments = response.data.appointments;
+        $scope.pageProperties.loadedResources = response.data.resources;
+        $scope.pageProperties.loadedAppointments = response.data.appointments;
 
         //initialize the bootstrap select
         $timeout(function () {$('.selectpicker').selectpicker('refresh')});

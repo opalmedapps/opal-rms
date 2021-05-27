@@ -13,20 +13,17 @@ $speciality = $_GET["clinic"] ?? NULL;
 #get the list of possible appointments and their resources
 $dbh = Database::getOrmsConnection();
 $query = $dbh->prepare("
-        SELECT DISTINCT
-            MV.Resource AS code,
-            CR.ResourceName AS Name,
-            CR.ClinicResourcesSerNum AS resourceId,
-            CR.ClinicScheduleSerNum AS scheduleId,
-            CR.Speciality AS speciality
-        FROM
-            MediVisitAppointmentList MV
-            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-                AND CR.Active = 1
-            AND CR.Speciality = :spec
-        ORDER BY
-            CR.ResourceName"
-);
+    SELECT DISTINCT
+        ResourceCode AS code,
+        ResourceName AS Name
+    FROM
+        ClinicResources
+    WHERE
+        Active = 1
+        AND Speciality = :spec
+    ORDER BY
+        ResourceName
+");
 $query->execute([":spec" => $speciality]);
 
 $resources = $query->fetchAll();

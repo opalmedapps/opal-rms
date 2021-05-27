@@ -13,17 +13,16 @@ $speciality = $_GET["clinic"] ?? NULL;
 
 $dbh = Database::getOrmsConnection();
 
-$sql = "
+$query = $dbh->prepare("
     SELECT DISTINCT
-        MV.AppointmentCode
+        AppointmentCode
     FROM
-        MediVisitAppointmentList MV
-        INNER JOIN ClinicResources ON ClinicResources.ResourceName = MV.ResourceDescription
-            AND ClinicResources.Speciality = ?
+        AppointmentCode
+    WHERE
+        Speciality = ?
     ORDER BY
-        MV.AppointmentCode";
-
-$query = $dbh->prepare($sql);
+        AppointmentCode
+");
 $query->execute([$speciality]);
 
 $resources = array_map(function($x) {

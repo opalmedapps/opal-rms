@@ -47,8 +47,6 @@ $appFilter .=  ") ";
 
 $specificType = preg_replace("/'/","\'",$specificType);
 
-$specialityFilter = "AND CR.Speciality = '$clinic' ";
-
 if($appType === "specific") {
     $typeFilter = "AND CR.ResourceName = '$specificType' " ;
 }
@@ -63,22 +61,24 @@ $dbh = Database::getOrmsConnection();
 
 $queryClinics = $dbh->prepare("
     SELECT DISTINCT
-        MV.ResourceDescription,
-        MV.Resource
+        ResourceName,
+        ResourceCode
     FROM
-        MediVisitAppointmentList MV
-        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            $specialityFilter
+        ClinicResources CR
+    WHERE
+        Speciality = :spec
     ORDER BY
-        MV.ResourceDescription,
-        MV.Resource
+        ResourceName,
+        ResourceCode
 ");
-$queryClinics->execute();
+$queryClinics->execute([
+    ":spec" => $clinic
+]);
 
 $clinics = array_map(function($x) {
     return [
-        "name"  =>  $x["ResourceDescription"],
-        "resources" => $x["Resource"]
+        "name"      => $x["ResourceName"],
+        "resources" => $x["ResourceCode"]
     ];
 },$queryClinics->fetchAll());
 
@@ -93,9 +93,9 @@ $queryAppointments = $dbh->prepare("
         I.InsuranceCode,
         PI.InsuranceNumber,
         PI.ExpirationDate,
-        MV.ResourceDescription,
-        MV.Resource,
-        MV.AppointmentCode,
+        CR.ResourceName,
+        CR.ResourceCode,
+        AC.AppointmentCode,
         MV.Status,
         MV.ScheduledDate AS ScheduledDate,
         MV.ScheduledTime AS ScheduledTime,
@@ -111,8 +111,9 @@ $queryAppointments = $dbh->prepare("
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
             $appFilter
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            $specialityFilter
+            AND CR.Speciality = :spec
             $typeFilter
+        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
             AND PH.Active = 1
@@ -125,7 +126,8 @@ $queryAppointments = $dbh->prepare("
 ");
 $queryAppointments->execute([
     ":sDate" => $sDate,
-    ":eDate" => $eDate
+    ":eDate" => $eDate,
+    ":spec" => $clinic
 ]);
 
 $appointments = $queryAppointments->fetchAll();
@@ -161,8 +163,8 @@ $appointments = array_map(function($x) {
             "num"                   => $x["InsuranceNumber"],
             "expDate"               => $x["ExpirationDate"],
         ],
-        "appName"               => $x["ResourceDescription"],
-        "appClinic"             => $x["Resource"],
+        "appName"               => $x["ResourceName"],
+        "appClinic"             => $x["ResourceCode"],
         "appType"               => $x["AppointmentCode"],
         "appStatus"             => $x["Status"],
         "appDay"                => $x["ScheduledDate"],

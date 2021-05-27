@@ -62,8 +62,8 @@ else {
 }
 
 $statusFilter = " AND MV.Status IN (". implode(",",$activeStatusConditions) .")";
-$appFilter = ($appType === "all") ? "" : " AND MV.ResourceDescription IN ($specificApp)";
-$cappFilter = ($appcType === "all") ? "" : " AND MV.AppointmentCode IN ($cspecificApp)";
+$appFilter = ($appType === "all") ? "" : " AND CR.ResourceName IN ($specificApp)";
+$cappFilter = ($appcType === "all") ? "" : " AND AC.AppointmentCode IN ($cspecificApp)";
 
 //ORMS database query run under "and" mode for basic appoint information
 $dbh = Database::getOrmsConnection();
@@ -76,9 +76,9 @@ $queryAppointments = $dbh->prepare("
         PH.MedicalRecordNumber,
         H.HospitalCode,
         P.PatientSerNum,
-        MV.ResourceDescription,
-        MV.Resource,
-        MV.AppointmentCode,
+        CR.ResourceName,
+        CR.ResourceCode,
+        AC.AppointmentCode,
         MV.Status,
         MV.ScheduledDate,
         TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS ScheduledTime,
@@ -98,6 +98,7 @@ $queryAppointments = $dbh->prepare("
             AND CR.Speciality = :spec
             $statusFilter
             $appFilter
+        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
             $cappFilter
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
@@ -184,8 +185,8 @@ if($afilter === FALSE)
                 "mrn"           => $app["MedicalRecordNumber"],
                 "site"          => $app["HospitalCode"],
                 "patientId"     => $app["PatientSerNum"],
-                "appName"       => $app["ResourceDescription"],
-                "appClinic"     => $app["Resource"],
+                "appName"       => $app["ResourceName"],
+                "appClinic"     => $app["ResourceCode"],
                 "appType"       => $app["AppointmentCode"],
                 "appStatus"     => $app["Status"],
                 "appDay"        => $app["ScheduledDate"],

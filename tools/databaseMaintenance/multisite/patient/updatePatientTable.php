@@ -40,7 +40,7 @@ function fixSmsDates(PDO $dbh): void
     ");
 }
 
-function removeDeprecatedColumns(PDO $dbh): void
+function removeDeprecatedPatientColumns(PDO $dbh): void
 {
     $dbh->query("
         ALTER TABLE `Patient`

@@ -1,7 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Patient;
+namespace Orms\Patient\Internal;
 
+use Exception;
 use Orms\Database;
 
 /** @psalm-immutable */
@@ -80,24 +81,34 @@ class Mrn
         $dbh = Database::getOrmsConnection();
 
         //check if the mrn current exists
+        //also get the format that the mrn should have
         $queryExists = $dbh->prepare("
             SELECT
+                H.Format,
                 PH.Active
             FROM
-                PatientHospitalIdentifier PH
-                INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
-                    AND H.HospitalCode = :site
+                Hospital H
+                LEFT JOIN PatientHospitalIdentifier PH ON PH.HospitalId = H.HospitalId
+                    AND PH.MedicalRecordNumber = :mrn
+                    AND PH.PatientId = :pid
             WHERE
-                PH.MedicalRecordNumber = :mrn
-                AND PH.PatientId = :pid
+                H.HospitalCode = :site
         ");
         $queryExists->execute([
             ":site" => $site,
             ":mrn"  => $mrn,
-            "pid"   => $patientId
+            ":pid"   => $patientId
         ]);
 
-        $mrnActive = $queryExists->fetchAll()[0]["Active"] ?? NULL;
+        $mrnInfo = $queryExists->fetchAll();
+        $format = $mrnInfo[0]["Format"] ?? NULL;
+        $mrnActive = $mrnInfo[0]["Active"] ?? NULL;
+
+        //check if the format of the incoming mrn is valid
+        //if the format is empty or null, the mrn supplied will always match
+        if(preg_match("/$format/",$mrn) !== 1) {
+            throw new Exception("Invalid mrn format!");
+        }
 
         //if the mrn doesn't exist, insert the new mrn
         //if it does and the status changed, update it

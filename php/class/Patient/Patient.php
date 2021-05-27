@@ -6,8 +6,8 @@ use Exception;
 
 use Orms\Database;
 use Orms\DateTime;
-use Orms\Patient\Mrn;
-use Orms\Patient\Insurance;
+use Orms\Patient\Internal\Mrn;
+use Orms\Patient\Internal\Insurance;
 
 /** @psalm-immutable */
 class Patient

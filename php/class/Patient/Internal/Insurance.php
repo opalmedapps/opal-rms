@@ -1,7 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Patient;
+namespace Orms\Patient\Internal;
 
+use Exception;
 use Orms\Database;
 use Orms\DateTime;
 
@@ -81,29 +82,40 @@ class Insurance
         $dbh = Database::getOrmsConnection();
 
         //check if the mrn current exists
+        //also get the format that the insurance should have
         $queryExists = $dbh->prepare("
             SELECT
+                I.Format,
                 PI.ExpirationDate,
                 PI.Active
             FROM
-                PatientInsuranceIdentifier PI
-                INNER JOIN Insurance I ON I.InsuranceId = PI.InsuranceId
-                    AND I.InsuranceCode = :type
+                Insurance I
+                LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
+                    AND PI.InsuranceNumber = :number
+                    AND PI.PatientId = :pid
             WHERE
-                PI.InsuranceNumber = :number
-                AND PI.PatientId = :pid
+                I.InsuranceCode = :type
         ");
         $queryExists->execute([
             ":type"    => $insuranceType,
             ":number"  => $insuranceNumber,
-            ":pid"      => $patientId
+            ":pid"     => $patientId
         ]);
 
-        $insurance = $queryExists->fetchAll()[0] ?? NULL;
+        $insuranceInfo = $queryExists->fetchAll();
+        $format = $insuranceInfo[0]["Format"] ?? NULL;
+        $insuranceActive = $insuranceInfo[0]["Active"] ?? NULL;
+        $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? NULL;
+
+        //check if the format of the incoming insurance is valid
+        //if the format is empty or null, the insurance supplied will always match
+        if(preg_match("/$format/",$insuranceNumber) !== 1) {
+            throw new Exception("Invalid mrn format!");
+        }
 
         //if the insurance doesn't exist, insert the new insurance
         //if it does and anything changed, update it
-        if($insurance === NULL)
+        if($insuranceActive === NULL || $insuranceActiveExpiration === NULL)
         {
             $dbh->prepare("
                 INSERT INTO PatientInsuranceIdentifier(
@@ -128,7 +140,7 @@ class Insurance
                 ":active"       => $active
             ]);
         }
-        elseif((bool) $insurance["Active"] !== $active || new DateTime($insurance["ExpirationDate"]) != $expirationDate)
+        elseif((bool) $insuranceActive !== $active || new DateTime($insuranceActiveExpiration) != $expirationDate)
         {
             $dbh->prepare("
                 UPDATE PatientInsuranceIdentifier

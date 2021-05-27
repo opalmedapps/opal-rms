@@ -45,6 +45,8 @@ $demographics = new class(
         $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date of birth");
         $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
 
+        //make sure an active mrns are first
+        usort($mrns,fn($x) => ($x["active"] === TRUE) ? 0 : 1);
         $this->mrns = array_map(fn($x) => new ApiMrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$mrns);
     }
 };
@@ -85,6 +87,10 @@ if($patient === NULL) {
 else {
     $patient = Patient::updateName($patient,$demographics->firstName,$demographics->lastName);
     $patient = Patient::updateDateOfBirth($patient,$demographics->dateOfBirth);
+
+    foreach($demographics->mrns as $mrn) {
+        $patient = Patient::updateMrn($patient,$mrn->mrn,$mrn->site,$mrn->active);
+    }
 }
 
 if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {

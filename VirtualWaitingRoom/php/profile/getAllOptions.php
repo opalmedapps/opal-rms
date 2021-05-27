@@ -90,11 +90,11 @@ foreach($query4->fetchAll() as $row)
 //get all appointments from WRM
 $query6 = $dbh->prepare("
     SELECT DISTINCT
-        LTRIM(RTRIM(MV.AppointmentCode)) AS AppointmentCode
+        AppointmentCode
     FROM
-        MediVisitAppointmentList MV
-        INNER JOIN ClinicResources ON ClinicResources.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            AND ClinicResources.Speciality = ?"
+        AppointmentCode
+    WHERE
+        Speciality = ?"
 );
 $query6->execute([$speciality]);
 

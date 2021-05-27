@@ -89,22 +89,24 @@ function getAppointments(): array
             MV.AppointmentSerNum AS appSer,
             MV.ScheduledDate AS date,
             TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
-            MV.ResourceDescription AS fullname,
+            CR.ResourceName AS fullname,
             CASE
                 WHEN MV.AppointSys = 'Aria' THEN
                     CASE
-                        WHEN MV.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
-                        WHEN (MV.AppointmentCode LIKE 'Consult%'
-                            OR MV.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
-                        WHEN MV.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
-                        ELSE MV.AppointmentCode
+                        WHEN AC.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
+                        WHEN (AC.AppointmentCode LIKE 'Consult%'
+                            OR AC.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
+                        WHEN AC.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
+                        ELSE AC.AppointmentCode
                     END
-                ELSE MV.ResourceDescription
+                ELSE CR.ResourceName
             END AS name,
             SA.Speciality AS speciality,
             SA.Type as type
         FROM
             MediVisitAppointmentList MV
+            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
             INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
                 AND P.SMSAlertNum != ''
                 AND P.SMSAlertNum IS NOT NULL

@@ -31,9 +31,9 @@ $query = $dbh->prepare("
         P.FirstName,
         PH.MedicalRecordNumber AS Mrn,
         H.HospitalCode AS Site,
-        MV.Resource,
-        MV.ResourceDescription,
-        MV.AppointmentCode,
+        CR.ResourceCode,
+        CR.ResourceName,
+        AC.AppointmentCode,
         MV.ScheduledDateTime,
         MV.Status,
         PL.CheckinVenueName,
@@ -56,6 +56,7 @@ $query = $dbh->prepare("
                     AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
             )
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
             AND PH.Active = 1

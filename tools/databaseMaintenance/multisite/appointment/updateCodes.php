@@ -9,14 +9,6 @@ function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
 {
     $codes = Csv::loadCsvFromFile($csvFilename);
 
-    $updatePatientAppointments = $dbh->prepare("
-        UPDATE MediVisitAppointmentList
-        SET
-            AppointmentCode = :code
-        WHERE
-            AppointmentCode = :desc
-    ");
-
     $updateAppointmentCodes = $dbh->prepare("
         UPDATE AppointmentCode
         SET
@@ -35,11 +27,6 @@ function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
 
     foreach($codes as $code)
     {
-        $updatePatientAppointments->execute([
-            ":code" => $code["Activity Code"],
-            ":desc" => $code["Activity Description"]
-        ]);
-
         $updateAppointmentCodes->execute([
             ":code" => $code["Activity Code"],
             ":desc" => $code["Activity Description"]

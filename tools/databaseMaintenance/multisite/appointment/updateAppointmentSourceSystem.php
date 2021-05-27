@@ -16,7 +16,7 @@ function removeSourceSystemConstraint(PDO $dbh): void
 {
     $dbh->query("
         ALTER TABLE `MediVisitAppointmentList`
-        CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointIdIn`;
+        CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointSys`;
     ;");
 }
 
@@ -26,8 +26,7 @@ function removeAriaPrefixFromSourceId(PDO $dbh): void
     $dbh->query("
         UPDATE MediVisitAppointmentList
         SET
-            AppointId = REPLACE(AppointId,'Aria',''),
-            AppointIdIn = REPLACE(AppointId,'Aria','')
+            AppointId = REPLACE(AppointId,'Aria','')
         WHERE
             AppointId LIKE 'Aria%'
     ");

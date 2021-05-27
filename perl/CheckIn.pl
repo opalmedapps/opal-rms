@@ -1259,8 +1259,8 @@ sub CheckinPatient
         P.FirstName,
         P.LastName,
         MV.ScheduledDateTime,
-        MV.AppointmentCode,
-        MV.ResourceDescription,
+        AC.AppointmentCode,
+        CR.ResourceName,
         (UNIX_TIMESTAMP(MV.ScheduledDateTime)-UNIX_TIMESTAMP('$startOfToday_mysql'))/60 AS AptTimeSinceMidnight,
         MV.AppointmentSerNum,
         HOUR(MV.ScheduledDateTime),
@@ -1273,6 +1273,8 @@ sub CheckinPatient
             AND MV.ScheduledDateTime >= \'$startOfToday_mysql\'
             AND MV.ScheduledDateTime < \'$endOfToday_mysql\'
             AND ( MV.Status = 'Open' OR MV.Status = 'In Progress')
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
         INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
             AND H.HospitalCode = '$site'

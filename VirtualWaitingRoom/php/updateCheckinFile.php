@@ -32,7 +32,7 @@ $queryWRM = $dbh->prepare("
         P.SMSAlertNum,
         CASE WHEN P.LanguagePreference IS NOT NULL THEN P.LanguagePreference ELSE 'French' END AS LanguagePreference,
         MV.Status,
-        LTRIM(RTRIM(MV.ResourceDescription)) AS ResourceName,
+        LTRIM(RTRIM(CR.ResourceName)) AS ResourceName,
         MV.ScheduledDateTime AS ScheduledStartTime,
         HOUR(MV.ScheduledDateTime) AS ScheduledStartTime_hh,
         MINUTE(MV.ScheduledDateTime) AS ScheduledStartTime_mm,

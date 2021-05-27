@@ -26,7 +26,6 @@ removeSourceSystemConstraint($dbh);
 createSourceSystemKey($dbh);
 extendRoomNameLength($dbh);
 
-
 //non-patient data changes
 $dbh->beginTransaction();
 
@@ -46,4 +45,4 @@ migratePatientDemographics($dbh);
 
 $dbh->commit();
 
-removeDeprecatedColumns($dbh);
+removeDeprecatedPatientColumns($dbh);

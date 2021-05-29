@@ -2,20 +2,23 @@
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
-function updateResourceCodeLinks(PDO $dbh): void
+class AppointmentForeignKeys
 {
-    $dbh->query("
-        ALTER TABLE `MediVisitAppointmentList`
-        ADD CONSTRAINT `FK_MediVisitAppointmentList_ClinicResources` FOREIGN KEY (`ClinicResourcesSerNum`) REFERENCES `ClinicResources` (`ClinicResourcesSerNum`),
-        ADD CONSTRAINT `FK_MediVisitAppointmentList_AppointmentCode` FOREIGN KEY (`AppointmentCodeId`) REFERENCES `AppointmentCode` (`AppointmentCodeId`);
-    ");
+    static function updateResourceCodeLinks(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE `MediVisitAppointmentList`
+            ADD CONSTRAINT `FK_MediVisitAppointmentList_ClinicResources` FOREIGN KEY (`ClinicResourcesSerNum`) REFERENCES `ClinicResources` (`ClinicResourcesSerNum`),
+            ADD CONSTRAINT `FK_MediVisitAppointmentList_AppointmentCode` FOREIGN KEY (`AppointmentCodeId`) REFERENCES `AppointmentCode` (`AppointmentCodeId`);
+        ");
 
-    //delete redundant column in the table
-    $dbh->query("
-        ALTER TABLE `MediVisitAppointmentList`
-        DROP COLUMN `Resource`,
-        DROP COLUMN `ResourceDescription`,
-        DROP COLUMN `AppointmentCode`,
-        DROP COLUMN `AppointIdIn`
-    ");
+        //delete redundant column in the table
+        $dbh->query("
+            ALTER TABLE `MediVisitAppointmentList`
+            DROP COLUMN `Resource`,
+            DROP COLUMN `ResourceDescription`,
+            DROP COLUMN `AppointmentCode`,
+            DROP COLUMN `AppointIdIn`
+        ");
+    }
 }

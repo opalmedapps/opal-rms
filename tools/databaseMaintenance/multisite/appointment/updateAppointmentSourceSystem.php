@@ -2,58 +2,61 @@
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
-//update appointment table so that the sourceId + sourceSystem is a unique key
-function createSourceSystemKey(PDO $dbh): void
+class AppointmentSourceSystem
 {
-    $dbh->query("
-        ALTER TABLE `MediVisitAppointmentList`
-        DROP INDEX `MedivisitAppointId`,
-        ADD UNIQUE INDEX `MedivisitAppointId` (`AppointId`, `AppointSys`) USING BTREE
-    ;");
-}
+    //update appointment table so that the sourceId + sourceSystem is a unique key
+    static function createSourceSystemKey(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE `MediVisitAppointmentList`
+            DROP INDEX `MedivisitAppointId`,
+            ADD UNIQUE INDEX `MedivisitAppointId` (`AppointId`, `AppointSys`) USING BTREE
+        ;");
+    }
 
-function removeSourceSystemConstraint(PDO $dbh): void
-{
-    $dbh->query("
-        ALTER TABLE `MediVisitAppointmentList`
-        CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointSys`;
-    ;");
-}
+    static function removeSourceSystemConstraint(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE `MediVisitAppointmentList`
+            CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointSys`;
+        ;");
+    }
 
-function removeAriaPrefixFromSourceId(PDO $dbh): void
-{
-    //update appointment list
-    $dbh->query("
-        UPDATE MediVisitAppointmentList
-        SET
-            AppointId = REPLACE(AppointId,'Aria','')
-        WHERE
-            AppointId LIKE 'Aria%'
-    ");
+    static function removeAriaPrefixFromSourceId(PDO $dbh): void
+    {
+        //update appointment list
+        $dbh->query("
+            UPDATE MediVisitAppointmentList
+            SET
+                AppointId = REPLACE(AppointId,'Aria','')
+            WHERE
+                AppointId LIKE 'Aria%'
+        ");
 
-    //update patient measurements
-    //update Aria appointments, then Medivisit ones
-    $dbh->query("
-        UPDATE PatientMeasurement
-        SET
-            AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'MEDIAria',''))
-        WHERE
-            AppointmentId LIKE 'MEDIAria%'
-    ");
+        //update patient measurements
+        //update Aria appointments, then Medivisit ones
+        $dbh->query("
+            UPDATE PatientMeasurement
+            SET
+                AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'MEDIAria',''))
+            WHERE
+                AppointmentId LIKE 'MEDIAria%'
+        ");
 
-    $dbh->query("
-        UPDATE PatientMeasurement
-        SET
-            AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'ARIA',''))
-        WHERE
-            AppointmentId LIKE 'ARIA%'
-    ");
+        $dbh->query("
+            UPDATE PatientMeasurement
+            SET
+                AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'ARIA',''))
+            WHERE
+                AppointmentId LIKE 'ARIA%'
+        ");
 
-    $dbh->query("
-        UPDATE PatientMeasurement
-        SET
-            AppointmentId = CONCAT('Medivisit','-',REPLACE(AppointmentId,'MEDI',''))
-        WHERE
-            AppointmentId LIKE 'MEDI%'
-    ");
+        $dbh->query("
+            UPDATE PatientMeasurement
+            SET
+                AppointmentId = CONCAT('Medivisit','-',REPLACE(AppointmentId,'MEDI',''))
+            WHERE
+                AppointmentId LIKE 'MEDI%'
+        ");
+    }
 }

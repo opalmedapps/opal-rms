@@ -7,7 +7,7 @@ class ClinicHubs
     static function recreateClinicHubTable(PDO $dbh): void
     {
         $dbh->query("
-            DROP TABLE `ClinicHub`;
+            DROP TABLE IF EXISTS `ClinicHub`;
         ");
 
         $dbh->query("
@@ -39,13 +39,13 @@ class ClinicHubs
     static function linkExamRoomTable(PDO $dbh): void
     {
         $dbh->query("
-            CREATE TEMPORARY TABLE IF NOT EXISTS ExamRoom_TEMP AS (SELECT * FROM ExamRoom_TEMP);
+            CREATE TEMPORARY TABLE IF NOT EXISTS ExamRoom_TEMP AS (SELECT * FROM ExamRoom);
         ");
 
         $dbh->query("
             ALTER TABLE `ExamRoom`
-            CHANGE COLUMN `Level` `ClinicHubId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AriaVenueId`,
-            ADD CONSTRAINT `FK_ExamRoom_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`);
+            DROP COLUMN `Level`,
+            ADD COLUMN `ClinicHubId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AriaVenueId`
         ");
 
         $dbh->query("
@@ -57,18 +57,23 @@ class ClinicHubs
             WHERE
                 1
         ");
+
+        $dbh->query("
+            ALTER TABLE `ExamRoom`
+            ADD CONSTRAINT `FK_ExamRoom_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`)
+        ");
     }
 
     static function linkIntermediateVenueTable(PDO $dbh): void
     {
         $dbh->query("
-            CREATE TEMPORARY TABLE IF NOT EXISTS IntermediateVenue_TEMP AS (SELECT * FROM IntermediateVenue_TEMP);
+            CREATE TEMPORARY TABLE IF NOT EXISTS IntermediateVenue_TEMP AS (SELECT * FROM IntermediateVenue);
         ");
 
         $dbh->query("
             ALTER TABLE `IntermediateVenue`
-            CHANGE COLUMN `Level` `ClinicHubId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AriaVenueId`,
-            ADD CONSTRAINT `FK_IntermediateVenue_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`);
+            DROP COLUMN `Level`,
+            ADD COLUMN `ClinicHubId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AriaVenueId`
         ");
 
         $dbh->query("
@@ -80,28 +85,38 @@ class ClinicHubs
             WHERE
                 1
         ");
+
+        $dbh->query("
+            ALTER TABLE `IntermediateVenue`
+            ADD CONSTRAINT `FK_IntermediateVenue_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`)
+        ");
     }
 
     static function linkProfileTable(PDO $dbh): void
     {
         $dbh->query("
-            CREATE TEMPORARY TABLE IF NOT EXISTS Profile_TEMP AS (SELECT * FROM Profile_TEMP);
+            CREATE TEMPORARY TABLE IF NOT EXISTS Profile_TEMP AS (SELECT * FROM Profile);
         ");
 
         $dbh->query("
             ALTER TABLE `Profile`
-            CHANGE COLUMN `ClinicalArea` `ClinicHubId` INT NULL COLLATE 'latin1_swedish_ci' AFTER `SpecialityGroup`,
-            ADD CONSTRAINT `FK_Profile_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`);
+            DROP COLUMN `ClinicalArea`,
+            ADD COLUMN `ClinicHubId` INT NULL COLLATE 'latin1_swedish_ci' AFTER `SpecialityGroupId`
         ");
 
         $dbh->query("
             UPDATE Profile P
-            INNER JOIN Profile_TEMP AS TMP ON TMP.ProfilerSer = P.ProfileSer
+            INNER JOIN Profile_TEMP AS TMP ON TMP.ProfileSer = P.ProfileSer
             LEFT JOIN ClinicHub CH ON CH.ClinicHubName = TMP.ClinicalArea
             SET
                 P.ClinicHubId = CH.ClinicHubId
             WHERE
                 1
+        ");
+
+        $dbh->query("
+            ALTER TABLE `Profile`
+            ADD CONSTRAINT `FK_Profile_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`)
         ");
     }
 }

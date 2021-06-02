@@ -36,10 +36,10 @@ class SpecialityGroup
 
         $dbh->query("
             ALTER TABLE `AppointmentCode`
-            CHANGE COLUMN `Speciality` `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointmentCode`,
+            DROP COLUMN `Speciality`,
+            ADD COLUMN `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointmentCode`,
             DROP INDEX `AppointmentCode`,
-            ADD UNIQUE INDEX `AppointmentCode_SpecialityGroupId` (`AppointmentCode`, `SpecialityGroupId`),
-            ADD CONSTRAINT `FK_AppointmentCode_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`);
+            ADD UNIQUE INDEX `AppointmentCode_SpecialityGroupId` (`AppointmentCode`, `SpecialityGroupId`)
         ");
 
         $dbh->query("
@@ -51,6 +51,11 @@ class SpecialityGroup
             WHERE
                 1
         ");
+
+        $dbh->query("
+            ALTER TABLE `AppointmentCode`
+            ADD CONSTRAINT `FK_AppointmentCode_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
+        ");
     }
 
     static function linkClinicResourcesTable(PDO $dbh): void
@@ -61,9 +66,9 @@ class SpecialityGroup
 
         $dbh->query("
             ALTER TABLE `ClinicResources`
-            CHANGE COLUMN `Speciality` `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `ResourceName`,
-            ADD UNIQUE INDEX `ClinicResources_SpecialityGroupId` (`ResourceCode`, `SpecialityGroupId`),
-            ADD CONSTRAINT `FK_ClinicResources_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`);
+            DROP COLUMN `Speciality`,
+            ADD COLUMN `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `ResourceName`,
+            ADD UNIQUE INDEX `ClinicResources_SpecialityGroupId` (`ResourceCode`, `SpecialityGroupId`)
         ");
 
         $dbh->query("
@@ -75,6 +80,11 @@ class SpecialityGroup
             WHERE
                 1
         ");
+
+        $dbh->query("
+            ALTER TABLE `ClinicResources`
+            ADD CONSTRAINT `FK_ClinicResources_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
+        ");
     }
 
     static function linkProfileTable(PDO $dbh): void
@@ -85,18 +95,51 @@ class SpecialityGroup
 
         $dbh->query("
             ALTER TABLE `Profile`
-            CHANGE COLUMN `Speciality` `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `Category`,
-            ADD CONSTRAINT `FK_Profile_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`);
+            DROP COLUMN `Speciality`,
+            ADD COLUMN `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `Category`
         ");
 
         $dbh->query("
             UPDATE Profile P
-            INNER JOIN Profile_TEMP AS TMP ON TMP.ProfileSer = CR.ProfileSer
+            INNER JOIN Profile_TEMP AS TMP ON TMP.ProfileSer = P.ProfileSer
             INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupName = TMP.Speciality
             SET
                 P.SpecialityGroupId = SG.SpecialityGroupId
             WHERE
                 1
+        ");
+
+        $dbh->query("
+            ALTER TABLE `Profile`
+            ADD CONSTRAINT `FK_Profile_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
+        ");
+    }
+
+    static function linkSmsAppointmentTable(PDO $dbh): void
+    {
+        $dbh->query("
+            CREATE TEMPORARY TABLE IF NOT EXISTS SmsAppointment_TEMP AS (SELECT * FROM SmsAppointment);
+        ");
+
+        $dbh->query("
+            ALTER TABLE `SmsAppointment`
+            DROP COLUMN `Speciality`,
+            ADD COLUMN `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointmentCodeId`
+        ");
+
+        $dbh->query("
+            UPDATE SmsAppointment SA
+            INNER JOIN SmsAppointment_TEMP AS TMP ON TMP.SmsAppointmentId = SA.SmsAppointmentId
+            INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupName = TMP.Speciality
+            SET
+                SA.SpecialityGroupId = SG.SpecialityGroupId
+            WHERE
+                1
+        ");
+
+        $dbh->query("
+            ALTER TABLE `SmsAppointment`
+            ADD CONSTRAINT `FK_SmsAppointment_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
         ");
     }
 }

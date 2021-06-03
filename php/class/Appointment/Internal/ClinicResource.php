@@ -6,7 +6,7 @@ use Orms\Database;
 
 class ClinicResource
 {
-    static function getClinicResourceId(string $code,string $specialityGroup): ?int
+    static function getClinicResourceId(string $code,int $specialityGroupId): ?int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -16,27 +16,27 @@ class ClinicResource
                 ClinicResources
             WHERE
                 ResourceCode = :code
-                AND Speciality = :spec
+                AND SpecialityGroupId = :spec
         ");
         $query->execute([
             ":code" => $code,
-            ":spec" => $specialityGroup,
+            ":spec" => $specialityGroupId,
         ]);
 
         $id = (int) ($query->fetchAll()[0]["ClinicResourcesSerNum"] ?? NULL);
         return $id ?: NULL;
     }
 
-    static function insertClinicResource(string $code,string $description,string $specialityGroup,string $system): int
+    static function insertClinicResource(string $code,string $description,int $specialityGroupId,string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("
-            INSERT INTO ClinicResources(ResourceCode,ResourceName,Speciality,SourceSystem)
+            INSERT INTO ClinicResources(ResourceCode,ResourceName,SpecialityGroupId,SourceSystem)
             VALUES(:code,:desc,:spec,:sys)
         ")->execute([
             ":code"  => $code,
             ":desc"  => $description,
-            ":spec"  => $specialityGroup,
+            ":spec"  => $specialityGroupId,
             ":sys"   => $system
         ]);
 

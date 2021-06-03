@@ -200,8 +200,8 @@ paths:
                   description: Scheduled date of the appointment
                   type: string
                   pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
-                specialityGroup:
-                  description: ORMS defined speciality group
+                specialityGroupCode:
+                  description: ORMS defined speciality group code
                   type: string
               required:
                 - mrn
@@ -209,7 +209,7 @@ paths:
                 - appointmentCode
                 - clinics
                 - scheduledDatetime
-                - specialityGroup
+                - specialityGroupCode
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -273,8 +273,8 @@ paths:
                 sourceSystem:
                   description: External system from which the appointment originates
                   type: string
-                specialityGroup:
-                  description: ORMS defined speciality group
+                specialityGroupCode:
+                  description: ORMS defined speciality group code
                   type: string
                 status:
                   description: Status of the appointment, determined by the HL7 SIU code
@@ -292,7 +292,7 @@ paths:
                 - site
                 - sourceId
                 - sourceSystem
-                - specialityGroup
+                - specialityGroupCode
                 - status
       responses:
         200:

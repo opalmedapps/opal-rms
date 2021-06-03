@@ -20,18 +20,18 @@ catch(\Exception $e) {
 }
 
 $appointment = new class(
-    appointmentCode:    $fields["appointmentCode"],
-    clinics:            $fields["clinics"],
-    creationDatetime:   $fields["creationDatetime"],
-    mrn:                $fields["mrn"],
-    referringDoctor:    $fields["referringDoctor"] ?? NULL,
-    scheduledDatetime:  $fields["scheduledDatetime"],
-    site:               $fields["site"],
-    sourceId:           $fields["sourceId"],
-    sourceStatus:       $fields["sourceStatus"] ?? NULL,
-    sourceSystem:       $fields["sourceSystem"],
-    specialityGroup:    $fields["specialityGroup"],
-    status:             $fields["status"],
+    appointmentCode:        $fields["appointmentCode"],
+    clinics:                $fields["clinics"],
+    creationDatetime:       $fields["creationDatetime"],
+    mrn:                    $fields["mrn"],
+    referringDoctor:        $fields["referringDoctor"] ?? NULL,
+    scheduledDatetime:      $fields["scheduledDatetime"],
+    site:                   $fields["site"],
+    sourceId:               $fields["sourceId"],
+    sourceStatus:           $fields["sourceStatus"] ?? NULL,
+    sourceSystem:           $fields["sourceSystem"],
+    specialityGroupCode:    $fields["specialityGroupCode"],
+    status:                 $fields["status"],
 ) {
     public DateTime $scheduledDatetime;
     public DateTime $creationDatetime;
@@ -51,7 +51,7 @@ $appointment = new class(
         public string $sourceId,
         public ?string $sourceStatus,
         public string $sourceSystem,
-        public string $specialityGroup,
+        public string $specialityGroupCode,
         public string $status
     ) {
         $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s",$scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
@@ -78,18 +78,18 @@ if($patient === NULL) {
 }
 
 Appointment::createOrUpdateAppointment(
-    patient:              $patient,
-    appointmentCode:      $appointment->appointmentCode,
-    creationDate:         $appointment->creationDatetime,
-    referringMd:          $appointment->referringDoctor,
-    clinicCode:           $appointment->clinicCode,
-    clinicDescription:    $appointment->clinicDescription,
-    scheduledDateTime:    $appointment->scheduledDatetime,
-    sourceId:             $appointment->sourceId,
-    sourceStatus:         $appointment->sourceStatus,
-    specialityGroup:      $appointment->specialityGroup,
-    status:               $appointment->status,
-    system:               $appointment->sourceSystem
+    patient:                $patient,
+    appointmentCode:        $appointment->appointmentCode,
+    creationDate:           $appointment->creationDatetime,
+    referringMd:            $appointment->referringDoctor,
+    clinicCode:             $appointment->clinicCode,
+    clinicDescription:      $appointment->clinicDescription,
+    scheduledDateTime:      $appointment->scheduledDatetime,
+    sourceId:               $appointment->sourceId,
+    sourceStatus:           $appointment->sourceStatus,
+    specialityGroupCode:    $appointment->specialityGroupCode,
+    status:                 $appointment->status,
+    system:                 $appointment->sourceSystem
 );
 
 Http::generateResponseJsonAndExit(200);

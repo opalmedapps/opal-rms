@@ -3,9 +3,10 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
+use Orms\Http;
 use Orms\Database;
 
-$speciality = $_GET["speciality"];
+$specialityGroupId = $_GET["specialityGroupId"];
 
 $dbh = Database::getOrmsConnection();
 
@@ -18,10 +19,10 @@ $queryClinicResources = $dbh->prepare("
     FROM
         ClinicResources
     WHERE
-        Speciality = :spec
+        SpecialityGroupId = ?
     ORDER BY ResourceName
 ");
-$queryClinicResources->execute([":spec" => $speciality]);
+$queryClinicResources->execute([$specialityGroupId]);
 
 $resources = array_map(function($x) {
     return [
@@ -38,9 +39,9 @@ $queryAppointmentCodes = $dbh->prepare("
     FROM
         AppointmentCode
     WHERE
-        Speciality = :spec
+        SpecialityGroupId = ?
 ");
-$queryAppointmentCodes->execute([":spec" => $speciality]);
+$queryAppointmentCodes->execute([$specialityGroupId]);
 
 $appointments = array_map(function($x) {
     return [
@@ -49,7 +50,7 @@ $appointments = array_map(function($x) {
     ];
 },$queryAppointmentCodes->fetchAll());
 
-echo json_encode([
+Http::generateResponseJsonAndExit(200,[
     "resources"     => Encoding::utf8_encode_recursive($resources),
     "appointments"  => Encoding::utf8_encode_recursive($appointments)
 ]);

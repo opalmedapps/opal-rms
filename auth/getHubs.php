@@ -9,15 +9,21 @@ use Orms\Database;
 $dbh = Database::getOrmsConnection();
 $query = $dbh->prepare("
     SELECT
-        ClinicHub.HubId,
-        ClinicHub.SpecialityGroup
-    FROM ClinicHub
-    ORDER BY ClinicHub.SpecialityGroup,ClinicHub.HubId
+        CH.ClinicHubId,
+        CH.ClinicHubName,
+        SG.SpecialityGroupId,
+        SG.SpecialityGroupName
+    FROM
+        ClinicHub CH
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CH.SpecialityGroupId
+    ORDER BY
+        SG.SpecialityGroupName,
+        CH.ClinicHubName
 ");
 $query->execute();
 
 $specialityGroups = array_reduce($query->fetchAll(),function($x,$y) {
-    $x[$y["SpecialityGroup"]][] = $y["HubId"];
+    $x[$y["SpecialityGroupName"]][] = $y;
 
     return $x;
 },[]);

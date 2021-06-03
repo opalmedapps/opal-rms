@@ -113,7 +113,8 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         last: pageParams.last,
         mrn: pageParams.mrn,
         site: pageParams.site,
-        speciality: $cookies.get("speciality"),
+        speciality: $cookies.get("specialityGroupId"),
+        specialityGroupCode: null,
         AppointDate: new Date(),
         AppointCode: null,
         resourceCode: null,
@@ -137,21 +138,34 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
         $timeout(function () {$('.selectpicker').selectpicker('refresh')});
     }
 
-    //load list of oncology resources
+    //load list of appointment resources
     $http({
         url: "/php/api/private/v1/appointment/getClinicResources.php",
         method: "GET",
         params:
         {
-            speciality: $scope.pageFields.speciality
+            specialityGroupId: $scope.pageFields.speciality
         }
-    }).then(function (response)
+    }).then(function(response)
     {
-        $scope.pageProperties.loadedResources = response.data.resources;
-        $scope.pageProperties.loadedAppointments = response.data.appointments;
+        $scope.pageProperties.loadedResources = response.data.data.resources;
+        $scope.pageProperties.loadedAppointments = response.data.data.appointments;
 
         //initialize the bootstrap select
         $timeout(function () {$('.selectpicker').selectpicker('refresh')});
+    });
+
+    //load speciality group code
+    $http({
+        url: "/php/api/private/v1/appointment/getSpecialityGroup.php",
+        method: "GET",
+        params:
+        {
+            specialityGroupId: $scope.pageFields.speciality
+        }
+    }).then(function(response)
+    {
+        $scope.pageFields.specialityGroupCode = response.data.data.specialityGroupCode;
     });
 
     $scope.createAddOn = async function()
@@ -211,19 +225,19 @@ app.controller('main',function($scope,$timeout,$http,$filter,$cookies,$window,$l
                         clinicDescription: $scope.pageFields.resourceDescription
                     }
                 ],
-                creationDatetime:               convertDatetimeToString(new Date()),
-                mrn:                            $scope.pageFields.mrn,
-                scheduledDatetime:              convertDatetimeToString($scope.pageFields.AppointDate),
-                site:                           $scope.pageFields.site,
-                specialityGroup:                $scope.pageFields.speciality,
-                sourceId:                       "ORMS-"+$scope.pageFields.mrn+"-"+$scope.pageFields.site+"-"+(new Date().getTime()),
-                sourceSystem:                   "InstantAddOn",
-                status:                         "Open",
+                creationDatetime:     convertDatetimeToString(new Date()),
+                mrn:                  $scope.pageFields.mrn,
+                scheduledDatetime:    convertDatetimeToString($scope.pageFields.AppointDate),
+                site:                 $scope.pageFields.site,
+                specialityGroupCode:  $scope.pageFields.specialityGroupCode,
+                sourceId:             "ORMS-"+$scope.pageFields.mrn+"-"+$scope.pageFields.site+"-"+(new Date().getTime()),
+                sourceSystem:         "InstantAddOn",
+                status:               "Open",
             }
         })
         .catch(_ => {
-            alert("Unable to register patient");
-            throw new Error("Unable to register patient");
+            alert("Unable to create add-on");
+            throw new Error("Unable to create add-on");
         });
 
         //check in should be called on appointment creation success

@@ -45,7 +45,6 @@ $query = $dbh->prepare("
         Patient P
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
             AND MV.Status = 'Completed'
-            AND MV.AppointmentCode LIKE '%CHM%'
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
         INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
             AND PL.PatientLocationRevCount = (
@@ -57,6 +56,7 @@ $query = $dbh->prepare("
             )
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                AND AC.AppointmentCode LIKE '%CHM%'
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
             AND PH.Active = 1

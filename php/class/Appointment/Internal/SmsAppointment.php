@@ -27,16 +27,16 @@ class SmsAppointment
         return $id ?: NULL;
     }
 
-    static function insertSmsAppointment(int $clinicResourceId,int $appointmentCodeId,string $specialityGroup,string $system): int
+    static function insertSmsAppointment(int $clinicResourceId,int $appointmentCodeId,int $specialityGroupId,string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("
-            INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,Speciality,SourceSystem)
+            INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,SpecialityGroupId,SourceSystem)
             VALUES(:clin,:app,:spec,:sys)
         ")->execute([
             ":clin" => $clinicResourceId,
             ":app"  => $appointmentCodeId,
-            ":spec" => $specialityGroup,
+            ":spec" => $specialityGroupId,
             ":sys"  => $system
         ]);
 

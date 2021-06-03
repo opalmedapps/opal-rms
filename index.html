@@ -16,7 +16,7 @@
 <thead></thead>
 <tbody>
     <tr style="font-family: Helvetica,Arial,sans-serif;">
-    <td colspan="10" style="vertical-align: center; align: center; background-color: rgb(255,254,244);">
+    <td colspan="10" style="vertical-align: center; background-color: rgb(255,254,244);">
         <center><img src="./images/logo.png" alt="MUHC logo" border="0"></center></td>
     </tr>
 
@@ -38,7 +38,7 @@
 
     <tr>
         <td></td>
-        <td style="vertical-align: center; align: center;" colspan="8">
+        <td style="vertical-align: center;" colspan="8">
             <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
                 <center>
                     <ul style="list-style:none;">
@@ -72,11 +72,14 @@ var app = angular.module('myApp',['ngCookies']);
 
 app.controller('main', function($scope,$http,$cookies,$location,$window)
 {
-    $scope.speciality = $cookies.get("speciality");
-    $scope.hub = $cookies.get("hub");
+    $scope.speciality = $cookies.get("specialityGroupName");
+    $scope.hub = $cookies.get("clinicHubId");
     $scope.logOut = function()
     {
         $cookies.remove("ormsAuth");
+        $cookies.remove("specialityGroupId");
+        $cookies.remove("specialityGroupName");
+        $cookies.remove("clinicHubId");
         $window.location.href = $location.absUrl();
     }
 });

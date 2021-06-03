@@ -1,0 +1,47 @@
+<?php declare(strict_types = 1);
+
+namespace Orms\Appointment;
+
+use Exception;
+use Orms\Database;
+
+class SpecialityGroup
+{
+    static function getSpecialityGroupId(string $code): int
+    {
+        $dbh = Database::getOrmsConnection();
+        $query = $dbh->prepare("
+            SELECT
+                SpecialityGroupId
+            FROM
+                SpecialityGroup
+            WHERE
+                SpecialityGroupCode = ?
+        ");
+        $query->execute([$code]);
+
+        $id = $query->fetchAll()[0]["SpecialityGroupId"] ?? NULL;
+
+        if($id === NULL) {
+            throw new Exception("Unknown speciality group code $code");
+        }
+
+        return (int) $id;
+    }
+
+    static function getSpecialityGroupCode(int $id): ?string
+    {
+        $dbh = Database::getOrmsConnection();
+        $query = $dbh->prepare("
+            SELECT
+                SpecialityGroupCode
+            FROM
+                SpecialityGroup
+            WHERE
+                SpecialityGroupId = ?
+        ");
+        $query->execute([$id]);
+
+        return $query->fetchAll()[0]["SpecialityGroupCode"] ?? NULL;
+    }
+}

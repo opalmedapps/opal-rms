@@ -5,6 +5,7 @@ namespace Orms\Appointment;
 use Orms\Patient\Patient;
 use Orms\DateTime;
 use Orms\Database;
+use Orms\Appointment\SpecialityGroup;
 use Orms\Appointment\Internal\ClinicResource;
 use Orms\Appointment\Internal\AppointmentCode;
 use Orms\Appointment\Internal\SmsAppointment;
@@ -23,23 +24,25 @@ class Appointment
         DateTime $scheduledDateTime,
         string $sourceId,
         ?string $sourceStatus,
-        string $specialityGroup,
+        string $specialityGroupCode,
         string $status,
         string $system,
     ): void
     {
         //get the necessary ids that are attached to the appointment
-        $clinicId = ClinicResource::getClinicResourceId($clinicCode,$specialityGroup);
+
+        $specialityGroupId = SpecialityGroup::getSpecialityGroupId($specialityGroupCode);
+
+        $clinicId = ClinicResource::getClinicResourceId($clinicCode,$specialityGroupId);
         if($clinicId === NULL) {
-            $clinicId = ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroup,$system);
+            $clinicId = ClinicResource::insertClinicResource($clinicCode,$clinicDescription,$specialityGroupId,$system);
         }
         else {
             ClinicResource::updateClinicResource($clinicId,$clinicDescription);
         }
 
-
-        $appCodeId = AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroup);
-        if($appCodeId === NULL) $appCodeId = AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroup,$system);
+        $appCodeId = AppointmentCode::getAppointmentCodeId($appointmentCode,$specialityGroupId);
+        if($appCodeId === NULL) $appCodeId = AppointmentCode::insertAppointmentCode($appointmentCode,$specialityGroupId,$system);
 
         //check if an sms entry for the resource combinations exists and create if it doesn't
         $smsAppointmentId = SmsAppointment::getSmsAppointmentId($clinicId,$appCodeId);
@@ -51,10 +54,10 @@ class Appointment
             //so we disable inserting sms appointments for add-ons
             if($system !== "InstantAddOn")
             {
-                SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroup,$system);
+                SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroupId,$system);
 
                 Mail::sendEmail("ORMS - New appointment type detected",
-                    "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroup speciality group from system $system."
+                    "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroupCode speciality group from system $system."
                 );
             }
         }
@@ -108,16 +111,18 @@ class Appointment
 
     //deletes all similar appointments in the database
     //similar is defined as having the same appointment resources, and being scheduled at the same time (for the same patient)
-    static function deleteSimilarAppointments(Patient $patient,DateTime $scheduledDateTime,string $clinicCode,string $clinicDescription,string $specialityGroup): void
+    static function deleteSimilarAppointments(Patient $patient,DateTime $scheduledDateTime,string $clinicCode,string $clinicDescription,string $specialityGroupCode): void
     {
+        $specialityGroupId = SpecialityGroup::getSpecialityGroupId($specialityGroupCode);
+
         Database::getOrmsConnection()->prepare("
             UPDATE MediVisitAppointmentList MV
             INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                 AND CR.ResourceCode = :res
-                AND CR.Speciality = :spec
+                AND CR.SpecialityGroupId = :spec
             INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
                 AND AC.AppointmentCode = :appCode
-                AND AC.Speciality = :spec
+                AND AC.SpecialityGroupId = :spec
             SET
                 Status = 'Deleted'
             WHERE
@@ -128,7 +133,7 @@ class Appointment
             ":schDateTime"  => $scheduledDateTime->format("Y-m-d H:i:s"),
             ":res"          => $clinicCode,
             ":appCode"      => $clinicDescription,
-            ":spec"         => $specialityGroup
+            ":spec"         => $specialityGroupId
         ]);
     }
 

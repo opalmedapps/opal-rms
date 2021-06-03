@@ -76,14 +76,14 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
                     "password": $scope.password
                 }
         })
-        .then(r => createCookieAndRedirect(r.data))
+        .then(r => processAuthentication(r.data))
         .catch(_ => {
                 $scope.error = "Authentication failed";
                 $scope.password = "";
         });
     };
 
-    function createCookieAndRedirect(cookie)
+    function processAuthentication(authData)
     {
         $scope.showSpecialitySelection = true;
 
@@ -92,12 +92,12 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
             escapeToClose: false,
             template: specialityTemplate,
             locals: {
-                specialityGroups: Object.keys($scope.specialityGroups)
+                specialityGroups: $scope.specialityGroups
             },
             controller: function($scope,specialityGroups)
             {
                 $scope.specialityGroups = specialityGroups;
-                $scope.complete = function (option)
+                $scope.complete = function(option)
                 {
                     $mdDialog.hide(option);
                 }
@@ -108,19 +108,19 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
 
         $mdDialog.show(answer).then(function(result)
         {
-            if($scope.specialityGroups[result].length !== 1)
+            if(result.length !== 1)
             {
                 let answer = $mdDialog.confirm(
                 {
                     escapeToClose: false,
                     template: hubTemplate,
                     locals: {
-                        hubs: $scope.specialityGroups[result]
+                        hubs: result
                     },
                     controller: function($scope,hubs)
                     {
                         $scope.hubs = hubs;
-                        $scope.complete = function (option)
+                        $scope.complete = function(option)
                         {
                             $mdDialog.hide(option);
                         }
@@ -131,22 +131,24 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
 
                 $mdDialog.show(answer).then(function(resultHub)
                 {
-                    $cookies.put("speciality",result,{path: "/"});
-                    $cookies.put("hub",resultHub,{path: "/"});
-                    $cookies.put(cookie["name"],cookie["key"],{path: "/"});
-                    $window.location.href = $location.absUrl();
+                    createCookiesAndRedirect(authData,resultHub);
                 });
             }
             else
             {
-                $cookies.put("speciality",result,{path: "/"});
-                $cookies.put("hub",$scope.specialityGroups[result][0],{path: "/"});
-                $cookies.put(cookie["name"],cookie["key"],{path: "/"});
-                $window.location.href = $location.absUrl();
+                createCookiesAndRedirect(authData,$result[0]);
             }
         });
     }
 
+    function createCookiesAndRedirect(authData,hubData)
+    {
+        $cookies.put("specialityGroupId",hubData["SpecialityGroupId"],{path: "/"});
+        $cookies.put("specialityGroupName",hubData["SpecialityGroupName"],{path: "/"});
+        $cookies.put("clinicHubId",hubData["ClinicHubId"],{path: "/"});
+        $cookies.put(authData["name"],authData["key"],{path: "/"});
+        $window.location.href = $location.absUrl();
+    }
 });
 
 var specialityTemplate = `
@@ -154,7 +156,7 @@ var specialityTemplate = `
         <h2 class="md-title ng-binding">Connect to a Clinical Area</h2>
         <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
             <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="spec in specialityGroups" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{spec}}</md-button>
+                <md-button ng-repeat="(key,spec) in specialityGroups" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{key}}</md-button>
             </span>
         </div>
     </md-dialog-content>
@@ -165,7 +167,7 @@ var hubTemplate = `
         <h2 class="md-title ng-binding">Select a TV Hub</h2>
         <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
             <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="hub in hubs" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub}}</md-button>
+                <md-button ng-repeat="hub in hubs" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.ClinicHubName}}</md-button>
             </span>
         </div>
     </md-dialog-content>

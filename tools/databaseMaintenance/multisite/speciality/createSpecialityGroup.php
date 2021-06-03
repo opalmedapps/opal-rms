@@ -15,6 +15,7 @@ class SpecialityGroup
                 `LastUpdated` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
                 PRIMARY KEY (`SpecialityGroupId`) USING BTREE,
                 INDEX `FK_SpecialityGroup_Hospital` (`HospitalId`) USING BTREE,
+                UNIQUE INDEX `SpecialityGroupCode` (`SpecialityGroupCode`),
                 CONSTRAINT `FK_SpecialityGroup_Hospital` FOREIGN KEY (`HospitalId`) REFERENCES `OrmsDatabase`.`Hospital` (`HospitalId`) ON UPDATE RESTRICT ON DELETE RESTRICT
             )
         ");

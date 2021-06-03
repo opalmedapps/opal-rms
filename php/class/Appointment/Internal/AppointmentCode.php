@@ -6,7 +6,7 @@ use Orms\Database;
 
 class AppointmentCode
 {
-    static function getAppointmentCodeId(string $code,string $specialityGroup): ?int
+    static function getAppointmentCodeId(string $code,int $specialityGroupId): ?int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -16,26 +16,26 @@ class AppointmentCode
                 AppointmentCode
             WHERE
                 AppointmentCode = :code
-                AND Speciality = :spec
+                AND SpecialityGroupId = :spec
         ");
         $query->execute([
             ":code" => $code,
-            ":spec" => $specialityGroup,
+            ":spec" => $specialityGroupId,
         ]);
 
         $id = (int) ($query->fetchAll()[0]["AppointmentCodeId"] ?? NULL);
         return $id ?: NULL;
     }
 
-    static function insertAppointmentCode(string $code,string $specialityGroup,string $system): int
+    static function insertAppointmentCode(string $code,int $specialityGroupId,string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("
-            INSERT INTO AppointmentCode(AppointmentCode,Speciality,SourceSystem)
+            INSERT INTO AppointmentCode(AppointmentCode,SpecialityGroupId,SourceSystem)
             VALUES(:code,:spec,:sys)
         ")->execute([
             ":code" => $code,
-            ":spec" => $specialityGroup,
+            ":spec" => $specialityGroupId,
             ":sys"  => $system
         ]);
 

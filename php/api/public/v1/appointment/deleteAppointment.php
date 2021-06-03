@@ -18,12 +18,12 @@ catch(\Exception $e) {
 }
 
 $deletedAppointment = new class(
-    appointmentCode:    $fields["appointmentCode"],
-    clinics:            $fields["clinics"],
-    mrn:                $fields["mrn"],
-    site:               $fields["site"],
-    specialityGroup:    $fields["specialityGroup"],
-    scheduledDatetime:  $fields["scheduledDatetime"],
+    appointmentCode:        $fields["appointmentCode"],
+    clinics:                $fields["clinics"],
+    mrn:                    $fields["mrn"],
+    site:                   $fields["site"],
+    specialityGroupCode:    $fields["specialityGroupCode"],
+    scheduledDatetime:      $fields["scheduledDatetime"],
 ) {
     public DateTime $scheduledDatetime;
     public string $clinicCode;
@@ -34,7 +34,7 @@ $deletedAppointment = new class(
         array $clinics,
         public string $mrn,
         public string $site,
-        public string $specialityGroup,
+        public string $specialityGroupCode,
         string $scheduledDatetime
     ) {
         $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s",$scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
@@ -58,11 +58,11 @@ if($patient === NULL) {
 }
 
 Appointment::deleteSimilarAppointments(
-    $patient,
-    $deletedAppointment->scheduledDatetime,
-    $deletedAppointment->clinicCode,
-    $deletedAppointment->appointmentCode,
-    $deletedAppointment->specialityGroup
+    patient: $patient,
+    scheduledDateTime:      $deletedAppointment->scheduledDatetime,
+    clinicCode:             $deletedAppointment->clinicCode,
+    clinicDescription:      $deletedAppointment->appointmentCode,
+    specialityGroupCode:    $deletedAppointment->specialityGroupCode
 );
 
 Http::generateResponseJsonAndExit(200);

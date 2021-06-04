@@ -106,8 +106,6 @@ class SmsInterface
      * @return string[][][][][]
      * @throws PDOException
      */
-    /*
-    */
     static function getPossibleSmsMessages(): array
     {
         if(self::$configs === NULL || self::$configs->enabled !== TRUE) return [];
@@ -135,6 +133,46 @@ class SmsInterface
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
         return Encoding::utf8_encode_recursive($messages);
+    }
+
+    /**
+     *
+     * param 'English'|'French' $language #too cumbersome to actually use with the code's current state
+     */
+    static function getDefaultFailedCheckInMessage(string $language): ?string
+    {
+        if(self::$configs === NULL) {
+            return NULL;
+        }
+
+        if($language === "English") {
+            return self::$configs->failedCheckInMessageEnglish;
+        }
+        elseif($language === "French") {
+            return self::$configs->failedCheckInMessageFrench;
+        }
+
+        return NULL;
+    }
+
+    /**
+     *
+     * param 'English'|'French' $language #too cumbersome to actually use with the code's current state
+     */
+    static function getDefaultUnknownCommandMessage(string $language): ?string
+    {
+        if(self::$configs === NULL) {
+            return NULL;
+        }
+
+        if($language === "English") {
+            return self::$configs->unknownCommandMessageEnglish;
+        }
+        elseif($language === "French") {
+            return self::$configs->unknownCommandMessageFrench;
+        }
+
+        return NULL;
     }
 
     private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool

@@ -52,6 +52,10 @@ PROVIDER                        =
 LICENCE_KEY                     =
 TOKEN                           =
 REGISTERED_LONG_CODES[]         =
+FAILED_CHECK_IN_MESSAGE_EN      =
+FAILED_CHECK_IN_MESSAGE_FR      =
+UNKNOWN_COMMAND_MESSAGE_EN      =
+UNKNOWN_COMMAND_MESSAGE_FR      =
 
 [vwr]
 FIREBASE_URL                    =

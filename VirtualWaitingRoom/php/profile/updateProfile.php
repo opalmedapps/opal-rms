@@ -48,19 +48,17 @@ if($profile['ProfileSer'] == -1)
 $queryProperties = $dbh->prepare("
     UPDATE Profile
     SET
-        ProfileId = :profileId,
-        Category = :category,
-        Speciality = :speciality,
-        ClinicalArea = :clinicalArea
+        ProfileId           = :profileId,
+        Category            = :category,
+        SpecialityGroupId   = :speciality
     WHERE
-        Profile.ProfileSer = :profileSer
+        ProfileSer = :profileSer
 ");
 $queryProperties->execute([
-    ":profileId"                    => $profile["ProfileId"],
-    ":category"                     => $profile["Category"],
-    ":speciality"                   => $profile["Speciality"],
-    ":clinicalArea"                 => $profile["ClinicalArea"],
-    ":profileSer"                   => $profile["ProfileSer"]
+    ":profileId"     => $profile["ProfileId"],
+    ":category"      => $profile["Category"],
+    ":speciality"    => $profile["Speciality"],
+    ":profileSer"    => $profile["ProfileSer"]
 ]);
 $queryProperties->closeCursor();
 

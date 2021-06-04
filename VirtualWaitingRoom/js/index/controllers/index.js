@@ -79,7 +79,8 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
         {
             profiles: $scope.userOptions.Profiles,
             group: $scope.userOptions.Group,
-            speciality: $scope.userOptions.Speciality
+            speciality: $scope.userOptions.Speciality,
+            clinicHub: $scope.clinicHub
         });
     }
 

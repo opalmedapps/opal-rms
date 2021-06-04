@@ -24,16 +24,6 @@
                 <table class="editor-table">
                     <tr><td>Profile Name: </td><td><input type="text" ng-model="selectedProfile.data.ProfileId" ng-change="verifyIfIdIsTaken(selectedProfile.data)" /> <span style="color:red;">{{errorMessage}}</span></td></tr>
                     <tr><td>Group: </td><td>{{selectedProfile.data.Category}}</td></tr>
-                    <tr><td>Service: </td><td>{{selectedProfile.data.Speciality}}</td></tr>
-                    <tr>
-                        <td>Clinical Area: </td>
-                        <td>
-                            <select ng-model="selectedProfile.data.ClinicalArea">
-                                <option value="{{clinicalArea}}">{{clinicalArea}}</option>
-                                <!-- <option value="">None</option> -->
-                            </select>
-                        </td>
-                    </tr>
                 </table>
             </div>
 

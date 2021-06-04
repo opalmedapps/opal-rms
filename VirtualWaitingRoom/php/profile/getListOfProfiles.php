@@ -16,17 +16,16 @@ $dbh = Database::getOrmsConnection();
 //==================================
 $sql = "
     SELECT
-        Profile.ProfileSer,
-        Profile.ProfileId,
-        Profile.ClinicalArea,
-        CASE WHEN Profile.Category = 'PAB' THEN 'PAB/Clerical/Nursing' ELSE Profile.Category END AS Category
+        P.ProfileSer,
+        P.ProfileId,
+        CASE WHEN P.Category = 'PAB' THEN 'PAB/Clerical/Nursing' ELSE P.Category END AS Category
     FROM
-        Profile
+        Profile P
     WHERE
-        Profile.Speciality = ?
+        P.SpecialityGroupId = ?
     ORDER BY
-        Profile.Category,
-        Profile.ProfileId";
+        P.Category,
+        P.ProfileId";
 
 //process results
 $query = $dbh->prepare($sql);

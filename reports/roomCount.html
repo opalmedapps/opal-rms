@@ -167,7 +167,7 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
 
-    var speciality = $cookies.get("speciality");
+    var speciality = $cookies.get("specialityGroupId");
 
     $scope.today = new Date();
     $scope.sDate = new Date();

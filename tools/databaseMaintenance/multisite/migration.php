@@ -38,6 +38,7 @@ SpecialityGroup::linkAppointmentCodeTable($dbh);
 SpecialityGroup::linkClinicResourcesTable($dbh);
 SpecialityGroup::linkProfileTable($dbh);
 SpecialityGroup::linkSmsAppointmentTable($dbh);
+SpecialityGroup::linkSmsMessageTable($dbh);
 
 //clinic hub changes
 ClinicHubs::recreateClinicHubTable($dbh);

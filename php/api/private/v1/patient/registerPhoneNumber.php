@@ -10,9 +10,9 @@ $mrn                = $_GET["mrn"] ?? NULL;
 $site               = $_GET["site"] ?? NULL;
 $phoneNumber        = $_GET["phoneNumber"] ?? NULL;
 $languagePreference = $_GET["languagePreference"] ?? NULL;
-$speciality         = $_GET["speciality"] ?? NULL;
+$specialityGroupId  = $_GET["specialityGroupId"] ?? NULL;
 
-if($mrn === NULL || $site === NULL || $phoneNumber === NULL || $languagePreference === NULL || $speciality === NULL) {
+if($mrn === NULL || $site === NULL || $phoneNumber === NULL || $languagePreference === NULL || $specialityGroupId === NULL) {
     Http::generateResponseJsonAndExit(400,error: "All input parameters are required - please use back button and fill out form completely");
 }
 
@@ -33,7 +33,7 @@ Patient::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
 //send the patient a registration success message
 $messageList = SmsInterface::getPossibleSmsMessages();
 
-$message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? NULL;
+$message = $messageList[$specialityGroupId]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? NULL;
 
 if($message === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Registration message not defined");

@@ -24,10 +24,9 @@ $prog           = $_GET['prog'];
 $canc           = $_GET["canc"];
 $arrived        = $_GET["arrived"];
 $notArrived     = $_GET["notArrived"];
-$clinic         = $_GET["clinic"];
+$speciality     = $_GET["speciality"];
 $appType        = $_GET["type"];
-$specificType   = $_GET["specificType"];
-// $updateRamq     = $_GET["updateRamq"];
+$specificType   = $_GET["specificType"] ?? NULL;
 $mediAbsent     = $_GET["mediAbsent"];
 $mediAddOn      = $_GET["mediAddOn"];
 $mediCancelled  = $_GET["mediCancelled"];
@@ -45,9 +44,8 @@ if($prog) $appFilter .= "MV.Status = 'In Progress' OR ";
 $appFilter = substr($appFilter,0,-4);
 $appFilter .=  ") ";
 
-$specificType = preg_replace("/'/","\'",$specificType);
-
 if($appType === "specific") {
+    $specificType = preg_replace("/'/","\'",$specificType);
     $typeFilter = "AND CR.ResourceName = '$specificType' " ;
 }
 else {
@@ -64,16 +62,14 @@ $queryClinics = $dbh->prepare("
         ResourceName,
         ResourceCode
     FROM
-        ClinicResources CR
+        ClinicResources
     WHERE
-        Speciality = :spec
+        SpecialityGroupId = ?
     ORDER BY
         ResourceName,
         ResourceCode
 ");
-$queryClinics->execute([
-    ":spec" => $clinic
-]);
+$queryClinics->execute([$speciality]);
 
 $clinics = array_map(function($x) {
     return [
@@ -111,13 +107,14 @@ $queryAppointments = $dbh->prepare("
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
             $appFilter
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            AND CR.Speciality = :spec
             $typeFilter
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+            AND SG.SpecialityGroupId = :spec
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.HospitalId = SG.HospitalId
             AND PH.Active = 1
-        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+        INNER JOIN Hospital H ON H.HospitalId = SG.HospitalId
         LEFT JOIN Insurance I ON I.InsuranceCode = 'RAMQ'
         LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
     WHERE
@@ -127,7 +124,7 @@ $queryAppointments = $dbh->prepare("
 $queryAppointments->execute([
     ":sDate" => $sDate,
     ":eDate" => $eDate,
-    ":spec" => $clinic
+    ":spec"  => $speciality
 ]);
 
 $appointments = $queryAppointments->fetchAll();

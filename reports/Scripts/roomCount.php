@@ -26,6 +26,7 @@ use Orms\Database;
 $sDate  = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
 $eDate  = $_GET["eDate"] ?? NULL; $eDate .= " 23:59:59";
 $period = $_GET["period"] ?? NULL;
+$speciality = $_GET["speciality"] ?? NULL;
 
 #check what period of the day the user specified and filter appointments that are not within that timeframe
 $sTime = "00:00:00";
@@ -46,6 +47,7 @@ $query = $dbh->prepare("
     FROM
         MediVisitAppointmentList MV
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+            AND CR.SpecialityGroupId = :spec
         INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
             AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
             AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
@@ -59,6 +61,7 @@ $query->execute([
     ":eDate" => $eDate,
     ":sTime" => $sTime,
     ":eTime" => $eTime,
+    ":spec"  => $speciality
 ]);
 
 $dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($query->fetchAll()),"CheckinVenueName","ResourceName");

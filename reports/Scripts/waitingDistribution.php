@@ -11,7 +11,7 @@ use Orms\Database;
 #parse input parameters
 $sDate        = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
 $eDate        = $_GET["eDate"] ?? NULL; $eDate .= " 23:59:59";
-$speciality   = $_GET["mode"] ?? NULL; #speciality of appointments to find
+$speciality   = $_GET["speciality"] ?? NULL; #speciality of appointments to find
 $method       = $_GET["method"] ?? NULL; #normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
 #connect to the database and extract data
@@ -43,11 +43,12 @@ $sql = "
             )
             AND PL.ArrivalDateTime BETWEEN :sDate AND :eDate
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            AND CR.Speciality = :spec
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+            AND SG.SpecialityGroupId = :spec
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.HospitalId = SG.HospitalId
             AND PH.Active = 1
-        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+        INNER JOIN Hospital H ON H.HospitalId = SG.HospitalId
     ORDER BY
         P.LastName,
         P.FirstName,

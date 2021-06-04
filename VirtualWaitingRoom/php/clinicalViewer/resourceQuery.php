@@ -8,7 +8,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Database;
 
-$speciality = $_GET["clinic"] ?? NULL;
+$speciality = $_GET["speciality"] ?? NULL;
 
 #get the list of possible appointments and their resources
 $dbh = Database::getOrmsConnection();
@@ -20,11 +20,11 @@ $query = $dbh->prepare("
         ClinicResources
     WHERE
         Active = 1
-        AND Speciality = :spec
+        AND SpecialityGroupId = ?
     ORDER BY
         ResourceName
 ");
-$query->execute([":spec" => $speciality]);
+$query->execute([$speciality]);
 
 $resources = $query->fetchAll();
 

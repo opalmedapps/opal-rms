@@ -240,8 +240,8 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
 
     $scope.today = new Date();
 
-    var speciality = $cookies.get("speciality");
-    $scope.department = "MUHC - Department of "+ speciality;
+    let speciality = $cookies.get("specialityGroupId");
+    $scope.department = "MUHC - "+ $cookies.get("specialityGroupName");
 
     //add datatables settings
     $scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -384,27 +384,36 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/appointmentQuery.php?"
-
-            comp = "&comp="+((inputs.comp) ? 1:0);
-            openn = "&openn="+((inputs.openn) ? 1:0);
-            canc = "&canc="+((inputs.canc) ? 1:0);
-            prog = "&prog="+((inputs.prog) ? 1:0);
-            arrived = "&arrived="+((inputs.arrived) ? 1:0);
-            notArrived = "&notArrived="+((inputs.notArrived) ? 1:0);
-            typeSelect = "&type="+inputs.type;
-            specificType = "&specificType="+inputs.specificType.name;
-            mediAbsent = "&mediAbsent="+((inputs.mediAbsent) ? 1:0);
-            mediAddOn = "&mediAddOn="+((inputs.mediAddOn) ? 1:0);
-            mediCancelled = "&mediCancelled="+((inputs.mediCancelled) ? 1:0);
-            mediPresent = "&mediPresent="+((inputs.mediPresent) ? 1:0);
-
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+prog+arrived+notArrived+typeSelect+specificType+mediAbsent+mediAddOn+mediCancelled+mediPresent+"&clinic="+speciality+"&updateRamq=0").then(function (response)
+            $http({
+                url: "./Scripts/appointmentQuery.php?",
+                method: "GET",
+                params:
+                {
+                    sDate:          sDate,
+                    eDate:          eDate,
+                    sTime:          sTime,
+                    eTime:          eTime,
+                    comp:           inputs.comp ? 1 : 0,
+                    openn:          inputs.openn ? 1 : 0,
+                    canc:           inputs.canc ? 1 : 0,
+                    prog:           inputs.prog ? 1 : 0,
+                    arrived:        inputs.arrived ? 1 : 0,
+                    notArrived:     inputs.notArrived ? 1 : 0,
+                    type:           inputs.type,
+                    specificType:   inputs.specificType.name ?? null,
+                    mediAbsent:     inputs.mediAbsent ? 1 : 0,
+                    mediAddOn:      inputs.mediAddOn ? 1 : 0,
+                    mediCancelled:  inputs.mediCancelled ? 1 : 0,
+                    mediPresent:    inputs.mediPresent ? 1 : 0,
+                    speciality:     speciality
+                }
+            }).then(function (response)
             {
                 var info = {};
                 info = response.data;
                 defer.resolve(info);
             });
+
             return defer.promise;
         }
     };

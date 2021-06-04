@@ -115,20 +115,23 @@ class SmsInterface
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
-                Speciality
-                ,Type
-                ,Event
-                ,Language
-                ,Message
+                SpecialityGroupId,
+                Type,
+                Event,
+                Language,
+                Message
             FROM
                 SmsMessage
             ORDER BY
-                Speciality,Type,Event,Language
+                SpecialityGroupId,
+                Type,
+                Event,
+                Language
         ");
         $query->execute();
 
         $messages = $query->fetchAll();
-        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages,"Speciality","Type","Event","Language");
+        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages,"SpecialityGroupId","Type","Event","Language");
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
         return Encoding::utf8_encode_recursive($messages);

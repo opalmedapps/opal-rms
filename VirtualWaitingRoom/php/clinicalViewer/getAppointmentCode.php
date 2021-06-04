@@ -9,7 +9,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Database;
 
-$speciality = $_GET["clinic"] ?? NULL;
+$speciality = $_GET["speciality"] ?? NULL;
 
 $dbh = Database::getOrmsConnection();
 
@@ -19,7 +19,7 @@ $query = $dbh->prepare("
     FROM
         AppointmentCode
     WHERE
-        Speciality = ?
+        SpecialityGroupId = ?
     ORDER BY
         AppointmentCode
 ");

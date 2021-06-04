@@ -63,7 +63,7 @@ foreach($messages as $message)
     #if it's not, send a message to the patient instructing them how to use the service
     if(!preg_match("/ARRIVE|ARRIVÉ/",mb_strtoupper($message->body)))
     {
-        $returnString = $messageList["Any"]["GENERAL"]["UNKNOWN_COMMAND"][$language]["Message"];
+        $returnString = SmsInterface::getDefaultUnknownCommandMessage($language) ?? throw new Exception("Undefined sms string");
 
         SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
@@ -77,7 +77,7 @@ foreach($messages as $message)
     #if there are no appointments, the check in was a failure
     if($appointments === [])
     {
-        $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
+        $returnString = SmsInterface::getDefaultFailedCheckInMessage($language) ?? throw new Exception("Undefined sms string");
 
         SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Success");
@@ -122,7 +122,7 @@ foreach($messages as $message)
     }
     catch(\Exception $e)
     {
-        $returnString = $messageList["Any"]["GENERAL"]["FAILED_CHECK_IN"][$language]["Message"];
+        $returnString = SmsInterface::getDefaultUnknownCommandMessage($language) ?? throw new Exception("Undefined sms string");
 
         SmsInterface::sendSms($message->clientNumber,$returnString,$message->serviceNumber);
         logMessageData($message->timeReceived,$message->clientNumber,$patientSer,$message->body,$returnString,"Error: ". $e->getTraceAsString());

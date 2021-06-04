@@ -97,11 +97,15 @@ class Config
 
         try {
             $sms = new SmsConfig(
-                enabled:             (bool) $parsedData["sms"]["ENABLED"],
-                provider:            $parsedData["sms"]["PROVIDER"],
-                licenceKey:          $parsedData["sms"]["LICENCE_KEY"],
-                token:               $parsedData["sms"]["TOKEN"] ?? "",
-                longCodes:           $parsedData["sms"]["REGISTERED_LONG_CODES"] ?? [],
+                enabled:                        (bool) $parsedData["sms"]["ENABLED"],
+                provider:                       $parsedData["sms"]["PROVIDER"],
+                licenceKey:                     $parsedData["sms"]["LICENCE_KEY"],
+                token:                          $parsedData["sms"]["TOKEN"] ?? "",
+                longCodes:                      $parsedData["sms"]["REGISTERED_LONG_CODES"] ?? [],
+                failedCheckInMessageEnglish:    $parsedData["sms"]["FAILED_CHECK_IN_MESSAGE_EN"],
+                failedCheckInMessageFrench:     $parsedData["sms"]["FAILED_CHECK_IN_MESSAGE_FR"],
+                unknownCommandMessageEnglish:   $parsedData["sms"]["UNKNOWN_COMMAND_MESSAGE_EN"],
+                unknownCommandMessageFrench:    $parsedData["sms"]["UNKNOWN_COMMAND_MESSAGE_FR"],
             );
         } catch(TypeError) {$sms = NULL;}
 
@@ -207,6 +211,10 @@ class SmsConfig
         public string $licenceKey,
         public string $token,
         public array $longCodes,
+        public string $failedCheckInMessageEnglish,
+        public string $failedCheckInMessageFrench,
+        public string $unknownCommandMessageEnglish,
+        public string $unknownCommandMessageFrench
     ) {}
 }
 

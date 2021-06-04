@@ -44,7 +44,7 @@ SpecialityGroup::linkSmsMessageTable($dbh);
 ClinicHubs::recreateClinicHubTable($dbh);
 ClinicHubs::linkExamRoomTable($dbh);
 ClinicHubs::linkIntermediateVenueTable($dbh);
-ClinicHubs::linkProfileTable($dbh);
+ClinicHubs::unlinkProfileTable($dbh);
 
 //patient changes
 PatientIdentifiers::createHospitalTable($dbh);

@@ -164,6 +164,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         });
     }
 
+    connectToFirebase();
+
     $scope.openLegendDialog = function()
     {
         var legend = $mdDialog.confirm(
@@ -175,35 +177,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
         $mdDialog.show(legend);
     }
-
-    $scope.changeClinicalArea = function()
-    {
-        var answer = $mdDialog.confirm(
-            {
-                templateUrl: './js/vwr/templates/areaDialog.htm',
-                controller: function($scope)
-                {
-                    $scope.complete = function (option)
-                    {
-                        $mdDialog.hide(option);
-                    }
-                }
-
-            })
-            .ariaLabel('Area Dialog')
-            .clickOutsideToClose(true);
-
-        $mdDialog.show(answer).then(function (result)
-        {
-            $scope.pageSettings.ClinicalArea = result;
-            $scope.patientLoadingEnabled = 0; //temporarly disable loading the checkin file
-            $scope.resourceLoadingEnabled = 0; //temporarly disable open the selector modal
-            connectToFirebase();
-        },function() {});
-    }
-
-    if($scope.pageSettings.ClinicalArea) {connectToFirebase();}
-    else {$scope.changeClinicalArea();}
 
     $scope.changeSortOrder = function()
     {

@@ -1,22 +1,21 @@
 //controller for the index file
 // main controller for page
 
-myApp.controller("indexController",function ($scope,$http,$window,$cookies,CrossCtrlFuncs)
+myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossCtrlFuncs)
 {
     $scope.selectedTab = ''; //set the first tab as the default view
-    $scope.speciality = $cookies.get("speciality");
-    $scope.clinicalArea = $cookies.get("hub");
+    $scope.speciality = $cookies.get("specialityGroupId");
+    $scope.clinicHub = $cookies.get("clinicHubId");
 
     var resetPage = function()
     {
         $scope.userOptions = //stores all options the user has picked up till now
         {
             Page: '', //page that the user wants to go to
-            Speciality: '', //speciality the user is in
+            Speciality: $scope.speciality, //speciality the user is in
             Group: '', //group category the user selected
             Profiles: [], //list of all profiles in a selected group
             SelectedProfile: {}, //user sselected profile; used to launch the VWR page
-            ClinicalArea: $scope.clinicalArea
         };
     }
     resetPage();
@@ -29,7 +28,7 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
     }
 
     //sets a userOptions property to the given value and moves the selected page to the specified one
-    $scope.moveToTab = function (property,value,tab)
+    $scope.moveToTab = function(property,value,tab)
     {
         if(property != null)
         {
@@ -39,11 +38,9 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
         var mTab = '';
 
         if(tab === 'ModeTab') {mTab = 0;}
-        else if(tab === 'SpecialityTab') {mTab = 1;}
-        else if(tab === 'GroupTab') {mTab = 2;}
-        else if(tab === 'ProfileTab') {mTab = 3;}
-        else if(tab === 'EditTab') {mTab = 4;}
-        else if(tab === 'LocationTab') {mTab = 5;}
+        else if(tab === 'GroupTab') {mTab = 1;}
+        else if(tab === 'ProfileTab') {mTab = 2;}
+        else if(tab === 'EditTab') {mTab = 3;}
 
         $scope.selectedTab = mTab;
     }
@@ -69,7 +66,7 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
     }
 
     //return the class to be used in the DOM
-    $scope.checkBorderClass = function (button)
+    $scope.checkBorderClass = function(button)
     {
         if(button === 'last') {return $scope.lastButtonBorder;}
         else {return button.BorderClass;}
@@ -82,29 +79,28 @@ myApp.controller("indexController",function ($scope,$http,$window,$cookies,Cross
         {
             profiles: $scope.userOptions.Profiles,
             group: $scope.userOptions.Group,
-            speciality: $scope.userOptions.Speciality,
-            clinicalArea: $scope.userOptions.ClinicalArea
+            speciality: $scope.userOptions.Speciality
         });
     }
 
-    $scope.$on('profileUpdated',function (event)
+    $scope.$on('profileUpdated',function(event)
     {
         $scope.moveToTab(null,null,'ProfileTab');
     });
 
-    $scope.redirectURL = function (location)
+    $scope.redirectURL = function(profileId)
     {
         //if user is launching the VWR, then just open the page with the selected profile
         if($scope.userOptions.Page === 'vwr')
         {
-            $window.location.href = "./virtualWaitingRoom?profile=" + $scope.userOptions.SelectedProfile.ProfileId;
+            $window.location.href = "./virtualWaitingRoom?profile=" + profileId +"&clinicHub="+ $scope.clinicHub;
         }
         //if the user is opening the screen display, make sure a location was selected
-        else if($scope.userOptions.Page && location)
+        else if($scope.userOptions.Page)
         {
             var url = "";
 
-            url = url + "./screenDisplay?location=" + location;
+            url = url + "./screenDisplay?location=" + $scope.clinicHub;
 
             $window.location.href = url;
         }

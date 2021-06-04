@@ -13,34 +13,33 @@ $speciality = Encoding::utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
 //connect to db
 $dbh = Database::getOrmsConnection();
 
-//==================================
 //get profiles
-//==================================
-$sql = "
-    SELECT
-        Profile.ProfileSer,
-        Profile.ProfileId,
-        Profile.ClinicalArea
-    FROM
-        Profile
-    WHERE
-        Profile.Category = '$category'
-        AND Profile.Speciality = '$speciality'";
-
-if(!$category && !$speciality)
-{
-    $sql = "
+if($category === NULL || $speciality === NULL) {
+    $query = $dbh->prepare("
         SELECT
             Profile.ProfileSer,
-            Profile.ProfileId,
-            Profile.ClinicalArea
+            Profile.ProfileId
         FROM
-            Profile";
+            Profile
+    ");
+    $query->execute();
 }
-
-//process results
-$query = $dbh->prepare($sql);
-$query->execute();
+else {
+    $query = $dbh->prepare("
+        SELECT
+            ProfileSer,
+            ProfileId
+        FROM
+            Profile
+        WHERE
+            Category = :cat
+            AND SpecialityGroupId = :spec
+    ");
+    $query->execute([
+        ":cat"  => $category,
+        ":spec" => $speciality
+    ]);
+}
 
 //encode and return the json object
 $json = Encoding::utf8_encode_recursive($query->fetchAll());

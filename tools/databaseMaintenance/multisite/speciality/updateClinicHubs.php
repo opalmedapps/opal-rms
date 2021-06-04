@@ -92,31 +92,11 @@ class ClinicHubs
         ");
     }
 
-    static function linkProfileTable(PDO $dbh): void
+    static function unlinkProfileTable(PDO $dbh): void
     {
         $dbh->query("
-            CREATE TEMPORARY TABLE IF NOT EXISTS Profile_TEMP AS (SELECT * FROM Profile);
-        ");
-
-        $dbh->query("
             ALTER TABLE `Profile`
-            DROP COLUMN `ClinicalArea`,
-            ADD COLUMN `ClinicHubId` INT NULL COLLATE 'latin1_swedish_ci' AFTER `SpecialityGroupId`
-        ");
-
-        $dbh->query("
-            UPDATE Profile P
-            INNER JOIN Profile_TEMP AS TMP ON TMP.ProfileSer = P.ProfileSer
-            LEFT JOIN ClinicHub CH ON CH.ClinicHubName = TMP.ClinicalArea
-            SET
-                P.ClinicHubId = CH.ClinicHubId
-            WHERE
-                1
-        ");
-
-        $dbh->query("
-            ALTER TABLE `Profile`
-            ADD CONSTRAINT `FK_Profile_ClinicHub` FOREIGN KEY (`ClinicHubId`) REFERENCES `ClinicHub` (`ClinicHubId`)
+            DROP COLUMN `ClinicalArea`
         ");
     }
 }

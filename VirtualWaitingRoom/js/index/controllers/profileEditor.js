@@ -3,7 +3,7 @@ angular.module('index').component('editor',{
     controller: profileEditorController
 });
 
-function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
+function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 {
     $scope.selectedTab = 1; //current tab the user is in
     $scope.givenOptions = {}; //list of all resources/locations/appointments user can select
@@ -218,7 +218,7 @@ function profileEditorController ($scope,$http,$filter,CrossCtrlFuncs)
             url: "php/profile/updateProfile.php",
             method: "POST",
             data: [$scope.selectedProfile,$scope.possibleColumns.chosen]
-        }).then(function (response)
+        }).then(function(response)
         {
             $scope.selectedTab = 1;
 

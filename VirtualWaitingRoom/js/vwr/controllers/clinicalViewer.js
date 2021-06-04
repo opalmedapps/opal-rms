@@ -7,7 +7,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
     $scope.today = new Date();
 
-    let speciality = $cookies.get("speciality");
+    let speciality = $cookies.get("specialityGroupId");
 
     //add datatables settings
     $scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -235,13 +235,13 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     //=========================================================================
     // Get resource, appointment code and diagnosis list
     //=========================================================================
-    $http.get("./php/clinicalViewer/resourceQuery.php?clinic="+speciality).then(function(response)
+    $http.get("./php/clinicalViewer/resourceQuery.php?speciality="+speciality).then(function(response)
     {
         $scope.clinics = response.data;
         // $scope.inputs.specificType = $scope.clinics[0];
     });
 
-    $http.get("./php/clinicalViewer/getAppointmentCode.php?clinic="+speciality).then(function(response)
+    $http.get("./php/clinicalViewer/getAppointmentCode.php?speciality="+speciality).then(function(response)
     {
         $scope.codes = response.data;
         // $scope.inputs.cspecificType = $scope.codes[0];
@@ -688,7 +688,7 @@ app.factory('callScript',function($http,$q)
 
             $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+
                 notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType +
-                qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&clinic="+speciality).then(function (response){
+                qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&speciality="+speciality).then(function (response){
                 let info = {};
                 info = response.data;
                 defer.resolve(info);

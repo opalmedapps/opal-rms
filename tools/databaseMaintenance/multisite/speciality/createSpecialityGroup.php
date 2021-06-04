@@ -143,4 +143,30 @@ class SpecialityGroup
             ADD CONSTRAINT `FK_SmsAppointment_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
         ");
     }
+
+    static function linkSmsMessageTable(PDO $dbh): void
+    {
+        $dbh->query("
+            CREATE TEMPORARY TABLE IF NOT EXISTS SmsMessage_TEMP AS (SELECT * FROM SmsMessage);
+        ");
+
+        $dbh->query("
+            ALTER TABLE `SmsMessage`
+            ADD COLUMN `SpecialityGroupId` INT NULL AFTER `SmsMessageId`,
+            DROP COLUMN `Speciality`,
+            DROP INDEX `Speciality`,
+            ADD UNIQUE INDEX `SpecialityGroupId_Type_Event_Language` (`SpecialityGroupId`, `Type`, `Event`, `Language`),
+            ADD CONSTRAINT `FK_SmsMessage_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`);
+        ");
+
+        $dbh->query("
+            UPDATE SmsMessage SM
+            INNER JOIN SmsMessage_TEMP AS TMP ON TMP.SmsMessageId = SM.SmsMessageId
+            INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupName = TMP.Speciality
+            SET
+                SM.SpecialityGroupId = SG.SpecialityGroupId
+            WHERE
+                1
+        ");
+    }
 }

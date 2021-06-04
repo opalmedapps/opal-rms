@@ -52,7 +52,8 @@ $queryProperties = $dbh->prepare("
         Category = :category,
         Speciality = :speciality,
         ClinicalArea = :clinicalArea
-    WHERE Profile.ProfileSer = :profileSer
+    WHERE
+        Profile.ProfileSer = :profileSer
 ");
 $queryProperties->execute([
     ":profileId"                    => $profile["ProfileId"],

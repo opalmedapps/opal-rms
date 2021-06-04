@@ -50,7 +50,7 @@
     <tr>
         <td style="text-align: center; vertical-align: baseline;" ng-repeat="(category,profiles) in profileList">
             <p ng-repeat="profile in profiles">
-                <a href="./virtualWaitingRoom?profile={{profile.ProfileId}}&clinicalArea={{clinicalArea}}">{{profile.ProfileId}}</a>
+                <a href="./virtualWaitingRoom?profile={{profile.ProfileId}}&clinicHub={{clinicHubId}}">{{profile.ProfileId}}</a>
             </p>
         </td>
     </tr>
@@ -77,8 +77,8 @@ app.config(["$locationProvider",function ($locationProvider)
 
 app.controller('main', function($scope,$location,$http,$cookies)
 {
-    let speciality = $cookies.get("speciality");
-    $scope.clinicalArea = $cookies.get("hub");
+    let speciality = $cookies.get("specialityGroupId");
+    $scope.clinicHubId = $cookies.get("clinicHubId");
 
     $scope.profileList = {};
     //get list of profiles available

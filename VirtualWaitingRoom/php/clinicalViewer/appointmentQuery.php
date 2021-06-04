@@ -14,7 +14,7 @@ $sDateInit              = $_GET["sDate"] ?? NULL;
 $eDateInit              = $_GET["eDate"] ?? NULL;
 $sTime                  = $_GET["sTime"] ?? NULL;
 $eTime                  = $_GET["eTime"] ?? NULL;
-$clinic                 = $_GET["clinic"] ?? NULL;
+$speciality             = $_GET["speciality"] ?? NULL;
 $checkForArrived        = isset($_GET["arrived"]);
 $checkForNotArrived     = isset($_GET["notArrived"]);
 $opal                   = isset($_GET["opal"]);
@@ -95,13 +95,14 @@ $queryAppointments = $dbh->prepare("
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
             $opalFilter
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            AND CR.Speciality = :spec
             $statusFilter
             $appFilter
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+            AND SG.SpecialityGroupId = :spec
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
             $cappFilter
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.HospitalId = SG.HospitalId
             AND PH.Active = 1
         INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
     ORDER BY
@@ -118,7 +119,7 @@ if($afilter === FALSE)
     $queryAppointments->execute([
         ":sDate" => $sDate,
         ":eDate" => $eDate,
-        ":spec" => $clinic
+        ":spec"  => $speciality
     ]);
 
     foreach($queryAppointments->fetchAll() as $app)

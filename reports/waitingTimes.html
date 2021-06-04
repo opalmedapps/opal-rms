@@ -144,7 +144,7 @@ app.controller('main', function($scope,$uibModal,$cookies,callScript,bowser)
     $scope.sDate = new Date();
     $scope.eDate = new Date();
 
-    var speciality = $cookies.get("speciality");;
+    var speciality = $cookies.get("specialityGroupId");;
 
     $scope.convertDate = function (enteredDate)
     {
@@ -237,7 +237,7 @@ app.factory('callScript',function($http,$q)
 
             url = "./Scripts/waitingDistribution.php?"
 
-            $http.get(url+"mode="+speciality+"&sDate="+sDate+"&eDate="+eDate).then(function (response)
+            $http.get(url+"speciality="+speciality+"&sDate="+sDate+"&eDate="+eDate).then(function (response)
             {
                 var info = {};
                 info = response.data;

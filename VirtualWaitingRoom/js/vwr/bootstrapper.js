@@ -20,7 +20,7 @@ angular.element(document).ready(function()
             params:
             {
                 profileId: urlParams.profile,
-                clinicalArea: urlParams.clinicalArea
+                clinicHubId: urlParams.clinicHub
             }
         }).then(function (response)
         {

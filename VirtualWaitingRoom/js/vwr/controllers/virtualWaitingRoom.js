@@ -78,7 +78,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     var firebaseScreenRef = '';
     var connectToFirebase = function()
     {
-        var FirebaseUrl = $scope.pageSettings.FirebaseUrl + $scope.pageSettings.ClinicalArea + "/" + today;
+        var FirebaseUrl = $scope.pageSettings.FirebaseUrl + $scope.pageSettings.ClinicHubId + "/" + today;
 
         firebaseScreenRef = new Firebase(FirebaseUrl); // firebase connection
 
@@ -128,7 +128,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 params:
                 {
                     speciality: $scope.pageSettings.Speciality,
-                    clinicalArea: $scope.pageSettings.ClinicalArea
+                    clinicHub: $scope.pageSettings.ClinicHubId
                 }
             }).then(function (response)
             {
@@ -291,7 +291,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     Timestamp: Firebase.ServerValue.TIMESTAMP
                 });
 
-                $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicalArea +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
+                $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicHubId +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
 
                 // Update the timestamp in the firebase array
                 firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -352,7 +352,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         // Remove the patient from Firebase - will return to the "Call Patient" button
         firebaseScreenRef.child(patient.AppointmentId).remove();
 
-        $scope.logMessage("remove_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from firebase "+ $scope.pageSettings.ClinicalArea);
+        $scope.logMessage("remove_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from firebase "+ $scope.pageSettings.ClinicHubId);
 
         // Update the metadata timestamp
         firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -407,7 +407,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 PatientStatus: "CheckedOut"
             });
 
-            $scope.logMessage("compl_mv","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location BACK TO WAITING ROOM and patient status on firebase "+ $scope.pageSettings.ClinicalArea +" changed to CheckedOut");
+            $scope.logMessage("compl_mv","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location BACK TO WAITING ROOM and patient status on firebase "+ $scope.pageSettings.ClinicHubId +" changed to CheckedOut");
 
             // Update the metadata timestamp
             firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -455,7 +455,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
         firebaseScreenRef.child("ToBeWeighed").update(tempObj);
 
-        $scope.logMessage("add_weight_arr","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" added to weight array in firebase "+ $scope.pageSettings.ClinicalArea);
+        $scope.logMessage("add_weight_arr","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" added to weight array in firebase "+ $scope.pageSettings.ClinicHubId);
 
         // Update the metadata timestamp
         //firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
@@ -748,7 +748,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
                 firebaseScreenRef.child("ToBeWeighed").update(tempObj);
 
-                $scope.logMessage("remove_weight_arr","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from weight array in firebase "+ $scope.pageSettings.ClinicalArea);
+                $scope.logMessage("remove_weight_arr","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from weight array in firebase "+ $scope.pageSettings.ClinicHubId);
             }
         });
     }

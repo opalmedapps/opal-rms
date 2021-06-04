@@ -11,7 +11,7 @@ use Orms\Database;
 
 //get webpage parameters
 $speciality = $_GET["speciality"];
-$clinicalArea = $_GET["clinicalArea"];
+$clinicHub  = $_GET["clinicHub"];
 
 $json = []; //json object to be returned
 
@@ -33,12 +33,12 @@ $dbh = Database::getOrmsConnection();
 //get the WRM resources
 $query2 = $dbh->prepare("
     SELECT DISTINCT
-        ClinicResources.ResourceName
+        ResourceName
     FROM
         ClinicResources
     WHERE
-        ClinicResources.Speciality = ?
-        AND ClinicResources.Active = 1
+        SpecialityGroupId = ?
+        AND Active = 1
 ");
 $query2->execute([$speciality]);
 
@@ -51,25 +51,26 @@ $resources = array_map(fn($x) => $x["ResourceName"], $query2->fetchAll());
 //get all exam rooms for the speciality
 $query3 = $dbh->prepare("
     SELECT DISTINCT
-        LTRIM(RTRIM(ExamRoom.AriaVenueId)) AS AriaVenueId
+        LTRIM(RTRIM(AriaVenueId)) AS AriaVenueId
     FROM
         ExamRoom
-    WHERE ExamRoom.Level = ?
+    WHERE
+        ClinicHubId = ?
 ");
-$query3->execute([$clinicalArea]);
+$query3->execute([$clinicHub]);
 
 $examRooms = array_map(fn($x) => $x["AriaVenueId"], $query3->fetchAll());
 
 //get all possible intermediate venues for the speciality
 $query4 = $dbh->prepare("
     SELECT DISTINCT
-        LTRIM(RTRIM(IntermediateVenue.AriaVenueId)) AS AriaVenueId
+        LTRIM(RTRIM(AriaVenueId)) AS AriaVenueId
     FROM
         IntermediateVenue
     WHERE
-        IntermediateVenue.Level = ?
+        ClinicHubId = ?
 ");
-$query4->execute([$clinicalArea]);
+$query4->execute([$clinicHub]);
 
 // Process results
 foreach($query4->fetchAll() as $row)
@@ -94,8 +95,8 @@ $query6 = $dbh->prepare("
     FROM
         AppointmentCode
     WHERE
-        Speciality = ?"
-);
+        SpecialityGroupId = ?
+");
 $query6->execute([$speciality]);
 
 $appointments = array_map(fn($x) => $x["AppointmentCode"], $query6->fetchAll());

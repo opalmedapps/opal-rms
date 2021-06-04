@@ -14,7 +14,7 @@
     <p>
 
     <form action="/php/api/private/v1/patient/registerPhoneNumber.php">
-    <input type="hidden" name="speciality" value="{{speciality}}">
+    <input type="hidden" name="specialityGroupId" value="{{specialityGroupId}}">
     <input type="hidden" name="mrn" value="{{mrn}}">
     <input type="hidden" name="site" value="{{site}}">
     <table border="0" width="50%" padding="2">
@@ -103,7 +103,7 @@ app.controller('main', function($scope,$location,$cookies)
     $scope.mrn = pageParams.mrn;
     $scope.site = pageParams.site;
 
-    $scope.speciality = $cookies.get("speciality");
+    $scope.specialityGroupId = $cookies.get("specialityGroupId");
 
 });
 

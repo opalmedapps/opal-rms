@@ -42,7 +42,7 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
         var currentTime = currentDate.getHours();
 
         if(currentTime >= 20 || currentTime < 6) {
-            $scope.currentLogo = "./images/black.jpg";
+            // $scope.currentLogo = "./images/black.jpg";
         }
         else {
             $scope.currentLogo = "./images/Banner_treatments.png";

@@ -8,8 +8,8 @@ use Orms\Config;
 use Orms\Database;
 
 //get webpage parameters
-$profileId = Encoding::utf8_decode_recursive($_GET["profileId"]);
-$clinicalArea = Encoding::utf8_decode_recursive($_GET["clinicalArea"] ?? NULL);
+$profileId = $_GET["profileId"];
+$clinicHubId = $_GET["clinicHubId"];
 
 $json = []; //output array
 
@@ -27,22 +27,26 @@ $dbh = Database::getOrmsConnection();
 //==================================
 $queryProfile = $dbh->prepare("
     SELECT
-        Profile.ProfileSer,
-        Profile.ProfileId,
-        Profile.Category,
-        Profile.Speciality,
-        Profile.ClinicalArea
+        ProfileSer,
+        ProfileId,
+        Category,
+        SpecialityGroupId AS Speciality,
+        (SELECT ClinicHubName FROM ClinicHub WHERE ClinicHubId = :chId) AS ClinicalArea
     FROM
         Profile
     WHERE
-        Profile.ProfileId = ?"
-);
+        ProfileId = :proId
+");
 //process results
-$queryProfile->execute([$profileId]);
+$queryProfile->execute([
+    ":proId" => $profileId,
+    ":chId"  => $clinicHubId
+]);
 
 $profile = $queryProfile->fetchAll()[0] ?? NULL;
 
-if($profile === NULL) {
+/** @phpstan-ignore-next-line */
+if($profile === NULL || $profile["ClinicalArea"] === NULL) {
     echo "{}";
     exit;
 }
@@ -52,6 +56,7 @@ $json['ProfileId']            = $profile['ProfileId'];
 $json['Category']             = $profile['Category'];
 $json['Speciality']           = $profile['Speciality'];
 $json['ClinicalArea']         = $profile['ClinicalArea'];
+$json["ClinicHubId"]          = $clinicHubId;
 $json['WaitingRoom']          = "WAITING ROOM";
 $json['IntermediateVenues']   = [];
 $json['TreatmentVenues']      = [];
@@ -59,9 +64,6 @@ $json['Resources']            = [];
 $json['ExamRooms']            = [];
 $json['Appointments']         = [];
 $json['ColumnsDisplayed']     = [];
-
-//if there profile has no assigned clinical area, use the one provided by the user
-if($clinicalArea) $json['ClinicalArea'] = $clinicalArea;
 
 //if a location is specified, set the associated waiting room
 $json['WaitingRoom'] = strtoupper($json['ClinicalArea']) ." WAITING ROOM";
@@ -82,21 +84,21 @@ else if($json['Category'] == 'Pharmacy')
 //==========================================================
 $queryColumns = $dbh->prepare( "
     SELECT
-        ProfileColumnDefinition.ColumnName,
-        ProfileColumnDefinition.DisplayName,
-        ProfileColumnDefinition.Glyphicon,
-        ProfileColumns.Position
+        PCD.ColumnName,
+        PCD.DisplayName,
+        PCD.Glyphicon,
+        PC.Position
     FROM
-        ProfileColumns
-        INNER JOIN ProfileColumnDefinition ON ProfileColumnDefinition.ProfileColumnDefinitionSer = ProfileColumns.ProfileColumnDefinitionSer
+        ProfileColumns PC
+        INNER JOIN ProfileColumnDefinition PCD ON PCD.ProfileColumnDefinitionSer = PC.ProfileColumnDefinitionSer
     WHERE
-        ProfileColumns.ProfileSer = $json[ProfileSer]
-        AND ProfileColumns.Position >= 0
-        AND ProfileColumns.Active = 1
+        PC.ProfileSer = ?
+        AND PC.Position >= 0
+        AND PC.Active = 1
     ORDER BY
-        ProfileColumns.Position
+        PC.Position
 ");
-$queryColumns->execute();
+$queryColumns->execute([$json["ProfileSer"]]);
 
 $json['ColumnsDisplayed'] = $queryColumns->fetchAll();
 
@@ -105,15 +107,16 @@ $json['ColumnsDisplayed'] = $queryColumns->fetchAll();
 //=======================================================
 $queryOptions = $dbh->prepare("
     SELECT
-        ProfileOptions.Options,
-        ProfileOptions.Type
+        Options,
+        Type
     FROM
         ProfileOptions
     WHERE
-        ProfileOptions.ProfileSer = '$json[ProfileSer]'
-    ORDER BY ProfileOptions.Options"
-);
-$queryOptions->execute();
+        ProfileSer = ?
+    ORDER BY
+        Options
+");
+$queryOptions->execute([$json["ProfileSer"]]);
 
 foreach($queryOptions->fetchAll() as $row)
 {

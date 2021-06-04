@@ -20,7 +20,7 @@ $queryWRM = $dbh->prepare("
     SELECT
         MV.AppointmentSerNum AS AppointmentId,
         MV.AppointId AS SourceId,
-        CR.Speciality,
+        SG.SpecialityGroupId,
         PL.ArrivalDateTime,
         LTRIM(RTRIM(AC.AppointmentCode)) AS AppointmentName,
         P.LastName,
@@ -52,9 +52,10 @@ $queryWRM = $dbh->prepare("
         MediVisitAppointmentList MV
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
         INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = (SELECT DISTINCT CH.HospitalId FROM ClinicHub CH WHERE CH.SpecialityGroup = CR.Speciality)
+            AND PH.HospitalId = SG.HospitalId
             AND PH.Active = 1
         INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
         LEFT JOIN PatientLocation PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
@@ -155,7 +156,7 @@ foreach($queryWRM->fetchAll() as $row)
         $row[$x] = (float) $row[$x];
     }
 
-    $json[$row["Speciality"]][] = $row;
+    $json[$row["SpecialityGroupId"]][] = $row;
 }
 
 //======================================================================================

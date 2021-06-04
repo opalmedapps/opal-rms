@@ -26,7 +26,6 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
             {
                 Appointments: [],
                 Category: $scope.group,
-                ClinicalArea: $scope.clinicalArea, // '',
                 ColumnsDisplayed: [],
                 ExamRooms: [],
                 IntermediateVenues: [],
@@ -35,6 +34,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
                 ProfileSer: -1,
                 Resources: [],
                 Speciality: $scope.speciality,
+                ClinicHub: $scope.clinicHub,
                 TreatmentVenues: []
             }
         };
@@ -56,19 +56,19 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
     }
 
     //toogle if we show the description for a column
-    $scope.toggleColumnDescription = function (col)
+    $scope.toggleColumnDescription = function(col)
     {
         if(col === $scope.possibleColumns.focusedColumn) {$scope.possibleColumns.focusedColumn = {};}
         else {$scope.possibleColumns.focusedColumn = col;}
     }
 
     //listen for changes in the profile list
-    $scope.$on('profileListUpdated',function (event,data)
+    $scope.$on('profileListUpdated',function(event,data)
     {
         $scope.selectedTab = 1;
         $scope.group = data.group;
         $scope.speciality = data.speciality;
-        $scope.clinicalArea = data.clinicalArea;
+        $scope.clinicHub = data.clinicHub;
 
         $scope.profiles = data.profiles;
         $scope.lastButtonBorder = CrossCtrlFuncs.assignBorderClass($scope.profiles);
@@ -82,7 +82,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
             params:
             {
                 speciality: $scope.speciality,
-                clinicalArea: $scope.clinicalArea
+                clinicHub: $scope.clinicHub
             }
         }).then(function (response)
         {
@@ -153,7 +153,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
                 params:
                 {
                     profileId: $scope.profiles[index].ProfileId,
-                    clinicalArea: $scope.profiles[index].ClinicalArea
+                    clinicHubId: $scope.clinicHub
                 }
             }).then(function (response)
             {

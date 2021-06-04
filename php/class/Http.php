@@ -81,7 +81,7 @@ class Http
         //get the specification section for the api being called
         $apiPath = str_replace($publicApiPath,"",$_SERVER["SCRIPT_FILENAME"] ?? "");
         $method = strtolower($_SERVER["REQUEST_METHOD"] ?? "");
-        $content = preg_replace("/;charset=.+$/","",$_SERVER["CONTENT_TYPE"] ?? ""); //remove the charset
+        $content = preg_replace("/;\s?charset=.+$/","",$_SERVER["CONTENT_TYPE"] ?? ""); //remove the charset
 
         $specification = $specification->paths[$apiPath] ?? throw new Exception("Unknown api");
         $specification = $specification->$method->requestBody ?? throw new Exception("Unknown method");

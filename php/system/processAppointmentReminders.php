@@ -101,7 +101,7 @@ function getAppointments(): array
                     END
                 ELSE CR.ResourceName
             END AS name,
-            SA.Speciality AS speciality,
+            SA.SpecialityGroupId AS speciality,
             SA.Type as type
         FROM
             MediVisitAppointmentList MV

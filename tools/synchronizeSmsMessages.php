@@ -28,16 +28,17 @@ $dbh->beginTransaction();
 $queryUpdateComb = $dbh->prepare("
     UPDATE SmsAppointment SA
     INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = SA.ClinicResourcesSerNum
+        AND CR.ResourceCode = :rCode
+        AND CR.ResourceName = :rName
     INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = SA.AppointmentCodeId
+        AND AC.AppointmentCode = :aCode
+    INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = SA.SpecialityGroupId
+        AND SG.SpecialityGroupName = :spec
     SET
         SA.Type = :type,
         SA.Active = :act
     WHERE
-        CR.ResourceCode = :rCode
-        AND CR.ResourceName = :rName
-        AND AC.AppointmentCode = :aCode
-        AND SA.Speciality = :spec
-        AND SA.SourceSystem = :sys
+        SA.SourceSystem = :sys
 ");
 
 foreach($combinations as $c){
@@ -47,7 +48,7 @@ foreach($combinations as $c){
         ":rCode"    => $c["ResourceCode"],
         ":rName"    => $c["ResourceName"],
         ":aCode"    => $c["AppointmentCode"],
-        ":spec"     => $c["Speciality"],
+        ":spec"     => $c["SpecialityGroupName"],
         ":sys"      => $c["SourceSystem"],
     ]);
 }
@@ -57,17 +58,18 @@ $dbh->commit();
 #generate a new csv, updated csv file
 $queryGetComb = $dbh->prepare("
     SELECT
-        CR.ResourceCode
-        ,CR.ResourceName
-        ,AC.AppointmentCode
-        ,SA.Speciality
-        ,SA.SourceSystem
-        ,SA.Type
-        ,SA.Active
+        CR.ResourceCode,
+        CR.ResourceName,
+        AC.AppointmentCode,
+        SG.SpecialityGroupName,
+        SA.SourceSystem,
+        SA.Type,
+        SA.Active
     FROM
         SmsAppointment SA
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = SA.ClinicResourcesSerNum
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = SA.AppointmentCodeId
+        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = SA.SpecialityGroupId
 ");
 $queryGetComb->execute();
 

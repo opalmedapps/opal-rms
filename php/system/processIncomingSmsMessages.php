@@ -87,7 +87,7 @@ foreach($messages as $message)
 
     #sort the appointments by speciality and type into a string to insert in the sms message
     #also generate the combined message to send in case the patient has multiple types of appointments
-    $appointmentsSorted = ArrayUtil::groupArrayByKeyRecursive($appointments,"Speciality","Type");
+    $appointmentsSorted = ArrayUtil::groupArrayByKeyRecursive($appointments,"SpecialityGroupId","Type");
 
     $appointmentString = "";
     foreach($appointmentsSorted as $speciality => $v)
@@ -155,7 +155,7 @@ function getAppointmentList(string $pSer): array
             END AS name,
             MV.ScheduledDate AS date,
             TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
-            SA.Speciality,
+            SA.SpecialityGroupId,
             SA.Type
         FROM
             MediVisitAppointmentList MV

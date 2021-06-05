@@ -44,7 +44,7 @@ if($prog) $appFilter .= "MV.Status = 'In Progress' OR ";
 $appFilter = substr($appFilter,0,-4);
 $appFilter .=  ") ";
 
-if($appType === "specific") {
+if($appType === "specific" && $specificType !== NULL) {
     $specificType = preg_replace("/'/","\'",$specificType);
     $typeFilter = "AND CR.ResourceName = '$specificType' " ;
 }

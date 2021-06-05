@@ -32,9 +32,9 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
                 patientId: patient.PatientId,
                 phoneNumber: $scope.patient.enteredNumber,
                 language: $scope.patient.selectedLanguage,
-                speciality: $scope.patient.Speciality
+                speciality: $scope.patient.SpecialityGroupId
             }
-        }).then(function (response)
+        }).then(function(_)
         {
             $uibModalInstance.close();
         });

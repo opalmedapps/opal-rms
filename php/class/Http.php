@@ -123,11 +123,10 @@ class Http
     }
 
     /**
+     * Returns a response to client without stopping script execution. Since the connection with the client gets closed, no further responses can be sent.
      *
-     * @return never
-     * @throws Exception
      */
-    static function generateResponseJsonAndExit(int $httpCode,mixed $data = NULL,string $error = NULL): void
+    static function generateResponseJsonAndContinue(int $httpCode,mixed $data = NULL,string $error = NULL): void
     {
         $response = [
             "status" => ($error === NULL) ? "Success" : "Error",
@@ -138,9 +137,24 @@ class Http
 
         $returnString = json_encode($response) ?: throw new Exception("Unable to generate a response");
 
+        ob_start();
         http_response_code($httpCode);
         header("Content-Type: application/json");
         echo $returnString;
+        header('Connection: close');
+        header('Content-Length: '.ob_get_length());
+        ob_end_flush();
+        ob_flush();
+        flush();
+    }
+
+    /**
+     *
+     * @return never
+     */
+    static function generateResponseJsonAndExit(int $httpCode,mixed $data = NULL,string $error = NULL): void
+    {
+        self::generateResponseJsonAndContinue($httpCode,$data,$error);
         exit;
     }
 

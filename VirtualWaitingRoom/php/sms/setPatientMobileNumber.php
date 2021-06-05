@@ -5,6 +5,7 @@
 //====================================================================================
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Http;
 use Orms\Database;
 use Orms\Sms\SmsInterface;
 
@@ -54,13 +55,7 @@ else
     ]);
 
     #print a message and close the connection so that the client does not wait
-    ob_start();
-    echo "Record updated successfully<br>";
-    header('Connection: close');
-    header('Content-Length: '.ob_get_length());
-    ob_end_flush();
-    ob_flush();
-    flush();
+    Http::generateResponseJsonAndContinue(200);
 
     #change the sms message depending on the language preference and clinic
     $messageList = SmsInterface::getPossibleSmsMessages();

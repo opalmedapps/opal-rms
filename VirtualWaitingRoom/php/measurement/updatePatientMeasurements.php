@@ -5,6 +5,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Http;
 use Orms\Patient\Patient;
 use Orms\Patient\PatientMeasurement;
 use Orms\Hospital\OIE\Export;
@@ -35,14 +36,7 @@ if($height === NULL
 
 PatientMeasurement::insertMeasurement($patient,(float) $height,(float) $weight,(float) $bsa,$sourceId,$sourceSystem);
 
-//print a message and close the connection so that the client does not wait
-ob_start();
-echo "Measurements inserted!\n";
-header('Connection: close');
-header('Content-Length: '.ob_get_length());
-ob_end_flush();
-ob_flush();
-flush();
+Http::generateResponseJsonAndContinue(200);
 
 //send the update to external systems
 Export::exportMeasurementPdf($patient);

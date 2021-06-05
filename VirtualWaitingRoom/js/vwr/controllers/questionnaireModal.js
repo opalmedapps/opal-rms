@@ -44,7 +44,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $mdDialog.show(answer).then( result => {
             $scope.patient.QStatus = "green-circle";
             $http({
-                url: "./php/insertQuestionnaireReview.php",
+                url: "./php/questionnaire/insertQuestionnaireReview.php",
                 method: "GET",
                 params: {
                     user: result,

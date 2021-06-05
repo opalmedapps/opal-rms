@@ -444,22 +444,25 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             url: "php/getLocationInfo.php",
             method: "GET",
             params: {Location: selectedLocation}
-        }).then(function (response)
+        }).then(function(response)
         {
-            var patientDestination = response.data;
+            var patientDestination = response.data.data;
             patientDestination.LocationId = selectedLocation;
 
             //check if the patient is already checked in where they are
             //if they are, then just update the firebase metadata
 
             var currentDestination = null;
-            if($scope.screenRows.hasOwnProperty(patient.AppointmentId)) {currentDestination = $scope.screenRows[patient.AppointmentId].Destination;}
+            if($scope.screenRows.hasOwnProperty(patient.AppointmentId)) {
+                currentDestination = $scope.screenRows[patient.AppointmentId].Destination;
+            }
 
-            if(angular.equals(currentDestination,patientDestination))
-            {
+            if(angular.equals(currentDestination,patientDestination)) {
                 $scope.callPatientAgain(patient,sendSMS);
             }
-            else {$scope.callPatient(patient,patientDestination,sendSMS,true);}
+            else {
+                $scope.callPatient(patient,patientDestination,sendSMS,true);
+            }
         });
     }
 

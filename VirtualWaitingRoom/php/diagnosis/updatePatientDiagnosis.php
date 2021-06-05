@@ -2,6 +2,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
+use Orms\Http;
 use Orms\Diagnosis\DiagnosisInterface;
 use Orms\DateTime;
 use Orms\Patient\Patient;
@@ -15,6 +16,8 @@ $status              = $_GET["status"];
 $user                = $_GET["user"];
 
 $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status,$user);
+
+Http::generateResponseJsonAndContinue(200);
 
 //export the diagnosis to external systems
 $patient = Patient::getPatientById($patientId);

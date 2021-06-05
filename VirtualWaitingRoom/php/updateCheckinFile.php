@@ -145,7 +145,8 @@ foreach($queryWRM->fetchAll() as $row)
         "WaitTime",
         "OpalPatient",
         "PatientId",
-        "AppointmentId"] as $x) {
+        "AppointmentId",
+        "SpecialityGroupId"] as $x) {
         $row[$x] = (int) $row[$x];
     }
 

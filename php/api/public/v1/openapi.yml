@@ -10,6 +10,8 @@ paths:
     post:
       summary: Checks if a patient exists in ORMS
       description: Matches a patient in the ORMS database using an mrn and site
+      tags:
+        - patient
       requestBody:
         content:
           application/json:
@@ -47,6 +49,8 @@ paths:
     post:
       summary: Check a patient in for their appointments
       description: Updates the patient's location in the hospital for all their appointments of the day
+      tags:
+        - patient
       requestBody:
         content:
           application/json:
@@ -78,6 +82,8 @@ paths:
     post:
       summary: Update a patient's opal status
       description: Mark a patient as registered for Opal or not
+      tags:
+        - patient
       requestBody:
         content:
           application/json:
@@ -112,6 +118,8 @@ paths:
     post:
       summary: Update patient demographic information
       description: Update a patient's record in ORMS with demograhic information from a hospital source system
+      tags:
+        - patient
       requestBody:
         content:
           application/json:
@@ -169,6 +177,8 @@ paths:
     post:
       summary: Delete a patient's appointment
       description: Due to a bug in Medivist, deleted appointments don't have the same source id as the original appointment. This api deletes all appointments for a patient that match the deleted one.
+      tags:
+        - appointment
       requestBody:
         content:
           application/json:
@@ -222,6 +232,8 @@ paths:
     post:
       summary: Create a new appointment, or update an existing one
       description: Imports or updates appointments from (external) source systems into ORMS
+      tags:
+        - appointment
       requestBody:
         content:
           application/json:

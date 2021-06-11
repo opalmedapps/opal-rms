@@ -14,6 +14,14 @@ class AppointmentCodes
         ");
     }
 
+    static function addDisplayColumn(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE `AppointmentCode`
+            ADD COLUMN `DisplayName` VARCHAR(100) NULL DEFAULT NULL AFTER `AppointmentCode`;
+        ");
+    }
+
     //opens a file containing Aria appointment codes and descriptions and updates ORMS to use the appointment code instead of the description
     static function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
     {
@@ -22,7 +30,8 @@ class AppointmentCodes
         $updateAppointmentCodes = $dbh->prepare("
             UPDATE AppointmentCode
             SET
-                AppointmentCode = :code
+                AppointmentCode = :code,
+                DisplayName = :desc
             WHERE
                 AppointmentCode = :desc
         ");

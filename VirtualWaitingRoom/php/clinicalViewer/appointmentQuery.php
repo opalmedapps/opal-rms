@@ -63,7 +63,7 @@ else {
 
 $statusFilter = " AND MV.Status IN (". implode(",",$activeStatusConditions) .")";
 $appFilter = ($appType === "all") ? "" : " AND CR.ResourceName IN ($specificApp)";
-$cappFilter = ($appcType === "all") ? "" : " AND AC.AppointmentCode IN ($cspecificApp)";
+$cappFilter = ($appcType === "all") ? "" : " AND COALESCE(AC.DisplayName,AC.AppointmentCode) IN ($cspecificApp)";
 
 //ORMS database query run under "and" mode for basic appoint information
 $dbh = Database::getOrmsConnection();
@@ -78,7 +78,7 @@ $queryAppointments = $dbh->prepare("
         P.PatientSerNum,
         CR.ResourceName,
         CR.ResourceCode,
-        AC.AppointmentCode,
+        COALESCE(AC.DisplayName,AC.AppointmentCode) AS AppointmentCode,
         MV.Status,
         MV.ScheduledDate,
         TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS ScheduledTime,

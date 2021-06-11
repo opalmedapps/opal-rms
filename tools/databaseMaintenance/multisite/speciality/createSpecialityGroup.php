@@ -16,7 +16,7 @@ class SpecialityGroup
                 PRIMARY KEY (`SpecialityGroupId`) USING BTREE,
                 INDEX `FK_SpecialityGroup_Hospital` (`HospitalId`) USING BTREE,
                 UNIQUE INDEX `SpecialityGroupCode` (`SpecialityGroupCode`),
-                CONSTRAINT `FK_SpecialityGroup_Hospital` FOREIGN KEY (`HospitalId`) REFERENCES `OrmsDatabase`.`Hospital` (`HospitalId`) ON UPDATE RESTRICT ON DELETE RESTRICT
+                CONSTRAINT `FK_SpecialityGroup_Hospital` FOREIGN KEY (`HospitalId`) REFERENCES `Hospital` (`HospitalId`) ON UPDATE RESTRICT ON DELETE RESTRICT
             )
         ");
 
@@ -39,8 +39,7 @@ class SpecialityGroup
             ALTER TABLE `AppointmentCode`
             DROP COLUMN `Speciality`,
             ADD COLUMN `SpecialityGroupId` INT NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointmentCode`,
-            DROP INDEX `AppointmentCode`,
-            ADD UNIQUE INDEX `AppointmentCode_SpecialityGroupId` (`AppointmentCode`, `SpecialityGroupId`)
+            DROP INDEX `AppointmentCode`
         ");
 
         $dbh->query("
@@ -55,6 +54,7 @@ class SpecialityGroup
 
         $dbh->query("
             ALTER TABLE `AppointmentCode`
+            ADD UNIQUE INDEX `AppointmentCode_SpecialityGroupId` (`AppointmentCode`, `SpecialityGroupId`),
             ADD CONSTRAINT `FK_AppointmentCode_SpecialityGroup` FOREIGN KEY (`SpecialityGroupId`) REFERENCES `SpecialityGroup` (`SpecialityGroupId`)
         ");
     }

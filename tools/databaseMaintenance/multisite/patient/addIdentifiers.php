@@ -39,8 +39,8 @@ class PatientIdentifiers
                 PRIMARY KEY (`PatientHospitalIdentifierId`) USING BTREE,
                 UNIQUE INDEX `HospitalId_MedicalRecordNumber` (`HospitalId`, `MedicalRecordNumber`) USING BTREE,
                 INDEX `FK_PatientHospitalIdentifier_Patient` (`PatientId`) USING BTREE,
-                CONSTRAINT `FK_PatientHospitalIdentifier_Hospital` FOREIGN KEY (`HospitalId`) REFERENCES `OrmsDatabase`.`Hospital` (`HospitalId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-                CONSTRAINT `FK_PatientHospitalIdentifier_Patient` FOREIGN KEY (`PatientId`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
+                CONSTRAINT `FK_PatientHospitalIdentifier_Hospital` FOREIGN KEY (`HospitalId`) REFERENCES `Hospital` (`HospitalId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                CONSTRAINT `FK_PatientHospitalIdentifier_Patient` FOREIGN KEY (`PatientId`) REFERENCES `Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
             )
         ");
     }
@@ -80,8 +80,8 @@ class PatientIdentifiers
                 PRIMARY KEY (`PatientInsuranceIdentifierId`) USING BTREE,
                 UNIQUE INDEX `InsuranceId_InsuranceNumber` (`InsuranceId`, `InsuranceNumber`) USING BTREE,
                 INDEX `FK_PatientInsuranceIdentifier_Patient` (`PatientId`) USING BTREE,
-                CONSTRAINT `FK_PatientInsuranceIdentifier_Insurance` FOREIGN KEY (`InsuranceId`) REFERENCES `OrmsDatabase`.`Insurance` (`InsuranceId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-                CONSTRAINT `FK_PatientInsuranceIdentifier_Patient` FOREIGN KEY (`PatientId`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
+                CONSTRAINT `FK_PatientInsuranceIdentifier_Insurance` FOREIGN KEY (`InsuranceId`) REFERENCES `Insurance` (`InsuranceId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                CONSTRAINT `FK_PatientInsuranceIdentifier_Patient` FOREIGN KEY (`PatientId`) REFERENCES `Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
             )
         ");
     }

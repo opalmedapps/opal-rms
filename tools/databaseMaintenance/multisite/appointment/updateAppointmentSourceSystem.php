@@ -18,7 +18,7 @@ class AppointmentSourceSystem
     {
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
-            CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointSys`;
+            CHANGE COLUMN `AppointSys` `AppointSys` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `AppointIdIn`;
         ;");
     }
 
@@ -40,7 +40,7 @@ class AppointmentSourceSystem
             SET
                 AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'MEDIAria',''))
             WHERE
-                AppointmentId LIKE 'MEDIAria%'
+                AppointmentId LIKE BINARY 'MEDIAria%'
         ");
 
         $dbh->query("
@@ -48,7 +48,7 @@ class AppointmentSourceSystem
             SET
                 AppointmentId = CONCAT('Aria','-',REPLACE(AppointmentId,'ARIA',''))
             WHERE
-                AppointmentId LIKE 'ARIA%'
+                AppointmentId LIKE BINARY 'ARIA%'
         ");
 
         $dbh->query("
@@ -56,7 +56,7 @@ class AppointmentSourceSystem
             SET
                 AppointmentId = CONCAT('Medivisit','-',REPLACE(AppointmentId,'MEDI',''))
             WHERE
-                AppointmentId LIKE 'MEDI%'
+                AppointmentId LIKE BINARY 'MEDI%'
         ");
     }
 }

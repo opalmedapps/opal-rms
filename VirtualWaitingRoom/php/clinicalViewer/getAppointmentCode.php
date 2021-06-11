@@ -15,7 +15,7 @@ $dbh = Database::getOrmsConnection();
 
 $query = $dbh->prepare("
     SELECT DISTINCT
-        AppointmentCode
+        COALESCE(DisplayName,AppointmentCode) AS AppointmentCode
     FROM
         AppointmentCode
     WHERE

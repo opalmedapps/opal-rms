@@ -22,7 +22,7 @@ $queryWRM = $dbh->prepare("
         MV.AppointId AS SourceId,
         SG.SpecialityGroupId,
         PL.ArrivalDateTime,
-        LTRIM(RTRIM(AC.AppointmentCode)) AS AppointmentName,
+        COALESCE(AC.DisplayName,AC.AppointmentCode) AS AppointmentName,
         P.LastName,
         P.FirstName,
         P.PatientSerNum AS PatientId,

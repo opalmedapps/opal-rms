@@ -20,6 +20,7 @@ $dbh = Database::getOrmsConnection();
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
 AppointmentSourceSystem::createSourceSystemKey($dbh);
 AppointmentCodes::extendCodeLength($dbh);
+AppointmentCodes::addDisplayColumn($dbh);
 
 try {
     $dbh->beginTransaction();

@@ -35,7 +35,7 @@ $queryClinicCode = $dbh->prepare("
     FROM
         ClinicResources CR
         INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
-    ORDER BY CR.ResourceCode
+    ORDER BY CR.ResourceName
     LIMIT 1
 ");
 $queryClinicCode->execute();

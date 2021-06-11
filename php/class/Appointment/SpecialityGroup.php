@@ -28,20 +28,4 @@ class SpecialityGroup
 
         return (int) $id;
     }
-
-    static function getSpecialityGroupCode(int $id): ?string
-    {
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
-            SELECT
-                SpecialityGroupCode
-            FROM
-                SpecialityGroup
-            WHERE
-                SpecialityGroupId = ?
-        ");
-        $query->execute([$id]);
-
-        return $query->fetchAll()[0]["SpecialityGroupCode"] ?? NULL;
-    }
 }

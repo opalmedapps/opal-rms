@@ -205,13 +205,13 @@
                 <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
 
             </tr>
-            <tr>
+            <!-- <tr>
                 <td>
                     <div class="option-holder-div" style="align-items: center; width: 1000%">
                         <md-button class="md-primary" ng-disabled="!resourceLoadingEnabled" ng-click="focusOnId('zoom-input')"><b>MSSS Zoom Link:</b></md-button>
                         <input id="zoom-input" class="zoom-input" ng-model="zoomLink" placeholder="Please paste your Zoom Personal Meeting ID URL here (include the pwd=XXXXXXX part of the URL)">
                     </div></td>
-            </tr>
+            </tr> -->
             <td><button type="button" class="btn btn-sr" ng-click="showMenuButton()"> {{test.showMenu}} </button></td>
             <td><button type="button" ng-class="(confid==='Nominal Mode') ? 'btn btn-danger' : 'btn btn-sr'" ng-click="confidentialMode()">{{confid}}</button></td>
             <tr ng-show="test.showMenu === 'Hide Menu'"></tr>
@@ -425,7 +425,7 @@
                 <th style="text-align: center;">Status</th>
                 <th style="text-align: center;">Medivisit Status</th>
                 <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''" style="text-align: center;">Diagnosis</th>
-                <th style="text-align: center;">Call Patient</th>
+                <!-- <th style="text-align: center;">Call Patient</th> -->
                 <th style="text-align: center;">Questionnaires</th>
 
             </tr>
@@ -465,9 +465,9 @@
                         </span>
                     </div>
                 </td>
-                <td><button ng-show="appoint.SMSAlertNum && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
+                <!-- <td><button ng-show="appoint.SMSAlertNum && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
                     <button ng-show="appoint.SMSAlertNum && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td>
+                    <button ng-show="appoint.SMSAlertNum && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td> -->
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{appoint.QStatus}}"></span></button></center></td>
 
             </tr>

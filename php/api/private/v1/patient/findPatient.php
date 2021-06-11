@@ -4,20 +4,18 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient\Patient;
-use Orms\Hospital\OIE\Fetch;
 
 $ramq = $_GET["ramq"] ?? NULL;
 $mrn  = $_GET["mrn"] ?? NULL;
 $site = $_GET["site"] ?? NULL;
 
 //use the http params to fetch the patient from ORMS
-//if the patient doesn't exist in ORMS, try looking in the ADT
 $patient = NULL;
 if($mrn !== NULL && $site !== NULL) {
-    $patient = Patient::getPatientByMrn($mrn,$site) ?? Fetch::getExternalPatientByMrnAndSite($mrn,$site);
+    $patient = Patient::getPatientByMrn($mrn,$site);
 }
 elseif($ramq !== NULL) {
-    $patient = Patient::getPatientByInsurance($ramq,"RAMQ") ?? Fetch::getExternalPatientByRamq($ramq);
+    $patient = Patient::getPatientByInsurance($ramq,"RAMQ");
 }
 
 //if the patient was found, return it

@@ -49,17 +49,11 @@ class Appointment
 
         if($smsAppointmentId === NULL)
         {
-            //add-ons are created from existing appointment types
-            //however, there are restrictions on the frontend, allowing the creation of invalid add-ons
-            //so we disable inserting sms appointments for add-ons
-            if($system !== "InstantAddOn")
-            {
-                SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroupId,$system);
+            SmsAppointment::insertSmsAppointment($clinicId,$appCodeId,$specialityGroupId,$system);
 
-                Mail::sendEmail("ORMS - New appointment type detected",
-                    "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroupCode speciality group from system $system."
-                );
-            }
+            Mail::sendEmail("ORMS - New appointment type detected",
+                "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroupCode speciality group from system $system."
+            );
         }
 
         Database::getOrmsConnection()->prepare("

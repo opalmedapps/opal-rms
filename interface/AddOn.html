@@ -88,7 +88,6 @@ Click on any patient data to be brought to add-on page.
                     <td>RAMQ</td>
                     <td>RAMQ Expiration</td>
                     <td></td>
-                    <td></td>
                 </tr>
             </thead>
             <tbody>
@@ -101,7 +100,6 @@ Click on any patient data to be brought to add-on page.
                     <td>{{x.active}}</td>
                     <td>{{x.ramq}}</td>
                     <td>{{x.ramqExp}}</td>
-                    <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToAptAddOn(x)">Create Add-On</td>
                     <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
                 </tr>
             </tbody>
@@ -158,7 +156,7 @@ app.controller('main',function($scope,$http,$window,$location)
             ramq: $scope.ramq
         };
 
-        $http.get("/php/api/private/v1/patient/findPatientForAddOn.php", {params: params})
+        $http.get("/php/api/private/v1/patient/findPatient.php", {params: params})
         .then(response => {
             let patients = response.data.data;
             if(patients.length === 0) {
@@ -176,17 +174,6 @@ app.controller('main',function($scope,$http,$window,$location)
 
     $scope.resetPage = function(){
         window.location.reload();
-    }
-
-    $scope.sendToAptAddOn = function(data)
-    {
-        //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./AddOn_Post.html?"
-            +"first="+data.first
-            +"&last="+data.last
-            +"&mrn="+data.mrn
-            +"&site="+data.site;
-        $window.location.href = landingurl; //send user to apt add on
     }
 
     $scope.sendToSms = function(data)

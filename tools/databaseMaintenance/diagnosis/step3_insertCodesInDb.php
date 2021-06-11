@@ -56,7 +56,7 @@ function createDiagnosisCodeTable(PDO $dbh): void
             PRIMARY KEY (`DiagnosisCodeId`) USING BTREE,
             UNIQUE INDEX `Code` (`Code`) USING BTREE,
             INDEX `FK_DiagnosisCode_DiagnosisChapter` (`DiagnosisChapterId`) USING BTREE,
-            CONSTRAINT `FK_DiagnosisCode_DiagnosisChapter` FOREIGN KEY (`DiagnosisChapterId`) REFERENCES `OrmsDatabase`.`DiagnosisChapter` (`DiagnosisChapterId`) ON UPDATE RESTRICT ON DELETE RESTRICT
+            CONSTRAINT `FK_DiagnosisCode_DiagnosisChapter` FOREIGN KEY (`DiagnosisChapterId`) REFERENCES `DiagnosisChapter` (`DiagnosisChapterId`) ON UPDATE RESTRICT ON DELETE RESTRICT
         )
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB
@@ -76,7 +76,7 @@ function createDiagnosisSubcodeTable(PDO $dbh): void
             PRIMARY KEY (`DiagnosisSubcodeId`) USING BTREE,
             UNIQUE INDEX `Subcode` (`Subcode`) USING BTREE,
             INDEX `FK_DiagnosisSubcode_DiagnosisCode` (`DiagnosisCodeId`) USING BTREE,
-            CONSTRAINT `FK_DiagnosisSubcode_DiagnosisCode` FOREIGN KEY (`DiagnosisCodeId`) REFERENCES `OrmsDatabase`.`DiagnosisCode` (`DiagnosisCodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT
+            CONSTRAINT `FK_DiagnosisSubcode_DiagnosisCode` FOREIGN KEY (`DiagnosisCodeId`) REFERENCES `DiagnosisCode` (`DiagnosisCodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT
         )
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB
@@ -100,8 +100,8 @@ function createPatientDiagnosisTable(PDO $dbh): void
             PRIMARY KEY (`PatientDiagnosisId`) USING BTREE,
             INDEX `FK__Patient` (`PatientSerNum`) USING BTREE,
             INDEX `FK_PatientDiagnosis_DiagnosisSubcode` (`DiagnosisSubcodeId`) USING BTREE,
-            CONSTRAINT `FK_PatientDiagnosis_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `OrmsDatabase`.`DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-            CONSTRAINT `FK__Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
+            CONSTRAINT `FK_PatientDiagnosis_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK__Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT
         )
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB
@@ -127,9 +127,9 @@ function createPatientDiagnosisMHTable(PDO $dbh): void
             INDEX `FK__Patient` (`PatientSerNum`) USING BTREE,
             INDEX `FK_PatientDiagnosis_DiagnosisSubcode` (`DiagnosisSubcodeId`) USING BTREE,
             PRIMARY KEY (`PatientDiagnosisMHId`),
-            CONSTRAINT `FK_PatientDiagnosisMH_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `OrmsDatabase`.`DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-            CONSTRAINT `FK__PatientDiagnosisMH_Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `OrmsDatabase`.`Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-            CONSTRAINT `FK_PatientDiagnosisMH_PatientDiagnosis` FOREIGN KEY (`PatientDiagnosisId`) REFERENCES `OrmsDatabase`.`PatientDiagnosis` (`PatientDiagnosisId`)
+            CONSTRAINT `FK_PatientDiagnosisMH_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK__PatientDiagnosisMH_Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+            CONSTRAINT `FK_PatientDiagnosisMH_PatientDiagnosis` FOREIGN KEY (`PatientDiagnosisId`) REFERENCES `PatientDiagnosis` (`PatientDiagnosisId`)
         )
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB

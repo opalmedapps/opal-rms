@@ -64,12 +64,15 @@ class PatientTable
         //right now, there's only RVH mrns in the system
         $queryPatients = $dbh->prepare("
             SELECT
-                PatientSerNum AS id,
-                PatientId AS mrn
+                P.PatientSerNum AS id,
+                P.PatientId AS mrn
             FROM
-                Patient
+                Patient P
+                LEFT JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            WHERE
+                PH.PatientId IS NULL
             ORDER BY
-                PatientId
+                P.PatientId
         ");
         $queryPatients->execute();
         $patients = $queryPatients->fetchAll();

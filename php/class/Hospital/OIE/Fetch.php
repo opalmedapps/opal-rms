@@ -6,9 +6,9 @@ use Exception;
 use Orms\DateTime;
 use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Internal\Connection;
-use Orms\Hospital\OIE\Internal\ExternalInsurance;
 use Orms\Hospital\OIE\Internal\ExternalPatient;
 use Orms\Hospital\OIE\Internal\ExternalMrn;
+use Orms\Hospital\OIE\Internal\ExternalInsurance;
 
 class Fetch
 {
@@ -37,7 +37,11 @@ class Fetch
 
     private static function _generateExternalPatient(string $data): ExternalPatient
     {
-        $data = json_decode($data,TRUE);
+        $data = json_decode($data,TRUE)["data"];
+
+        foreach($data as &$x) {
+            if(ctype_space($x) || $x === "") $x = NULL;
+        }
 
         $mrns = array_map(function($x) {
             return new ExternalMrn(

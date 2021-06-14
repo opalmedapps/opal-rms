@@ -15,6 +15,7 @@ require_once __DIR__."/room/updateRooms.php";
 use Orms\Database;
 
 $dbh = Database::getOrmsConnection();
+//$dbh->query("SET NAMES UTF8;");
 
 //appointment changes
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
@@ -51,17 +52,8 @@ PatientIdentifiers::createPatientInsuranceIdentifierTable($dbh);
 PatientTable::addDateOfBirthColumn($dbh);
 PatientTable::updateSmsSignupDate($dbh);
 
-try {
-    $dbh->beginTransaction();
-    PatientTable::fixSmsDates($dbh);
-    PatientTable::migratePatientDemographics($dbh);
-    $dbh->commit();
-}
-catch(Exception $e) {
-    $dbh->rollBack();
-    throw $e;
-}
-
+PatientTable::fixSmsDates($dbh);
+PatientTable::migratePatientDemographics($dbh);
 PatientTable::removeDeprecatedPatientColumns($dbh);
 
 //speciality changes

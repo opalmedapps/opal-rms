@@ -110,7 +110,7 @@ class Insurance
         //check if the format of the incoming insurance is valid
         //if the format is empty or null, the insurance supplied will always match
         if(preg_match("/$format/",$insuranceNumber) !== 1) {
-            throw new Exception("Invalid mrn format!");
+            throw new Exception("Invalid insurance format for $insuranceNumber | $insuranceType");
         }
 
         //if the insurance doesn't exist, insert the new insurance

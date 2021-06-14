@@ -3,6 +3,8 @@
 namespace Orms\Hospital\OIE\Internal;
 
 use Orms\DateTime;
+use Orms\Hospital\OIE\Internal\ExternalMrn;
+use Orms\Hospital\OIE\Internal\ExternalInsurance;
 
 /** @psalm-immutable */
 class ExternalPatient
@@ -13,26 +15,5 @@ class ExternalPatient
         public Datetime $dateOfBirth,
         /** @var ExternalMrn[] $mrns */ public array $mrns,
         /** @var ExternalInsurance[] $insurances */ public array $insurances
-    ) {}
-}
-
-/** @psalm-immutable */
-class ExternalMrn
-{
-    function __construct(
-        public string $mrn,
-        public string $site,
-        public bool $active,
-    ) {}
-}
-
-/** @psalm-immutable */
-class ExternalInsurance
-{
-    function __construct(
-        public string $number,
-        public DateTime $expiration,
-        public string $type,
-        public bool $active
     ) {}
 }

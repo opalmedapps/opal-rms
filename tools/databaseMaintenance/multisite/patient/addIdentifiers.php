@@ -10,7 +10,7 @@ class PatientIdentifiers
             CREATE TABLE `Hospital` (
                 `HospitalId` INT(11) NOT NULL AUTO_INCREMENT,
                 `HospitalCode` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
-                `HospitalName` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
+                `HospitalName` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci',
                 `Format` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
                 PRIMARY KEY (`HospitalId`) USING BTREE,
                 UNIQUE INDEX `HospitalCode` (`HospitalCode`) USING BTREE
@@ -20,8 +20,11 @@ class PatientIdentifiers
         $dbh->query("
             INSERT INTO `Hospital` (`HospitalCode`, `HospitalName`, `Format`)
             VALUES
-                ('RVH', 'Royal Victoria Hospital', '^[0-9]{7}$');
-                ('MCH', 'Montreal Children\'s Hospital', '^[0-9]{7}$');
+                ('RVH', 'Royal Victoria Hospital', '^[0-9]{7}$'),
+                ('MCH', 'Montreal Children\'s Hospital', '^[0-9]{7}$'),
+                ('MGH', 'Montreal General Hospital', '^[0-9]{7}$'),
+                ('LAC', 'Lachine Hospital', '^[0-9]{7}$'),
+                ('CRE', 'Cree Board of Health and Social Services of James Bay', '^[0-9]{7}$')
         ");
     }
 

@@ -39,7 +39,7 @@
     <center><h1>MUHC ORMS Waiting Room Management System</h1></center><center><h2><u>Patient Finder</u></h2></center>
 
     <table border="0" width="50%" padding="5">
-        <tr><td valign="top"> Enter patient MRN or RAMQ. You will be brought to the appointment add-on or register sms page after selecting. </td></tr>
+        <tr><td valign="top"> Enter patient MRN or RAMQ to find a patient. You will then have the option to register the patient for sms. </td></tr>
     </table>
 <div ng-controller="main">
     <form ng-submit="fetchPatients()">
@@ -184,7 +184,7 @@ app.controller('main',function($scope,$http,$window,$location)
             +"&last="+data.last
             +"&mrn="+data.mrn
             +"&site="+data.site;
-        $window.location.href = landingurl; //send user to apt add on
+        $window.location.href = landingurl; //send user to url
     }
 
 });

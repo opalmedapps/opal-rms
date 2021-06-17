@@ -7,6 +7,7 @@ require_once __DIR__."/appointment/updateAppointmentSourceSystem.php";
 require_once __DIR__."/appointment/updateCodes.php";
 require_once __DIR__."/patient/addIdentifiers.php";
 require_once __DIR__."/patient/updatePatientTable.php";
+require_once __DIR__."/patient/updatePatientMeasurementTable.php";
 require_once __DIR__."/profile/updateProfiles.php";
 require_once __DIR__."/speciality/createSpecialityGroup.php";
 require_once __DIR__."/speciality/updateClinicHubs.php";
@@ -42,6 +43,10 @@ Profile::removeLegacyProfileColumns($dbh);
 
 //room changes
 Rooms::extendRoomNameLength($dbh);
+
+//patient measurement changes
+PatientMeasurementTable::linkPatientMeasurementTable($dbh);
+PatientMeasurementTable::updatePatientIdColumn($dbh);
 
 //patient changes
 PatientIdentifiers::createHospitalTable($dbh);

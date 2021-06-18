@@ -121,7 +121,7 @@ class Config
             $opal = new OpalConfig(
                 opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"],
                 opalAdminUsername:  $parsedData["opal"]["OPAL_ADMIN_USERNAME"],
-                opalAdminPassword: $parsedData["opal"]["OPAL_ADMIN_PASSWORD"]
+                opalAdminPassword:  $parsedData["opal"]["OPAL_ADMIN_PASSWORD"]
             );
         }
 

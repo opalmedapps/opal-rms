@@ -52,8 +52,8 @@ QUESTIONNAIRE_PASSWORD          =
 [opal]
 ENABLED                         =
 OPAL_ADMIN_URL                  =
-OPAL_ADMIN_USERNAME             = ORMS
-OPAL_ADMIN_PASSWORD             = Password1@
+OPAL_ADMIN_USERNAME             =
+OPAL_ADMIN_PASSWORD             =
 
 [sms]
 ENABLED                         =

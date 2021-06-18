@@ -19,59 +19,60 @@ $dbh = Database::getOrmsConnection();
 //$dbh->query("SET NAMES UTF8;");
 
 //appointment changes
-// AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
-// AppointmentSourceSystem::createSourceSystemKey($dbh);
-// AppointmentCodes::extendCodeLength($dbh);
-// AppointmentCodes::addDisplayColumn($dbh);
+AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
+AppointmentSourceSystem::createSourceSystemKey($dbh);
+AppointmentCodes::extendCodeLength($dbh);
+AppointmentCodes::addDisplayColumn($dbh);
 AppointmentCodes::correctSourceSystem($dbh);
 
-// try {
-//     $dbh->beginTransaction();
-//     AppointmentSourceSystem::removeAriaPrefixFromSourceId($dbh);
-//     AppointmentCodes::deleteAddOns($dbh);
-//     AppointmentCodes::fixAriaAppointmentCodes($dbh,__DIR__."/appointment/misnamed_appointment_codes.csv");
-//     $dbh->commit();
-// }
-// catch(Exception $e) {
-//     $dbh->rollBack();
-//     throw $e;
-// }
+try {
+    $dbh->beginTransaction();
+    AppointmentSourceSystem::removeAriaPrefixFromSourceId($dbh);
+    AppointmentCodes::deleteAddOns($dbh);
+    AppointmentCodes::fixAriaAppointmentCodes($dbh,__DIR__."/appointment/misnamed_appointment_codes.csv");
+    $dbh->commit();
+}
+catch(Exception $e) {
+    $dbh->rollBack();
+    throw $e;
+}
 
-// AppointmentForeignKeys::updateResourceCodeLinks($dbh);
+AppointmentForeignKeys::updateResourceCodeLinks($dbh);
 
-// // profile changes
-// Profile::removeLegacyProfileColumns($dbh);
+// profile changes
+Profile::removeLegacyProfileColumns($dbh);
 
-// //room changes
-// Rooms::extendRoomNameLength($dbh);
+//room changes
+Rooms::extendRoomNameLength($dbh);
 
-// //patient measurement changes
-// PatientMeasurementTable::linkPatientMeasurementTable($dbh);
-// PatientMeasurementTable::updatePatientIdColumn($dbh);
+//patient measurement changes
+PatientMeasurementTable::linkPatientMeasurementTable($dbh);
+PatientMeasurementTable::updatePatientIdColumn($dbh);
 
-// //patient changes
-// PatientIdentifiers::createHospitalTable($dbh);
-// PatientIdentifiers::createInsuranceTable($dbh);
-// PatientIdentifiers::createPatientHospitalIdentifierTable($dbh);
-// PatientIdentifiers::createPatientInsuranceIdentifierTable($dbh);
+//patient changes
+PatientIdentifiers::createHospitalTable($dbh);
+PatientIdentifiers::createInsuranceTable($dbh);
+PatientIdentifiers::createPatientHospitalIdentifierTable($dbh);
+PatientIdentifiers::createPatientInsuranceIdentifierTable($dbh);
 
-// PatientTable::addDateOfBirthColumn($dbh);
-// PatientTable::updateSmsSignupDate($dbh);
+PatientTable::addDateOfBirthColumn($dbh);
+PatientTable::updateSmsSignupDate($dbh);
 
-// PatientTable::fixSmsDates($dbh);
-// PatientTable::migratePatientDemographics($dbh);
-// PatientTable::removeDeprecatedPatientColumns($dbh);
+PatientTable::fixSmsDates($dbh);
+$unknownPatients = PatientTable::migratePatientDemographics($dbh);
+echo "$unknownPatients not matched in ADT\n";
+PatientTable::removeDeprecatedPatientColumns($dbh);
 
-// //speciality changes
-// SpecialityGroup::createSpecialityGroupTable($dbh);
-// SpecialityGroup::linkAppointmentCodeTable($dbh);
-// SpecialityGroup::linkClinicResourcesTable($dbh);
-// SpecialityGroup::linkProfileTable($dbh);
-// SpecialityGroup::linkSmsAppointmentTable($dbh);
-// SpecialityGroup::linkSmsMessageTable($dbh);
+//speciality changes
+SpecialityGroup::createSpecialityGroupTable($dbh);
+SpecialityGroup::linkAppointmentCodeTable($dbh);
+SpecialityGroup::linkClinicResourcesTable($dbh);
+SpecialityGroup::linkProfileTable($dbh);
+SpecialityGroup::linkSmsAppointmentTable($dbh);
+SpecialityGroup::linkSmsMessageTable($dbh);
 
-// //clinic hub changes
-// ClinicHubs::recreateClinicHubTable($dbh);
-// ClinicHubs::linkExamRoomTable($dbh);
-// ClinicHubs::linkIntermediateVenueTable($dbh);
-// ClinicHubs::unlinkProfileTable($dbh);
+//clinic hub changes
+ClinicHubs::recreateClinicHubTable($dbh);
+ClinicHubs::linkExamRoomTable($dbh);
+ClinicHubs::linkIntermediateVenueTable($dbh);
+ClinicHubs::unlinkProfileTable($dbh);

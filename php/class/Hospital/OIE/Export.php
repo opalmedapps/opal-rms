@@ -72,6 +72,7 @@ class Export
                 "site"          => $patient->getActiveMrns()[0]->site,
                 "source"        => "ORMS",
                 "rowId"         => $diagId,
+                "externalId"    => "ICD-10",
                 "code"          => $diagSubcode,
                 "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
                 "descriptionEn" => $descEn,
@@ -87,7 +88,22 @@ class Export
                 "mrn"           => $patient->getActiveMrns()[0]->mrn,
                 "site"          => $patient->getActiveMrns()[0]->site,
                 "source"        => "ORMS",
-                "rowId"         => $diagId
+                "rowId"         => $diagId,
+                "externalId"    => "ICD-10"
+            ]
+        ]);
+    }
+
+    static function exportDiagnosisCode(string $code,string $desc): void
+    {
+        Connection::getOpalHttpClient()?->request("POST","master-source/insert/diagnoses",[
+            "form_params" => [
+                [
+                    "source"        => "ORMS",
+                    "externalId"    => "ICD-10",
+                    "code"          => $code,
+                    "description"   => $desc
+                ]
             ]
         ]);
     }

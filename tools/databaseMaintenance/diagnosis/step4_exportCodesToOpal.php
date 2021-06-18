@@ -2,27 +2,13 @@
 
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\Hospital\OIE\Internal\Connection;
 use Orms\Diagnosis\DiagnosisInterface;
+use Orms\Hospital\OIE\Export;
 
 //get list of diagnosis codes in database
 $diagList = DiagnosisInterface::getDiagnosisCodeList();
 
 //export them to Opal
 foreach($diagList as $d) {
-    exportDiagnosisCode($d->id,$d->subcode,$d->subcodeDescription);
-}
-
-function exportDiagnosisCode(int $id,string $code,string $desc): void
-{
-    Connection::getOpalHttpClient()?->request("POST","master-source/insert/diagnoses",[
-        "form_params" => [
-            [
-                "source"        => "ORMS",
-                "externalId"    => $id,
-                "code"          => $code,
-                "description"   => $desc
-            ]
-        ]
-    ]);
+    Export::exportDiagnosisCode($d->subcode,$d->subcodeDescription);
 }

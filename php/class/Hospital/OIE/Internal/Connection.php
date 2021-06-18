@@ -35,8 +35,8 @@ class Connection
             "verify"        => FALSE,
         ]))->request("POST","user/system-login",[
             "form_params" => [
-                "username" => "ORMS",
-                "password" => "Password1@"
+                "username" => Config::getApplicationSettings()->opal?->opalAdminUsername,
+                "password" => Config::getApplicationSettings()->opal?->opalAdminPassword
             ],
             "cookies" => $cookies
         ]);

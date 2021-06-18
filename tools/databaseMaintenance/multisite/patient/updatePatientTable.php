@@ -2,6 +2,7 @@
 
 use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Fetch;
+use Orms\Hospital\OIE\Internal\ExternalPatient;
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
@@ -58,7 +59,7 @@ class PatientTable
         ");
     }
 
-    static function migratePatientDemographics(PDO $dbh): void
+    static function migratePatientDemographics(PDO $dbh): int
     {
         //get the list of all patients currently in ORMS
         //right now, there's only RVH mrns in the system
@@ -80,10 +81,30 @@ class PatientTable
         //find each patient in the ADT and update the db with the latest data
         foreach($patients as $p)
         {
-            $external = Fetch::getExternalPatientByMrnAndSite($p["mrn"],"RVH") ?? throw new Exception("Unknown patient RVH-{p['mrn']}");
+            $external = Fetch::getExternalPatientByMrnAndSite($p["mrn"],"RVH") ?? NULL;
+
+            if($external === NULL) {
+                continue;
+            }
 
             //find the patient in ORMS in order to update it
             $patient = Patient::getPatientById((int) $p["id"]) ?? throw new Exception("Unknown patient {$p['id']}");
+
+            //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
+            //start with the ramq
+            //we're only receiving ramqs right now, so no need to filter the insurances
+            $ramq = $patient->insurances[0]?->number;
+            $externalRamq = $external->insurances[0]?->number;
+
+            //if patient has no ramq, try using first name and last name instead
+            //if nothing matches, skip the patient
+            if($ramq === NULL || $externalRamq === NULL) {
+                if($patient->firstName !== $external->firstName
+                    || $patient->lastName !== $external->lastName
+                ) {
+                    continue;
+                }
+            }
 
             $patient = Patient::updateName($patient,$external->firstName,$external->lastName);
             $patient = Patient::updateDateOfBirth($patient,$external->dateOfBirth);
@@ -95,5 +116,9 @@ class PatientTable
                 $patient = Patient::updateInsurance($patient,$insurance->number,$insurance->type,$insurance->expiration,$insurance->active);
             }
         }
+
+        //return the number of patients that we weren't able to match in the ADT
+        $queryPatients->execute();
+        return count($queryPatients->fetchAll());
     }
 }

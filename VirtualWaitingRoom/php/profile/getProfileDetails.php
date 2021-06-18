@@ -169,8 +169,8 @@ foreach($examRooms as $val)
 //get page settings
 $configs = Config::getApplicationSettings();
 
-$json["FirebaseUrl"] = $configs->system->firebaseUrl;
-$json["FirebaseSecret"] = $configs->system->firebaseSecret;
+$json["FirebaseUrl"] = $configs->environment->firebaseUrl;
+$json["FirebaseSecret"] = $configs->environment->firebaseSecret;
 
 $json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/checkin/{$profile['Speciality']}.json";
 

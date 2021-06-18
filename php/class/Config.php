@@ -3,7 +3,6 @@
 namespace Orms;
 
 use Exception;
-use TypeError;
 
 Config::__init();
 
@@ -21,8 +20,7 @@ class Config
         public ?DatabaseConfig $opalDb,
         public ?DatabaseConfig $questionnaireDb,
         public ?OpalConfig $opal,
-        public ?AriaConfig $aria,
-        public ?MuhcConfig $muhc,
+        public ?AriaConfig $aria
     ) {}
 
     public static function getApplicationSettings(): Config
@@ -42,14 +40,14 @@ class Config
             imagePath:      $parsedData["path"]["IMAGE_PATH"],
             imageUrl:       $parsedData["path"]["IMAGE_URL"],
             logPath:        $parsedData["path"]["LOG_PATH"],
+            firebaseUrl:    $parsedData["path"]["FIREBASE_URL"],
+            firebaseSecret: $parsedData["path"]["FIREBASE_SECRET"],
             oieUrl:         $parsedData["path"]["OIE_URL"] ?? NULL,
             highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL
         );
 
         $system = new SystemConfig(
             emails:          $parsedData["alert"]["EMAIL"] ?? [],
-            firebaseUrl:     $parsedData["vwr"]["FIREBASE_URL"],
-            firebaseSecret:  $parsedData["vwr"]["FIREBASE_SECRET"],
             sendWeights:     (bool) ($parsedData["vwr"]["SEND_WEIGHTS"] ?? FALSE)
         );
 
@@ -72,7 +70,10 @@ class Config
         );
 
         //create optional configs
-        try {
+        if((bool) $parsedData["database"]["OPAL_DB_ENABLED"] === FALSE) {
+            $opalDb = NULL;
+        }
+        else {
             $opalDb = new DatabaseConfig(
                 type:           $parsedData["database"]["OPAL_TYPE"],
                 host:           $parsedData["database"]["OPAL_HOST"],
@@ -81,9 +82,12 @@ class Config
                 username:       $parsedData["database"]["OPAL_USERNAME"],
                 password:       $parsedData["database"]["OPAL_PASSWORD"],
             );
-        } catch(TypeError) {$opalDb = NULL;}
+        }
 
-        try {
+        if((bool) $parsedData["database"]["QUESTIONNAIRE_DB_ENABLED"] === FALSE) {
+            $questionnaireDb = NULL;
+        }
+        else {
             $questionnaireDb = new DatabaseConfig(
                 type:           $parsedData["database"]["QUESTIONNAIRE_TYPE"],
                 host:           $parsedData["database"]["QUESTIONNAIRE_HOST"],
@@ -93,11 +97,12 @@ class Config
                 password:       $parsedData["database"]["QUESTIONNAIRE_PASSWORD"],
             );
         }
-        catch(TypeError) {$questionnaireDb = NULL;}
 
-        try {
+        if((bool) $parsedData["sms"]["ENABLED"] === FALSE) {
+            $sms = NULL;
+        }
+        else {
             $sms = new SmsConfig(
-                enabled:                        (bool) $parsedData["sms"]["ENABLED"],
                 provider:                       $parsedData["sms"]["PROVIDER"],
                 licenceKey:                     $parsedData["sms"]["LICENCE_KEY"],
                 token:                          $parsedData["sms"]["TOKEN"] ?? "",
@@ -107,25 +112,26 @@ class Config
                 unknownCommandMessageEnglish:   $parsedData["sms"]["UNKNOWN_COMMAND_MESSAGE_EN"],
                 unknownCommandMessageFrench:    $parsedData["sms"]["UNKNOWN_COMMAND_MESSAGE_FR"],
             );
-        } catch(TypeError) {$sms = NULL;}
+        }
 
-        try {
+        if($parsedData["opal"]["OPAL_ADMIN_URL"] === NULL) {
+            $opal = NULL;
+        }
+        else {
             $opal = new OpalConfig(
-                opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"]
+                opalAdminUrl: $parsedData["opal"]["OPAL_ADMIN_URL"]
             );
-        } catch(TypeError) {$opal = NULL;}
+        }
 
-        try {
+        if((bool) $parsedData["aria"]["ENABLED"] === FALSE) {
+            $aria = NULL;
+        }
+        else {
             $aria = new AriaConfig(
                 checkInUrl: $parsedData["aria"]["ARIA_CHECKIN_URL"],
+                photoUrl:   $parsedData["aria"]["PHOTO_URL"]
             );
-        } catch(TypeError) {$aria = NULL;}
-
-        try {
-            $muhc = new MuhcConfig(
-                pdsUrl: $parsedData["muhc"]["PDS_URL"],
-            );
-        } catch(TypeError) {$muhc = NULL;}
+        }
 
         self::$self = new self(
             environment:        $environment,
@@ -136,13 +142,12 @@ class Config
             questionnaireDb:    $questionnaireDb,
             sms:                $sms,
             opal:               $opal,
-            aria:               $aria,
-            muhc:               $muhc,
+            aria:               $aria
         );
     }
 
     /**
-     * Function to convert all empty string in an assoc array into nulls
+     * Function to convert all empty strings in an assoc array into nulls
      * @param array<string|string[]> $arr
      * @return mixed[]
      */
@@ -167,6 +172,8 @@ class EnvironmentConfig
         public string $imagePath,
         public string $imageUrl,
         public string $logPath,
+        public string $firebaseUrl,
+        public string $firebaseSecret,
         public ?string $oieUrl,
         public ?string $highchartsUrl
     ) {}
@@ -192,8 +199,6 @@ class SystemConfig
 
     function __construct(
         public array $emails,
-        public string $firebaseUrl,
-        public string $firebaseSecret,
         public bool $sendWeights
     ) {}
 }
@@ -206,7 +211,6 @@ class SmsConfig
      */
 
     function __construct(
-        public bool $enabled,
         public string $provider,
         public string $licenceKey,
         public string $token,
@@ -227,18 +231,10 @@ class OpalConfig
 }
 
 /** @psalm-immutable */
-class MuhcConfig
-{
-    function __construct(
-        public string $pdsUrl,
-    ) {}
-}
-
-/** @psalm-immutable */
 class AriaConfig
 {
     function __construct(
         public string $checkInUrl,
-        //public string photoUrl //not being used in php, only perl
+        public string $photoUrl //not being used in php, only perl
     ) {}
 }

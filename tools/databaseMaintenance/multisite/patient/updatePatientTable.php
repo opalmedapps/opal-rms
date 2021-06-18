@@ -93,8 +93,8 @@ class PatientTable
             //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
             //start with the ramq
             //we're only receiving ramqs right now, so no need to filter the insurances
-            $ramq = $patient->insurances[0]?->number;
-            $externalRamq = $external->insurances[0]?->number;
+            $ramq = $patient->insurances[0]->number ?? NULL;
+            $externalRamq = $external->insurances[0]->number ?? NULL;
 
             //if patient has no ramq, try using first name and last name instead
             //if nothing matches, skip the patient

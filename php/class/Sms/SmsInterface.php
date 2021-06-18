@@ -37,7 +37,7 @@ class SmsInterface
      */
     static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): void
     {
-        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return;
+        if(self::$configs === NULL) return;
 
         #by default, we send sms using Twilio
         if($serviceNumber === NULL) {
@@ -75,7 +75,7 @@ class SmsInterface
      */
     static function getNewReceivedMessages(DateTime $timestamp): array
     {
-        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return [];
+        if(self::$configs === NULL) return [];
 
         $messages = self::$smsProvider->getReceivedMessages(self::$configs->longCodes,$timestamp);
         $messages = array_filter($messages,function($x) {
@@ -108,7 +108,7 @@ class SmsInterface
      */
     static function getPossibleSmsMessages(): array
     {
-        if(self::$configs === NULL || self::$configs->enabled !== TRUE) return [];
+        if(self::$configs === NULL) return [];
 
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("

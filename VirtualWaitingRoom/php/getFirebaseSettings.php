@@ -5,7 +5,7 @@ require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
 
-$configs = Config::getApplicationSettings()->system;
+$configs = Config::getApplicationSettings()->environment;
 
 echo json_encode([
     "FirebaseUrl"       => $configs->firebaseUrl,

@@ -8,10 +8,14 @@ IMAGE_PATH                      =
 IMAGE_URL                       =
 LOG_PATH                        =
 
+FIREBASE_URL                    =
+FIREBASE_SECRET                 =
+
 OIE_URL                         =
 HIGHCHARTS_URL                  =
 
-[alert]
+[system]
+SEND_WEIGHTS                    =
 EMAIL[]                         =
 
 [database]
@@ -29,6 +33,7 @@ LOG_DB                          =
 LOG_USERNAME                    =
 LOG_PASSWORD                    =
 
+OPAL_DB_ENABLED                 =
 OPAL_TYPE                       =
 OPAL_HOST                       =
 OPAL_PORT                       =
@@ -36,6 +41,7 @@ OPAL_DB                         =
 OPAL_USERNAME                   =
 OPAL_PASSWORD                   =
 
+QUESTIONNAIRE_DB_ENABLED        =
 QUESTIONNAIRE_TYPE              =
 QUESTIONNAIRE_HOST              =
 QUESTIONNAIRE_PORT              =
@@ -57,14 +63,7 @@ FAILED_CHECK_IN_MESSAGE_FR      =
 UNKNOWN_COMMAND_MESSAGE_EN      =
 UNKNOWN_COMMAND_MESSAGE_FR      =
 
-[vwr]
-FIREBASE_URL                    =
-FIREBASE_SECRET                 =
-SEND_WEIGHTS                    =
-
 [aria]
+ENABLED                         =
 ARIA_CHECKIN_URL                =
 PHOTO_URL                       =
-
-[muhc]
-PDS_URL                         =

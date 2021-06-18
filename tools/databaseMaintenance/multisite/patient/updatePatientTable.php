@@ -2,7 +2,6 @@
 
 use Orms\Patient\Patient;
 use Orms\Hospital\OIE\Fetch;
-use Orms\Hospital\OIE\Internal\ExternalPatient;
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 

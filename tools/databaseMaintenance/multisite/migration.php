@@ -16,7 +16,6 @@ require_once __DIR__."/room/updateRooms.php";
 use Orms\Database;
 
 $dbh = Database::getOrmsConnection();
-//$dbh->query("SET NAMES UTF8;");
 
 //appointment changes
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);

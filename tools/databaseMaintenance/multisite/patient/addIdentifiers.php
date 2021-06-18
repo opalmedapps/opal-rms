@@ -61,11 +61,13 @@ class PatientIdentifiers
             )
         ");
 
+        $dbh->query("SET NAMES utf8mb4;");
         $dbh->query("
             INSERT INTO `Insurance` (`InsuranceCode`, `InsuranceName`, `Format`)
             VALUES
                 ('RAMQ', 'Régie de l\'assurance maladie du Québec', '^[a-zA-Z]{4}[0-9]{8}$');
         ");
+        $dbh->query("SET NAMES latin1_swedish_ci;");
     }
 
     static function createPatientInsuranceIdentifierTable(PDO $dbh): void

@@ -22,6 +22,41 @@ class AppointmentCodes
         ");
     }
 
+    static function correctSourceSystem(PDO $dbh): void
+    {
+        $dbh->query("
+            UPDATE AppointmentCode
+            SET
+                SourceSystem = 'MEDIVISIT'
+            WHERE
+                SourceSystem = 'Medivisit'
+        ");
+
+        $dbh->query("
+            UPDATE ClinicResources
+            SET
+                SourceSystem = 'MEDIVISIT'
+            WHERE
+                SourceSystem = 'Medivisit'
+        ");
+
+        $dbh->query("
+            UPDATE MediVisitAppointmentList
+            SET
+                AppointSys = 'MEDIVISIT'
+            WHERE
+                AppointSys = 'Medivisit'
+        ");
+
+        $dbh->query("
+            UPDATE SmsAppointment
+            SET
+                SourceSystem = 'MEDIVISIT'
+            WHERE
+                SourceSystem = 'Medivisit'
+        ");
+    }
+
     //opens a file containing Aria appointment codes and descriptions and updates ORMS to use the appointment code instead of the description
     static function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
     {

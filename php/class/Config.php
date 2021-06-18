@@ -70,7 +70,7 @@ class Config
         );
 
         //create optional configs
-        if((bool) $parsedData["database"]["OPAL_DB_ENABLED"] === FALSE) {
+        if((bool) $parsedData["database"]["OPAL_DB_ENABLED"] !== TRUE) {
             $opalDb = NULL;
         }
         else {
@@ -84,7 +84,7 @@ class Config
             );
         }
 
-        if((bool) $parsedData["database"]["QUESTIONNAIRE_DB_ENABLED"] === FALSE) {
+        if((bool) $parsedData["database"]["QUESTIONNAIRE_DB_ENABLED"] !== TRUE) {
             $questionnaireDb = NULL;
         }
         else {
@@ -98,7 +98,7 @@ class Config
             );
         }
 
-        if((bool) $parsedData["sms"]["ENABLED"] === FALSE) {
+        if((bool) $parsedData["sms"]["ENABLED"] !== TRUE) {
             $sms = NULL;
         }
         else {
@@ -114,16 +114,18 @@ class Config
             );
         }
 
-        if($parsedData["opal"]["OPAL_ADMIN_URL"] === NULL) {
+        if((bool) $parsedData["opal"]["ENABLED"] !== TRUE) {
             $opal = NULL;
         }
         else {
             $opal = new OpalConfig(
-                opalAdminUrl: $parsedData["opal"]["OPAL_ADMIN_URL"]
+                opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"],
+                opalAdminUsername:  $parsedData["opal"]["OPAL_ADMIN_USERNAME"],
+                opalAdminPassword: $parsedData["opal"]["OPAL_ADMIN_PASSWORD"]
             );
         }
 
-        if((bool) $parsedData["aria"]["ENABLED"] === FALSE) {
+        if((bool) $parsedData["aria"]["ENABLED"] !== TRUE) {
             $aria = NULL;
         }
         else {
@@ -226,7 +228,9 @@ class SmsConfig
 class OpalConfig
 {
     function __construct(
-        public string $opalAdminUrl
+        public string $opalAdminUrl,
+        public string $opalAdminUsername,
+        public string $opalAdminPassword
     ) {}
 }
 

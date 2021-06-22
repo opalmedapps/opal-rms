@@ -50,7 +50,7 @@ QUESTIONNAIRE_USERNAME          =
 QUESTIONNAIRE_PASSWORD          =
 
 [opal]
-ENABLED
+ENABLED                         =
 OPAL_ADMIN_URL                  =
 OPAL_ADMIN_USERNAME             =
 OPAL_ADMIN_PASSWORD             =

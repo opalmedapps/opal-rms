@@ -28,6 +28,7 @@ try {
     $dbh->beginTransaction();
     AppointmentSourceSystem::removeAriaPrefixFromSourceId($dbh);
     AppointmentCodes::deleteAddOns($dbh);
+    AppointmentCodes::fixZoomAppointments($dbh);
     AppointmentCodes::fixAriaAppointmentCodes($dbh,__DIR__."/appointment/misnamed_appointment_codes.csv");
     $dbh->commit();
 }

@@ -57,6 +57,102 @@ class AppointmentCodes
         ");
     }
 
+    //merges Aria zoom and teams appointments
+    //the zoom appointments are merged into the teams ones
+    static function fixZoomAppointments(PDO $dbh): void
+    {
+        //get the teams codes that we need to merge
+        $queryTeams = $dbh->prepare("
+            SELECT
+                AppointmentCodeId,
+                AppointmentCode
+            FROM
+                AppointmentCode
+            WHERE
+                AppointmentCode IN (
+                    'FOLLOW UP TEAMS MORE/30 DAYS',
+                    'FOLLOW UP TEAMS LESS/30 DAYS',
+                    'CONSULT RETURN TEAMS',
+                    'CONSULT NEW TEAMS'
+                )
+        ");
+        $queryTeams->execute();
+
+        $queryZoom = $dbh->prepare("
+            SELECT
+                AppointmentCodeId,
+                AppointmentCode
+            FROM
+                AppointmentCode
+            WHERE
+                AppointmentCode = ?
+        ");
+
+        $codes = [];
+        foreach($queryTeams->fetchAll() as $x)
+        {
+            //get the associated zoom code
+            $queryZoom->execute([str_replace("TEAMS","ZOOM",$x["AppointmentCode"])]);
+            $zoomCode = $queryZoom->fetchAll()[0] ?? NULL;
+
+            if($zoomCode !== NULL) {
+                $codes[] = [
+                    "teamsId"   => $x["AppointmentCodeId"],
+                    "teamsCode" => $x["AppointmentCode"],
+                    "zoomId"    => $zoomCode["AppointmentCodeId"],
+                    "zoomCode"  => $zoomCode["AppointmentCode"]
+                ];
+            }
+        }
+
+        //perform the merges
+        $updateMergeAppointments = $dbh->prepare("
+            UPDATE MediVisitAppointmentList
+            SET AppointmentCodeId = :newCode
+            WHERE AppointmentCodeId = :oldCode
+        ");
+
+        $updateMergeSms = $dbh->prepare("
+            UPDATE IGNORE SmsAppointment
+            SET
+                AppointmentCodeId = :newCode,
+                Type = NULL,
+                Active = 0
+            WHERE AppointmentCodeId = :oldCode
+        ");
+
+        $deleteSms = $dbh->prepare("
+            DELETE FROM SmsAppointment
+            WHERE AppointmentCodeId = :oldCode;
+        ");
+
+        $deleteCode = $dbh->prepare("
+            DELETE FROM AppointmentCode
+            WHERE AppointmentCodeId = :oldCode
+        ");
+
+        foreach($codes as $x)
+        {
+            $updateMergeAppointments->execute([
+                ":newCode" => $x["teamsId"],
+                ":oldCode" => $x["zoomId"]
+            ]);
+
+            $updateMergeSms->execute([
+                ":newCode" => $x["teamsId"],
+                ":oldCode" => $x["zoomId"]
+            ]);
+
+            $deleteSms->execute([
+                ":oldCode" => $x["zoomId"]
+            ]);
+
+            $deleteCode->execute([
+                ":oldCode" => $x["zoomId"]
+            ]);
+        }
+    }
+
     //opens a file containing Aria appointment codes and descriptions and updates ORMS to use the appointment code instead of the description
     static function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
     {

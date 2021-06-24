@@ -67,7 +67,7 @@ class PatientIdentifiers
             VALUES
                 ('RAMQ', 'Régie de l\'assurance maladie du Québec', '^[a-zA-Z]{4}[0-9]{8}$');
         ");
-        $dbh->query("SET NAMES latin1_swedish_ci;");
+        $dbh->query("SET NAMES latin1;");
     }
 
     static function createPatientInsuranceIdentifierTable(PDO $dbh): void

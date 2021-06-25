@@ -58,7 +58,7 @@ class PatientTable
         ");
     }
 
-    static function migratePatientDemographics(PDO $dbh): int
+    static function migratePatientDemographics(PDO $dbh,bool $runWithChecks = TRUE): int
     {
         //get the list of all patients currently in ORMS
         //right now, there's only RVH mrns in the system
@@ -92,6 +92,10 @@ class PatientTable
                 print_r(["Unknown patient $mrn ($id)"]);
                 continue;
             }
+            catch(TypeError) {
+                print_r(["ADT call failed for $mrn ($id)"]);
+                continue;
+            }
 
             if($external === NULL) {
                 print_r(["Unknown patient $mrn ($id)"]);
@@ -101,36 +105,39 @@ class PatientTable
             //find the patient in ORMS in order to update it
             $patient = Patient::getPatientById($id) ?? throw new Exception("Unknown patient $mrn");
 
-            //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
-            //start with the ramq
-            //we're only receiving ramqs right now, so no need to filter the insurances
-            $externalRamq = $external->insurances[0]->number ?? NULL;
-
-            //if patient has no ramq, try using first name and last name instead
-            //if the last names match, and the first name from one object is contained in the other, then it's most likely the same patient
-            //if nothing matches, skip the patient
-            if($ramq === NULL || $externalRamq === NULL || $ramq !== $externalRamq)
+            if($runWithChecks === TRUE)
             {
-                if($patient->lastName !== $external->lastName) {
-                    print_r([
-                        $patient->firstName,$external->firstName,
-                        $patient->lastName,$external->lastName,
-                        $ramq,$externalRamq,
-                        $mrn,$id
-                    ]);
-                    continue;
-                }
+                //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
+                //start with the ramq
+                //we're only receiving ramqs right now, so no need to filter the insurances
+                $externalRamq = $external->insurances[0]->number ?? NULL;
 
-                if(str_contains($patient->firstName,$external->firstName) === FALSE
-                    && str_contains($external->firstName,$patient->firstName) === FALSE
-                ) {
-                    print_r([
-                        $patient->firstName,$external->firstName,
-                        $patient->lastName,$external->lastName,
-                        $ramq,$externalRamq,
-                        $mrn,$id
-                    ]);
-                    continue;
+                //if patient has no ramq, try using first name and last name instead
+                //if the last names match, and the first name from one object is contained in the other, then it's most likely the same patient
+                //if nothing matches, skip the patient
+                if($ramq === NULL || $externalRamq === NULL || $ramq !== $externalRamq)
+                {
+                    if($patient->lastName !== $external->lastName) {
+                        print_r([
+                            "$patient->firstName | $external->firstName",
+                            "$patient->lastName | $external->lastName",
+                            "$ramq <> $externalRamq",
+                            "$mrn ($id)"
+                        ]);
+                        continue;
+                    }
+
+                    if(str_contains($patient->firstName,$external->firstName) === FALSE
+                        && str_contains($external->firstName,$patient->firstName) === FALSE
+                    ) {
+                        print_r([
+                            "$patient->firstName | $patient->lastName ",
+                            "$external->firstName | $external->lastName",
+                            "$ramq <> $externalRamq",
+                            "$mrn ($id)"
+                        ]);
+                        continue;
+                    }
                 }
             }
 

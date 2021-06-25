@@ -37,6 +37,7 @@ catch(Exception $e) {
     throw $e;
 }
 
+AppointmentForeignKeys::updatePatientTableLink($dbh);
 AppointmentForeignKeys::updateResourceCodeLinks($dbh);
 
 // profile changes
@@ -61,6 +62,17 @@ PatientTable::updateSmsSignupDate($dbh);
 PatientTable::fixSmsDates($dbh);
 $unknownPatients = PatientTable::migratePatientDemographics($dbh);
 echo "$unknownPatients not matched in ADT\n";
+
+$userInput = NULL;
+while($userInput !== "CONTINUE")
+{
+    echo "Please verify the unknown patients and then type 'CONTINUE'\n";
+    $userInput = readline();
+}
+
+$unknownPatients = PatientTable::migratePatientDemographics($dbh,FALSE);
+echo "$unknownPatients not matched in ADT\n";
+
 PatientTable::removeDeprecatedPatientColumns($dbh);
 
 //speciality changes

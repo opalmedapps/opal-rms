@@ -365,8 +365,8 @@ class Opal
                     AND PH.MRN = :mrn
         ");
         $query->execute([
-            ":site" => $mrn->mrn,
-            ":mrn"  => $mrn->site
+            ":mrn"  => $mrn->mrn,
+            ":site" => $mrn->site
         ]);
 
         return $query->fetchAll()[0] ?? NULL;

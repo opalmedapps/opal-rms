@@ -5,7 +5,7 @@
 require_once __DIR__ ."/../vendor/autoload.php";
 
 use GetOpt\GetOpt;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;

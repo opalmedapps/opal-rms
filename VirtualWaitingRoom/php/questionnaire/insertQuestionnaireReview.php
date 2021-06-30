@@ -6,7 +6,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 #extract the webpage parameters
 $patientId          = $_GET["patientId"] ?? NULL;

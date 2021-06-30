@@ -5,7 +5,7 @@ namespace Orms\Patient;
 use Exception;
 
 use Orms\DataAccess\PatientAccess;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\Internal\Mrn;
 use Orms\Patient\Internal\Insurance;

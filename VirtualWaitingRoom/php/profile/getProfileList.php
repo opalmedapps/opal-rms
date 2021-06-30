@@ -4,7 +4,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 //get webpage parameters
 $category = Encoding::utf8_decode_recursive($_GET['category'] ?? NULL);

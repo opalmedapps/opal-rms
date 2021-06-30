@@ -10,7 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\SmsConfig;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Sms\Internal\{SmsTwilio,SmsCdyne,SmsClassInterface,SmsReceivedMessage};
 use Orms\Util\ArrayUtil;
 use Orms\System\Logger;

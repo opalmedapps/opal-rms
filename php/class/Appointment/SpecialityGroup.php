@@ -3,7 +3,7 @@
 namespace Orms\Appointment;
 
 use Exception;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 class SpecialityGroup
 {

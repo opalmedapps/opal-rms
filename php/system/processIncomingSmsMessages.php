@@ -3,7 +3,7 @@
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Sms\SmsInterface;
 use Orms\Patient\PatientInterface;
 use Orms\Appointment\Location;

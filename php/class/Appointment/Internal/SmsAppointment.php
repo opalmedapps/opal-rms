@@ -2,7 +2,7 @@
 
 namespace Orms\Appointment\Internal;
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 class SmsAppointment
 {

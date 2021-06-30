@@ -4,7 +4,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 //get webpage parameters
 $speciality = $_GET['speciality'];

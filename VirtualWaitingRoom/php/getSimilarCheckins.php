@@ -6,7 +6,7 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 // Extract the webpage parameters
 $firstName = $_GET["firstName"];

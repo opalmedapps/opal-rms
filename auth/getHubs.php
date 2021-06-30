@@ -4,7 +4,7 @@
 require __DIR__."/../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 $dbh = Database::getOrmsConnection();
 $query = $dbh->prepare("

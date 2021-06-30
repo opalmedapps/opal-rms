@@ -4,7 +4,7 @@ namespace Orms\DataAccess;
 
 use PDO;
 use Exception;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\Patient;
 

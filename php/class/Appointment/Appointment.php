@@ -4,7 +4,7 @@ namespace Orms\Appointment;
 
 use Orms\Patient\Patient;
 use Orms\DateTime;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Appointment\SpecialityGroup;
 use Orms\Appointment\Internal\ClinicResource;
 use Orms\Appointment\Internal\AppointmentCode;

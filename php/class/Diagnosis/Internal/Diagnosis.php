@@ -5,7 +5,7 @@ namespace Orms\Diagnosis\Internal;
 use Exception;
 use PDOException;
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 /** @psalm-immutable */
 class Diagnosis

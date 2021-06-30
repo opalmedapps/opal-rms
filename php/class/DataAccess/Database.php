@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace Orms;
+namespace Orms\DataAccess;
 
 use PDO;
 
 use Orms\Config;
-use PDOException;
+use Orms\DatabaseConfig;
 
 //returns db connection handles to a requested database
 class Database

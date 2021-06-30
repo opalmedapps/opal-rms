@@ -6,7 +6,7 @@ namespace Orms\Hospital;
 use PDOException;
 
 use Orms\Config;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Patient\Patient;
 
 class Opal

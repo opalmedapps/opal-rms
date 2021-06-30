@@ -7,7 +7,7 @@
 require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 //connect to databases
 $dbh = Database::getOrmsConnection();

@@ -3,7 +3,7 @@
 #insert diagnosis codes in database
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 $data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json") ?: "",TRUE);
 

@@ -13,7 +13,7 @@ require_once __DIR__."/speciality/createSpecialityGroup.php";
 require_once __DIR__."/speciality/updateClinicHubs.php";
 require_once __DIR__."/room/updateRooms.php";
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 $dbh = Database::getOrmsConnection();
 

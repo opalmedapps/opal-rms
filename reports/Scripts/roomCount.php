@@ -20,7 +20,7 @@ require __DIR__ ."/../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Util\ArrayUtil;
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 #parse input parameters
 $sDate  = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";

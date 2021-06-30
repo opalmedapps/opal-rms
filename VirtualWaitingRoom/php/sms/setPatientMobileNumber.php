@@ -6,7 +6,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Sms\SmsInterface;
 
 #extract the webpage parameters

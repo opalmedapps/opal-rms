@@ -3,7 +3,7 @@
 namespace Orms\System;
 
 use \DateTime;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use PDOException;
 
 class Logger

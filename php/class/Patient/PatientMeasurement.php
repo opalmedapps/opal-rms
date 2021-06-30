@@ -2,7 +2,7 @@
 
 namespace Orms\Patient;
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\PatientInterface;
 

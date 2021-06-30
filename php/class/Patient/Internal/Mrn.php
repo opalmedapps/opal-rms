@@ -2,7 +2,7 @@
 
 namespace Orms\Patient\Internal;
 
-use Orms\Database;
+use Orms\DataAccess\Database;
 
 /** @psalm-immutable */
 class Mrn

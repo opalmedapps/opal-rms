@@ -4,7 +4,7 @@ require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Util\ArrayUtil;
-use Orms\Database;
+use Orms\DataAccess\Database;
 use Orms\Sms\SmsInterface;
 
 #get the list of appointments to process

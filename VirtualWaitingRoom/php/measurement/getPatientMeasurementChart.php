@@ -4,12 +4,12 @@
 
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Document\Measurement\Generator;
 
 $patientId = (int) ($_GET["patientId"] ?? NULL);
 
-$patient = Patient::getPatientById($patientId);
+$patient = PatientInterface::getPatientById($patientId);
 
 if($patient === NULL) {
     http_response_code(400);

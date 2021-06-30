@@ -7,9 +7,8 @@ require_once __DIR__ ."/../vendor/autoload.php";
 use GetOpt\GetOpt;
 use Orms\Database;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;
-use Respect\Validation\Rules\Date;
 
 //get csv file name from command line arguments and load it
 $opts = new GetOpt([
@@ -21,7 +20,7 @@ $opts->process();
 $mrn = $opts->getOption("mrn") ?? "";
 $site = $opts->getOption("site") ?? "";
 
-$patient = Patient::getPatientByMrn($mrn,$site) ?? throw new Exception("Unknown patient");
+$patient = PatientInterface::getPatientByMrn($mrn,$site) ?? throw new Exception("Unknown patient");
 
 $dbh = Database::getOrmsConnection();
 

@@ -4,7 +4,7 @@ namespace Orms\Patient;
 
 use Orms\Database;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 
 /** @psalm-immutable */
 class PatientMeasurement

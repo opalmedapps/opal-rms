@@ -6,7 +6,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Patient\PatientMeasurement;
 use Orms\Hospital\OIE\Export;
 
@@ -17,7 +17,7 @@ $bsa           = $_GET["bsa"] ?? NULL;
 $sourceId      = $_GET["sourceId"] ?? NULL;
 $sourceSystem  = $_GET["sourceSystem"] ?? NULL;
 
-$patient = Patient::getPatientById($patientId);
+$patient = PatientInterface::getPatientById($patientId);
 
 if($patient === NULL) {
     http_response_code(400);

@@ -5,7 +5,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 try {
     $fields = Http::parseApiInputs();
 }
@@ -23,6 +23,6 @@ $potentialPatient = new class(
     ) {}
 };
 
-$patientFound = Patient::getPatientByMrn($potentialPatient->mrn,$potentialPatient->site) !== NULL;
+$patientFound = PatientInterface::getPatientByMrn($potentialPatient->mrn,$potentialPatient->site) !== NULL;
 
 Http::generateResponseJsonAndExit(200,$patientFound);

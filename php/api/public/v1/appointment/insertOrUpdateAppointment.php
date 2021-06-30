@@ -5,7 +5,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;
 use Orms\DateTime;
 use Orms\Util\Encoding;
@@ -71,7 +71,7 @@ class AppClinic
     ) {}
 }
 
-$patient = Patient::getPatientByMrn($appointment->mrn,$appointment->site);
+$patient = PatientInterface::getPatientByMrn($appointment->mrn,$appointment->site);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");

@@ -11,7 +11,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Hospital\Opal;
 
 $patientId = $_GET["patientId"] ?? NULL;
@@ -20,7 +20,7 @@ if($patientId === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Empty id");
 }
 
-$patient = Patient::getPatientById((int) $patientId);
+$patient = PatientInterface::getPatientById((int) $patientId);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");

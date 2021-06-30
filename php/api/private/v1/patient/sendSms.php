@@ -10,7 +10,7 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use GetOpt\GetOpt;
 
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 
 // Extract the command line parameters
@@ -30,19 +30,19 @@ if($patientId === NULL || $messageEN === NULL || $messageFR === NULL) {
     exit("Missing arguments!");
 }
 
-$patient = Patient::getPatientById((int) $patientId);
+$patient = PatientInterface::getPatientById((int) $patientId);
 
 if($patient === NULL) {
     exit("Unknown patient");
 }
 
-if($patient->smsNum === NULL || $patient->languagePreference === NULL) {
+if($patient->phoneNumber === NULL || $patient->languagePreference === NULL) {
     exit("No SMS alert phone number so will not attempt to send");
 }
 
 //send the sms
 SmsInterface::sendSms(
-    $patient->smsNum,
+    $patient->phoneNumber,
     ($patient->languagePreference === "English") ? $messageEN : $messageFR
 );
 

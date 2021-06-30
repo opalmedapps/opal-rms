@@ -4,7 +4,7 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 use Orms\Hospital\OIE\Export;
 
@@ -15,9 +15,9 @@ $sourceSystem = $_GET["sourceSystem"];
 $roomFr = $_GET["roomFr"];
 $roomEn = $_GET["roomEn"];
 
-$patient = Patient::getPatientById($patientId);
+$patient = PatientInterface::getPatientById($patientId);
 
-if($patient === NULL || $patient->smsNum === NULL) {
+if($patient === NULL || $patient->phoneNumber === NULL) {
     echo "No SMS alert phone number so will not attempt to send";
     exit;
 }
@@ -30,7 +30,7 @@ else {
     $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $preposition $roomFr pour votre rendez-vous. Votre équipe vous verra sous peu.";
 }
 
-SmsInterface::sendSms($patient->smsNum,$message);
+SmsInterface::sendSms($patient->phoneNumber,$message);
 
 //send a notification to Opal if the patient is an Opal patient
 Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);

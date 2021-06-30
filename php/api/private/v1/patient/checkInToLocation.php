@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Location;
 
 $params = Http::getPostContents();
@@ -16,7 +16,7 @@ if($room === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Room is invalid");
 }
 
-$patient = Patient::getPatientById((int) $patientId);
+$patient = PatientInterface::getPatientById((int) $patientId);
 
 if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");

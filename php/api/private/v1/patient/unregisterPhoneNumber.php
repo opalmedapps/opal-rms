@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 
 $phoneNumber = $_GET["phoneNumber"] ?? NULL;
 
@@ -12,7 +12,7 @@ if($phoneNumber === NULL || !preg_match("/[0-9]{10}/",$phoneNumber)) {
     Http::generateResponseJsonAndExit(400,error: "Invalid phone number");
 }
 
-$patients = Patient::unregisterPhoneNumberFromPatients($phoneNumber);
+$patients = PatientInterface::unregisterPhoneNumberFromPatients($phoneNumber);
 
 $patients = array_map(fn($x) => "$x->lastName, $x->firstName",$patients);
 

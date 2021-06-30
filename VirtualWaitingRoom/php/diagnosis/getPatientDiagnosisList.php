@@ -3,7 +3,7 @@
 require __DIR__ ."/../../../vendor/autoload.php";
 
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Hospital\OIE\Fetch;
 
 $patientId = (int) $_GET["patientId"];
@@ -11,7 +11,7 @@ $patientId = (int) $_GET["patientId"];
 $diagArr = DiagnosisInterface::getDiagnosisListForPatient($patientId);
 
 // get additional diagnoses from Opal
-$patient = Patient::getPatientById($patientId);
+$patient = PatientInterface::getPatientById($patientId);
 if($patient !== NULL) {
     $diagArr = array_merge($diagArr,Fetch::getPatientDiagnosis($patient));
 }

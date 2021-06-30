@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 
 $mrn                = $_GET["mrn"] ?? NULL;
@@ -22,13 +22,13 @@ if(!preg_match("/[0-9]{10}/",$phoneNumber)) {
 }
 
 //find the patient and update their phone number
-$patient = Patient::getPatientByMrn($mrn,$site);
+$patient = PatientInterface::getPatientByMrn($mrn,$site);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-Patient::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
+PatientInterface::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
 
 //send the patient a registration success message
 $messageList = SmsInterface::getPossibleSmsMessages();

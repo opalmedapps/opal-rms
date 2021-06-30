@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 
 $ramq = $_GET["ramq"] ?? NULL;
 $mrn  = $_GET["mrn"] ?? NULL;
@@ -12,10 +12,10 @@ $site = $_GET["site"] ?? NULL;
 //use the http params to fetch the patient from ORMS
 $patient = NULL;
 if($mrn !== NULL && $site !== NULL) {
-    $patient = Patient::getPatientByMrn($mrn,$site);
+    $patient = PatientInterface::getPatientByMrn($mrn,$site);
 }
 elseif($ramq !== NULL) {
-    $patient = Patient::getPatientByInsurance($ramq,"RAMQ");
+    $patient = PatientInterface::getPatientByInsurance($ramq,"RAMQ");
 }
 
 //if the patient was found, return it

@@ -5,7 +5,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Http;
 use Orms\Diagnosis\DiagnosisInterface;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Hospital\OIE\Export;
 
 $patientId           = (int) $_GET["patientId"];
@@ -20,7 +20,7 @@ $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId,$d
 Http::generateResponseJsonAndContinue(200);
 
 //export the diagnosis to external systems
-$patient = Patient::getPatientById($patientId);
+$patient = PatientInterface::getPatientById($patientId);
 
 if($patient !== NULL)
 {

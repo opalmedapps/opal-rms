@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;
 use Orms\DateTime;
 use Orms\Util\Encoding;
@@ -51,7 +51,7 @@ class DeletionClinic
     ) {}
 }
 
-$patient = Patient::getPatientByMrn($deletedAppointment->mrn,$deletedAppointment->site);
+$patient = PatientInterface::getPatientByMrn($deletedAppointment->mrn,$deletedAppointment->site);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");

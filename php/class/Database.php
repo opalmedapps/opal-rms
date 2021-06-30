@@ -5,6 +5,7 @@ namespace Orms;
 use PDO;
 
 use Orms\Config;
+use PDOException;
 
 //returns db connection handles to a requested database
 class Database
@@ -73,6 +74,48 @@ class Database
     private static function _generateMysqlConnectionString(string $host,string $port,string $dbName): string
     {
         return "mysql:host={$host};port={$port};dbname={$dbName}";
+    }
+
+    /**
+     *
+     * @return list<array{
+     *      table: string,
+     *      column: string,
+     *      constraintName: string,
+     *      referencedTable: string,
+     *      referencedColumn: string
+     *   }>
+     */
+    static function getForeignKeysConnectedToColumn(PDO $dbh,string $tableName,string $columnName): array
+    {
+        $query = $dbh->prepare("
+            SELECT
+                TABLE_NAME AS table,
+                COLUMN_NAME AS column,
+                CONSTRAINT_NAME AS constraintName,
+                REFERENCED_TABLE_NAME as referencedTable,
+                REFERENCED_COLUMN_NAME as referencedColumn
+            FROM
+                INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+            WHERE
+                REFERENCED_TABLE_SCHEMA = DATABASE()
+                AND REFERENCED_TABLE_NAME = :tableName
+                AND REFERENCED_COLUMN_NAME = :columnName
+        ");
+        $query->execute([
+            ":tableName"    => $tableName,
+            ":columnName"   => $columnName
+        ]);
+
+        return array_map(function($x) {
+            return [
+                "table"             => (string) $x["TABLE_NAME"],
+                "column"            => (string) $x["COLUMN_NAME"],
+                "constraintName"    => (string) $x["CONSTRAINT_NAME"],
+                "referencedTable"   => (string) $x["REFERENCED_TABLE_NAME"],
+                "referencedColumn"  => (string) $x["REFERENCED_COLUMN_NAME"],
+            ];
+        },$query->fetchAll());
     }
 
 }

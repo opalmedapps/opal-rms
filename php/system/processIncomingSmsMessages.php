@@ -5,7 +5,7 @@ require __DIR__."/../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Database;
 use Orms\Sms\SmsInterface;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Location;
 use Orms\Util\ArrayUtil;
 
@@ -109,7 +109,7 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/","",$appointmentString) ?? ""; #remove last separator newline
 
     #check the patient into all of his appointments
-    $patient = Patient::getPatientById((int) $patientSer);
+    $patient = PatientInterface::getPatientById((int) $patientSer);
 
     try
     {

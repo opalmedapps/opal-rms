@@ -5,7 +5,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 
 try {
     $fields = Http::parseApiInputs();
@@ -26,12 +26,12 @@ $opal = new class(
     ) {}
 };
 
-$patient = Patient::getPatientByMrn($opal->mrn,$opal->site);
+$patient = PatientInterface::getPatientByMrn($opal->mrn,$opal->site);
 
 if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");
 }
 
-Patient::updateOpalStatus($patient,$opal->opalStatus);
+PatientInterface::updateOpalStatus($patient,$opal->opalStatus);
 
 Http::generateResponseJsonAndExit(200);

@@ -3,7 +3,7 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Http;
 use Orms\Hospital\Opal;
 
@@ -14,7 +14,7 @@ if($patientId === NULL || $questionnaireId === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Missing fields!");
 }
 
-$patient = Patient::getPatientById((int) $patientId);
+$patient = PatientInterface::getPatientById((int) $patientId);
 
 if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");

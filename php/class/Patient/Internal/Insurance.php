@@ -2,19 +2,17 @@
 
 namespace Orms\Patient\Internal;
 
-use Exception;
 use Orms\Database;
 use Orms\DateTime;
 
 /** @psalm-immutable */
 class Insurance
 {
-    private function __construct(
+    function __construct(
         public string $number,
         public DateTime $expiration,
         public string $type,
-        public bool $active,
-        public int $patientId
+        public bool $active
     ) {}
 
     /**
@@ -67,97 +65,8 @@ class Insurance
                 $x["InsuranceNumber"],
                 new DateTime($x["ExpirationDate"]),
                 $x["InsuranceCode"],
-                (bool) $x["Active"],
-                (int) $x["PatientId"]
+                (bool) $x["Active"]
             );
         },$query->fetchAll());
-    }
-
-    /**
-     * Updates a patient's insurance by comparing it to what the patient has in the database.
-     * If the insurance doesn't exist, it is inserted
-     */
-    static function updateInsuranceForPatientId(int $patientId,string $insuranceNumber,string $insuranceType,DateTime $expirationDate,bool $active): void
-    {
-        $dbh = Database::getOrmsConnection();
-
-        //check if the mrn current exists
-        //also get the format that the insurance should have
-        $queryExists = $dbh->prepare("
-            SELECT
-                I.Format,
-                PI.ExpirationDate,
-                PI.Active
-            FROM
-                Insurance I
-                LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
-                    AND PI.InsuranceNumber = :number
-                    AND PI.PatientId = :pid
-            WHERE
-                I.InsuranceCode = :type
-        ");
-        $queryExists->execute([
-            ":type"    => $insuranceType,
-            ":number"  => $insuranceNumber,
-            ":pid"     => $patientId
-        ]);
-
-        $insuranceInfo = $queryExists->fetchAll();
-        $format = $insuranceInfo[0]["Format"] ?? NULL;
-        $insuranceActive = $insuranceInfo[0]["Active"] ?? NULL;
-        $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? NULL;
-
-        //check if the format of the incoming insurance is valid
-        //if the format is empty or null, the insurance supplied will always match
-        if(preg_match("/$format/",$insuranceNumber) !== 1) {
-            throw new Exception("Invalid insurance format for $insuranceNumber | $insuranceType");
-        }
-
-        //if the insurance doesn't exist, insert the new insurance
-        //if it does and anything changed, update it
-        if($insuranceActive === NULL || $insuranceActiveExpiration === NULL)
-        {
-            $dbh->prepare("
-                INSERT INTO PatientInsuranceIdentifier(
-                    PatientId,
-                    InsuranceId,
-                    InsuranceNumber,
-                    ExpirationDate,
-                    Active
-                )
-                VALUES(
-                    :pid,
-                    (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :type),
-                    :number,
-                    :expiration,
-                    :active
-                )
-            ")->execute([
-                ":pid"          => $patientId,
-                ":number"       => $insuranceNumber,
-                ":type"         => $insuranceType,
-                ":expiration"   => $expirationDate->format("Y-m-d H:i:s"),
-                ":active"       => $active
-            ]);
-        }
-        elseif((bool) $insuranceActive !== $active || new DateTime($insuranceActiveExpiration) != $expirationDate)
-        {
-            $dbh->prepare("
-                UPDATE PatientInsuranceIdentifier
-                SET
-                    ExpirationDate = :expiration,
-                    Active = :active
-                WHERE
-                    PatientId = :pid
-                    AND InsuranceNumber = :number
-                    AND InsuranceId = (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :type)
-            ")->execute([
-                ":pid"       => $patientId,
-                ":number"    => $insuranceNumber,
-                ":type"      => $insuranceType,
-                "expiration" => $expirationDate->format("Y-m-d H:i:s"),
-                ":active"    => $active
-            ]);
-        }
     }
 }

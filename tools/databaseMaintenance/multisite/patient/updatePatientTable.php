@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Hospital\OIE\Fetch;
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
@@ -103,7 +103,7 @@ class PatientTable
             }
 
             //find the patient in ORMS in order to update it
-            $patient = Patient::getPatientById($id) ?? throw new Exception("Unknown patient $mrn");
+            $patient = PatientInterface::getPatientById($id) ?? throw new Exception("Unknown patient $mrn");
 
             if($runWithChecks === TRUE)
             {
@@ -141,15 +141,14 @@ class PatientTable
                 }
             }
 
-            $patient = Patient::updateName($patient,$external->firstName,$external->lastName);
-            $patient = Patient::updateDateOfBirth($patient,$external->dateOfBirth);
+            $patient = PatientInterface::updateName($patient,$external->firstName,$external->lastName);
+            $patient = PatientInterface::updateDateOfBirth($patient,$external->dateOfBirth);
 
-            foreach($external->mrns as $mrn) {
-                $patient = Patient::updateMrn($patient,$mrn->mrn,$mrn->site,$mrn->active);
-            }
-            foreach($external->insurances as $insurance) {
-                $patient = Patient::updateInsurance($patient,$insurance->number,$insurance->type,$insurance->expiration,$insurance->active);
-            }
+            /** @psalm-suppress ArgumentTypeCoercion */
+            $patient = PatientInterface::updateMrns($patient,array_map(fn($x) => ["mrn" => $x->mrn,"site" => $x->site,"active" => $x->active],$external->mrns));
+            /** @psalm-suppress ArgumentTypeCoercion */
+            $patient = PatientInterface::updateInsurances($patient,array_map(fn($x) => ["number" => $x->number,"expiration" => $x->expiration,"type" => $x->type,"active" => $x->active],$external->insurances));
+
         }
 
         //return the number of patients that we weren't able to match in the ADT

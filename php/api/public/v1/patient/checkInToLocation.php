@@ -3,7 +3,7 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Appointment\Location;
 
 try {
@@ -24,7 +24,7 @@ catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
 }
 
-$patient = Patient::getPatientByMrn($checkIn->mrn,$checkIn->site);
+$patient = PatientInterface::getPatientByMrn($checkIn->mrn,$checkIn->site);
 
 if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");

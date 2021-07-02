@@ -6,9 +6,11 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Http;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
+use Orms\Patient\Model\Mrn;
 use Orms\Patient\PatientInterface;
 use Orms\DateTime;
+use Orms\Patient\Model\Insurance;
 use Orms\Util\Encoding;
 
 try {
@@ -25,7 +27,7 @@ $demographics = new class(
     dateOfBirth:        $fields["dateOfBirth"],
     ramq:               $fields["ramq"] ?? NULL,
     ramqExpiration:     $fields["ramqExpiration"] ?? NULL,
-    mrns:               array_map(fn($x) => new ApiMrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$fields["mrns"])
+    mrns:               array_map(fn($x) => new Mrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$fields["mrns"]),
 ) {
     public DateTime $dateOfBirth;
     public ?DateTime $ramqExpiration;
@@ -36,24 +38,22 @@ $demographics = new class(
         string $dateOfBirth,
         public ?string $ramq,
         ?string $ramqExpiration,
-        /** @var ApiMrn[] $mrns */ public array $mrns
+        /** @var Mrn[] $mrns */ public array $mrns
     ) {
         $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date of birth");
         $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
     }
 };
 
-class ApiMrn
-{
-    function __construct(
-        public string $mrn,
-        public string $site,
-        public bool $active
-    ) {}
-}
-
 //for each of the mrns, check to see if the patient exists in the system
 $patients = getPatientsFromMrns($demographics->mrns);
+
+if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
+    $insurances = [new Insurance($demographics->ramq,$demographics->ramqExpiration,"RAMQ",TRUE)];
+}
+else {
+    $insurances = NULL;
+}
 
 //case 1: none of the patient's mrns exist in the system
 //create the patient
@@ -64,29 +64,23 @@ if($patients === [])
         $demographics->firstName,
         $demographics->lastName,
         $demographics->dateOfBirth,
-        array_map(fn($x) => ["mrn" => $x->mrn,"site" => $x->site,"active" => $x->active],$demographics->mrns),
-        []
+        $demographics->mrns,
+        $insurances ?? []
     );
-
-    if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
-        $patient = PatientInterface::updateInsurances($patient,[["number" => $demographics->ramq,"expiration" => $demographics->ramqExpiration,"type" => "RAMQ","active" => TRUE]]);
-    }
 }
 //case 2: all mrns belong to the same patient
 //update the patient's demographics
 elseif(count($patients) === 1)
 {
     //all patients in the array are the same, so just use the first one
-    $patient = $patients[0];
-
-    $patient = PatientInterface::updateName($patient,$demographics->firstName,$demographics->lastName);
-    $patient = PatientInterface::updateDateOfBirth($patient,$demographics->dateOfBirth);
-    /** @psalm-suppress ArgumentTypeCoercion */
-    $patient = PatientInterface::updateMrns($patient,array_map(fn($x) => ["mrn" => $x->mrn,"site" => $x->site,"active" => $x->active],$demographics->mrns));
-
-    if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
-        $patient = PatientInterface::updateInsurances($patient,[["number" => $demographics->ramq,"expiration" => $demographics->ramqExpiration,"type" => "RAMQ","active" => TRUE]]);
-    }
+    $patient = PatientInterface::updatePatientInformation(
+        patient:     $patients[0],
+        firstName:   $demographics->firstName,
+        lastName:    $demographics->lastName,
+        dateOfBirth: $demographics->dateOfBirth,
+        mrns:        $demographics->mrns,
+        insurances:  $insurances
+    );
 }
 //case 3: mrns belong to different patients
 //this usually happens because link or merge was done for an mrn in the patients hospital chart
@@ -108,7 +102,7 @@ Http::generateResponseJsonAndExit(200);
 
 /**
  *
- * @param ApiMrn[] $mrns
+ * @param Mrn[] $mrns
  * @return Patient[]
  * @phpstan-ignore-next-line
  */

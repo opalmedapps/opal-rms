@@ -3,12 +3,11 @@
 namespace Orms\Patient;
 
 use Exception;
-
-use Orms\DataAccess\PatientAccess;
-use Orms\DataAccess\Database;
 use Orms\DateTime;
-use Orms\Patient\Internal\Mrn;
-use Orms\Patient\Internal\Insurance;
+use Orms\DataAccess\PatientAccess;
+use Orms\Patient\Model\Patient;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Insurance;
 
 class PatientInterface
 {
@@ -19,55 +18,25 @@ class PatientInterface
 
     static function getPatientByMrn(string $mrn,string $site): ?Patient
     {
-        $id = Mrn::getPatientIdForMrn($mrn,$site);
+        $id = PatientAccess::getPatientIdForMrn($mrn,$site);
         return self::_fetchPatient($id);
     }
 
     static function getPatientByInsurance(string $insuranceNumber,string $type): ?Patient
     {
-        $id = Insurance::getPatientIdForInsurance($insuranceNumber,$type);
+        $id = PatientAccess::getPatientIdForInsurance($insuranceNumber,$type);
         return self::_fetchPatient($id);
     }
 
     private static function _fetchPatient(int $id): ?Patient
     {
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
-            SELECT DISTINCT
-                LastName,
-                FirstName,
-                DateOfBirth,
-                SMSAlertNum,
-                OpalPatient,
-                LanguagePreference
-            FROM
-                Patient
-            WHERE
-                PatientSerNum = ?
-        ");
-        $query->execute([$id]);
-
-        $row = $query->fetchAll()[0] ?? NULL;
-
-        if($row === NULL) return NULL;
-
-        return new Patient(
-            id:                    $id,
-            firstName:             $row["FirstName"],
-            lastName:              $row["LastName"],
-            dateOfBirth:           new DateTime($row["DateOfBirth"]),
-            phoneNumber:           $row["SMSAlertNum"],
-            opalPatient:           (int) $row["OpalPatient"],
-            languagePreference:    $row["LanguagePreference"],
-            mrns:                  Mrn::getMrnsForPatientId($id),
-            insurances:            Insurance::getInsurancesForPatientId($id)
-        );
+        return PatientAccess::deserializePatient($id);
     }
 
     /**
      * Inserts a new patient in the database. The patient must have at least one active mrn.
-     * @param list<array{mrn: string,site: string,active: bool}> $mrns
-     * @param list<array{number: string,expiration: \Orms\DateTime,type: string,active: bool}> $insurances
+     * @param Mrn[] $mrns
+     * @param Insurance[] $insurances
      */
     static function insertNewPatient(
         string $firstName,
@@ -83,10 +52,10 @@ class PatientInterface
             lastName            : $lastName,
             dateOfBirth         : $dateOfBirth,
             phoneNumber         : NULL,
-            opalPatient         : 0,
+            opalStatus          : 0,
             languagePreference  : NULL,
-            mrns                : array_map(fn($x) => new Mrn(...$x),$mrns),
-            insurances          : array_map(fn($x) => new Insurance(...$x),$insurances)
+            mrns                : $mrns,
+            insurances          : $insurances
         );
 
         if($newPatient->getActiveMrns() === []) {
@@ -96,142 +65,7 @@ class PatientInterface
         PatientAccess::serializePatient($newPatient);
 
         //patient should exist now, so searching for them will work
-        return self::getPatientByMrn($mrns[0]["mrn"],$mrns[0]["site"]) ?? throw new Exception("Failed to create patient");
-    }
-
-    static function updateName(Patient $patient,string $firstName,string $lastName): Patient
-    {
-        $newPatient = new Patient(
-            id:                    $patient->id,
-            firstName:             $firstName,
-            lastName:              $lastName,
-            dateOfBirth:           $patient->dateOfBirth,
-            phoneNumber:           $patient->phoneNumber,
-            opalPatient:           $patient->opalPatient,
-            languagePreference:    $patient->languagePreference,
-            mrns:                  $patient->mrns,
-            insurances:            $patient->insurances
-        );
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update name for patient $patient->id");
-    }
-
-    static function updateDateOfBirth(Patient $patient,DateTime $dateOfBirth): Patient
-    {
-        $newPatient = new Patient(
-            id:                    $patient->id,
-            firstName:             $patient->firstName,
-            lastName:              $patient->lastName,
-            dateOfBirth:           $dateOfBirth,
-            phoneNumber:           $patient->phoneNumber,
-            opalPatient:           $patient->opalPatient,
-            languagePreference:    $patient->languagePreference,
-            mrns:                  $patient->mrns,
-            insurances:            $patient->insurances
-        );
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update date of birth for patient $patient->id");
-    }
-
-    static function updateOpalStatus(Patient $patient,int $opalStatus): Patient
-    {
-        $newPatient = new Patient(
-            id:                    $patient->id,
-            firstName:             $patient->firstName,
-            lastName:              $patient->lastName,
-            dateOfBirth:           $patient->dateOfBirth,
-            phoneNumber:           $patient->phoneNumber,
-            opalPatient:           $opalStatus,
-            languagePreference:    $patient->languagePreference,
-            mrns:                  $patient->mrns,
-            insurances:            $patient->insurances,
-        );
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update opal status for patient $patient->id");
-    }
-
-    /**
-     * Updates a patient's phone number. Can also remove a patient's phone number.
-     *
-     */
-    static function updatePhoneNumber(Patient $patient,?string $phoneNumber,?string $languagePreference): Patient
-    {
-        //the phone number must be either null or exactly 10 digits
-        if($phoneNumber !== NULL && preg_match("/[0-9]{10}/",$phoneNumber) === FALSE) {
-            throw new Exception("Invalid phone number");
-        }
-
-        $newPatient = new Patient(
-            id:                    $patient->id,
-            firstName:             $patient->firstName,
-            lastName:              $patient->lastName,
-            dateOfBirth:           $patient->dateOfBirth,
-            phoneNumber:           $phoneNumber,
-            opalPatient:           $patient->opalPatient,
-            languagePreference:    $languagePreference,
-            mrns:                  $patient->mrns,
-            insurances:            $patient->insurances
-        );
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update phone number for $patient->id");
-    }
-
-    /**
-     *
-     * @param list<array{mrn: string,site: string,active: bool}> $mrns
-     */
-    static function updateMrns(Patient $patient,array $mrns): Patient
-    {
-        $newPatient = new Patient(
-            id:                  $patient->id,
-            firstName:           $patient->firstName,
-            lastName:            $patient->lastName,
-            dateOfBirth:         $patient->dateOfBirth,
-            phoneNumber:         $patient->phoneNumber,
-            opalPatient:         $patient->opalPatient,
-            languagePreference:  $patient->languagePreference,
-            mrns:                array_map(fn($x) => new Mrn(...$x),$mrns),
-            insurances:          $patient->insurances
-        );
-
-        if($patient->getActiveMrns() === []) {
-            throw new Exception("Failed to create patient with no active mrns");
-        }
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update mrns for patient $patient->id");
-    }
-
-    /**
-     *
-     * @param list<array{number: string,expiration: \Orms\DateTime,type: string,active: bool}> $insurances
-     */
-    static function updateInsurances(Patient $patient,array $insurances): Patient
-    {
-        $newPatient = new Patient(
-            id:                  $patient->id,
-            firstName:           $patient->firstName,
-            lastName:            $patient->lastName,
-            dateOfBirth:         $patient->dateOfBirth,
-            phoneNumber:         $patient->phoneNumber,
-            opalPatient:         $patient->opalPatient,
-            languagePreference:  $patient->languagePreference,
-            mrns:                $patient->mrns,
-            insurances:          array_map(fn($x) => new Insurance(...$x),$insurances)
-        );
-
-        PatientAccess::serializePatient($newPatient);
-
-        return self::getPatientById($patient->id) ?? throw new Exception("Failed to update insurances for patient $patient->id");
+        return self::getPatientByMrn($mrns[0]->mrn,$mrns[0]->site) ?? throw new Exception("Failed to create patient");
     }
 
     /**
@@ -241,23 +75,66 @@ class PatientInterface
     static function unregisterPhoneNumberFromPatients(string $phoneNumber): array
     {
         //phone number must be exactly 10 digits
-        if(!preg_match("/[0-9]{10}/",$phoneNumber)) throw new Exception("Invalid phone number");
+        if(!preg_match("/[0-9]{10}/",$phoneNumber)) {
+            throw new Exception("Invalid phone number");
+        }
 
-        //find all patients with the phone number
-        $query = Database::getOrmsConnection()->prepare("
-            SELECT
-                PatientSerNum
-            FROM
-                Patient
-            WHERE
-                SMSAlertNum = ?
-        ");
-        $query->execute([$phoneNumber]);
+        $patients = PatientAccess::getPatientsWithPhoneNumber($phoneNumber);
+        $patients = array_filter($patients);
 
         return array_map(function($x) {
-            $patient = self::getPatientById((int) $x["PatientSerNum"]) ?? throw new Exception("Unknown patient");
-            return self::updatePhoneNumber($patient,NULL,NULL);
-        },$query->fetchAll());
+            return self::updatePatientInformation($x,phoneNumber: NULL,languagePreference: NULL);
+        },$patients);
+    }
+
+    /**
+     * Returns a new version of the patient with the specified field(s) updated
+     * @param Mrn[] $mrns
+     * @param Insurance[] $insurances
+     */
+    static function updatePatientInformation(
+        Patient $patient,
+        string $firstName = NULL,
+        string $lastName = NULL,
+        Datetime $dateOfBirth = NULL,
+        ?string $phoneNumber = NULL,
+        int $opalStatus = NULL,
+        ?string $languagePreference = NULL,
+        array $mrns = NULL,
+        array $insurances = NULL
+    ): Patient
+    {
+        //phone number must be exactly 10 digits
+        if($phoneNumber !== NULL && !preg_match("/[0-9]{10}/",$phoneNumber)) {
+            throw new Exception("Invalid phone number");
+        }
+
+        //if the patient has a phone number, the language preference must also be specified
+        if($phoneNumber !== NULL && $languagePreference === NULL) {
+            throw new Exception("Phone number must have a language preference");
+        }
+
+        $newPatient = new Patient(
+            id:                  $patient->id,
+            firstName:           $firstName ?? $patient->firstName,
+            lastName:            $lastName ?? $patient->lastName,
+            dateOfBirth:         $dateOfBirth ?? $patient->dateOfBirth,
+            phoneNumber:         $phoneNumber ?? $patient->phoneNumber,
+            opalStatus:          $opalStatus ?? $patient->opalStatus,
+            languagePreference:  $languagePreference ?? $patient->languagePreference,
+            mrns:                $mrns ?? $patient->mrns,
+            insurances:          $insurances ?? $patient->insurances
+        );
+
+        if($patient->getActiveMrns() === []) {
+            throw new Exception("Failed to create patient with no active mrns");
+        }
+
+        //overwrite the previous version of the patient in the database with the updated copy
+        PatientAccess::serializePatient($newPatient);
+
+        //fetch the updated patient from the database to ensure that we have the latest version of the patient
+        return PatientAccess::deserializePatient($patient->id) ?? throw new Exception("Failed to update patient $patient->id");
     }
 
     /**

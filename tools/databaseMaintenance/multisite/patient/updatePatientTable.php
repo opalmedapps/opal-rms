@@ -1,7 +1,9 @@
 <?php declare(strict_types = 1);
 
+use Orms\DataAccess\PatientAccess;
 use Orms\Patient\PatientInterface;
 use Orms\Hospital\OIE\Fetch;
+use Orms\Patient\Model\Insurance;
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
@@ -141,14 +143,14 @@ class PatientTable
                 }
             }
 
-            $patient = PatientInterface::updateName($patient,$external->firstName,$external->lastName);
-            $patient = PatientInterface::updateDateOfBirth($patient,$external->dateOfBirth);
-
-            /** @psalm-suppress ArgumentTypeCoercion */
-            $patient = PatientInterface::updateMrns($patient,array_map(fn($x) => ["mrn" => $x->mrn,"site" => $x->site,"active" => $x->active],$external->mrns));
-            /** @psalm-suppress ArgumentTypeCoercion */
-            $patient = PatientInterface::updateInsurances($patient,array_map(fn($x) => ["number" => $x->number,"expiration" => $x->expiration,"type" => $x->type,"active" => $x->active],$external->insurances));
-
+            $patient = PatientInterface::updatePatientInformation(
+                patient:        $patient,
+                firstName:      $external->firstName,
+                lastName:       $external->lastName,
+                dateOfBirth:    $external->dateOfBirth,
+                mrns:           $external->mrns,
+                insurances:     $external->insurances
+            );
         }
 
         //return the number of patients that we weren't able to match in the ADT

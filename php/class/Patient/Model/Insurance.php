@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Hospital\OIE\Internal;
+namespace Orms\Patient\Model;
 
 use Orms\DateTime;
 
 /** @psalm-immutable */
-class ExternalInsurance
+class Insurance
 {
     function __construct(
         public string $number,

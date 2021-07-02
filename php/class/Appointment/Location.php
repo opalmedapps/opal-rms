@@ -5,7 +5,7 @@ namespace Orms\Appointment;
 use PDOException;
 
 use Orms\DataAccess\Database;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
 use Orms\Hospital\Aria;
 use Orms\Hospital\OIE\Export;
 

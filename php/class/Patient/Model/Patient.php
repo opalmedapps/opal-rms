@@ -1,10 +1,10 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Patient;
+namespace Orms\Patient\Model;
 
 use Orms\DateTime;
-use Orms\Patient\Internal\Mrn;
-use Orms\Patient\Internal\Insurance;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Insurance;
 
 /** @psalm-immutable */
 class Patient
@@ -18,7 +18,7 @@ class Patient
         public string $lastName,
         public Datetime $dateOfBirth,
         public ?string $phoneNumber,
-        public int $opalPatient,
+        public int $opalStatus,
         public ?string $languagePreference,
         /** @var Mrn[] $mrns */ public array $mrns,
         /** @var Insurance[] $insurances */ public array $insurances

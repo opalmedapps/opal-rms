@@ -6,7 +6,9 @@ use PDO;
 use Exception;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Insurance;
 
 class PatientAccess
 {
@@ -35,7 +37,7 @@ class PatientAccess
                 ":fn"           => strtoupper($patient->firstName),
                 ":ln"           => strtoupper($patient->lastName),
                 ":dob"          => $patient->dateOfBirth->format("Y-m-d H:i:s"),
-                ":status"       => $patient->opalPatient,
+                ":status"       => $patient->opalStatus,
                 ":smsNum"       => $patient->phoneNumber,
                 ":language"     => $patient->languagePreference
             ];
@@ -81,7 +83,66 @@ class PatientAccess
         $dbh->commit();
     }
 
-     /**
+    static function deserializePatient(int $patientId): ?Patient
+    {
+        $dbh = Database::getOrmsConnection();
+        $query = $dbh->prepare("
+            SELECT DISTINCT
+                LastName,
+                FirstName,
+                DateOfBirth,
+                SMSAlertNum,
+                OpalPatient,
+                LanguagePreference
+            FROM
+                Patient
+            WHERE
+                PatientSerNum = ?
+        ");
+        $query->execute([$patientId]);
+
+        $row = $query->fetchAll()[0] ?? NULL;
+
+        if($row === NULL) return NULL;
+
+        return new Patient(
+            id:                    $patientId,
+            firstName:             $row["FirstName"],
+            lastName:              $row["LastName"],
+            dateOfBirth:           new DateTime($row["DateOfBirth"]),
+            phoneNumber:           $row["SMSAlertNum"],
+            opalStatus:            (int) $row["OpalPatient"],
+            languagePreference:    $row["LanguagePreference"],
+            mrns:                  self::_deserializeMrnsForPatientId($patientId),
+            insurances:            self::_deserializeInsurancesForPatientId($patientId)
+        );
+    }
+
+    /**
+     * Returns a patient id if the mrn is found in the system, otherwise returns 0
+     *
+     */
+    static function getPatientIdForMrn(string $mrn,string $site): int
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PH.PatientId
+            FROM
+                PatientHospitalIdentifier PH
+                INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+                    AND H.HospitalCode = :site
+            WHERE
+                PH.MedicalRecordNumber = :mrn
+        ");
+        $query->execute([
+            ":site" => $site,
+            ":mrn"  => $mrn
+        ]);
+
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
+    }
+
+    /**
      * Updates a patient's mrn by comparing it to what the patient has in the database.
      * If the mrn doesn't exist, it is inserted.
      * A patient must always have an active mrn.
@@ -159,6 +220,90 @@ class PatientAccess
                 ":active" => (int) $active
             ]);
         }
+    }
+
+    /**
+     *
+     * @return Mrn[]
+     */
+    static function _deserializeMrnsForPatientId(int $patientId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PH.MedicalRecordNumber,
+                PH.Active,
+                PH.PatientId,
+                H.HospitalCode
+            FROM
+                PatientHospitalIdentifier PH
+                INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+            WHERE
+                PH.PatientId = ?
+        ");
+        $query->execute([$patientId]);
+
+        return array_map(function($x) {
+            return new Mrn(
+                $x["MedicalRecordNumber"],
+                $x["HospitalCode"],
+                (bool) $x["Active"]
+            );
+        },$query->fetchAll());
+    }
+
+    /**
+     * Returns a patient id if the insurance is found in the system, otherwise returns 0
+     *
+     */
+    static function getPatientIdForInsurance(string $insuranceNumber,string $insuranceType): int
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PI.PatientId
+            FROM
+                PatientInsuranceIdentifier PI
+                INNER JOIN Insurance I ON I.InsuranceId = PI.InsuranceId
+                    AND I.InsuranceCode = :type
+            WHERE
+                PI.InsuranceNumber = :insurance
+        ");
+        $query->execute([
+            ":type"      => $insuranceType,
+            ":insurance" => $insuranceNumber
+        ]);
+
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
+    }
+
+    /**
+     *
+     * @return Insurance[]
+     */
+    static function _deserializeInsurancesForPatientId(int $patientId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PI.PatientId,
+                PI.InsuranceNumber,
+                PI.ExpirationDate,
+                PI.Active,
+                I.InsuranceCode
+            FROM
+                PatientInsuranceIdentifier PI
+                INNER JOIN Insurance I ON I.InsuranceId = PI.InsuranceId
+            WHERE
+                PI.PatientId = ?
+        ");
+        $query->execute([$patientId]);
+
+        return array_map(function($x) {
+            return new Insurance(
+                $x["InsuranceNumber"],
+                new DateTime($x["ExpirationDate"]),
+                $x["InsuranceCode"],
+                (bool) $x["Active"]
+            );
+        },$query->fetchAll());
     }
 
     /**
@@ -247,6 +392,28 @@ class PatientAccess
                 ":active"    => $active
             ]);
         }
+    }
+
+    /**
+     *
+     * @return array<Patient|NULL>
+     */
+    static function getPatientsWithPhoneNumber(string $phoneNumber): array
+    {
+        //find all patients with the phone number
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                PatientSerNum
+            FROM
+                Patient
+            WHERE
+                SMSAlertNum = ?
+        ");
+        $query->execute([$phoneNumber]);
+
+        return array_map(function($x) {
+            return self::deserializePatient((int) $x["PatientSerNum"]);
+        },$query->fetchAll());
     }
 
 }

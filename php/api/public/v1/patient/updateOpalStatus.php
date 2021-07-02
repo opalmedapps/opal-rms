@@ -32,6 +32,6 @@ if($patient === NULL)  {
     Http::generateResponseJsonAndExit(400,error: "Patient not found");
 }
 
-PatientInterface::updateOpalStatus($patient,$opal->opalStatus);
+PatientInterface::updatePatientInformation($patient, opalStatus: $opal->opalStatus);
 
 Http::generateResponseJsonAndExit(200);

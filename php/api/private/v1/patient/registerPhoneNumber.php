@@ -28,7 +28,7 @@ if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-PatientInterface::updatePhoneNumber($patient,$phoneNumber,$languagePreference);
+PatientInterface::updatePatientInformation($patient,phoneNumber: $phoneNumber,languagePreference: $languagePreference);
 
 //send the patient a registration success message
 $messageList = SmsInterface::getPossibleSmsMessages();

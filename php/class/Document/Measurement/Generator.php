@@ -6,7 +6,7 @@ use Exception;
 
 use Orms\Config;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
 use Orms\Patient\PatientMeasurement;
 use Orms\Document\Pdf;
 Use Orms\Document\Highcharts;

@@ -3,7 +3,7 @@
 namespace Orms\Hospital\OIE;
 
 use Orms\Config;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
 use Orms\Document\Measurement\Generator;
 use Orms\Hospital\OIE\Internal\Connection;
 
@@ -33,7 +33,7 @@ class Export
 
     static function exportPushNotification(Patient $patient,string $appointmentId,string $roomNameEn,string $roomNameFr): void
     {
-        if($patient->opalPatient !== 1) return;
+        if($patient->opalStatus !== 1) return;
 
         try {
             Connection::getOpalHttpClient()?->request("GET","publisher/php/sendCallPatientNotification.php",[

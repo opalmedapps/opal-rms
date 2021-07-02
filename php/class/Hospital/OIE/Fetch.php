@@ -4,11 +4,11 @@ namespace Orms\Hospital\OIE;
 
 use Exception;
 use Orms\DateTime;
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Insurance;
 use Orms\Hospital\OIE\Internal\Connection;
 use Orms\Hospital\OIE\Internal\ExternalPatient;
-use Orms\Hospital\OIE\Internal\ExternalMrn;
-use Orms\Hospital\OIE\Internal\ExternalInsurance;
 
 class Fetch
 {
@@ -44,7 +44,7 @@ class Fetch
         }
 
         $mrns = array_map(function($x) {
-            return new ExternalMrn(
+            return new Mrn(
                 $x["mrn"],
                 $x["site"],
                 $x["active"]
@@ -56,7 +56,7 @@ class Fetch
         $ramqExpiration = $data["ramqExpiration"] ?? NULL;
 
         if($ramq !== NULL && $ramqExpiration !== NULL) {
-            $insurances[] = new ExternalInsurance(
+            $insurances[] = new Insurance(
                 $ramq,
                 DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration) ?? throw new Exception("Invalid ramq expiration date"),
                 "RAMQ",

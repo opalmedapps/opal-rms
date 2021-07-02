@@ -1,13 +1,13 @@
 <?php declare(strict_types = 1);
 
-namespace Orms\Hospital\OIE\Internal;
+namespace Orms\Patient\Model;
 
 /** @psalm-immutable */
-class ExternalMrn
+class Mrn
 {
-    function __construct(
+     function __construct(
         public string $mrn,
         public string $site,
-        public bool $active,
+        public bool $active
     ) {}
 }

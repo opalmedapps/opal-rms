@@ -2,7 +2,7 @@
 
 namespace Orms\Appointment;
 
-use Orms\Patient\Patient;
+use Orms\Patient\Model\Patient;
 use Orms\DateTime;
 use Orms\DataAccess\Database;
 use Orms\Appointment\SpecialityGroup;

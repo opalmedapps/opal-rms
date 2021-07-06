@@ -8,7 +8,8 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
+use Orms\DateTime;
+use Orms\DataAccess\ReportAccess;
 
 #------------------------------------------
 #parse input parameters
@@ -16,57 +17,7 @@ use Orms\DataAccess\Database;
 $sDateInit = $_GET["sDate"];
 $eDateInit = $_GET["eDate"];
 
-$sDate = $sDateInit ." 00:00:00";
-$eDate = $eDateInit ." 23:59:59";
+$sDate = DateTime::createFromFormatN("Y-m-d",$sDateInit)?->modifyN("midnight") ?? throw new Exception("Invalid date");
+$eDate = DateTime::createFromFormatN("Y-m-d",$eDateInit)?->modifyN("tomorrow") ?? throw new Exception("Invalid date");
 
-#-----------------------------------------------------
-#connect to database and run queries
-#-----------------------------------------------------
-$dbh = Database::getOrmsConnection();
-
-#get a list of all chemotherapy appointments in the date range
-$query = $dbh->prepare("
-    SELECT DISTINCT
-        P.LastName,
-        P.FirstName,
-        PH.MedicalRecordNumber AS Mrn,
-        H.HospitalCode AS Site,
-        CR.ResourceCode,
-        CR.ResourceName,
-        AC.AppointmentCode,
-        MV.ScheduledDateTime,
-        MV.Status,
-        PL.CheckinVenueName,
-        PL.ArrivalDateTime,
-        PL.DichargeThisLocationDateTime,
-        TIMEDIFF(PL.DichargeThisLocationDateTime,PL.ArrivalDateTime) AS Duration,
-        PL.PatientLocationRevCount
-    FROM
-        Patient P
-        INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
-            AND MV.Status = 'Completed'
-            AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
-        INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
-            AND PL.PatientLocationRevCount = (
-                SELECT MIN(PatientLocationMH.PatientLocationRevCount)
-                FROM PatientLocationMH
-                WHERE
-                    PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
-                    AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
-            )
-        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
-        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-                AND AC.AppointmentCode LIKE '%CHM%'
-        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = SG.HospitalId
-            AND PH.Active = 1
-        INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
-    ORDER BY MV.ScheduledDateTime, Site, Mrn
-");
-$query->execute([
-    ":sDate" => $sDate,
-    ":eDate" => $eDate
-]);
-
-echo json_encode($query->fetchAll());
+echo json_encode(ReportAccess::getChemoAppointments($sDate,$eDate));

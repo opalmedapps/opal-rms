@@ -5,93 +5,55 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\DateTime;
 use Orms\Util\Encoding;
-use Orms\DataAccess\Database;
+use Orms\DataAccess\ReportAccess;
 
 #parse input parameters
-$sDate        = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
-$eDate        = $_GET["eDate"] ?? NULL; $eDate .= " 23:59:59";
+$sDate        = $_GET["sDate"] ?? NULL;
+$eDate        = $_GET["eDate"] ?? NULL;
 $speciality   = $_GET["speciality"] ?? NULL; #speciality of appointments to find
 $method       = $_GET["method"] ?? NULL; #normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
-#connect to the database and extract data
-$dbh = Database::getOrmsConnection();
+$sDate = DateTime::createFromFormatN("Y-m-d",$sDate)?->modifyN("midnight") ?? throw new Exception("Invalid date");
+$eDate = DateTime::createFromFormatN("Y-m-d",$eDate)?->modifyN("tomorrow") ?? throw new Exception("Invalid date");
 
 #get a list of patients who waited in a waiting room
-$sql = "
-    SELECT DISTINCT
-        CR.ResourceCode,
-        CR.ResourceName,
-        MV.ScheduledDateTime,
-        PL.AppointmentSerNum,
-        P.FirstName,
-        P.LastName,
-        PH.MedicalRecordNumber,
-        H.HospitalCode,
-        PL.PatientLocationRevCount,
-        CAST(PL.ArrivalDateTime AS DATE) AS Date,
-        PL.ArrivalDateTime AS Arrival,
-        PL.DichargeThisLocationDateTime AS Discharge,
-        PL.CheckinVenueName
-    FROM
-        MediVisitAppointmentList MV
-        INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
-        INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
-            AND (
-                PL.CheckinVenueName LIKE '%Waiting%'
-                OR PL.CheckinVenueName LIKE '%WAITING%'
-            )
-            AND PL.ArrivalDateTime BETWEEN :sDate AND :eDate
-        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-        INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
-            AND SG.SpecialityGroupId = :spec
-        INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            AND PH.HospitalId = SG.HospitalId
-            AND PH.Active = 1
-        INNER JOIN Hospital H ON H.HospitalId = SG.HospitalId
-    ORDER BY
-        P.LastName,
-        P.FirstName,
-        PL.AppointmentSerNum,
-        PL.ArrivalDateTime";
-$query = $dbh->prepare($sql);
-$query->execute([
-    ":sDate" => $sDate,
-    "eDate"  => $eDate,
-    ":spec"  => $speciality
-]);
+$appointments = ReportAccess::getWaitingRoomAppointments($sDate,$eDate,(int) $speciality);
 
 $resources = array_map(function($checkIn) use ($method) {
     #if the method is set to 'scheduled', we instead calculate the time between when the patient was called (ie when they checkout of the waiting room) to their appointment scheduled start
-    if($method === "scheduled") $checkIn["Arrival"] = $checkIn["ScheduledDateTime"];
+    if($method === "scheduled") {
+        $checkIn["arrival"] = $checkIn["startTime"];
+    }
 
-    $checkIn["CheckinVenueName"] = preg_replace("/ WAITING ROOM| Waiting Room/","",$checkIn["CheckinVenueName"]);
+    $checkIn["room"] = preg_replace("/ WAITING ROOM| Waiting Room/","",$checkIn["room"]);
 
-    $start = new DateTime($checkIn["Arrival"] ?? "");
-    $end = new DateTime($checkIn["Discharge"] ?? "");
+    $start = new DateTime($checkIn["arrival"] ?? "");
+    $end = new DateTime($checkIn["discharge"] ?? "");
 
-    $checkIn["Arrival"] = $start->format("H:i:s");
-    $checkIn["Discharge"] = $end->format("H:i:s");
+    $checkIn["arrival"] = $start->format("H:i:s");
+    $checkIn["discharge"] = $end->format("H:i:s");
     $checkIn["waitTime"] = $end->getTimestamp() - $start->getTimestamp();
 
     #keys must be strings to use array_merge later
     return [
-            $checkIn["ResourceCode"] => [
-                "name"                          => [$checkIn["ResourceName"]],
-                "!$checkIn[AppointmentSerNum]"  => [
-                    "fname"     => [$checkIn["FirstName"]],
-                    "lname"     => [$checkIn["LastName"]],
-                    "mrn"       => [$checkIn["MedicalRecordNumber"]],
-                    "site"      => [$checkIn["HospitalCode"]],
-                    "room"      => [$checkIn["CheckinVenueName"]],
-                    "day"       => [$checkIn["Date"]],
+            $checkIn["resourceCode"] => [
+                "name"                          => [$checkIn["resourceCode"]],
+                "!$checkIn[appointmentId]"  => [
+                    "fname"     => [$checkIn["fname"]],
+                    "lname"     => [$checkIn["lname"]],
+                    "mrn"       => [$checkIn["mrn"]],
+                    "site"      => [$checkIn["site"]],
+                    "room"      => [$checkIn["room"]],
+                    "day"       => [$checkIn["day"]],
                     "waitTime"  => [$checkIn["waitTime"]],
-                    "arrival"   => [$checkIn["Arrival"]],
-                    "discharge" => [$checkIn["Discharge"]],
+                    "arrival"   => [$checkIn["arrival"]],
+                    "discharge" => [$checkIn["discharge"]],
                 ]
             ]
     ];
-},$query->fetchAll());
+},$appointments);
 
 #combine all entries that have the same resource and appointment sernum
 $resources = array_merge_recursive(...$resources);

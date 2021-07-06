@@ -3,7 +3,6 @@
 namespace Orms\DataAccess;
 
 use PDO;
-use PDOStatement;
 
 use Orms\Config;
 use Orms\DatabaseConfig;

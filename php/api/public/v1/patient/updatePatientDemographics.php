@@ -85,15 +85,15 @@ elseif(count($patients) === 1)
 //case 3: mrns belong to different patients
 //this usually happens because link or merge was done for an mrn in the patients hospital chart
 //merge patient and patient related information
-// else
-// {
-//     //repeat the merge until all mrns belong to one patient
-//     while(count($patients) > 1)
-//     {
-//         PatientInterface::mergePatientEntries($patients[0],$patients[1]);
-//         $patients = getPatientsFromMrns($demographics->mrns);
-//     }
-// }
+else
+{
+    //repeat the merge until all mrns belong to one patient
+    while(count($patients) > 1)
+    {
+        PatientInterface::mergePatientEntries($patients[0],$patients[1]);
+        $patients = getPatientsFromMrns($demographics->mrns);
+    }
+}
 
 //case 4: incorrect information given about patients (delete ramqs and the like)
 //  make separate api?

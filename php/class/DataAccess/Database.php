@@ -127,11 +127,11 @@ class Database
     {
         $query = $dbh->prepare("
             SELECT
-                TABLE_NAME AS table,
-                COLUMN_NAME AS column,
-                CONSTRAINT_NAME AS constraintName,
-                REFERENCED_TABLE_NAME as referencedTable,
-                REFERENCED_COLUMN_NAME as referencedColumn
+                TABLE_NAME,
+                COLUMN_NAME,
+                CONSTRAINT_NAME,
+                REFERENCED_TABLE_NAME,
+                REFERENCED_COLUMN_NAME
             FROM
                 INFORMATION_SCHEMA.KEY_COLUMN_USAGE
             WHERE

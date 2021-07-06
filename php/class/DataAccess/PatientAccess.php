@@ -25,10 +25,10 @@ class PatientAccess
                 SET
                     FirstName           = :fn,
                     LastName            = :ln,
-                    DateOfBirth         = :dob
+                    DateOfBirth         = :dob,
                     OpalPatient         = :status,
                     SMSAlertNum         = :smsNum,
-                    SMSSignupDate       = IF(:smsNum IS NULL,NULL,COALESCE(SMSSignupDate,NOW()))
+                    SMSSignupDate       = IF(:smsNum IS NULL,NULL,COALESCE(SMSSignupDate,NOW())),
                     SMSLastUpdated      = NOW(),
                     LanguagePreference  = :language
             ";
@@ -414,6 +414,65 @@ class PatientAccess
         return array_map(function($x) {
             return self::deserializePatient((int) $x["PatientSerNum"]);
         },$query->fetchAll());
+    }
+
+    static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
+    {
+        //get the list of columns using the Patient id column
+        $dbh = Database::getOrmsConnection();
+
+        $foreignKeys = Database::getForeignKeysConnectedToColumn($dbh,"Patient","PatientSerNum");
+
+        $dbh->beginTransaction();
+        try
+        {
+            //update the foreign keys from the target to acquirer patient
+            foreach($foreignKeys as $f)
+            {
+                $dbh->prepare("
+                    UPDATE $f[table]
+                    SET
+                        $f[column] = :newValue
+                    WHERE
+                        $f[column] = :oldValue
+                ")->execute([
+                    ":newValue" => $acquirer->id,
+                    ":oldValue" => $target->id
+                ]);
+            }
+
+            //update acquirer patient; merge any information that might have been added to the duplicate
+            $dbh->prepare("
+                UPDATE Patient Acquirer
+                INNER JOIN Patient Target ON Target.PatientSerNum = :targetId
+                SET
+                    Acquirer.SMSAlertNum        = COALESCE(Acquirer.SMSAlertNum,Target.SMSAlertNum),
+                    Acquirer.SMSSignupDate      = COALESCE(Acquirer.SMSSignupDate,Target.SMSSignupDate),
+                    Acquirer.SMSLastUpdated     = COALESCE(Acquirer.SMSLastUpdated,Target.SMSLastUpdated),
+                    Acquirer.OpalPatient        = COALESCE(Acquirer.OpalPatient,Target.OpalPatient),
+                    Acquirer.LanguagePreference = COALESCE(Acquirer.LanguagePreference,Target.LanguagePreference)
+                WHERE
+                    Acquirer.PatientSerNum = :acquirerId
+            ")->execute([
+                ":acquirerId" => $acquirer->id,
+                ":targetId"   => $target->id
+            ]);
+
+            //delete duplicate patient entry
+            $dbh->prepare("
+                DELETE FROM Patient
+                WHERE
+                    Patient.PatientSerNum = ?
+            ")->execute([$target->id]);
+        }
+        catch(Exception $e) {
+            $dbh->rollBack();
+            throw $e;
+        }
+
+        $dbh->commit();
+
+        return self::deserializePatient($acquirer->id) ?? throw new Exception("Failed to merge patients");
     }
 
 }

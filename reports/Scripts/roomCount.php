@@ -18,53 +18,38 @@
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\DateTime;
 use Orms\Util\Encoding;
 use Orms\Util\ArrayUtil;
-use Orms\DataAccess\Database;
+use Orms\DataAccess\ReportAccess;
 
-#parse input parameters
-$sDate  = $_GET["sDate"] ?? NULL; $sDate .= " 00:00:00";
-$eDate  = $_GET["eDate"] ?? NULL; $eDate .= " 23:59:59";
+//parse input parameters
+$sDate  = $_GET["sDate"] ?? NULL;
+$eDate  = $_GET["eDate"] ?? NULL;
 $period = $_GET["period"] ?? NULL;
 $speciality = $_GET["speciality"] ?? NULL;
 
-#check what period of the day the user specified and filter appointments that are not within that timeframe
-$sTime = "00:00:00";
-$eTime = "23:59:59";
+//check what period of the day the user specified and filter appointments that are not within that timeframe
+$sDate = DateTime::createFromFormatN("Y-m-d",$sDate)?->modifyN("midnight") ?? throw new Exception("Invalid date");
+$eDate = DateTime::createFromFormatN("Y-m-d",$eDate)?->modifyN("tomorrow") ?? throw new Exception("Invalid date");
 
-if($period === "AM") $eTime = "12:59:59";
-elseif($period === "PM") $sTime = "13:00:00";
+if($period === "AM") {
+    $sTime = (new DateTime())->modifyN("midnight") ?? throw new Exception("Invalid time");
+    $eTime = DateTime::createFromFormatN("H:i:s","13:00:00") ?? throw new Exception("Invalid time");
+}
+elseif($period === "PM") {
+    $sTime = DateTime::createFromFormatN("H:i:s","13:00:00") ?? throw new Exception("Invalid time");
+    $eTime = DateTime::createFromFormatN("H:i:s","23:59:59") ?? throw new Exception("Invalid time");
+}
+else {
+    $sTime = (new DateTime())->modifyN("midnight") ?? throw new Exception("Invalid time");
+    $eTime = DateTime::createFromFormatN("H:i:s","23:59:59") ?? throw new Exception("Invalid time");
+}
 
-#connect to the database and extract data
-$dbh = Database::getOrmsConnection();
+//get a list of all rooms that patients were checked into and for which appointment
+$rooms = ReportAccess::getRoomUsage($sDate,$eDate,$sTime,$eTime,(int) $speciality);
 
-#get a list of all rooms that patients were checked into and for which appointment
-$query = $dbh->prepare("
-    SELECT DISTINCT
-        CR.ResourceName,
-        PatientLocationMH.CheckinVenueName,
-        MV.ScheduledDate
-    FROM
-        MediVisitAppointmentList MV
-        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            AND CR.SpecialityGroupId = :spec
-        INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
-            AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
-            AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
-            AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN :sTime AND :eTime
-    WHERE
-        MV.ScheduledDateTime BETWEEN :sDate AND :eDate
-        AND MV.Status = 'Completed'"
-);
-$query->execute([
-    ":sDate" => $sDate,
-    ":eDate" => $eDate,
-    ":sTime" => $sTime,
-    ":eTime" => $eTime,
-    ":spec"  => $speciality
-]);
-
-$dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($query->fetchAll()),"CheckinVenueName","ResourceName");
+$dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($rooms),"CheckinVenueName","ResourceName");
 
 $flattenedArr = [];
 foreach($dataArr as $roomKey => $room) {

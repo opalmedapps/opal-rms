@@ -2,9 +2,8 @@
 
 namespace Orms\DataAccess;
 
-use DateTime;
+use Orms\DateTime;
 use Orms\DataAccess\Database;
-use PDOException;
 
 class ReportAccess
 {
@@ -17,8 +16,7 @@ class ReportAccess
      */
     static function getClinicCodes(int $specialityId): array
     {
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
+        $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
                 ResourceName,
                 ResourceCode
@@ -108,8 +106,7 @@ class ReportAccess
         $sqlStringWithStatus = Database::generateBoundedSqlString($sql,":statusFilter:","MV","Status",$statusFilter);
         $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"],":codeFilter:","CR","ResourceName",$codeFilter);
 
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare($sqlStringWithCode["sqlString"]);
+        $query = Database::getOrmsConnection()->prepare($sqlStringWithCode["sqlString"]);
         $query->execute(array_merge(
             [
                 ":sDate" => $startDate->format("Y-m-d H:i:s"),
@@ -139,7 +136,213 @@ class ReportAccess
                 "mediStatus"            => $x["MedivisitStatus"],
             ];
         },$query->fetchAll());
-
     }
 
+    /**
+     *
+     * @return list<array{
+     *  LastName: string,
+     *  FirstName: string,
+     *  Mrn: string,
+     *  Site: string,
+     *  ResourceCode: string,
+     *  ResourceName: string,
+     *  AppointmentCode: string,
+     *  ScheduledDateTime: string,
+     *  Status: string,
+     *  CheckinVenueName: string,
+     *  ArrivalDateTime: string,
+     *  DichargeThisLocationDateTime: string,
+     *  Duration: string
+     * }>
+     */
+    static function getChemoAppointments(DateTime $startDate,DateTime $endDate): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                P.LastName,
+                P.FirstName,
+                PH.MedicalRecordNumber AS Mrn,
+                H.HospitalCode AS Site,
+                CR.ResourceCode,
+                CR.ResourceName,
+                AC.AppointmentCode,
+                MV.ScheduledDateTime,
+                MV.Status,
+                PL.CheckinVenueName,
+                PL.ArrivalDateTime,
+                PL.DichargeThisLocationDateTime,
+                TIMEDIFF(PL.DichargeThisLocationDateTime,PL.ArrivalDateTime) AS Duration
+            FROM
+                Patient P
+                INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
+                    AND MV.Status = 'Completed'
+                    AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
+                INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
+                    AND PL.PatientLocationRevCount = (
+                        SELECT MIN(PatientLocationMH.PatientLocationRevCount)
+                        FROM PatientLocationMH
+                        WHERE
+                            PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
+                            AND PatientLocationMH.CheckinVenueName LIKE '%TX AREA%'
+                    )
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+                INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                        AND AC.AppointmentCode LIKE '%CHM%'
+                INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+                    AND PH.HospitalId = SG.HospitalId
+                    AND PH.Active = 1
+                INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+            ORDER BY
+                MV.ScheduledDateTime,
+                Site,
+                Mrn
+        ");
+        $query->execute([
+            ":sDate" => $startDate->format("Y-m-d H:i:s"),
+            ":eDate" => $endDate->format("Y-m-d H:i:s")
+        ]);
+
+        return array_map(function($x) {
+            return [
+                "LastName"                      => $x["LastName"],
+                "FirstName"                     => $x["FirstName"],
+                "Mrn"                           => $x["Mrn"],
+                "Site"                          => $x["Site"],
+                "ResourceCode"                  => $x["ResourceCode"],
+                "ResourceName"                  => $x["ResourceName"],
+                "AppointmentCode"               => $x["AppointmentCode"],
+                "ScheduledDateTime"             => $x["ScheduledDateTime"],
+                "Status"                        => $x["Status"],
+                "CheckinVenueName"              => $x["CheckinVenueName"],
+                "ArrivalDateTime"               => $x["ArrivalDateTime"],
+                "DichargeThisLocationDateTime"  => $x["DichargeThisLocationDateTime"],
+                "Duration"                      => $x["Duration"],
+            ];
+        },$query->fetchAll());
+    }
+
+    /**
+     *
+     * @return list<array{
+     *  ResourceName: string,
+     *  CheckinVenueName: string,
+     *  ScheduledDate: string
+     * }>
+     */
+    static function getRoomUsage(DateTime $startDate,DateTime $endDate,DateTime $startTime,DateTime $endTime,int $specialityGroupId): array
+    {
+        #get a list of all rooms that patients were checked into and for which appointment
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                CR.ResourceName,
+                PatientLocationMH.CheckinVenueName,
+                MV.ScheduledDate
+            FROM
+                MediVisitAppointmentList MV
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                    AND CR.SpecialityGroupId = :spec
+                INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
+                    AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
+                    AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
+                    AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN :sTime AND :eTime
+            WHERE
+                MV.ScheduledDateTime BETWEEN :sDate AND :eDate
+                AND MV.Status = 'Completed'
+        ");
+        $query->execute([
+            ":sDate" => $startDate->format("Y-m-d H:i:s"),
+            ":eDate" => $endDate->format("Y-m-d H:i:s"),
+            ":sTime" => $startTime->format("H:i:s"),
+            ":eTime" => $endTime->format("H:i:s"),
+            ":spec"  => $specialityGroupId
+        ]);
+
+        return array_map(function($x) {
+            return [
+                "ResourceName"     => $x["ResourceName"],
+                "CheckinVenueName" => $x["CheckinVenueName"],
+                "ScheduledDate"    => $x["ScheduledDate"],
+            ];
+        },$query->fetchAll());
+    }
+
+    /**
+     *
+     * @return list<array{
+     *  fname: string,
+     *  lname: string,
+     *  mrn: string,
+     *  site: string,
+     *  room: string,
+     *  day: string,
+     *  arrival: string,
+     *  discharge: string,
+     *  startTime: string,
+     *  resourceCode: string,
+     *  appointmentId: int
+     * }>
+     */
+    static function getWaitingRoomAppointments(DateTime $startDate,DateTime $endDate,int $specialityGroupId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                CR.ResourceCode,
+                CR.ResourceName,
+                MV.ScheduledDateTime,
+                PL.AppointmentSerNum,
+                P.FirstName,
+                P.LastName,
+                PH.MedicalRecordNumber,
+                H.HospitalCode,
+                PL.PatientLocationRevCount,
+                CAST(PL.ArrivalDateTime AS DATE) AS Date,
+                PL.ArrivalDateTime AS Arrival,
+                PL.DichargeThisLocationDateTime AS Discharge,
+                PL.CheckinVenueName
+            FROM
+                MediVisitAppointmentList MV
+                INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+                INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
+                    AND (
+                        PL.CheckinVenueName LIKE '%Waiting%'
+                        OR PL.CheckinVenueName LIKE '%WAITING%'
+                    )
+                    AND PL.ArrivalDateTime BETWEEN :sDate AND :eDate
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+                    AND SG.SpecialityGroupId = :spec
+                INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+                    AND PH.HospitalId = SG.HospitalId
+                    AND PH.Active = 1
+                INNER JOIN Hospital H ON H.HospitalId = SG.HospitalId
+            ORDER BY
+                P.LastName,
+                P.FirstName,
+                PL.AppointmentSerNum,
+                PL.ArrivalDateTime
+        ");
+        $query->execute([
+            ":sDate" => $startDate->format("Y-m-d H:i:s"),
+            ":eDate" => $endDate->format("Y-m-d H:i:s"),
+            ":spec"  => $specialityGroupId
+        ]);
+
+        return array_map(function($x) {
+            return [
+                "fname"         => $x["FirstName"],
+                "lname"         => $x["LastName"],
+                "mrn"           => $x["MedicalRecordNumber"],
+                "site"          => $x["HospitalCode"],
+                "room"          => $x["CheckinVenueName"],
+                "day"           => $x["Date"],
+                "arrival"       => $x["Arrival"],
+                "discharge"     => $x["Discharge"],
+                "startTime"     => $x["ScheduledDateTime"],
+                "resourceCode"  => $x["ResourceCode"],
+                "appointmentId" => (int) $x["AppointmentSerNum"]
+            ];
+        },$query->fetchAll());
+    }
 }

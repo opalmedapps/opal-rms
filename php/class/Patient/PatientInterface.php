@@ -142,51 +142,8 @@ class PatientInterface
      * @param Patient $acquirer the patient entry that will remain after the merge
      * @param Patient $target the patient entry that will be merged (and then deleted)
      */
-    // static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
-    // {
-    //     //get the list of columns using the Patient id column
-    //     $dbh = Database::getOrmsConnection();
-
-    //     $foreignKeys = Database::getForeignKeysConnectedToColumn($dbh,"Patient","PatientSerNum");
-
-    //     foreach($foreignKeys as $f)
-    //     {
-    //         $dbh->prepare("
-    //             UPDATE $f[table]
-    //             SET
-    //                 $f[column] = :newValue
-    //             WHERE
-    //                 $f[column] = :oldValue
-    //         ")->execute([
-    //             ":newValue" => $acquirer->id,
-    //             ":oldValue" => $target->id
-    //         ]);
-    //     }
-
-    //     //update original patient; merge any information that might have been added to the duplicate
-    //     $dbh->prepare("
-    //         UPDATE Patient Acquirer
-    //         INNER JOIN Patient Target ON Target.PatientSerNum = :targetId
-    //         SET
-    //             Acquirer.SMSAlertNum        = COALESCE(Acquirer.SMSAlertNum,Target.SMSAlertNum),
-    //             Acquirer.SMSSignupDate      = COALESCE(Acquirer.SMSSignupDate,Target.SMSSignupDate),
-    //             Acquirer.SMSLastUpdate      = COALESCE(Acquirer.SMSLastUpdate,Target.SMSLastUpdate),
-    //             Acquirer.OpalPatient        = COALESCE(Acquirer.OpalPatient,Target.OpalPatient),
-    //             Acquirer.LanguagePreference = COALESCE(Acquirer.LanguagePreference,Target.LanguagePreference)
-    //         WHERE
-    //             Acquirer.PatientSerNum = :acquirerId
-    //     ")->execute([
-    //         ":acquirerId" => $acquirer->id,
-    //         ":targetId"   => $target->id
-    //     ]);
-
-    //     //delete duplicate patient entry
-    //     $dbh->prepare("
-    //         DELETE FROM Patient
-    //         WHERE
-    //             Patient.PatientSerNum = ?
-    //     ")->execute([$target->id]);
-
-    //     return self::getPatientById($acquirer->id) ?? throw new Exception("Failed to merge patients");
-    // }
+    static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
+    {
+        return PatientAccess::mergePatientEntries($acquirer,$target);
+    }
 }

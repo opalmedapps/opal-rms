@@ -8,9 +8,14 @@ use Orms\DataAccess\PatientAccess;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Insurance;
+use ReflectionMethod;
 
 class PatientInterface
 {
+    //constants used in the updatePatientInformation() function to separate user provided nulls from default nulls
+    private const NO_PHONE_NUMBER = "000-0000-0000";
+    private const NO_LANGUAGE = "UNKNOWN_LANG";
+
     static function getPatientById(int $id): ?Patient
     {
         return self::_fetchPatient($id);
@@ -88,7 +93,7 @@ class PatientInterface
     }
 
     /**
-     * Returns a new version of the patient with the specified field(s) updated
+     * Returns a new version of the patient with the specified field(s) updated.
      * @param Mrn[] $mrns
      * @param Insurance[] $insurances
      */
@@ -97,21 +102,29 @@ class PatientInterface
         string $firstName = NULL,
         string $lastName = NULL,
         Datetime $dateOfBirth = NULL,
-        ?string $phoneNumber = NULL,
+        ?string $phoneNumber = self::NO_PHONE_NUMBER,
         int $opalStatus = NULL,
-        ?string $languagePreference = NULL,
+        ?string $languagePreference = self::NO_LANGUAGE,
         array $mrns = NULL,
         array $insurances = NULL
     ): Patient
     {
-        //phone number must be exactly 10 digits
-        if($phoneNumber !== NULL && !preg_match("/[0-9]{10}/",$phoneNumber)) {
-            throw new Exception("Invalid phone number");
+        //since the phone number can be null, we can't tell apart the default null or a user inputted null
+        //so we use a class constant to differentiate them
+        if($phoneNumber === self::NO_PHONE_NUMBER) {
+            $phoneNumber = $patient->phoneNumber;
+            $languagePreference = $patient->languagePreference;
         }
+        else {
+            //phone number must be exactly 10 digits
+            if($phoneNumber !== NULL && !preg_match("/[0-9]{10}/",$phoneNumber)) {
+                throw new Exception("Invalid phone number");
+            }
 
-        //if the patient has a phone number, the language preference must also be specified
-        if($phoneNumber !== NULL && $languagePreference === NULL) {
-            throw new Exception("Phone number must have a language preference");
+            //if the patient has a phone number, the language preference must also be specified
+            if($phoneNumber !== NULL && ($languagePreference === NULL || $languagePreference === self::NO_LANGUAGE)) {
+                throw new Exception("Phone number must have a language preference");
+            }
         }
 
         $newPatient = new Patient(
@@ -119,9 +132,9 @@ class PatientInterface
             firstName:           $firstName ?? $patient->firstName,
             lastName:            $lastName ?? $patient->lastName,
             dateOfBirth:         $dateOfBirth ?? $patient->dateOfBirth,
-            phoneNumber:         $phoneNumber ?? $patient->phoneNumber,
+            phoneNumber:         $phoneNumber,
             opalStatus:          $opalStatus ?? $patient->opalStatus,
-            languagePreference:  $languagePreference ?? $patient->languagePreference,
+            languagePreference:  $languagePreference,
             mrns:                $mrns ?? $patient->mrns,
             insurances:          $insurances ?? $patient->insurances
         );

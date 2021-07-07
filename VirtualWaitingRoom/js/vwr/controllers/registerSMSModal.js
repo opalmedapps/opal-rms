@@ -7,12 +7,14 @@ angular.module('vwr').component('registerSMSModal',
 function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
 {
     $scope.patient = patient;
+
     if(patient.SMSAlertNum) {
         $scope.patient.enteredNumber = patient.SMSAlertNum.replace(/-/g,"");
     }
     else {
-        $scope.patient.enteredNumber = "";
+        $scope.patient.enteredNumber = null;
     }
+
     $scope.patient.selectedLanguage = patient.LanguagePreference;
 
     $scope.patient.phoneNumberIsValid = false;
@@ -26,13 +28,13 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
     $scope.addSMS = function()
     {
         $http({
-            url: "php/sms/setPatientMobileNumber.php",
+            url: "/php/api/private/v1/patient/updatePhoneNumber",
             method: "GET",
             params: {
                 patientId: patient.PatientId,
-                phoneNumber: $scope.patient.enteredNumber,
-                language: $scope.patient.selectedLanguage,
-                speciality: $scope.patient.SpecialityGroupId
+                phoneNumber: $scope.patient.enteredNumber || null,
+                languagePreference: $scope.patient.selectedLanguage,
+                specialityGroupId: $scope.patient.SpecialityGroupId
             }
         }).then(function(_)
         {

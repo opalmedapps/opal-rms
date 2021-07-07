@@ -34,6 +34,7 @@ if($patient !== NULL)
         $response[] = [
             "last"      => $patient->lastName,
             "first"     => $patient->firstName,
+            "patientId" => $patient->id,
             "ramq"      => array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->number ?? NULL,
             "ramqExp"   => (array_values(array_filter($patient->insurances,fn($x) => $x->type === "RAMQ"))[0]->expiration ?? NULL)?->modifyN("first day of")?->format("Y-m-d"),
             "mrn"       => $mrn->mrn,

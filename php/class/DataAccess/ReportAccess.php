@@ -46,7 +46,7 @@ class ReportAccess
      *      lname: string,
      *      mrn: string,
      *      site: string,
-     *      ramq: string,
+     *      ramq: ?string,
      *      appName: string,
      *      appClinic: string,
      *      appType: string,
@@ -55,8 +55,8 @@ class ReportAccess
      *      appTime: string,
      *      checkin: ?string,
      *      createdToday: bool,
-     *      referringPhysician: string,
-     *      mediStatus: string
+     *      referringPhysician: ?string,
+     *      mediStatus: ?string
      * }>
      */
     static function getListOfAppointmentsInDateRange(DateTime $startDate,DateTime $endDate,int $specialiyGroupId,array $statusFilter,array $codeFilter): array
@@ -123,7 +123,7 @@ class ReportAccess
                 "lname"                 => $x["LastName"],
                 "mrn"                   => $x["MedicalRecordNumber"],
                 "site"                  => $x["HospitalCode"],
-                "ramq"                  => $x["InsuranceNumber"],
+                "ramq"                  => $x["InsuranceNumber"] ?? NULL,
                 "appName"               => $x["ResourceName"],
                 "appClinic"             => $x["ResourceCode"],
                 "appType"               => $x["AppointmentCode"],

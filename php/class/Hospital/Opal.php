@@ -76,8 +76,19 @@ class Opal
         $query = $dbh->prepare("CALL getQuestionnaireListORMS(?,?)");
         $query->execute([$mrn,$opalDb]);
 
-        /** @phpstan-ignore-next-line */
-        return $query->fetchAll();
+        return array_map(function($x) {
+            return [
+                "PatientId"             => $x["PatientId"],
+                "CompletionDate"        => $x["CompletionDate"],
+                "Status"                => $x["Status"],
+                "QuestionnaireDBSerNum" => $x["QuestionnaireDBSerNum"],
+                "QuestionnaireName_EN"  => $x["QuestionnaireName_EN"],
+                "Total"                 => $x["Total"],
+                "Sex"                   => $x["Sex"],
+                "Age"                   => $x["Age"],
+                "Visualization"         => $x["Visualization"],
+            ];
+        },$query->fetchAll());
     }
 
     /**
@@ -109,8 +120,19 @@ class Opal
         $query = $dbh->prepare("CALL getQuestionnaireListORMS(?,?)");
         $query->execute([$mrn,$opalDb]);
 
-        /** @phpstan-ignore-next-line */
-        return $query->fetchAll();
+        return array_map(function($x) {
+            return [
+                "PatientId"             => $x["PatientId"],
+                "CompletionDate"        => $x["CompletionDate"],
+                "Status"                => $x["Status"],
+                "QuestionnaireDBSerNum" => $x["QuestionnaireDBSerNum"],
+                "QuestionnaireName_EN"  => $x["QuestionnaireName_EN"],
+                "Total"                 => $x["Total"],
+                "Sex"                   => $x["Sex"],
+                "Age"                   => $x["Age"],
+                "Visualization"         => $x["Visualization"],
+            ];
+        },$query->fetchAll());
     }
 
     /**

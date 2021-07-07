@@ -10,8 +10,8 @@ use Orms\Util\Encoding;
 use Orms\DataAccess\ReportAccess;
 
 #parse input parameters
-$sDate        = $_GET["sDate"] ?? NULL;
-$eDate        = $_GET["eDate"] ?? NULL;
+$sDate        = $_GET["sDate"] ?? throw new Exception("Invalid date");
+$eDate        = $_GET["eDate"] ?? throw new Exception("Invalid date");
 $speciality   = $_GET["speciality"] ?? NULL; #speciality of appointments to find
 $method       = $_GET["method"] ?? NULL; #normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
@@ -130,6 +130,7 @@ $summary["name"] = "Total";
 
 #sum all graph data for the same time categories
 $summedGraphData = [];
+/** @psalm-suppress PossiblyInvalidIterator */
 foreach($summary["graphData"] ?? [] as $data) {
     #data has format [category,# of patients]
     if(!array_key_exists("$data[0]",$summedGraphData)) $summedGraphData["$data[0]"] = 0;
@@ -148,6 +149,7 @@ array_unshift($resources,$summary);
 #calculate mean and std
 foreach($resources as &$res)
 {
+    /** @psalm-suppress PossiblyInvalidArgument */
     $patientWaitTimes = array_map(function($val) {
         return $val["waitTime"];
     },$res["patientData"] ?? []);

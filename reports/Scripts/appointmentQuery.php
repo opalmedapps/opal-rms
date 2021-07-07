@@ -53,6 +53,7 @@ $clinics = ReportAccess::getClinicCodes((int) $speciality);
 $appointments = ReportAccess::getListOfAppointmentsInDateRange($sDate,$eDate,(int) $speciality,$statusFilter,$codeFilter);
 
 $appointments = array_filter($appointments,function($x) use ($arrived,$notArrived,$mediAbsent,$mediAddOn,$mediCancelled,$mediPresent) {
+    /** @psalm-suppress RedundantCondition */
     if(
         ($arrived && !$notArrived && $x["createdToday"])
         || (!$arrived && $notArrived && !$x["createdToday"])
@@ -64,10 +65,10 @@ $appointments = array_filter($appointments,function($x) use ($arrived,$notArrive
         $valid = FALSE;
     }
 
-    if(!$mediAbsent && preg_match("/Absent/",$x["mediStatus"]))            $valid = FALSE;
-    elseif(!$mediAddOn && preg_match("/Add-on/",$x["mediStatus"]))         $valid = FALSE;
-    elseif(!$mediCancelled && preg_match("/Cancelled/",$x["mediStatus"]))  $valid = FALSE;
-    elseif(!$mediPresent && preg_match("/Pr.sent/",$x["mediStatus"]))      $valid = FALSE;
+    if(!$mediAbsent && preg_match("/Absent/",$x["mediStatus"] ?? ""))            $valid = FALSE;
+    elseif(!$mediAddOn && preg_match("/Add-on/",$x["mediStatus"] ?? ""))         $valid = FALSE;
+    elseif(!$mediCancelled && preg_match("/Cancelled/",$x["mediStatus"] ?? ""))  $valid = FALSE;
+    elseif(!$mediPresent && preg_match("/Pr.sent/",$x["mediStatus"] ?? ""))      $valid = FALSE;
 
     return $valid;
 });

@@ -24,8 +24,8 @@ use Orms\Util\ArrayUtil;
 use Orms\DataAccess\ReportAccess;
 
 //parse input parameters
-$sDate  = $_GET["sDate"] ?? NULL;
-$eDate  = $_GET["eDate"] ?? NULL;
+$sDate  = $_GET["sDate"] ?? throw new Exception("Invalid date");
+$eDate  = $_GET["eDate"] ?? throw new Exception("Invalid date");
 $period = $_GET["period"] ?? NULL;
 $speciality = $_GET["speciality"] ?? NULL;
 

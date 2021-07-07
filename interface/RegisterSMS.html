@@ -13,10 +13,9 @@
     </table>
     <p>
 
-    <form action="/php/api/private/v1/patient/registerPhoneNumber.php">
+    <form action="/php/api/private/v1/patient/updatePhoneNumber.php">
     <input type="hidden" name="specialityGroupId" value="{{specialityGroupId}}">
-    <input type="hidden" name="mrn" value="{{mrn}}">
-    <input type="hidden" name="site" value="{{site}}">
+    <input type="hidden" name="patientId" value="{{patientId}}">
     <table border="0" width="50%" padding="2">
 
     <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Register Patient</font></th></tr>
@@ -102,6 +101,7 @@ app.controller('main', function($scope,$location,$cookies)
 
     $scope.mrn = pageParams.mrn;
     $scope.site = pageParams.site;
+    $scope.patientId = pageParams.patientId;
 
     $scope.specialityGroupId = $cookies.get("specialityGroupId");
 

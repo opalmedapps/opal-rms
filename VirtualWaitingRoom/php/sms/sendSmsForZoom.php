@@ -1,52 +1,40 @@
 <?php declare(strict_types = 1);
 
-#====================================================================================
-# php code to send an SMS message to a given patient using their cell number
-# registered in the ORMS database
-#====================================================================================
+//====================================================================================
+// php code to send an SMS message to a given patient using their cell number for a telemed appointment
+//====================================================================================
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
+use Orms\Patient\PatientInterface;
+use Orms\Http;
 use Orms\Sms\SmsInterface;
 
-# Extract the webpage parameters
+$patientId  = $_GET["patientId"] ?? NULL;
+$zoomLink   = $_GET["zoomLink"] ?? NULL;
+$resName    = $_GET["resName"] ?? NULL;
 
-$patientId    = $_GET["patientId"];
-$zoomLink     = $_GET["zoomLink"];
-$resName      = $_GET["resName"];
+if($patientId === NULL || $zoomLink === NULL || $resName === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Missing parameters!");
+}
 
-#find the patient in ORMS
-$dbh = Database::getOrmsConnection();
+$patient = PatientInterface::getPatientById($patientId);
 
-$queryOrms = $dbh->prepare("
-    SELECT
-        P.SMSAlertNum,
-        P.LanguagePreference
-    FROM
-        Patient P
-    WHERE
-        P.PatientSerNum = :pSer
-");
-$queryOrms->execute([
-    ":pSer" => $patientId,
-]);
+if($patient === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+}
 
-$patInfo = $queryOrms->fetchAll()[0] ?? NULL;
+if($patient->phoneNumber === NULL) {
+    Http::generateResponseJsonAndExit(400,error: "Patient has no phone number");
+}
 
-if($patInfo === NULL) exit("Patient not found");
-
-#create the message in the patient's prefered language
-$smsAlertNum = $patInfo["SMSAlertNum"];
-$language = $patInfo["LanguagePreference"];
-
-if($language === "French") {
+//create the message in the patient's prefered language
+if($patient->languagePreference === "French") {
     $message = "Teleconsultation CUSM: $zoomLink. Clickez sur le lien pour connecter avec $resName";
 }
 else {
     $message = "MUHC teleconsultation: $zoomLink. Use this link to connect with $resName.";
 }
 
-#send sms
-SmsInterface::sendSms($smsAlertNum,$message);
+SmsInterface::sendSms($patient->phoneNumber,$message);
 
-echo "message should have been sent...";
+Http::generateResponseJsonAndExit(200);

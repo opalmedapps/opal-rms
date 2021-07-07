@@ -20,4 +20,8 @@
         <MissingClosureParamType errorLevel="suppress" />
         <MissingClosureReturnType errorLevel="suppress" />
     </issueHandlers>
+
+    <stubs>
+        <file name="php/stub/PDOStatement.stub" />
+    </stubs>
 </psalm>

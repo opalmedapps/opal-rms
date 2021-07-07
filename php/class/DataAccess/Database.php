@@ -146,11 +146,11 @@ class Database
 
         return array_map(function($x) {
             return [
-                "table"             => (string) $x["TABLE_NAME"],
-                "column"            => (string) $x["COLUMN_NAME"],
-                "constraintName"    => (string) $x["CONSTRAINT_NAME"],
-                "referencedTable"   => (string) $x["REFERENCED_TABLE_NAME"],
-                "referencedColumn"  => (string) $x["REFERENCED_COLUMN_NAME"],
+                "table"             => $x["TABLE_NAME"],
+                "column"            => $x["COLUMN_NAME"],
+                "constraintName"    => $x["CONSTRAINT_NAME"],
+                "referencedTable"   => $x["REFERENCED_TABLE_NAME"],
+                "referencedColumn"  => $x["REFERENCED_COLUMN_NAME"],
             ];
         },$query->fetchAll());
     }

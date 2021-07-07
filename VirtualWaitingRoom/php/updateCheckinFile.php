@@ -83,19 +83,54 @@ $queryWRM = $dbh->prepare("
 ");
 $queryWRM->execute();
 
-foreach($queryWRM->fetchAll() as $row)
+$appointments = array_map(function($x) {
+    return [
+        "AppointmentId"           => $x["AppointmentId"],
+        "SourceId"                => $x["SourceId"],
+        "SpecialityGroupId"       => $x["SpecialityGroupId"],
+        "ArrivalDateTime"         => $x["ArrivalDateTime"],
+        "AppointmentName"         => $x["AppointmentName"],
+        "LastName"                => $x["LastName"],
+        "FirstName"               => $x["FirstName"],
+        "PatientId"               => $x["PatientId"],
+        "Mrn"                     => $x["Mrn"],
+        "Site"                    => $x["Site"],
+        "OpalPatient"             => $x["OpalPatient"],
+        "SMSAlertNum"             => $x["SMSAlertNum"],
+        "LanguagePreference"      => $x["LanguagePreference"],
+        "Status"                  => $x["Status"],
+        "ResourceName"            => $x["ResourceName"],
+        "ScheduledStartTime"      => $x["ScheduledStartTime"],
+        "ScheduledStartTime_hh"   => $x["ScheduledStartTime_hh"],
+        "ScheduledStartTime_mm"   => $x["ScheduledStartTime_mm"],
+        "TimeRemaining"           => $x["TimeRemaining"],
+        "WaitTime"                => $x["WaitTime"],
+        "ArrivalDateTime_hh"      => $x["ArrivalDateTime_hh"],
+        "ArrivalDateTime_mm"      => $x["ArrivalDateTime_mm"],
+        "VenueId"                 => $x["VenueId"],
+        "CheckinSystem"           => $x["CheckinSystem"],
+        "Birthday"                => $x["Birthday"],
+        "WeightDate"              => $x["WeightDate"],
+        "Weight"                  => $x["Weight"],
+        "Height"                  => $x["Height"],
+        "BSA"                     => $x["BSA"],
+        "LastQuestionnaireReview" => $x["LastQuestionnaireReview"],
+    ];
+},$queryWRM->fetchAll());
+
+foreach($appointments as $row)
 {
     //perform some processing
     if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
 
     //if the weight was entered today, indicate it
-    if(time() - (60*60*24) < strtotime($row['WeightDate']))
+    if(time() - (60*60*24) < strtotime($row["WeightDate"]))
     {
-        $row['WeightDate'] = 'Today';
+        $row["WeightDate"] = "Today";
     }
     else
     {
-        $row['WeightDate'] = 'Old';
+        $row["WeightDate"] = "Old";
     }
 
     $row["ArrivalDateTime"] = $row["ArrivalDateTime"] ?? ""; //just to get psalm to stop complaining
@@ -122,10 +157,8 @@ foreach($queryWRM->fetchAll() as $row)
             $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : NULL;
 
             if(
-                (
-                    $lastCompleted !== NULL
-                    && $row["LastQuestionnaireReview"] === NULL
-                )
+                /** @phpstan-ignore-next-line */
+                ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
                 ||
                 (
                     ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
@@ -146,14 +179,17 @@ foreach($queryWRM->fetchAll() as $row)
         "OpalPatient",
         "PatientId",
         "AppointmentId",
-        "SpecialityGroupId"] as $x) {
+        "SpecialityGroupId"
+    ] as $x) {
+        /** @psalm-suppress RedundantCast */
         $row[$x] = (int) $row[$x];
     }
 
     foreach([
         "BSA",
         "Height",
-        "Weight"] as $x) {
+        "Weight"
+    ] as $x) {
         $row[$x] = (float) $row[$x];
     }
 

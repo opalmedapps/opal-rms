@@ -244,7 +244,7 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
         $recentlyAnswered = $pat["RecentlyAnswered"] ?? NULL;
 
         if(! (
-            in_array($pat["PatientSerNum"],$patientList) === FALSE
+            in_array($pat["PatientSerNum"] ?? NULL,$patientList) === FALSE
             && ($offbutton === "OFF" || $recentlyAnswered === "1")
             && ($qType === "all" || $pat["QuestionnaireName"] !== NULL)
             && $pat["QuestionnaireCompletionDate"] !== NULL

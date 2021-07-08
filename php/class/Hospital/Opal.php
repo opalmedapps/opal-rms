@@ -47,8 +47,6 @@ class Opal
      *  - QuestionnaireDBSerNum
      *  - QuestionnaireName_EN
      *  - Total
-     *  - Sex
-     *  - Age
      *  - Visualization
      * @return list<array{
      *      PatientId: string,
@@ -57,8 +55,6 @@ class Opal
      *      QuestionnaireDBSerNum: string,
      *      QuestionnaireName_EN: string,
      *      Total: string,
-     *      Sex: string,
-     *      Age: string,
      *      Visualization: string,
      *   }>
      * @throws PDOException
@@ -84,8 +80,6 @@ class Opal
                 "QuestionnaireDBSerNum" => $x["QuestionnaireDBSerNum"],
                 "QuestionnaireName_EN"  => $x["QuestionnaireName_EN"],
                 "Total"                 => $x["Total"],
-                "Sex"                   => $x["Sex"],
-                "Age"                   => $x["Age"],
                 "Visualization"         => $x["Visualization"],
             ];
         },$query->fetchAll());
@@ -100,8 +94,6 @@ class Opal
      *      QuestionnaireDBSerNum: string,
      *      QuestionnaireName_EN: string,
      *      Total: string,
-     *      Sex: string,
-     *      Age: string,
      *      Visualization: string,
      *   }>
      */
@@ -128,8 +120,6 @@ class Opal
                 "QuestionnaireDBSerNum" => $x["QuestionnaireDBSerNum"],
                 "QuestionnaireName_EN"  => $x["QuestionnaireName_EN"],
                 "Total"                 => $x["Total"],
-                "Sex"                   => $x["Sex"],
-                "Age"                   => $x["Age"],
                 "Visualization"         => $x["Visualization"],
             ];
         },$query->fetchAll());
@@ -376,9 +366,6 @@ class Opal
                 P.PatientSerNum
                 ,P.PatientId
                 ,CONCAT(TRIM(P.FirstName),' ',TRIM(P.LastName)) AS Name
-                ,LEFT(P.sex,1) as Sex
-                ,P.DateOfBirth
-                ,P.Age
                 ,P.Language
             FROM
                 Patient P

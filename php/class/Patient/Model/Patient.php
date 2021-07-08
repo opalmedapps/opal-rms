@@ -17,6 +17,7 @@ class Patient
         public string $firstName,
         public string $lastName,
         public Datetime $dateOfBirth,
+        public string $sex,
         public ?string $phoneNumber,
         public int $opalStatus,
         public ?string $languagePreference,

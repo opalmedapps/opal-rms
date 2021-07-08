@@ -25,6 +25,7 @@ $demographics = new class(
     firstName:          $fields["firstName"],
     lastName:           $fields["lastName"],
     dateOfBirth:        $fields["dateOfBirth"],
+    sex:                $fields["sex"],
     ramq:               $fields["ramq"] ?? NULL,
     ramqExpiration:     $fields["ramqExpiration"] ?? NULL,
     mrns:               array_map(fn($x) => new Mrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$fields["mrns"]),
@@ -36,6 +37,7 @@ $demographics = new class(
         public string $firstName,
         public string $lastName,
         string $dateOfBirth,
+        public string $sex,
         public ?string $ramq,
         ?string $ramqExpiration,
         /** @var Mrn[] $mrns */ public array $mrns
@@ -61,11 +63,12 @@ if($patients === [])
 {
     /** @psalm-suppress ArgumentTypeCoercion */
     $patient = PatientInterface::insertNewPatient(
-        $demographics->firstName,
-        $demographics->lastName,
-        $demographics->dateOfBirth,
-        $demographics->mrns,
-        $insurances ?? []
+        firstName:   $demographics->firstName,
+        lastName:    $demographics->lastName,
+        dateOfBirth: $demographics->dateOfBirth,
+        sex:         $demographics->sex,
+        mrns:        $demographics->mrns,
+        insurances:  $insurances ?? []
     );
 }
 //case 2: all mrns belong to the same patient
@@ -78,6 +81,7 @@ elseif(count($patients) === 1)
         firstName:   $demographics->firstName,
         lastName:    $demographics->lastName,
         dateOfBirth: $demographics->dateOfBirth,
+        sex:         $demographics->sex,
         mrns:        $demographics->mrns,
         insurances:  $insurances
     );

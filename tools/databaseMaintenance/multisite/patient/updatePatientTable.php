@@ -17,6 +17,14 @@ class PatientTable
         ");
     }
 
+    static function addSexColumn(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE `Patient`
+	        ADD COLUMN `Sex` VARCHAR(25) NOT NULL AFTER `DateOfBirth`;
+        ");
+    }
+
     static function updateSmsSignupDate(PDO $dbh): void
     {
         $dbh->query("

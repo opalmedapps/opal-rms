@@ -19,9 +19,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         $scope.questionnaireList = response.data;
 
-        $scope.patient.Age = $scope.questionnaireList[0].Age;
-        $scope.patient.Sex = $scope.questionnaireList[0].Sex.substring(0,1);
-
         angular.forEach($scope.questionnaireList, function(val)
         {
             val.Name = val.QuestionnaireName_EN;

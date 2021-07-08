@@ -43,6 +43,8 @@ $queryWRM = $dbh->prepare("
         PL.CheckinVenueName AS VenueId,
         MV.AppointSys AS CheckinSystem,
         DATE_FORMAT(P.DateOfBirth,'%b %d') AS Birthday,
+        TIMESTAMPDIFF(YEAR,P.DateOfBirth,CURDATE()) AS Age,
+        P.Sex,
         PM.Date AS WeightDate,
         PM.Weight,
         PM.Height,
@@ -110,6 +112,8 @@ $appointments = array_map(function($x) {
         "VenueId"                 => $x["VenueId"],
         "CheckinSystem"           => $x["CheckinSystem"],
         "Birthday"                => $x["Birthday"],
+        "Age"                     => $x["Age"],
+        "Sex"                     => substr($x["Sex"],0,1),
         "WeightDate"              => $x["WeightDate"],
         "Weight"                  => $x["Weight"],
         "Height"                  => $x["Height"],
@@ -178,6 +182,7 @@ foreach($appointments as $row)
         "WaitTime",
         "OpalPatient",
         "PatientId",
+        "Age",
         "AppointmentId",
         "SpecialityGroupId"
     ] as $x) {

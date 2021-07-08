@@ -87,6 +87,8 @@ $queryAppointments = $dbh->prepare("
         MV.MedivisitStatus,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = P.PatientSerNum) AS LastQuestionnaireReview,
         P.OpalPatient,
+        TIMESTAMPDIFF(YEAR,P.DateOfBirth,CURDATE()) AS Age,
+        P.Sex,
         P.SMSAlertNum
     FROM
         Patient P
@@ -196,6 +198,8 @@ if($afilter === FALSE)
                 "mediStatus"    => $app["MedivisitStatus"],
                 "QStatus"       => $app["QStatus"],
                 "opalpatient"   => $app["OpalPatient"],
+                "age"           => $app["Age"],
+                "sex"           => substr($app["Sex"],0,1),
                 "SMSAlertNum"   => $app["SMSAlertNum"],
                 "LastReview"    => $app["LastQuestionnaireReview"],
             ];
@@ -220,6 +224,8 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             H.HospitalCode,
             P.PatientSerNum,
             P.OpalPatient,
+            TIMESTAMPDIFF(YEAR,P.DateOfBirth,CURDATE()) AS Age,
+            P.Sex,
             P.SMSAlertNum,
             (
                 SELECT
@@ -251,7 +257,7 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
         )) continue;
 
         $queryPatientInformation->execute([
-            ":mrn" => $pat["Mrn"],
+            ":mrn"  => $pat["Mrn"],
             ":site" => $pat["Site"]
         ]);
         $ormsInfo = $queryPatientInformation->fetchAll()[0] ?? [];
@@ -291,6 +297,8 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             "mediStatus"    => NULL,
             "QStatus"       => $pat["QStatus"],
             "opalpatient"   => $ormsInfo["OpalPatient"],
+            "age"           => $ormsInfo["Age"],
+            "sex"           => substr($ormsInfo["Sex"],0,1),
             "SMSAlertNum"   => $ormsInfo["SMSAlertNum"],
             "LastReview"    => $ormsInfo["LastQuestionnaireReview"],
         ];

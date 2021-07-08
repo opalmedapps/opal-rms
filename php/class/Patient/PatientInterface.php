@@ -8,7 +8,6 @@ use Orms\DataAccess\PatientAccess;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Insurance;
-use ReflectionMethod;
 
 class PatientInterface
 {
@@ -47,20 +46,22 @@ class PatientInterface
         string $firstName,
         string $lastName,
         DateTime $dateOfBirth,
+        string $sex,
         array $mrns,
         array $insurances
     ): Patient
     {
         $newPatient = new Patient(
-            id                  : -1, //id is negative to indicate that the patient doesn't exist in the system
-            firstName           : $firstName,
-            lastName            : $lastName,
-            dateOfBirth         : $dateOfBirth,
-            phoneNumber         : NULL,
-            opalStatus          : 0,
-            languagePreference  : NULL,
-            mrns                : $mrns,
-            insurances          : $insurances
+            id:                  -1, //id is negative to indicate that the patient doesn't exist in the system
+            firstName:           $firstName,
+            lastName:            $lastName,
+            dateOfBirth:         $dateOfBirth,
+            sex:                 $sex,
+            phoneNumber:         NULL,
+            opalStatus:          0,
+            languagePreference:  NULL,
+            mrns:                $mrns,
+            insurances:          $insurances
         );
 
         if($newPatient->getActiveMrns() === []) {
@@ -102,6 +103,7 @@ class PatientInterface
         string $firstName = NULL,
         string $lastName = NULL,
         Datetime $dateOfBirth = NULL,
+        string $sex = NULL,
         ?string $phoneNumber = self::NO_PHONE_NUMBER,
         int $opalStatus = NULL,
         ?string $languagePreference = self::NO_LANGUAGE,
@@ -132,6 +134,7 @@ class PatientInterface
             firstName:           $firstName ?? $patient->firstName,
             lastName:            $lastName ?? $patient->lastName,
             dateOfBirth:         $dateOfBirth ?? $patient->dateOfBirth,
+            sex:                 $sex ?? $patient->sex,
             phoneNumber:         $phoneNumber,
             opalStatus:          $opalStatus ?? $patient->opalStatus,
             languagePreference:  $languagePreference,

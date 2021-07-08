@@ -57,6 +57,7 @@ PatientIdentifiers::createPatientHospitalIdentifierTable($dbh);
 PatientIdentifiers::createPatientInsuranceIdentifierTable($dbh);
 
 PatientTable::addDateOfBirthColumn($dbh);
+PatientTable::addSexColumn($dbh);
 PatientTable::updateSmsSignupDate($dbh);
 
 PatientTable::fixSmsDates($dbh);

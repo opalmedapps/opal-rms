@@ -91,6 +91,7 @@ class PatientAccess
                 LastName,
                 FirstName,
                 DateOfBirth,
+                Sex,
                 SMSAlertNum,
                 OpalPatient,
                 LanguagePreference
@@ -110,6 +111,7 @@ class PatientAccess
             firstName:             $row["FirstName"],
             lastName:              $row["LastName"],
             dateOfBirth:           new DateTime($row["DateOfBirth"]),
+            sex:                   $row["Sex"],
             phoneNumber:           $row["SMSAlertNum"],
             opalStatus:            (int) $row["OpalPatient"],
             languagePreference:    $row["LanguagePreference"],

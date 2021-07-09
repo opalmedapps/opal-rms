@@ -26,36 +26,30 @@ $demographics = new class(
     lastName:           $fields["lastName"],
     dateOfBirth:        $fields["dateOfBirth"],
     sex:                $fields["sex"],
-    ramq:               $fields["ramq"] ?? NULL,
-    ramqExpiration:     $fields["ramqExpiration"] ?? NULL,
     mrns:               array_map(fn($x) => new Mrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$fields["mrns"]),
+    insurances:         array_map(fn($x) => new Insurance(
+                            $x["insuranceNumber"],
+                            DateTime::createFromFormatN("Y-m-d H:i:s",$x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
+                            $x["type"],
+                            $x["active"]
+                        ),$fields["insurances"])
 ) {
     public DateTime $dateOfBirth;
-    public ?DateTime $ramqExpiration;
 
     function __construct(
         public string $firstName,
         public string $lastName,
         string $dateOfBirth,
         public string $sex,
-        public ?string $ramq,
-        ?string $ramqExpiration,
-        /** @var Mrn[] $mrns */ public array $mrns
+        /** @var Mrn[] $mrns */ public array $mrns,
+        /** @var Insurance[] $insurances */ public array $insurances
     ) {
         $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date of birth");
-        $this->ramqExpiration = DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration ?? "");
     }
 };
 
 //for each of the mrns, check to see if the patient exists in the system
 $patients = getPatientsFromMrns($demographics->mrns);
-
-if($demographics->ramq !== NULL && $demographics->ramqExpiration !== NULL) {
-    $insurances = [new Insurance($demographics->ramq,$demographics->ramqExpiration,"RAMQ",TRUE)];
-}
-else {
-    $insurances = NULL;
-}
 
 //case 1: none of the patient's mrns exist in the system
 //create the patient
@@ -68,7 +62,7 @@ if($patients === [])
         dateOfBirth: $demographics->dateOfBirth,
         sex:         $demographics->sex,
         mrns:        $demographics->mrns,
-        insurances:  $insurances ?? []
+        insurances:  $demographics->insurances
     );
 }
 //case 2: all mrns belong to the same patient
@@ -83,7 +77,7 @@ elseif(count($patients) === 1)
         dateOfBirth: $demographics->dateOfBirth,
         sex:         $demographics->sex,
         mrns:        $demographics->mrns,
-        insurances:  $insurances
+        insurances:  $demographics->insurances
     );
 }
 //case 3: mrns belong to different patients
@@ -99,7 +93,7 @@ else
     }
 }
 
-//case 4: incorrect information given about patients (delete ramqs and the like)
+//case 4: incorrect information given about patients (delete insurances and the like)
 //  make separate api?
 
 Http::generateResponseJsonAndExit(200);

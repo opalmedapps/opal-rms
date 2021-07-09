@@ -139,14 +139,6 @@ paths:
                 sex:
                   description: The patient's sex
                   type: string
-                ramq:
-                  description: The patient's ramq
-                  type: string
-                  pattern: '^[a-zA-Z]{4}\d{8}$'
-                ramqExpiration:
-                  description: Expiration date of the ramq
-                  type: string
-                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
                 mrns:
                   description: List of all mrns of the patient
                   type: array
@@ -163,12 +155,33 @@ paths:
                       active:
                         description: Status of the mrn
                         type: boolean
+                insurances:
+                  description: List of all insurances of the patient
+                  type: array
+                  minItems: 0
+                  items:
+                    type: object
+                    properties:
+                      insuranceNumber:
+                        description: Value of the insurance (not necessarily a number)
+                        type: string
+                      expirationDate:
+                        description: Expiration date of the insurance
+                        type: string
+                        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                      type:
+                        description: Type of the insurance
+                        type: string
+                      active:
+                        description: Status of the insurance
+                        type: boolean
               required:
                 - firstName
                 - lastName
                 - dateOfBirth
                 - sex
                 - mrns
+                - insurances
       responses:
         200:
           $ref: '#/components/responses/200'

@@ -24,17 +24,6 @@ class Fetch
         return ($response === NULL) ? NULL : self::_generateExternalPatient($response);
     }
 
-    static function getExternalPatientByRamq(string $ramq): ?ExternalPatient
-    {
-        $response = Connection::getHttpClient()?->request("POST","patient/get",[
-            "json" => [
-                "ramq"  => $ramq
-            ]
-        ])?->getBody()?->getContents();
-
-        return ($response === NULL) ? NULL : self::_generateExternalPatient($response);
-    }
-
     private static function _generateExternalPatient(string $data): ExternalPatient
     {
         $data = json_decode($data,TRUE)["data"];
@@ -51,18 +40,14 @@ class Fetch
             );
         },$data["mrns"]);
 
-        $insurances = [];
-        $ramq = $data["ramq"] ?? NULL;
-        $ramqExpiration = $data["ramqExpiration"] ?? NULL;
-
-        if($ramq !== NULL && $ramqExpiration !== NULL) {
-            $insurances[] = new Insurance(
-                $ramq,
-                DateTime::createFromFormatN("Y-m-d H:i:s",$ramqExpiration) ?? throw new Exception("Invalid ramq expiration date"),
-                "RAMQ",
-                TRUE
+        $insurances = array_map(function($x) {
+            return new Insurance(
+                $x["insuranceNumber"],
+                DateTime::createFromFormatN("Y-m-d H:i:s",$x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
+                $x["type"],
+                $x["active"]
             );
-        }
+        },$data["insurances"]);
 
         return new ExternalPatient(
             firstName:          $data["firstName"],

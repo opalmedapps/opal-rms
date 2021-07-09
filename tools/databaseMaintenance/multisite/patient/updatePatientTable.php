@@ -119,8 +119,7 @@ class PatientTable
             {
                 //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
                 //start with the ramq
-                //we're only receiving ramqs right now, so no need to filter the insurances
-                $externalRamq = $external->insurances[0]->number ?? NULL;
+                $externalRamq = array_filter($external->insurances,fn($x) => $x->type === "RAMQ")[0]->number ?? NULL;
 
                 //if patient has no ramq, try using first name and last name instead
                 //if the last names match, and the first name from one object is contained in the other, then it's most likely the same patient

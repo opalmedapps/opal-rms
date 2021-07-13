@@ -65,7 +65,19 @@ class PatientIdentifiers
         $dbh->query("
             INSERT INTO `Insurance` (`InsuranceCode`, `InsuranceName`, `Format`)
             VALUES
-                ('RAMQ', 'Régie de l\'assurance maladie du Québec', '^[a-zA-Z]{4}[0-9]{8}$');
+                ('RAMA','Régie de l\'assurance maladie de l\'Alberta','^[0-9]{9}$'),
+                ('RAMC','Régie de l\'assurance maladie de la Colombie-Britannique','^[0-9]{10}$'),
+                ('RAMM','Régie de l\'assurance maladie du Manitoba','^[0-9]{9}$'),
+                ('RAMB','Régie de l\'assurance maladie du Nouveau-Brunswick','^[0-9]{9}$'),
+                ('RAMN','Régie de l\'assurance maladie de Terre-Neuve','^[0-9]{12}$'),
+                ('RAMT','Régie de l\'assurance maladie des Territoires NO','^[0-9]{7}$'),
+                ('RAME','Régie de l\'assurance maladie de la Nouvelle-Ecosse','^[0-9]{10}$'),
+                ('RAMU','Régie de l\'assurance maladie du Nunavut','^[0-9]{9}$'),
+                ('RAMO','Régie de l\'assurance maladie de l\'Ontario','^([0-9]{10}[A-Z]{2}|[0-9]{10})$'),
+                ('RAMI','Régie de l\'assurance maladie de l\'IPE','^[0-9]{8}$'),
+                ('RAMQ','Régie de l\'assurance maladie du Québec','^[a-zA-Z]{4}[0-9]{8}$'),
+                ('RAMS','Régie de l\'assurance maladie de la Saskatchewan','^[0-9]{9}$'),
+                ('RAMY','Régie de l\'assurance maladie du Yukon','^[0-9]{9}$')
         ");
         $dbh->query("SET NAMES latin1;");
     }

@@ -54,7 +54,7 @@ class PatientIdentifiers
             CREATE TABLE `Insurance` (
                 `InsuranceId` INT(11) NOT NULL AUTO_INCREMENT,
                 `InsuranceCode` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
-                `InsuranceName` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
+                `InsuranceName` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci',
                 `Format` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
                 PRIMARY KEY (`InsuranceId`) USING BTREE,
                 UNIQUE INDEX `InsuranceCode` (`InsuranceCode`) USING BTREE

@@ -4,6 +4,7 @@ namespace Orms\DataAccess;
 
 use PDO;
 use Exception;
+use Orms\ApplicationException AS AE;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\Model\Patient;
@@ -316,11 +317,12 @@ class PatientAccess
     {
         $dbh = Database::getOrmsConnection();
 
-        //check if the mrn current exists
+        //check if the insurance current exists
         //also get the format that the insurance should have
         $queryExists = $dbh->prepare("
             SELECT
                 I.Format,
+                I.InsuranceId,
                 PI.ExpirationDate,
                 PI.Active
             FROM
@@ -338,14 +340,21 @@ class PatientAccess
         ]);
 
         $insuranceInfo = $queryExists->fetchAll();
+
+        $insuranceId = $insuranceInfo[0]["InsuranceId"] ?? NULL;
         $format = $insuranceInfo[0]["Format"] ?? NULL;
         $insuranceActive = $insuranceInfo[0]["Active"] ?? NULL;
         $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? NULL;
 
+        //if the insurance type doesn't exist in the database, reject the insurance
+        if($insuranceId === NULL) {
+            throw new AE(AE::UNKNOWN_INSURANCE,"Unknown insurance type $insuranceType");
+        }
+
         //check if the format of the incoming insurance is valid
         //if the format is empty or null, the insurance supplied will always match
         if(preg_match("/$format/",$insuranceNumber) !== 1) {
-            throw new Exception("Invalid insurance format for $insuranceNumber | $insuranceType");
+            throw new AE(AE::INVALID_INSURANCE_FORMAT,"Invalid insurance format for $insuranceNumber | $insuranceType");
         }
 
         //if the insurance doesn't exist, insert the new insurance
@@ -362,7 +371,7 @@ class PatientAccess
                 )
                 VALUES(
                     :pid,
-                    (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :type),
+                    :insuranceId,
                     :number,
                     :expiration,
                     :active
@@ -370,7 +379,7 @@ class PatientAccess
             ")->execute([
                 ":pid"          => $patientId,
                 ":number"       => $insuranceNumber,
-                ":type"         => $insuranceType,
+                ":insuranceId"  => $insuranceId,
                 ":expiration"   => $expirationDate->format("Y-m-d H:i:s"),
                 ":active"       => $active
             ]);

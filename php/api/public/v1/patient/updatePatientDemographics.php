@@ -5,6 +5,7 @@
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\ApplicationException;
 use Orms\Http;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\Mrn;
@@ -32,7 +33,7 @@ $demographics = new class(
                             DateTime::createFromFormatN("Y-m-d H:i:s",$x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
                             $x["type"],
                             $x["active"]
-                        ),$fields["insurances"])
+                        ),$fields["insurances"] ?? [])
 ) {
     public DateTime $dateOfBirth;
 
@@ -51,50 +52,55 @@ $demographics = new class(
 //for each of the mrns, check to see if the patient exists in the system
 $patients = getPatientsFromMrns($demographics->mrns);
 
-//case 1: none of the patient's mrns exist in the system
-//create the patient
-if($patients === [])
+try
 {
-    /** @psalm-suppress ArgumentTypeCoercion */
-    $patient = PatientInterface::insertNewPatient(
-        firstName:   $demographics->firstName,
-        lastName:    $demographics->lastName,
-        dateOfBirth: $demographics->dateOfBirth,
-        sex:         $demographics->sex,
-        mrns:        $demographics->mrns,
-        insurances:  $demographics->insurances
-    );
-}
-//case 2: all mrns belong to the same patient
-//update the patient's demographics
-elseif(count($patients) === 1)
-{
-    //all patients in the array are the same, so just use the first one
-    $patient = PatientInterface::updatePatientInformation(
-        patient:     $patients[0],
-        firstName:   $demographics->firstName,
-        lastName:    $demographics->lastName,
-        dateOfBirth: $demographics->dateOfBirth,
-        sex:         $demographics->sex,
-        mrns:        $demographics->mrns,
-        insurances:  $demographics->insurances
-    );
-}
-//case 3: mrns belong to different patients
-//this usually happens because link or merge was done for an mrn in the patients hospital chart
-//merge patient and patient related information
-else
-{
-    //repeat the merge until all mrns belong to one patient
-    while(count($patients) > 1)
+    //case 1: none of the patient's mrns exist in the system
+    //create the patient
+    if($patients === [])
     {
-        PatientInterface::mergePatientEntries($patients[0],$patients[1]);
-        $patients = getPatientsFromMrns($demographics->mrns);
+        $patient = PatientInterface::insertNewPatient(
+            firstName:   $demographics->firstName,
+            lastName:    $demographics->lastName,
+            dateOfBirth: $demographics->dateOfBirth,
+            sex:         $demographics->sex,
+            mrns:        $demographics->mrns,
+            insurances:  $demographics->insurances
+        );
     }
-}
+    //case 2: all mrns belong to the same patient
+    //update the patient's demographics
+    elseif(count($patients) === 1)
+    {
+        //all patients in the array are the same, so just use the first one
+        $patient = PatientInterface::updatePatientInformation(
+            patient:     $patients[0],
+            firstName:   $demographics->firstName,
+            lastName:    $demographics->lastName,
+            dateOfBirth: $demographics->dateOfBirth,
+            sex:         $demographics->sex,
+            mrns:        $demographics->mrns,
+            insurances:  $demographics->insurances
+        );
+    }
+    //case 3: mrns belong to different patients
+    //this usually happens because link or merge was done for an mrn in the patients hospital chart
+    //merge patient and patient related information
+    else
+    {
+        //repeat the merge until all mrns belong to one patient
+        while(count($patients) > 1)
+        {
+            PatientInterface::mergePatientEntries($patients[0],$patients[1]);
+            $patients = getPatientsFromMrns($demographics->mrns);
+        }
+    }
 
-//case 4: incorrect information given about patients (delete insurances and the like)
-//  make separate api?
+    //case 4: incorrect information given about patients (delete insurances and the like)
+    //  make separate api?
+}
+catch(ApplicationException $e) {
+    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+}
 
 Http::generateResponseJsonAndExit(200);
 

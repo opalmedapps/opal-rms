@@ -27,6 +27,7 @@ class PatientAccess
                     FirstName           = :fn,
                     LastName            = :ln,
                     DateOfBirth         = :dob,
+                    Sex                 = :sex,
                     OpalPatient         = :status,
                     SMSAlertNum         = :smsNum,
                     SMSSignupDate       = IF(:smsNum IS NULL,NULL,COALESCE(SMSSignupDate,NOW())),
@@ -38,6 +39,7 @@ class PatientAccess
                 ":fn"           => strtoupper($patient->firstName),
                 ":ln"           => strtoupper($patient->lastName),
                 ":dob"          => $patient->dateOfBirth->format("Y-m-d H:i:s"),
+                ":sex"          => $patient->sex,
                 ":status"       => $patient->opalStatus,
                 ":smsNum"       => $patient->phoneNumber,
                 ":language"     => $patient->languagePreference

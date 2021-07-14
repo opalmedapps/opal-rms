@@ -5,28 +5,35 @@ namespace Orms\Util;
 class Encoding
 {
     /**
+     * Encodes the values of an array from utf8 to latin1.
+     * Also works on array of arrays or other nested structures.
      *
-     * @param mixed $data
-     * @return mixed
      */
-    static function utf8_encode_recursive($data)
+    static function utf8_encode_recursive(mixed $data): mixed
     {
-        if (is_array($data)) foreach ($data as $key => $val) $data[$key] = self::utf8_encode_recursive($val);
-        elseif (is_string ($data)) return utf8_encode($data);
+        if(is_string($data)) {
+            return utf8_encode($data);
+        }
+        elseif(is_array($data)) {
+            return array_map(fn($x) => self::utf8_encode_recursive($x),$data);
+        }
 
         return $data;
     }
 
     /**
-     * encodes the values of an array from utf8 to latin1
-     * also works on array of arrays or other nested structures
-     * @param mixed $data
-     * @return mixed
+     * Decodes the values of an array from utf8 to latin1.
+     * Also works on array of arrays or other nested structures.
+     *
      */
-    static function utf8_decode_recursive($data)
+    static function utf8_decode_recursive(mixed $data): mixed
     {
-        if (is_array($data)) foreach ($data as $key => $val) $data[$key] = self::utf8_decode_recursive($val);
-        elseif (is_string ($data)) return utf8_decode($data);
+        if(is_string($data)) {
+            return utf8_decode($data);
+        }
+        elseif(is_array($data)) {
+            return array_map(fn($x) => self::utf8_decode_recursive($x),$data);
+        }
 
         return $data;
     }

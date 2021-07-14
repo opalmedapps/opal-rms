@@ -7,7 +7,6 @@ require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient\PatientInterface;
-use Orms\Patient\PatientMeasurement;
 use Orms\Hospital\OIE\Export;
 
 $patientId     = (int) ($_GET["patientId"] ?? NULL);
@@ -34,7 +33,7 @@ if($height === NULL
     exit("Incomplete measurements");
 }
 
-PatientMeasurement::insertMeasurement($patient,(float) $height,(float) $weight,(float) $bsa,$sourceId,$sourceSystem);
+PatientInterface::insertPatientMeasurement($patient,(float) $height,(float) $weight,(float) $bsa,$sourceId,$sourceSystem);
 
 Http::generateResponseJsonAndContinue(200);
 

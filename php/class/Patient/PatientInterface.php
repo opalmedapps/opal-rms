@@ -8,6 +8,7 @@ use Orms\DataAccess\PatientAccess;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\PatientMeasurement;
 
 class PatientInterface
 {
@@ -161,5 +162,19 @@ class PatientInterface
     static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
     {
         return PatientAccess::mergePatientEntries($acquirer,$target);
+    }
+
+    /**
+     *
+     * @return PatientMeasurement[]
+     */
+    static function getPatientMeasurements(Patient $patient): array
+    {
+        return PatientAccess::deserializePatientMeasurements($patient);
+    }
+
+    static function insertPatientMeasurement(Patient $patient,float $height,float $weight,float $bsa,string $appointmentSourceId,string $appointmentSourceSystem): void
+    {
+        PatientAccess::serializePatientMeasurement($patient,$height,$weight,$bsa,$appointmentSourceId,$appointmentSourceSystem);
     }
 }

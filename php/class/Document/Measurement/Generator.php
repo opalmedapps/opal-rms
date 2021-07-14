@@ -7,7 +7,7 @@ use Exception;
 use Orms\Config;
 use Orms\DateTime;
 use Orms\Patient\Model\Patient;
-use Orms\Patient\PatientMeasurement;
+use Orms\Patient\PatientInterface;
 use Orms\Document\Pdf;
 Use Orms\Document\Highcharts;
 
@@ -26,7 +26,7 @@ class Generator
         $heightSeries = &$chart["series"][1];
         $bsaSeries    = &$chart["series"][2];
 
-        $measurements = PatientMeasurement::getMeasurements($patient);
+        $measurements = PatientInterface::getPatientMeasurements($patient);
 
         foreach($measurements as $measurement)
         {
@@ -80,7 +80,7 @@ class Generator
 
     private static function _generateLatexString(Patient $patient,string $chartImagePath): string
     {
-        $measurements   = PatientMeasurement::getMeasurements($patient);
+        $measurements   = PatientInterface::getPatientMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
         $mrn            = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");

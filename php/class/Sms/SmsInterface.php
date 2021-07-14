@@ -55,7 +55,7 @@ class SmsInterface
             $result = "FAILURE : {$e->getMessage()}";
         }
 
-        Logger::LogSms(
+        Logger::logSmsEvent(
             $clientNumber,
             $serviceNumber,
             $messageId,
@@ -83,7 +83,7 @@ class SmsInterface
         });
 
         foreach($messages as $x) {
-            Logger::LogSms(
+            Logger::logSmsEvent(
                 $x->clientNumber,
                 $x->serviceNumber,
                 $x->messageId,

@@ -64,7 +64,9 @@ class PatientTable
             DROP COLUMN `LastUpdatedUserIP`,
             DROP COLUMN `Comment`,
             DROP INDEX `OpalPatient_IDX`,
-            DROP INDEX `combined_index`;
+            DROP INDEX `combined_index`
+            DROP INDEX `PatientSerNum`,
+            ADD PRIMARY KEY (`PatientSerNum`)
         ");
     }
 

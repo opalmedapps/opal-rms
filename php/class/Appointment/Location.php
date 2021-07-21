@@ -6,7 +6,6 @@ use PDOException;
 
 use Orms\DataAccess\Database;
 use Orms\Patient\Model\Patient;
-use Orms\Hospital\Aria;
 use Orms\Hospital\OIE\Export;
 
 class Location
@@ -44,7 +43,6 @@ class Location
             self::_movePatientToLocationForAppointment((int) $app["AppointmentSerNum"],$room,$intendedAppointment);
 
             //also export the appointment to other systems
-            if($app["AppointSys"] === "Aria") Aria::exportMoveToAria($app["AppointId"],$room);
             Export::exportPatientLocation($app["AppointId"],$app["AppointSys"],$room);
         }
     }

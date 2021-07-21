@@ -19,8 +19,7 @@ class Config
         public ?SmsConfig $sms,
         public ?DatabaseConfig $opalDb,
         public ?DatabaseConfig $questionnaireDb,
-        public ?OpalConfig $opal,
-        public ?AriaConfig $aria
+        public ?OpalConfig $opal
     ) {}
 
     public static function getApplicationSettings(): Config
@@ -125,16 +124,6 @@ class Config
             );
         }
 
-        if((bool) $parsedData["aria"]["ENABLED"] !== TRUE) {
-            $aria = NULL;
-        }
-        else {
-            $aria = new AriaConfig(
-                checkInUrl: $parsedData["aria"]["ARIA_CHECKIN_URL"],
-                photoUrl:   $parsedData["aria"]["PHOTO_URL"]
-            );
-        }
-
         self::$self = new self(
             environment:        $environment,
             system:             $system,
@@ -143,8 +132,7 @@ class Config
             opalDb:             $opalDb,
             questionnaireDb:    $questionnaireDb,
             sms:                $sms,
-            opal:               $opal,
-            aria:               $aria
+            opal:               $opal
         );
     }
 
@@ -231,14 +219,5 @@ class OpalConfig
         public string $opalAdminUrl,
         public string $opalAdminUsername,
         public string $opalAdminPassword
-    ) {}
-}
-
-/** @psalm-immutable */
-class AriaConfig
-{
-    function __construct(
-        public string $checkInUrl,
-        public string $photoUrl //not being used in php, only perl
     ) {}
 }

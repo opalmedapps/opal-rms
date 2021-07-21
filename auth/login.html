@@ -146,6 +146,7 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
         $cookies.put("specialityGroupId",hubData["SpecialityGroupId"],{path: "/"});
         $cookies.put("specialityGroupName",hubData["SpecialityGroupName"],{path: "/"});
         $cookies.put("clinicHubId",hubData["ClinicHubId"],{path: "/"});
+        $cookies.put("clinicHubName",hubData["ClinicHubName"],{path: "/"});
         $cookies.put(authData["name"],authData["key"],{path: "/"});
         $window.location.href = $location.absUrl();
     }

@@ -47,7 +47,7 @@
                         <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Clinical Viewer</a></li>
                         <!-- <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li> -->
                         <li><a href="./interface/AddOn.html">Register Patient for SMS Messages<br></a></li>
-                        <li><a href="./perl/CheckIn.pl?location={{hub+ ' Reception'}}">Patient check-in interface <br></a></li>
+                        <li><a href="./perl/CheckIn.pl?location={{hubName+ ' Reception'}}">Patient check-in interface <br></a></li>
                         <li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
                     </ul>
                 </center>
@@ -74,12 +74,14 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
 {
     $scope.speciality = $cookies.get("specialityGroupName");
     $scope.hub = $cookies.get("clinicHubId");
+    $scope.hubName = $cookies.get("clinicHubName");
     $scope.logOut = function()
     {
         $cookies.remove("ormsAuth");
         $cookies.remove("specialityGroupId");
         $cookies.remove("specialityGroupName");
         $cookies.remove("clinicHubId");
+        $cookies.remove("clinicHubName");
         $window.location.href = $location.absUrl();
     }
 });

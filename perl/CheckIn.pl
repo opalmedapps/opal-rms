@@ -20,6 +20,7 @@ use Date::Calc;
 #use Date::Calc qw( Standard_to_Business Today Business_to_Standard );
 use Date::Calc qw(Day_of_Week_to_Text Day_of_Week Decode_Month Today Now Decode_Date_US Today_and_Now Delta_DHMS Add_Delta_Days Delta_Days Add_Delta_DHMS Day_of_Week_Abbreviation);
 use Time::Piece;
+use HTTP::Request;
 use LWP::UserAgent;
 use JSON;
 
@@ -47,9 +48,9 @@ my $ReloadFinal = 11; # 10 second to reload the final screen
 #my $ReloadMid = 3; # 3 seconds to display the patient name by default
 my $ReloadMid = 4; # 8 seconds to display the patient name by default - Measles
 
-my $ariaSettings = LoadConfigs::GetConfigs("aria");
-my $ariaCheckinUrl = $ariaSettings->{"ARIA_CHECKIN_URL"};
-my $ariaPhotoUrl = $ariaSettings->{"PHOTO_URL"};
+my $exportSettings = LoadConfigs::GetConfigs("path");
+my $ariaCheckinUrl = $exportSettings->{"OIE_URL"} ."/Patient/Location";
+my $ariaPhotoUrl = $exportSettings->{"OIE_URL"} ."/Patient/Photo";
 
 my $site = "RVH";
 
@@ -1541,8 +1542,13 @@ sub CheckinPatient
     if($MV_sys[$appointment] eq "Aria" and $ariaCheckinUrl)
     {
         my $appId = $MV_appId[$appointment];
-        my $aria_checkin = "$ariaCheckinUrl?appointmentId=$appId&location=$CheckinVenueName";
-        $ua->get($aria_checkin);
+
+        my $request = HTTP::Request->new("POST",$ariaCheckinUrl);
+        $request->header("Content-Type" => "application/json");
+        $request->content("{\"room\":\"$CheckinVenueName\",\"sourceId\":$appId,\"sourceSystem\":\"Aria\"}");
+
+        $ua->request($request);
+
         $hasAriaAppointment = 1;
 
         $WaitingRoomWherePatientShouldWait = "DS1";
@@ -1554,7 +1560,12 @@ sub CheckinPatient
   if($hasAriaAppointment)
   {
     my $mrn = $MV_PatientId[0];
-    my $photoResult = $ua->get("$ariaPhotoUrl?mrn=$mrn&site=$site")->content;
+
+    my $request = HTTP::Request->new("POST",$ariaPhotoUrl);
+    $request->header("Content-Type" => "application/json");
+    $request->content("{\"mrn\":\"$mrn\",\"site\":\"$site\"}");
+
+    my $photoResult = $ua->request($request)->content;
 
     my $json = JSON->new->allow_nonref;
     $photoResult = eval { $json->decode($photoResult) };

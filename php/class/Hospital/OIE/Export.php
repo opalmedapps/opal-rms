@@ -11,22 +11,22 @@ class Export
 {
     static function exportPatientLocation(string $sourceId,string $sourceSystem,string $room): void
     {
-        Connection::getHttpClient()?->request("POST","",[
+        Connection::getHttpClient()?->request("POST","Patient/Location",[
             "json" => [
                 "room"          => $room,
                 "sourceId"      => $sourceId,
                 "sourceSystem"  => $sourceSystem
-
             ]
         ]);
     }
 
     static function exportAppointmentCompletion(string $sourceId,string $sourceSystem): void
     {
-        Connection::getHttpClient()?->request("POST","",[
+        Connection::getHttpClient()?->request("POST","Appointment/Status",[
             "json" => [
                 "sourceId"      => $sourceId,
-                "sourceSystem"  => $sourceSystem
+                "sourceSystem"  => $sourceSystem,
+                "status"        => "Completed"
             ]
         ]);
     }

@@ -1565,12 +1565,14 @@ sub CheckinPatient
     $request->header("Content-Type" => "application/json");
     $request->content("{\"mrn\":\"$mrn\",\"site\":\"$site\"}");
 
-    my $photoResult = $ua->request($request)->content;
+    my $photoResult = $ua->request($request);
 
-    my $json = JSON->new->allow_nonref;
-    $photoResult = eval { $json->decode($photoResult) };
+    if($photoResult->is_success) {
+        my $json = JSON->new->allow_nonref;
+        $photoResult = eval { $json->decode($photoResult->content) };
 
-    $PhotoOk = 0 if(defined $photoResult and !$photoResult->{"hasPhoto"} eq "1");
+        $PhotoOk = 0 if(defined $photoResult and !$photoResult->{"hasPhoto"} eq "1");
+    }
   }
 
 

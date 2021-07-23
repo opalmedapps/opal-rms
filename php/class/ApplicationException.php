@@ -6,8 +6,10 @@ use Exception;
 
 class ApplicationException extends Exception
 {
-    const UNKNOWN_INSURANCE = 1;
+    const UNKNOWN_INSURANCE_TYPE = 1;
     const INVALID_INSURANCE_FORMAT = 2;
+    const UNKNOWN_MRN_TYPE = 3;
+    const INVALID_MRN_FORMAT = 4;
 
     function __construct(int $errorCode,string $errorMessage)
     {

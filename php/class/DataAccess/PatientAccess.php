@@ -4,7 +4,7 @@ namespace Orms\DataAccess;
 
 use PDO;
 use Exception;
-use Orms\ApplicationException AS AE;
+use Orms\ApplicationException;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\Model\Patient;
@@ -159,6 +159,7 @@ class PatientAccess
         //also get the format that the mrn should have
         $queryExists = $dbh->prepare("
             SELECT
+                H.HospitalId,
                 H.Format,
                 PH.Active
             FROM
@@ -176,13 +177,20 @@ class PatientAccess
         ]);
 
         $mrnInfo = $queryExists->fetchAll();
+
+        $hospitalId = $mrnInfo[0]["HospitalId"] ?? NULL;
         $format = $mrnInfo[0]["Format"] ?? NULL;
         $mrnActive = $mrnInfo[0]["Active"] ?? NULL;
+
+        //if the hospital type doesn't exist in the database, reject the mrn
+        if($hospitalId === NULL) {
+            throw new ApplicationException(ApplicationException::UNKNOWN_MRN_TYPE,"Unknown hospital code type $site");
+        }
 
         //check if the format of the incoming mrn is valid
         //if the format is empty or null, the mrn supplied will always match
         if(preg_match("/$format/",$mrn) !== 1) {
-            throw new Exception("Invalid mrn format for $mrn | $site");
+            throw new ApplicationException(ApplicationException::INVALID_MRN_FORMAT,"Invalid mrn format for $mrn | $site");
         }
 
         //if the mrn doesn't exist, insert the new mrn
@@ -351,13 +359,13 @@ class PatientAccess
 
         //if the insurance type doesn't exist in the database, reject the insurance
         if($insuranceId === NULL) {
-            throw new AE(AE::UNKNOWN_INSURANCE,"Unknown insurance type $insuranceType");
+            throw new ApplicationException(ApplicationException::UNKNOWN_INSURANCE_TYPE,"Unknown insurance type $insuranceType");
         }
 
         //check if the format of the incoming insurance is valid
         //if the format is empty or null, the insurance supplied will always match
         if(preg_match("/$format/",$insuranceNumber) !== 1) {
-            throw new AE(AE::INVALID_INSURANCE_FORMAT,"Invalid insurance format for $insuranceNumber | $insuranceType");
+            throw new ApplicationException(ApplicationException::INVALID_INSURANCE_FORMAT,"Invalid insurance format for $insuranceNumber | $insuranceType");
         }
 
         //if the insurance doesn't exist, insert the new insurance

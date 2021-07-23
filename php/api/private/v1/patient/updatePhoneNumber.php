@@ -25,17 +25,18 @@ if($patient === NULL) {
 $patient = PatientInterface::updatePatientInformation($patient,phoneNumber: $phoneNumber,languagePreference: $languagePreference);
 
 //send the patient a registration success message if the patient has a phone number
-$messageList = SmsInterface::getPossibleSmsMessages();
+if($patient->phoneNumber !== NULL)
+{
+    $messageList = SmsInterface::getPossibleSmsMessages();
+    $message = $messageList[$specialityGroupId]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? NULL;
 
-$message = $messageList[$specialityGroupId]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? NULL;
+    if($message === NULL) {
+        Http::generateResponseJsonAndExit(400,error: "Registration message not defined");
+    }
 
-if($message === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Registration message not defined");
-}
-
-//print a message and close the connection so that the client does not wait
-Http::generateResponseJsonAndContinue(200);
-
-if($patient->phoneNumber !== NULL) {
+    //print a message and close the connection so that the client does not wait
+    Http::generateResponseJsonAndContinue(200);
     SmsInterface::sendSms($patient->phoneNumber,$message);
 }
+
+Http::generateResponseJsonAndExit(200);

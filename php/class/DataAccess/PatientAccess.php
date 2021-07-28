@@ -395,7 +395,7 @@ class PatientAccess
                 ":active"       => $active
             ]);
         }
-        elseif((bool) $insuranceActive !== $active || new DateTime($insuranceActiveExpiration) != $expirationDate)
+        elseif((bool) $insuranceActive !== $active || new DateTime($insuranceActiveExpiration) !== $expirationDate)
         {
             $dbh->prepare("
                 UPDATE PatientInsuranceIdentifier

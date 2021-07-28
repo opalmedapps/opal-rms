@@ -21,9 +21,9 @@ $profile['TreatmentVenues'] = [];
 
 foreach($profile['Locations'] as $loc)
 {
-    if($loc['Type'] == 'ExamRoom') {$profile['ExamRooms'][] = $loc;}
-    if($loc['Type'] == 'IntermediateVenue') {$profile['IntermediateVenues'][] = $loc;}
-    if($loc['Type'] == 'TreatmentVenue') {$profile['TreatmentVenues'][] = $loc;}
+    if($loc['Type'] === 'ExamRoom') {$profile['ExamRooms'][] = $loc;}
+    if($loc['Type'] === 'IntermediateVenue') {$profile['IntermediateVenues'][] = $loc;}
+    if($loc['Type'] === 'TreatmentVenue') {$profile['TreatmentVenues'][] = $loc;}
 }
 
 //connect to db
@@ -32,7 +32,7 @@ $dbh = Database::getOrmsConnection();
 //if the profile is a new one, we have to create it
 //if not, we just update an existing profile with new information
 
-if($profile['ProfileSer'] == -1)
+if($profile['ProfileSer'] === -1)
 {
     $queryCreateProfile = $dbh->prepare("CALL SetupProfile(?,?,?);");
     $queryCreateProfile->execute([$profile["ProfileId"],$profile["Speciality"],$profile["ClinicalArea"]]);

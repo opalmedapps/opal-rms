@@ -27,6 +27,7 @@ if($patient !== NULL) {
         $newDiag->diagnosis->subcode,
         $newDiag->createdDate,
         $newDiag->diagnosis->subcodeDescription,
-        ""
+        "",
+        $newDiag->status
     );
 }

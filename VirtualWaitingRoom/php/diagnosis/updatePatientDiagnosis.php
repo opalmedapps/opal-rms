@@ -24,20 +24,13 @@ $patient = PatientInterface::getPatientById($patientId);
 
 if($patient !== NULL)
 {
-    if($status === "Active") {
-        Export::exportPatientDiagnosis(
-            $patient,
-            $updatedDiag->id,
-            $updatedDiag->diagnosis->subcode,
-            $updatedDiag->createdDate,
-            $updatedDiag->diagnosis->subcodeDescription,
-            ""
-        );
-    }
-    elseif($status === "Deleted") {
-        Export::exportPatientDiagnosisDeletion(
-            $patient,
-            $updatedDiag->id
-        );
-    }
+    Export::exportPatientDiagnosis(
+        $patient,
+        $updatedDiag->id,
+        $updatedDiag->diagnosis->subcode,
+        $updatedDiag->createdDate,
+        $updatedDiag->diagnosis->subcodeDescription,
+        "",
+        $updatedDiag->status
+    );
 }

@@ -56,7 +56,7 @@ class Export
         if(Config::getApplicationSettings()->system->sendWeights !== TRUE) return;
 
         Connection::getHttpClient()?->request("POST","exportWeightPdf",[
-            "json"  => [
+            "json" => [
                 "mrn"   => $patient->getActiveMrns()[0]->mrn,
                 "site"  => $patient->getActiveMrns()[0]->site,
                 "pdf"   => Generator::generatePdfString($patient)
@@ -64,10 +64,10 @@ class Export
         ]);
     }
 
-    static function exportPatientDiagnosis(Patient $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr): void
+    static function exportPatientDiagnosis(Patient $patient,int $diagId,string $diagSubcode,\DateTime $creationDate,string $descEn,string $descFr,string $status): void
     {
-        Connection::getOpalHttpClient()?->request("POST","diagnosis/insert/patient-diagnosis",[
-            "form_params" => [
+        Connection::getHttpClient()?->request("POST","/Patient/Diagnosis",[
+            "json" => [
                 "mrn"           => $patient->getActiveMrns()[0]->mrn,
                 "site"          => $patient->getActiveMrns()[0]->site,
                 "source"        => "ORMS",
@@ -77,35 +77,8 @@ class Export
                 "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
                 "descriptionEn" => $descEn,
                 "descriptionFr" => $descFr,
+                "status"        => $status
             ]
         ]);
     }
-
-    static function exportPatientDiagnosisDeletion(Patient $patient,int $diagId): void
-    {
-        Connection::getOpalHttpClient()?->request("POST","diagnosis/delete/patient-diagnosis",[
-            "form_params" => [
-                "mrn"           => $patient->getActiveMrns()[0]->mrn,
-                "site"          => $patient->getActiveMrns()[0]->site,
-                "source"        => "ORMS",
-                "rowId"         => $diagId,
-                "externalId"    => "ICD-10"
-            ]
-        ]);
-    }
-
-    static function exportDiagnosisCode(string $code,string $desc): void
-    {
-        Connection::getOpalHttpClient()?->request("POST","master-source/insert/diagnoses",[
-            "form_params" => [
-                [
-                    "source"        => "ORMS",
-                    "externalId"    => "ICD-10",
-                    "code"          => $code,
-                    "description"   => $desc
-                ]
-            ]
-        ]);
-    }
-
 }

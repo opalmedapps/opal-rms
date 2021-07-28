@@ -20,7 +20,6 @@ class Connection
         ]);
     }
 
-    // TODO: load username/password from config file
     static function getOpalHttpClient(): ?Client
     {
         $url = Config::getApplicationSettings()->opal?->opalAdminUrl;

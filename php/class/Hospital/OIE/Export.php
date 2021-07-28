@@ -38,8 +38,8 @@ class Export
         try {
             Connection::getOpalHttpClient()?->request("GET","publisher/php/sendCallPatientNotification.php",[
                 "query" => [
-                    "PatientId"             => $patient->getActiveMrns()[0]->mrn,
-                    //"site" => $mrn->site //the site is missing from the api...
+                    "mrn"                   => $patient->getActiveMrns()[0]->mrn,
+                    "site"                  => $patient->getActiveMrns()[0]->site,
                     "appointment_ariaser"   => $appointmentId,
                     "room_EN"               => $roomNameEn,
                     "room_FR"               => $roomNameFr,

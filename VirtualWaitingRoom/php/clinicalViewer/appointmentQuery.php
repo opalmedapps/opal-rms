@@ -179,7 +179,7 @@ if($afilter === FALSE)
 
         if(
             ($appdType === "all" || checkDiagnosis((int) $app["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
-            && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered == "1")
+            && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === "1")
             && ($qType === "all" || $answeredQuestionnaire === TRUE)
         ) {
             $listOfAppointments[] = [

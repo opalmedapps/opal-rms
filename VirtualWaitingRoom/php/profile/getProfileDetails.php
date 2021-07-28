@@ -70,11 +70,11 @@ $json['WaitingRoom'] = strtoupper($json['ClinicalArea']) ." WAITING ROOM";
 
 //set the load order of the appointments on the vwr page depending the category
 $json['sortOrder'] = 'LastName'; //default
-if($json['Category'] == 'PAB' or $json['Category'] == 'Treatment Machine' or $json['Category'] == 'Physician')
+if($json['Category'] === 'PAB' or $json['Category'] === 'Treatment Machine' or $json['Category'] === 'Physician')
 {
     $json['sortOrder'] = ['ScheduledStartTime_hh','ScheduledStartTime_mm'];
 }
-else if($json['Category'] == 'Pharmacy')
+else if($json['Category'] === 'Pharmacy')
 {
     $json['sortOrder'] = 'LastName';
 }
@@ -120,23 +120,23 @@ $queryOptions->execute([$json["ProfileSer"]]);
 
 foreach($queryOptions->fetchAll() as $row)
 {
-    if($row['Type'] == 'Appointment') {$appointments[] = $row['Options'];}
-    else if($row['Type'] == 'IntermediateVenue')
+    if($row['Type'] === 'Appointment') {$appointments[] = $row['Options'];}
+    else if($row['Type'] === 'IntermediateVenue')
     {
         $intermediateVenues[] = $row['Options'];
         $json['IntermediateVenues'][] = $row;
     }
-    else if($row['Type'] == 'TreatmentVenue')
+    else if($row['Type'] === 'TreatmentVenue')
     {
         $treatmentVenues[] = $row['Options'];
         $json['TreatmentVenues'][] = $row;
     }
-    else if($row['Type'] == 'ExamRoom')
+    else if($row['Type'] === 'ExamRoom')
     {
         $examRooms[] = $row['Options'];
         $json['ExamRooms'][] = $row;
     }
-    else if($row['Type'] == 'Resource') {$resources[] = $row['Options'];}
+    else if($row['Type'] === 'Resource') {$resources[] = $row['Options'];}
 }
 
 //add the type to each element of the arrays and then add them to the json return object

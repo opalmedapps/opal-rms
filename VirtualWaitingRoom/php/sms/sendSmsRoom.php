@@ -18,7 +18,9 @@ $roomEn = $_GET["roomEn"];
 $patient = PatientInterface::getPatientById($patientId);
 
 //send a notification to Opal if the patient is an Opal patient
-Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);
+if($patient !== NULL) {
+    Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);
+}
 
 if($patient === NULL || $patient->phoneNumber === NULL) {
     echo "No SMS alert phone number so will not attempt to send";

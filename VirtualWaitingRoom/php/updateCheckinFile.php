@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 //====================================================================================
 // php code to query the database and extract the list of patients
 // who are currently checked in for open appointments today
@@ -128,7 +128,7 @@ foreach($appointments as $row)
     if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
 
     //if the weight was entered today, indicate it
-    if(time() - (60*60*24) < strtotime($row["WeightDate"]))
+    if($row["WeightDate"] !== NULL && time() - (60*60*24) < strtotime($row["WeightDate"]))
     {
         $row["WeightDate"] = "Today";
     }

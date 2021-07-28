@@ -5,13 +5,13 @@ $config = new PhpCsFixer\Config();
 return $config->setRules([
     //"@PSR12" => true,
     // "visibility_required" => [],
-    // "declare_strict_types" => true,
+    "declare_strict_types" => true,
     "strict_comparison" => true,
     // "function_declaration" => [
     //     "closure_function_spacing" => "none"
     // ],
     // "mb_str_functions" => true,
-    // "dir_constant" => true
+    "dir_constant" => true
 ])
 ->setRiskyAllowed(true)
 ->setCacheFile(__DIR__."/vendor/php-cs-fixer/.php-cs-fixer.cache")

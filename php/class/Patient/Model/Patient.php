@@ -10,7 +10,7 @@ use Orms\Patient\Model\Insurance;
 class Patient
 {
     /**
-     * Do not use except in the PatientInterface class.
+     * Only use in PatientInferface class and DataAccess layer.
      */
     function __construct(
         public int $id,

@@ -2,6 +2,7 @@
 
 namespace Orms\Hospital\OIE;
 
+use DateTime;
 use Orms\Config;
 use Orms\Patient\Model\Patient;
 use Orms\Document\Measurement\Generator;
@@ -55,11 +56,14 @@ class Export
     {
         if(Config::getApplicationSettings()->system->sendWeights !== TRUE) return;
 
-        Connection::getHttpClient()?->request("POST","exportWeightPdf",[
+        Connection::getHttpClient()?->request("POST","report/post",[
             "json" => [
-                "mrn"   => $patient->getActiveMrns()[0]->mrn,
-                "site"  => $patient->getActiveMrns()[0]->site,
-                "pdf"   => Generator::generatePdfString($patient)
+                "mrn"             => $patient->getActiveMrns()[0]->mrn,
+                "site"            => $patient->getActiveMrns()[0]->site,
+                "reportContent"   => Generator::generatePdfString($patient),
+                "docType"         => "ORMS Measurement",
+                "documentDate"    => (new DateTime())->format("Y-m-d H:i:s"),
+                "destination"     => "Streamline"
             ]
         ]);
     }

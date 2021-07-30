@@ -11,7 +11,6 @@ LOG_PATH                        =
 FIREBASE_URL                    =
 FIREBASE_SECRET                 =
 
-OIE_URL                         =
 HIGHCHARTS_URL                  =
 
 [system]
@@ -48,6 +47,12 @@ QUESTIONNAIRE_PORT              =
 QUESTIONNAIRE_DB                =
 QUESTIONNAIRE_USERNAME          =
 QUESTIONNAIRE_PASSWORD          =
+
+[oie]
+ENABLED                         =
+OIE_URL                         =
+OIE_USERNAME                    =
+OIE_PASSWORD                    =
 
 [opal]
 ENABLED                         =

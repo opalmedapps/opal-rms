@@ -16,6 +16,7 @@ class Config
         public SystemConfig $system,
         public DatabaseConfig $ormsDb,
         public DatabaseConfig $logDb,
+        public ?OpalInterfaceEngineConfig $oie,
         public ?SmsConfig $sms,
         public ?DatabaseConfig $opalDb,
         public ?DatabaseConfig $questionnaireDb,
@@ -41,13 +42,12 @@ class Config
             logPath:        $parsedData["path"]["LOG_PATH"],
             firebaseUrl:    $parsedData["path"]["FIREBASE_URL"],
             firebaseSecret: $parsedData["path"]["FIREBASE_SECRET"],
-            oieUrl:         $parsedData["path"]["OIE_URL"] ?? NULL,
             highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL
         );
 
         $system = new SystemConfig(
-            emails:          $parsedData["alert"]["EMAIL"] ?? [],
-            sendWeights:     (bool) ($parsedData["vwr"]["SEND_WEIGHTS"] ?? FALSE)
+            emails:          $parsedData["system"]["EMAIL"] ?? [],
+            sendWeights:     (bool) ($parsedData["system"]["SEND_WEIGHTS"] ?? FALSE)
         );
 
         $ormsDb = new DatabaseConfig(
@@ -97,6 +97,17 @@ class Config
             );
         }
 
+        if((bool) $parsedData["oie"]["ENABLED"] !== TRUE) {
+            $oie = NULL;
+        }
+        else {
+            $oie = new OpalInterfaceEngineConfig(
+                oieUrl:    $parsedData["oie"]["OIE_URL"],
+                username:  $parsedData["oie"]["OIE_USERNAME"],
+                password:  $parsedData["oie"]["OIE_PASSWORD"]
+            );
+        }
+
         if((bool) $parsedData["sms"]["ENABLED"] !== TRUE) {
             $sms = NULL;
         }
@@ -129,6 +140,7 @@ class Config
             system:             $system,
             ormsDb:             $ormsDb,
             logDb:              $logDb,
+            oie:                $oie,
             opalDb:             $opalDb,
             questionnaireDb:    $questionnaireDb,
             sms:                $sms,
@@ -164,8 +176,17 @@ class EnvironmentConfig
         public string $logPath,
         public string $firebaseUrl,
         public string $firebaseSecret,
-        public ?string $oieUrl,
         public ?string $highchartsUrl
+    ) {}
+}
+
+/** @psalm-immutable */
+class OpalInterfaceEngineConfig
+{
+    function __construct(
+        public string $oieUrl,
+        public string $username,
+        public string $password
     ) {}
 }
 

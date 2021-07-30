@@ -11,12 +11,14 @@ class Connection
 {
     static function getHttpClient(): ?Client
     {
-        if(Config::getApplicationSettings()->environment->oieUrl === NULL) return NULL;
+        $config = Config::getApplicationSettings()->oie;
+        if($config === NULL) return NULL;
 
         return new Client([
-            "base_uri"      => Config::getApplicationSettings()->environment->oieUrl,
+            "base_uri"      => $config->oieUrl,
             "verify"        => FALSE, //this should be changed at some point...
-            // "http_errors"   => FALSE
+            // "http_errors"   => FALSE,
+            "auth"          => [$config->username,$config->password]
         ]);
     }
 

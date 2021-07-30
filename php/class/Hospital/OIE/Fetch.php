@@ -64,14 +64,14 @@ class Fetch
      */
     static function getPatientDiagnosis(Patient $patient): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","diagnosis/get/patient-diagnoses",[
-            "form_params" => [
+        $response = Connection::getHttpClient()?->request("GET","Patient/Diagnosis",[
+            "json" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site,
                 "source"    => "ORMS",
                 "include"   => 0,
-                "startDate" =>"2000-01-01",
-                "endDate"   =>"2099-12-31"
+                "startDate" => "1970-01-01",
+                "endDate"   => "2099-12-31"
             ]
         ])?->getBody()?->getContents() ?? "[]";
 

@@ -29,7 +29,7 @@ class Fetch
         $data = json_decode($data,TRUE)["data"];
 
         foreach($data as &$x) {
-            if(ctype_space($x) || $x === "") $x = NULL;
+            if(is_string($x) === TRUE && ctype_space($x) || $x === "") $x = NULL;
         }
 
         $mrns = array_map(function($x) {

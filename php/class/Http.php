@@ -55,7 +55,7 @@ class Http
                 $param = preg_replace("/^\s/","",$param ?? ""); //remove spaces at the start
                 $param = preg_replace("/\s$/","",$param ?? ""); //remove space at the end
 
-                if(ctype_space($param) || $param === "") $param = NULL;
+                if(is_string($param) === TRUE && ctype_space($param) || $param === "") $param = NULL;
             }
         }
 

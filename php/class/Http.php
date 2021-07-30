@@ -31,7 +31,7 @@ class Http
         }
 
         foreach($requestParams as &$x) {
-            if(ctype_space($x) || $x === "") $x = NULL;
+            if(is_string($x) === TRUE && ctype_space($x) || $x === "") $x = NULL;
         }
 
         return $requestParams;

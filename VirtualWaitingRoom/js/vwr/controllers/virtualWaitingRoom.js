@@ -247,7 +247,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             // First create a child object for this patient and then fill the data
             //-----------------------------------------------------------------------
 
-            //if the destination is a waiting room, don't put the appointment in firebase
+            //if the destination is in a waiting room, don't put the appointment in firebase
             if(!/WAITING ROOM/.test(destination.LocationId))
             {
                 firebaseScreenRef.child(patient.AppointmentId).set(

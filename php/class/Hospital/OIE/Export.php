@@ -2,7 +2,6 @@
 
 namespace Orms\Hospital\OIE;
 
-use Exception;
 use DateTime;
 use Orms\Config;
 use Orms\Patient\Model\Patient;
@@ -13,38 +12,49 @@ class Export
 {
     static function exportPatientLocation(string $sourceId,string $sourceSystem,string $room): void
     {
-        Connection::getHttpClient()?->request("POST","Patient/Location",[
-            "json" => [
-                "room"          => $room,
-                "sourceId"      => $sourceId,
-                "sourceSystem"  => $sourceSystem
-            ]
-        ]);
+        try {
+            Connection::getHttpClient()?->request("POST","Patient/Location",[
+                "json" => [
+                    "room"          => $room,
+                    "sourceId"      => $sourceId,
+                    "sourceSystem"  => $sourceSystem
+                ]
+            ]);
+        }
+        catch(\Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
 
     static function exportAppointmentCompletion(string $sourceId,string $sourceSystem): void
     {
-        Connection::getHttpClient()?->request("POST","Appointment/Status",[
-            "json" => [
-                "sourceId"      => $sourceId,
-                "sourceSystem"  => $sourceSystem,
-                "status"        => "Completed"
-            ]
-        ]);
+        try {
+            Connection::getHttpClient()?->request("POST","Appointment/Status",[
+                "json" => [
+                    "sourceId"      => $sourceId,
+                    "sourceSystem"  => $sourceSystem,
+                    "status"        => "Completed"
+                ]
+            ]);
+        }
+        catch(\Exception $e) {
+            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(),E_USER_WARNING);
+        }
     }
 
-    static function exportPushNotification(Patient $patient,string $appointmentId,string $roomNameEn,string $roomNameFr): void
+    static function exportRoomNotification(Patient $patient,string $appointmentId,string $appointmentSystem,string $roomNameEn,string $roomNameFr): void
     {
         if($patient->opalStatus !== 1) return;
 
         try {
-            Connection::getOpalHttpClient()?->request("GET","publisher/php/sendCallPatientNotification.php",[
-                "query" => [
+            Connection::getHttpClient()?->request("POST","Patient/RoomNotification",[
+                "json" => [
                     "mrn"                   => $patient->getActiveMrns()[0]->mrn,
                     "site"                  => $patient->getActiveMrns()[0]->site,
-                    "appointment_ariaser"   => $appointmentId,
-                    "room_EN"               => $roomNameEn,
-                    "room_FR"               => $roomNameFr,
+                    "appointmentId"         => $appointmentId,
+                    "appointmentSystem"     => $appointmentSystem,
+                    "locationEN"            => $roomNameEn,
+                    "locationFR"            => $roomNameFr,
                 ]
             ]);
         }
@@ -58,8 +68,8 @@ class Export
         if(Config::getApplicationSettings()->system->sendWeights !== TRUE) return;
 
         //measurement document only suported by the RVH site for now
-        $mrn = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new Exception("No RVH mrn");
-        $site = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
+        $mrn = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new \Exception("No RVH mrn");
+        $site = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new \Exception("No RVH mrn");
 
         Connection::getHttpClient()?->request("POST","report/post",[
             "json" => [

@@ -48,7 +48,7 @@ my $ReloadFinal = 11; # 10 second to reload the final screen
 #my $ReloadMid = 3; # 3 seconds to display the patient name by default
 my $ReloadMid = 4; # 8 seconds to display the patient name by default - Measles
 
-my $exportSettings = LoadConfigs::GetConfigs("path");
+my $exportSettings = LoadConfigs::GetConfigs("oie");
 my $ariaCheckinUrl = $exportSettings->{"OIE_URL"} ."/Patient/Location";
 my $ariaPhotoUrl = $exportSettings->{"OIE_URL"} ."/Patient/Photo";
 
@@ -1543,6 +1543,7 @@ sub CheckinPatient
     {
         my $appId = $MV_appId[$appointment];
 
+        local($SIG{__DIE__});
         my $request = HTTP::Request->new("POST",$ariaCheckinUrl);
         $request->header("Content-Type" => "application/json");
         $request->content("{\"room\":\"$CheckinVenueName\",\"sourceId\":$appId,\"sourceSystem\":\"Aria\"}");
@@ -1561,6 +1562,7 @@ sub CheckinPatient
   {
     my $mrn = $MV_PatientId[0];
 
+    local($SIG{__DIE__});
     my $request = HTTP::Request->new("POST",$ariaPhotoUrl);
     $request->header("Content-Type" => "application/json");
     $request->content("{\"mrn\":\"$mrn\",\"site\":\"$site\"}");

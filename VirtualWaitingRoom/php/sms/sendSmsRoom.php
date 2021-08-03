@@ -19,7 +19,7 @@ $patient = PatientInterface::getPatientById($patientId);
 
 //send a notification to Opal if the patient is an Opal patient
 if($patient !== NULL) {
-    Export::exportPushNotification($patient,$sourceId,$roomEn,$roomFr);
+    Export::exportRoomNotification($patient,$sourceId,$sourceSystem,$roomEn,$roomFr);
 }
 
 if($patient === NULL || $patient->phoneNumber === NULL) {

@@ -83,14 +83,14 @@ class Generator
         $measurements   = PatientInterface::getPatientMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
-        $mrn            = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
-        $site           = "RV";
+        $mrn            = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new Exception("No RVH mrn");
+        $site           = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
         $imagePath      = Config::getApplicationSettings()->environment->imagePath;
 
         //convert english month abreviation to french
         $now = str_replace(
             ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-            ["janv","févr","mars","avril","mai","juin","juil","août","sept","oct","nov","déc"],
+            ["janv","f\\'{e}vr","mars","avril","mai","juin","juil","ao\\^{u}t","sept","oct","nov","d\\'{e}c"],
             (new DateTime())->format("d M Y H:i")
         );
 

@@ -2,6 +2,7 @@
 
 namespace Orms\Hospital\OIE;
 
+use Exception;
 use DateTime;
 use Orms\Config;
 use Orms\Patient\Model\Patient;
@@ -56,10 +57,14 @@ class Export
     {
         if(Config::getApplicationSettings()->system->sendWeights !== TRUE) return;
 
+        //measurement document only suported by the RVH site for now
+        $mrn = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new Exception("No RVH mrn");
+        $site = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
+
         Connection::getHttpClient()?->request("POST","report/post",[
             "json" => [
-                "mrn"             => $patient->getActiveMrns()[0]->mrn,
-                "site"            => $patient->getActiveMrns()[0]->site,
+                "mrn"             => $mrn,
+                "site"            => $site,
                 "reportContent"   => Generator::generatePdfString($patient),
                 "docType"         => "ORMS Measurement",
                 "documentDate"    => (new DateTime())->format("Y-m-d H:i:s"),

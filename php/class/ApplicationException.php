@@ -10,6 +10,7 @@ class ApplicationException extends Exception
     const INVALID_INSURANCE_FORMAT = 2;
     const UNKNOWN_MRN_TYPE = 3;
     const INVALID_MRN_FORMAT = 4;
+    const INVALID_SMS_APPOINTMENT_STATE = 5;
 
     function __construct(int $errorCode,string $errorMessage)
     {

@@ -330,6 +330,258 @@ paths:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'
+
+  /sms/smsAppointment/getSmsAppointments.php:
+    post:
+      summary: Get a list of all the sms appointments
+      description: Get a list of all the sms appointments in the system
+      tags:
+        - sms
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of sms appointments
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          description: Sms appointment id
+                          type: integer
+                        type:
+                          description: Sms appointment type
+                          type: string
+                          nullable: true
+                        appointmentCode:
+                          description: Appointment code
+                          type: string
+                        resourceCode:
+                          description: Resource code
+                          type: string
+                        resourceName:
+                          description: Resource name
+                          type: string
+                        active:
+                          description: Status of the sms appointment
+                          type: integer
+                          enum:
+                            - 0
+                            - 1
+                        speciality:
+                          description: Speciality group name
+                          type: string
+                        specialityCode:
+                          description: Speciality group code
+                          type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /sms/smsAppointment/updateSmsAppointment.php:
+    post:
+      summary: Updates an sms appointment entry
+      description: Updates the type and status of an sms appointment entry
+      tags:
+        - sms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Id of the sms appointment
+                  type: integer
+                active:
+                  description: Status of the sms appointment
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                type:
+                  description: Type of the sms appointment
+                  type: string
+                  nullable: true
+              required:
+                - id
+                - active
+                - type
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /sms/smsMessage/getMessages.php:
+    post:
+      summary: Get a list of sms messages
+      description: Get a list of sms messages sorted by event
+      tags:
+        - sms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                specialityCode:
+                  description: Speciality group code
+                  type: string
+                type:
+                  description: Message type
+                  type: string
+              required:
+                - specialityCode
+                - type
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of Sms message event
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event:
+                          description: Selected message event
+                          type: string
+                        language:
+                          description: Selected message language
+                          type: string
+                        messageId:
+                          description: Sms message id
+                          type: integer
+                        smsMessage:
+                          description: Sms message content
+                          type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /sms/smsMessage/getTypes.php:
+    post:
+      summary: Get a list of message types
+      description: Get a list of sms message types for a speciality group
+      tags:
+        - sms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                specialityCode:
+                  description: Speciality group code
+                  type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of message types
+                    type: array
+                    items:
+                      type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /sms/smsMessage/updateMessage.php:
+    post:
+      summary: Update the content of an sms message
+      description: Update the content of an sms message
+      tags:
+        - sms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageId:
+                  description: Sms message id
+                  type: integer
+                smsMessage:
+                  description: Sms message content
+                  type: string
+              required:
+                - messageId
+                - smsMessage
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /hospital/getSpecialityGroups.php:
+    post:
+      summary: Get a list of all speciality groups
+      description: Get a list of all the speciality group in the hospital
+      tags:
+        - hospital
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: List of speciality groups
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        specialityCode:
+                          description: Speciality group code
+                          type: string
+                        specialityName:
+                          description: Speciality group name
+                          type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
 components:
   responses:
     200:

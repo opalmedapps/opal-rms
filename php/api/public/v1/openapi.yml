@@ -545,6 +545,45 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
+  /hospital/getHubs.php:
+    post:
+      summary: aaa
+      description: aaa
+      tags:
+        - hospital
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      clinicHubId:
+                        description: Hub id
+                        type: integer
+                      clinicHubName:
+                        description: Hub name
+                        type: string
+                      specialityGroupId:
+                        description: Speciality group id
+                        type: integer
+                      specialityGroupName:
+                        description: Speciality group name
+                        type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
   /hospital/getSpecialityGroups.php:
     post:
       summary: Get a list of all speciality groups

@@ -18,4 +18,26 @@ class SpecialityInterface
         return SpecialityAccess::getSpecialityGroups();
     }
 
+    /**
+     *
+     * @return array<string,array{
+     *      clinicHubId: int,
+     *      clinicHubName: string,
+     *      specialityGroupId: int,
+     *      specialityGroupName: string
+     * }>
+     */
+    static function getHubs(): array
+    {
+        $hubs = SpecialityAccess::getHubs();
+
+        $specialityGroups = array_reduce($hubs,function($x,$y) {
+            $x[$y["specialityGroupName"]][] = $y;
+
+            return $x;
+        },[]);
+
+        return $specialityGroups;
+    }
+
 }

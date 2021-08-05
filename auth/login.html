@@ -60,10 +60,11 @@ var app = angular.module('myApp',['ngCookies','ngMaterial']);
 app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$window)
 {
     $http({
-            url: "/auth/getHubs.php",
-            method: "GET"
+        url: "/php/api/public/v1/hospital/getHubs.php",
+        method: "POST",
+        data: null
     })
-    .then( x => {$scope.specialityGroups = x.data;})
+    .then( x => {$scope.specialityGroups = x.data.data;})
 
     $scope.authenticateUser = function()
     {
@@ -143,10 +144,10 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
 
     function createCookiesAndRedirect(authData,hubData)
     {
-        $cookies.put("specialityGroupId",hubData["SpecialityGroupId"],{path: "/"});
-        $cookies.put("specialityGroupName",hubData["SpecialityGroupName"],{path: "/"});
-        $cookies.put("clinicHubId",hubData["ClinicHubId"],{path: "/"});
-        $cookies.put("clinicHubName",hubData["ClinicHubName"],{path: "/"});
+        $cookies.put("specialityGroupId",hubData["specialityGroupId"],{path: "/"});
+        $cookies.put("specialityGroupName",hubData["specialityGroupName"],{path: "/"});
+        $cookies.put("clinicHubId",hubData["clinicHubId"],{path: "/"});
+        $cookies.put("clinicHubName",hubData["clinicHubName"],{path: "/"});
         $cookies.put(authData["name"],authData["key"],{path: "/"});
         $window.location.href = $location.absUrl();
     }
@@ -168,7 +169,7 @@ var hubTemplate = `
         <h2 class="md-title ng-binding">Select a TV Hub</h2>
         <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
             <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="hub in hubs" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.ClinicHubName}}</md-button>
+                <md-button ng-repeat="hub in hubs" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.clinicHubName}}</md-button>
             </span>
         </div>
     </md-dialog-content>

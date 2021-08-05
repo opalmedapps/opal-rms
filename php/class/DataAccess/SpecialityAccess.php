@@ -28,4 +28,38 @@ class SpecialityAccess
         ], $query->fetchAll());
     }
 
+    /**
+     *
+     * @return list<array{
+     *      clinicHubId: int,
+     *      clinicHubName: string,
+     *      specialityGroupId: int,
+     *      specialityGroupName: string
+     * }>
+     */
+    static function getHubs(): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                CH.ClinicHubId,
+                CH.ClinicHubName,
+                SG.SpecialityGroupId,
+                SG.SpecialityGroupName
+            FROM
+                ClinicHub CH
+                INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CH.SpecialityGroupId
+            ORDER BY
+                SG.SpecialityGroupName,
+                CH.ClinicHubName
+        ");
+        $query->execute();
+
+        return array_map(fn($x) => [
+            "clinicHubId"           => $x["ClinicHubId"],
+            "clinicHubName"         => $x["ClinicHubName"],
+            "specialityGroupId"     => $x["SpecialityGroupId"],
+            "specialityGroupName"   => $x["SpecialityGroupName"],
+        ],$query->fetchAll());
+    }
+
 }

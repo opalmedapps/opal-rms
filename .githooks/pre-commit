@@ -1,0 +1,44 @@
+#!/bin/sh
+
+function processExitCode { #(code,message)
+    if [ $1 -ne 0 ]
+    then
+        echo "$2"
+        exit 1
+    fi
+}
+
+#cd to the root of the repo
+cd "$(dirname "$0")"
+cd ../
+
+#re-generate the api index file
+echo "Re-generating api html file"
+npx redoc-cli bundle php/api/public/v1/openapi.yml -o php/api/public/v1/index.html > /dev/null 2>&1
+
+processExitCode $? "Something went wrong with redoc-cli"
+
+#run the linter
+echo "Running php-cs-fixer"
+./vendor/bin/php-cs-fixer fix --quiet
+
+processExitCode $? "Something went wrong with php-cs-fixer"
+
+#add the linter changes to the commit
+#only add files that are already staged and the index.html for the api
+git update-index --again && git add php/api/public/v1/index.html
+
+processExitCode $? "Something went wrong with git"
+
+#run phpstan
+echo "Analyzing code with phpstan"
+./vendor/phpstan/phpstan/phpstan clear-result-cache --quiet
+./vendor/phpstan/phpstan/phpstan analyse --quiet
+
+processExitCode $? "Errors found with phpstan ...aborting commit"
+
+#run psalm
+echo "Analyzing code with psalm"
+./vendor/bin/psalm --no-cache --find-unused-psalm-suppress > /dev/null 2>&1
+
+processExitCode $? "Errors found with psalm ...aborting commit"

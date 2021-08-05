@@ -186,7 +186,6 @@ foreach($appointments as $row)
         "AppointmentId",
         "SpecialityGroupId"
     ] as $x) {
-        /** @psalm-suppress RedundantCast */
         $row[$x] = (int) $row[$x];
     }
 

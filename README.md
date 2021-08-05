@@ -9,5 +9,5 @@ Quick comments:
 To start the highcharts export server (after running npm install):
 pm2 start node_modules/highcharts-export-server/bin/cli.js --name hes -- --enableServer 1
 
-To update the public api:
-npx redoc-cli bundle php/api/public/v1/openapi.yml -o php/api/public/v1/index.html
+To enable git hooks:
+sh .githooks/activateHooks.sh

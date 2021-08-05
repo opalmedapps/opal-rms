@@ -2,13 +2,12 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\Patient\PatientInterface;
 use Orms\Http;
-use Orms\Hospital\Opal;
+use Orms\Hospital\OIE\Fetch;
 
-$patientId = $_GET["patientId"] ?? NULL;
-$questionnaireId = $_GET["rptID"] ?? NULL;
+$patientId       = $_GET["patientId"] ?? NULL;
+$questionnaireId = $_GET["questionnaireId"] ?? NULL;
 
 if($patientId === NULL || $questionnaireId === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Missing fields!");
@@ -20,7 +19,7 @@ if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-$questions = Opal::getPatientAnswersForNonChartTypeQuestionnaire($patient,(int) $questionnaireId);
+$questions = Fetch::getPatientAnswersForNonChartTypeQuestionnaire($patient,(int) $questionnaireId);
 
 //the return array, will be in JSON format
 $jstring = [];
@@ -33,47 +32,31 @@ foreach($questions as $question)
     //change the format of the date depending on the language
     //also set the date to empty if the previous question answered was part of the same patient questionnaire instance
     $displayDate = "";
-    if($lastAnsweredQuestionnaireId !== $question["PatientQuestionnaireSerNum"])
+    if($lastAnsweredQuestionnaireId !== $question["questionnaireAnswerId"])
     {
-        $lastAnsweredQuestionnaireId = $question["PatientQuestionnaireSerNum"];
-        $displayDate = (new DateTime($question["DateTimeAnswered"]));
+        $lastAnsweredQuestionnaireId = $question["questionnaireAnswerId"];
+        $displayDate = (new DateTime($question["dateTimeAnswered"]));
 
         $lastUsedDate = $displayDate->format("Y-m-d");
-
-        if($question["Language"] === "EN") {
-            $displayDate = $displayDate->format("l jS F Y");
-        }
-        else
-        {
-            $weekDay = $displayDate->format("l");
-            $month = $displayDate->format("F");
-
-            $displayDate = $displayDate->format("l d F Y");
-
-            $displayDate = preg_replace(
-                ["/$weekDay/","/$month/"],
-                [convertEnglishWeekDayToFrench($weekDay),convertEnglishMonthToFrench($month)],
-                $displayDate
-            );
-        }
+        $displayDate = $displayDate->format("l jS F Y");
     }
 
     //sanitize question text
-    $questionText = ($question["Language"] === "EN") ? $question["QuestionQuestion"] : $question["QuestionQuestion_FR"];
+    $questionText = $question["questionText"];
     $questionText = str_replace("<br />","\\n",$questionText);
     $questionText = addslashes($questionText);
 
     //display the scale if the question has a scale
     $scale = "";
-    if($question["QuestionTypeSerNum"] === "2")
+    if($question["hasScale"] === TRUE)
     {
         //in theory, there should only be two rows
         //first row is the minimum value, second is the max
-        $min = $question["choices"][0];
-        $max = $question["choices"][1];
+        $min = $question["options"][0];
+        $max = $question["options"][1];
 
-        $scale = $min["ChoiceSerNum"] ." ". trim($min["ChoiceDescription"]) .str_repeat(" ",4) .str_repeat(" - ",15) .str_repeat(" ",4);
-        $scale .= $max["ChoiceSerNum"] ." ". $max["ChoiceDescription"];
+        $scale = $min["value"] ." ". trim($min["description"]) .str_repeat(" ",4) .str_repeat(" - ",15) .str_repeat(" ",4);
+        $scale .= $max["value"] ." ". $max["description"];
     };
 
     //separate the answers by a comma if there's more than one
@@ -81,46 +64,11 @@ foreach($questions as $question)
 
     $jstring[] = [
         "DisplayDate"  => $displayDate,
-        "Description"  => Encoding::utf8_encode_recursive($questionText),
-        "Choice"       => Encoding::utf8_encode_recursive($scale),
-        "Answer"       => Encoding::utf8_encode_recursive($answers)
+        "Description"  => $questionText,
+        "Choice"       => $scale,
+        "Answer"       => $answers
     ];
 
 };
 
 echo json_encode($jstring);
-
-function convertEnglishWeekDayToFrench(string $weekDay): string
-{
-    $weekDays = [
-        "Sunday"    => "Dimanche",
-        "Monday"    => "Lundi",
-        "Tuesday"   => "Mardi",
-        "Wednesday" => "Mercredi",
-        "Thursday"  => "Jeudi",
-        "Friday"    => "Vendredi",
-        "Saturday"  => "Samedi"
-    ];
-
-    return $weekDays[$weekDay];
-}
-
-function convertEnglishMonthToFrench(string $month): string
-{
-    $months = [
-        "January"      => "janvier",
-        "February"     => "février",
-        "March"        => "mars",
-        "April"        => "avril",
-        "May"          => "mai",
-        "June"         => "juin",
-        "July"         => "juillet",
-        "August"       => "août",
-        "September"    => "septembre",
-        "October"      => "octobre",
-        "November"     => "novembre",
-        "December"     => "décembre",
-    ];
-
-    return $months[$month];
-}

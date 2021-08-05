@@ -32,22 +32,6 @@ LOG_DB                          =
 LOG_USERNAME                    =
 LOG_PASSWORD                    =
 
-OPAL_DB_ENABLED                 =
-OPAL_TYPE                       =
-OPAL_HOST                       =
-OPAL_PORT                       =
-OPAL_DB                         =
-OPAL_USERNAME                   =
-OPAL_PASSWORD                   =
-
-QUESTIONNAIRE_DB_ENABLED        =
-QUESTIONNAIRE_TYPE              =
-QUESTIONNAIRE_HOST              =
-QUESTIONNAIRE_PORT              =
-QUESTIONNAIRE_DB                =
-QUESTIONNAIRE_USERNAME          =
-QUESTIONNAIRE_PASSWORD          =
-
 [oie]
 ENABLED                         =
 OIE_URL                         =

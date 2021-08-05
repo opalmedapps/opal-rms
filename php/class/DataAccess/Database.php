@@ -41,26 +41,6 @@ class Database
         return self::$logsConnection;
     }
 
-    static function getOpalConnection(): ?PDO
-    {
-        if(self::$opalConnection === NULL) {
-            $dbInfo = Config::getApplicationSettings()->opalDb;
-            self::$opalConnection = ($dbInfo === NULL) ? NULL : self::_getDatabaseConnection($dbInfo);
-        }
-
-        return self::$opalConnection;
-    }
-
-    static function getQuestionnaireConnection(): ?PDO
-    {
-        if(self::$questionnaireConnection === NULL) {
-            $dbInfo = Config::getApplicationSettings()->questionnaireDb;
-            self::$questionnaireConnection = ($dbInfo === NULL) ? NULL : self::_getDatabaseConnection($dbInfo);
-        }
-
-        return self::$questionnaireConnection;
-    }
-
     private static function _getDatabaseConnection(DatabaseConfig $dbConf): PDO
     {
         return new PDO(

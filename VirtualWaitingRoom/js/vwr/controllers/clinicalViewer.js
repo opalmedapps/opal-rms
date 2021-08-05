@@ -238,25 +238,25 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     $http.get("./php/clinicalViewer/resourceQuery.php?speciality="+speciality).then(function(response)
     {
         $scope.clinics = response.data;
-        // $scope.inputs.specificType = $scope.clinics[0];
     });
 
     $http.get("./php/clinicalViewer/getAppointmentCode.php?speciality="+speciality).then(function(response)
     {
         $scope.codes = response.data;
-        // $scope.inputs.cspecificType = $scope.codes[0];
     });
 
     $http.get("./php/clinicalViewer/getDiagnosis.php?").then(function(response)
     {
         $scope.diagnosis = response.data;
-        //$scope.inputs.dspecificType = $scope.diagnosis[0];
-    })
+    });
 
     $http.get("./php/clinicalViewer/getQuestionnaireName.php?").then(function(response)
     {
-        $scope.questionnaireType = response.data;
-    })
+        $scope.questionnaireType = response.data.map(x => ({
+            Name:            x["name"],
+            QuestionnaireId: x["questionnaireId"]
+        }));
+    });
 
     //=========================================================================
     // Open the Login modal
@@ -627,29 +627,15 @@ app.factory('callScript',function($http,$q)
         getData: function(sDate,eDate,sTime,eTime,qdate,qtime,inputs,speciality)
         {
             let defer = $q.defer();
-            var clinics = "";
-            for (i = 0; i < inputs.selectedclinics.length; i++) {
-                clinics += "\"" +inputs.selectedclinics[i].Name + "\"";
-                if(clinics.length > 5300)break;
-                if(i< inputs.selectedclinics.length-1) clinics += ",";
-            }
-            var codes = "";
-            for (i = 0; i < inputs.selectedcodes.length; i++) {
-                codes += "'"+inputs.selectedcodes[i].Name + "'";
-                if(i< inputs.selectedcodes.length-1) codes += ",";
-            }
-            var diagnosis = "";
-            for (i = 0; i < inputs.selecteddiagnosis.length; i++) {
-                diagnosis += ""+inputs.selecteddiagnosis[i].subcode + "";
-                if(i< inputs.selecteddiagnosis.length-1) diagnosis += ",";
-            }
 
-            var questionnaireType = "";
-            for (i = 0; i < inputs.selectedQuestionnaire.length; i++) {
-                questionnaireType += ""+inputs.selectedQuestionnaire[i].Name + "";
-                if(i< inputs.selectedQuestionnaire.length-1) questionnaireType += ",";
-            }
+            let clinics = inputs.selectedclinics.map(x => "\""+ x.Name +"\"").join(",");
+            // if(clinics.length > 5300)break; why was this there in the original for loop?
 
+            let codes = inputs.selectedcodes.map(x => "'"+ x.Name +"'").join(",");
+
+            let diagnosis = inputs.selecteddiagnosis.map(x => "\""+ x.subcode +"\"").join(",");
+
+            let questionnaireType = inputs.selectedQuestionnaire.map(x => x.QuestionnaireId).join(",");
 
             url = "./php/clinicalViewer/appointmentQuery.php?"
 

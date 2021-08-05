@@ -9,7 +9,9 @@ require_once __DIR__."/../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\DataAccess\Database;
-use Orms\Hospital\Opal;
+use Orms\DateTime;
+use Orms\Hospital\OIE\Fetch;
+use Orms\Patient\PatientInterface;
 
 // Create MySQL DB connection
 $dbh = Database::getOrmsConnection();
@@ -147,28 +149,28 @@ foreach($appointments as $row)
     if($row["OpalPatient"] === "1")
     {
         try {
-            $questionnaire = Opal::getLastCompletedPatientQuestionnaire($row["Mrn"],$row["Site"]);
+            $patient = PatientInterface::getPatientById((int) $row["PatientId"]) ?? throw new Exception("Unknown patient id $row[PatientId]");
+            $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
         }
-        catch(Exception) {
-            $questionnaire = [];
+        catch(Exception $e) {
+            $questionnaire = NULL;
+            error_log((string) $e);
         }
 
-        if($questionnaire !== [])
+        if($questionnaire !== NULL)
         {
-            $lastCompleted = $questionnaire["QuestionnaireCompletionDate"] ?? NULL;
-            $completedWithinWeek = $questionnaire["CompletedWithinLastWeek"] ?? NULL;
+            $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
+            $completedWithinWeek = ($oneWeekAgo <=  $questionnaire["completionDate"]);
 
-            $row["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : NULL;
+            $row["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
 
-            if(
-                /** @phpstan-ignore-next-line */
-                ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] === NULL)
-                ||
-                (
-                    ($lastCompleted !== NULL && $row["LastQuestionnaireReview"] !== NULL)
-                    && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($row["LastQuestionnaireReview"]))->getTimestamp()
-                )
-            ) $row["QStatus"] = "red-circle";
+            /** @phpstan-ignore-next-line */
+            $lastQuestionnaireReview = ($row["LastQuestionnaireReview"] !== NULL) ? new DateTime($row["LastQuestionnaireReview"]) : NULL;
+
+            /** @phpstan-ignore-next-line */
+            if($lastQuestionnaireReview === NULL || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
+                $row["QStatus"] = "red-circle";
+            }
         }
     }
 

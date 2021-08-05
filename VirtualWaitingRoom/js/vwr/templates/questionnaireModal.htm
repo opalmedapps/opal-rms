@@ -5,15 +5,39 @@
 <div class="modal-body" ng-init="addScrollFunc()">
 
     <br/>
-
-    <div style="display: flex;justify-content: space-between;width: 100%">
-        <div style="width: 33%;">
-            Search for Questionnaire:
-            <input type="search" ng-model="qfilter" ng-change="changeIndexGroup(groupData,0)" placeholder="Filter questionnaires..."/>
+    <!--Purpose Buttons-->
+    <div ng-if="purposeSelected === ''">
+        <div class="row questionnaire-container">
+            <h2 style="text-align:center;margin-top:0;">Questionnaire List</h2>
+            <br/>
+            <div style="left:17%; right:17%" class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="purpose in purposeList" ng-click="updatePurpose(purpose)">
+                <input style="font-size:20px;padding:20px" type="button" class="btn btn-info btn-block btn-que" value="{{purpose.title}} Questionnaires">
+                <span style="padding-top: 5%;width: 5%;right: 0%;" class = "alert-circle" ng-class="alertDotForPurpose(purpose) ? 'red-circle' : ''"></span>
+            </div>
         </div>
-        <div style="width: 33%">
+    </div>
+    <!--Study Buttons-->
+    <div ng-if="purposeSelected.title === 'Research' && studySelected === ''">
+        <div class="row questionnaire-container">
+            <h2 style="text-align:center;margin-top:0;">Research Questionnaires</h2>
+            <br/>
+            <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="study in studyList" ng-click="updateStudy(study)">
+                <input style="font-size:20px;padding:20px" type="button" class="btn btn-info btn-block btn-que" value="{{study.title}} Questionnaires">
+                <span style="padding-top: 5%;width: 5%;right: 0%;" class = "alert-circle" ng-class="alertDotForStudy(study) ? 'red-circle' : ''"></span>
+            </div>
+        </div>
+    </div>
+    <!--Questionnaire Section-->
+    <div ng-if="(purposeSelected !== ''&& purposeSelected.title !== 'Research') || studySelected !== ''">
+    <div style="display: flex;justify-content: space-between;width: 100%">
+        <div style="width: 10%;">
             <input type="button" ng-show="patient.confidMode === 'Nominal Mode'" class="btn btn-block"  style="background-color: grey; width: 60%" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" >
-            <input type="button" ng-show="patient.confidMode != 'Nominal Mode'" class="btn" ng-class="patient.QStatus === 'red-circle' ? 'btn-default' : 'btn-success'" ng-style="(patient.QStatus === 'red-circle') ? {'background-color': '#fe4b4b'} : {}" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" ng-click="markAsReviewed()">
+            <input type="button" ng-show="patient.confidMode !== 'Nominal Mode'" class="btn" ng-class="patient.QStatus === 'red-circle' ? 'btn-default' : 'btn-success'" ng-style="(patient.QStatus === 'red-circle') ? {'background-color': '#fe4b4b'} : {}" value="{{patient.QStatus === 'red-circle' ? 'Mark as reviewed' : 'Reviewed'}}" ng-click="markAsReviewed()">
+
+        </div>
+        <div style="width: 50%">
+            <h2 ng-if="purposeSelected.title !== 'Research'" style="text-align:center">{{purposeSelected.title}} Questionnaire List</h2>
+            <h2 ng-if="purposeSelected.title === 'Research'" style="text-align:center">{{studySelected.title}} Questionnaire List</h2>
         </div>
         <div>
             Last review: {{patient.LastQuestionnaireReview}}
@@ -22,10 +46,34 @@
     <br>
 
     <div class="row questionnaire-container">
-        <h2 style="text-align:center;margin-top:0;">Questionnaire List</h2>
-
+        <div style="display: flex;justify-content: space-between;width: 100%">
+            <div style="width: 70%;left: 1%;position: relative">
+                <h3 style="text-align: center;margin-top: 0;width: fit-content">Patient Responded Questionnaires</h3>
+            </div>
+            <div style="right: 1%; position:relative">
+                Search for Questionnaire:
+                <input type="search" ng-model="qfilter" ng-change="changeIndexGroup()" placeholder="Filter questionnaires..."/>
+            </div>
+        </div>
         <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="que in ques = (questionnaireList | filter: listFilter(qfilter) )" ng-click="displayChart(que)">
-            <input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.Name}}">
+            <div ng-if="que.RespondentTitle === 'Patient' && que.PurposeId === purposeSelected.purposeId && checkStudy(que)">
+                <input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.Name}}">
+                <span style="padding-top: 5%;width: 5%;right: 0%;" class="alert-circle {{que.reviewed}}"></span>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row questionnaire-container">
+        <div style="display: flex;justify-content: space-between;width: 100%">
+            <div style="left: 1%; position:relative">
+                <h3 style="text-align: center;margin-top: 0;width: fit-content">Clinician Responded Questionnaires</h3>
+            </div>
+        </div>
+        <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="clinician in clinicianQuestionnaire = (clinicianQuestionnaireList | filter: clinicalListFilter(qfilter) )" ng-click="displayClinicalQuestionnaire(clinician)">
+            <div ng-if="clinician.purpose === purposeSelected.purposeId && checkStudy(clinician)">
+                <input  type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': clinician === selectedQuestionnaire}" value="{{clinician.Name}}">
+                <span style="padding-top: 5%;width: 5%;right: 0%;" ng-class="{'alert-circle red-circle' : !clinician.completed}"></span>
+            </div>
         </div>
     </div>
 
@@ -85,8 +133,10 @@
             </center>
         </div>
 
-
     </div>
 
     <br>
+</div>
+<div class="modal-footer" ng-if="purposeSelected !== ''">
+    <button class="btn btn-primary" style="float:left" ng-click="back()">Back</button>
 </div>

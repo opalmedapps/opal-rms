@@ -11,23 +11,130 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     $scope.selectedQuestionnaire; //initialize variable so we know it exists
     $scope.questionnaires = [];
 
+    $scope.purposeList = [];
+    $scope.studyList = [];
+    $scope.purposeSelected = '';
+    $scope.studySelected = '';
+    $scope.clinicianQuestionnaireList = [];
+
+    //Get all questionnaires answered by the input patient
     $http({
         url: "./php/questionnaire/getQuestionnaires.php",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
-    }).then(function (response)
+    }).then(function(response)
     {
-        $scope.questionnaireList = response.data;
+        $scope.questionnaireList = response.data.data;
 
         angular.forEach($scope.questionnaireList, function(val)
         {
             val.Name = val.QuestionnaireName_EN;
             val.Selected = false;
+            val.reviewed = (val.CompletionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
         });
-
-        //by default, we would select the most recently answered questionnaire
-        $scope.displayChart($scope.questionnaireList[0]);
     });
+
+    //Get all clinician questionnaires
+    $http({
+        url: "./php/questionnaire/getClinicianQuestionnaires.php",
+        method: "GET",
+        params: {patientId: $scope.patient.PatientId}
+    }).then(function(response) {
+        $scope.clinicianQuestionnaireList = response.data.data;
+    });
+
+    //Get all the studies in the database
+    $http({
+        url: "./php/questionnaire/getStudiesForPatient.php",
+        method: "GET",
+        params: {patientId: $scope.patient.PatientId}
+    }).then(function(response) {
+        $scope.studyList = response.data.data;
+    });
+
+    //Get all the possible purpose for a questionnaire
+    $http({
+        url: "./php/questionnaire/getQuestionnairePurposes.php",
+        method: "GET"
+    }).then(function(response) {
+        $scope.purposeList = response.data.data;
+    });
+
+    //check if the input questionnaire is a questionnaire for the selected study
+    $scope.checkStudy = function(questionnaire)
+    {
+        if($scope.purposeSelected.title !== 'Research') {
+            return true;
+        }
+        else {
+            return questionnaire.studyIdList.includes($scope.studySelected.studyId);
+        }
+    };
+
+    //update the selected study
+    $scope.updateStudy = function(study) {
+        $scope.studySelected = study;
+    };
+
+    //update the selected purpose and get the alert dot for the questionnaire answered by clinician
+    $scope.updatePurpose = function(purpose) {
+        $scope.purposeSelected = purpose;
+    };
+
+    //Undo the selected information;
+    $scope.back = function()
+    {
+        $scope.selectedQuestionnaire = null;
+        $scope.selectedQuestionnaireIsChart = false;
+        $scope.selectedQuestionnaireIsNonChart = false;
+
+        if($scope.purposeSelected.title === 'Research' && $scope.studySelected !== '') {
+            $scope.studySelected = '';
+        }
+        else {
+            $scope.purposeSelected = '';
+        }
+    }
+
+    $scope.changeIndexGroup = function()
+    {
+        $scope.selectedQuestionnaire = null;
+        $scope.selectedQuestionnaireIsChart = false;
+        $scope.selectedQuestionnaireIsNonChart = false;
+    }
+
+    //Determining if an alert dot should be displayed for purpose buttons.
+    $scope.alertDotForPurpose = function(purpose)
+    {
+        if($scope.questionnaireList.some(x => x.PurposeId === purpose.purposeId && x.reviewed === "red-circle")) {
+            return true;
+        }
+
+        if(purpose.title !== 'Research') {
+            return $scope.clinicianQuestionnaireList.some(x => x.PurposeId === purpose.purposeId && x.completed === false);
+        }
+
+        return $scope.studyList.some(x => $scope.alertDotForStudy(x));
+    }
+
+    //Determining if an alert dot should be displayed for study buttons.
+    $scope.alertDotForStudy = function(study)
+    {
+        if($scope.questionnaireList.some(x => x.studyIdList.includes(study.studyId) && x.reviewed === "red-circle")) {
+            return true;
+        }
+        return $scope.clinicianQuestionnaireList.some(x => x.studyIdList.includes(study.studyId) && x.completed === false);
+    }
+
+    //Display the questionnaire if it's completed, If a questionnaire answered by clinician is incomplete, open edit modal.
+    $scope.displayClinicalQuestionnaire = function(questionnaire)
+    {
+        // if the questionnaire is completed, display it
+        if (questionnaire.completed) {
+            $scope.displayChart(questionnaire);
+        }
+        // if not, open edit modal TODO : create edit modal to complete clinician questionnaire.
+    }
 
     $scope.markAsReviewed = function()
     {
@@ -69,8 +176,8 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                 url: "./php/questionnaire/reportDisplay.php",
                 method: "GET",
                 params: {
-                    patientId: $scope.patient.PatientId,
-                    rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
+                    patientId:       $scope.patient.PatientId,
+                    questionnaireId: $scope.selectedQuestionnaire.QuestionnaireId
                 }
             }).then(function (response) {
                     $scope.selectedQuestionnaire.questions = response.data;
@@ -112,8 +219,8 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                 url: "./php/questionnaire/reportDisplayNonChart.php",
                 method: "GET",
                 params: {
-                    patientId: $scope.patient.PatientId,
-                    rptID:$scope.selectedQuestionnaire.QuestionnaireDBSerNum
+                    patientId:        $scope.patient.PatientId,
+                    questionnaireId:  $scope.selectedQuestionnaire.QuestionnaireId
                 }
             }).then(function (response) {
                     $scope.selectedQuestionnaire.questions = {
@@ -133,7 +240,15 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         filter = type || '';
         return function(que) {
-            return (que.Status === 'New' && (filter == false || que.Name.toLowerCase().lastIndexOf(filter.toLowerCase()) >= 0));
+            return (que.Status === 'New' && (filter === false || que.Name.toLowerCase().includes(filter.toLowerCase())));
+        }
+    }
+
+    $scope.clinicalListFilter = function(type)
+    {
+        filter = type || '';
+        return function(que) {
+            return (filter === false || que.Name.toLowerCase().includes(filter.toLowerCase()));
         }
     }
 }

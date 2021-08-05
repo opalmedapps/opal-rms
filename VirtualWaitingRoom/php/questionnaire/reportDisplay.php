@@ -2,13 +2,12 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
+use Orms\Hospital\OIE\Fetch;
 use Orms\Patient\PatientInterface;
 use Orms\Http;
-use Orms\Hospital\Opal;
 
-$patientId = $_GET["patientId"] ?? NULL;
-$questionnaireId = $_GET["rptID"] ?? NULL;
+$patientId       = $_GET["patientId"] ?? NULL;
+$questionnaireId = $_GET["questionnaireId"] ?? NULL;
 
 if($patientId === NULL || $questionnaireId === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Missing fields!");
@@ -20,20 +19,23 @@ if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-$questions = Opal::getPatientAnswersForChartTypeQuestionnaire($patient,(int) $questionnaireId);
-$questions = Encoding::utf8_encode_recursive($questions);
+$questions = Fetch::getPatientAnswersForChartTypeQuestionnaire($patient,(int) $questionnaireId);
 
 //get the date of the last questionnaire that the patient answered
-/** @psalm-suppress ArgumentTypeCoercion */
-$lastDateAnswered = max(array_column(array_column($questions,"data"),"0"))[0];
-$lastDateAnswered = (new DateTime())->setTimestamp($lastDateAnswered)->format("Y-m-d");
+if($questions[0]["answers"] === []) {
+    $lastDateAnswered = NULL;
+}
+else {
+    $lastDateAnswered = $questions[0]["answers"][count($questions[0]["answers"])-1]["dateTimeAnswered"];
+    $lastDateAnswered = (new DateTime())->setTimestamp($lastDateAnswered)->format("Y-m-d");
+}
 
 //convert all unix timestamps to millseconds for highcharts
 $questions = array_map(function($x) {
-    $x["data"] = array_map(function($y) {
-        $y[0] = $y[0] *1000;
+    $x["answers"] = array_map(function($y) {
+        $y["dateTimeAnswered"] = $y["dateTimeAnswered"] *1000;
         return $y;
-    },$x["data"]);
+    },$x["answers"]);
 
     return $x;
 },$questions);
@@ -47,7 +49,7 @@ $jstring = [
 //for each question in the questionnaire, generate a highcharts object and add it to the JSON return array
 foreach($questions as $q)
 {
-    $lastAnswer = $q["data"][count($q["data"])-1][1] ?? NULL;
+    $lastAnswer = $questions[0]["answers"][count($questions[0]["answers"])-1]["answer"];
 
     $jstring["qData"][] = [
         "credits" => ["enabled" => FALSE],
@@ -57,7 +59,7 @@ foreach($questions as $q)
             "zoomType" => "x",
             "borderWidth" => 0
         ],
-        "title" => ["text" => $q["question"]],
+        "title" => ["text" => $q["questionTitle"]],
         "tooltip" => ["formatter" => NULL],
         "xAxis" => [
             "type" => "datetime",
@@ -75,7 +77,7 @@ foreach($questions as $q)
             "startOnTick" => FALSE,
             "endOnTick" => FALSE,
             "title" => [
-                "text"  => ($q["language"] === "EN") ? "Response" : "Réponse",
+                "text"  => "Response",
                 "style" => ["fontSize" => "15px"]
             ],
             "labels" => ["style" => ["fontSize" => "15px"]],
@@ -86,7 +88,7 @@ foreach($questions as $q)
                     "value" => 3,
                     "width" => 2,
                     "label" => [
-                        "text"  => ($q["language"] === "EN") ? "Final Value: $lastAnswer" : "Valeur Finale: $lastAnswer",
+                        "text"  => "Final Value: $lastAnswer",
                         "align" => "right",
                         "style" => ["fontSize" => "15px"]
                     ]
@@ -96,9 +98,9 @@ foreach($questions as $q)
         "plotOptions" => ["line" => ["marker" => ["enabled" => TRUE]]],
         "series" => [
             [
-                "name"         => $q["question"],
+                "name"         => $q["questionTitle"],
                 "showInLegend" => FALSE,
-                "data"         => $q["data"],
+                "data"         => array_map(fn($x) => [$x["dateTimeAnswered"],$x["answer"]],$q["answers"]), //convert to non-assoc array for highcharts
                 "tooltip"      => ["valueDecimals" => 0]
             ]
         ]

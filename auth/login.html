@@ -70,14 +70,14 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
     {
         $scope.error = "";
         $http({
-                url: "/auth/createUserSession.php",
+                url: "/php/api/public/v1/auth/createSession.php",
                 method: "POST",
                 data: {
                     "username": $scope.username,
                     "password": $scope.password
                 }
         })
-        .then(r => processAuthentication(r.data))
+        .then(r => processAuthentication(r.data.data))
         .catch(_ => {
                 $scope.error = "Authentication failed";
                 $scope.password = "";

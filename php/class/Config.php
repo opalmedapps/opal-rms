@@ -18,8 +18,6 @@ class Config
         public DatabaseConfig $logDb,
         public ?OpalInterfaceEngineConfig $oie,
         public ?SmsConfig $sms,
-        public ?DatabaseConfig $opalDb,
-        public ?DatabaseConfig $questionnaireDb,
         public ?OpalConfig $opal
     ) {}
 
@@ -69,33 +67,6 @@ class Config
         );
 
         //create optional configs
-        if((bool) $parsedData["database"]["OPAL_DB_ENABLED"] !== TRUE) {
-            $opalDb = NULL;
-        }
-        else {
-            $opalDb = new DatabaseConfig(
-                type:           $parsedData["database"]["OPAL_TYPE"],
-                host:           $parsedData["database"]["OPAL_HOST"],
-                port:           $parsedData["database"]["OPAL_PORT"],
-                databaseName:   $parsedData["database"]["OPAL_DB"],
-                username:       $parsedData["database"]["OPAL_USERNAME"],
-                password:       $parsedData["database"]["OPAL_PASSWORD"],
-            );
-        }
-
-        if((bool) $parsedData["database"]["QUESTIONNAIRE_DB_ENABLED"] !== TRUE) {
-            $questionnaireDb = NULL;
-        }
-        else {
-            $questionnaireDb = new DatabaseConfig(
-                type:           $parsedData["database"]["QUESTIONNAIRE_TYPE"],
-                host:           $parsedData["database"]["QUESTIONNAIRE_HOST"],
-                port:           $parsedData["database"]["QUESTIONNAIRE_PORT"],
-                databaseName:   $parsedData["database"]["QUESTIONNAIRE_DB"],
-                username:       $parsedData["database"]["QUESTIONNAIRE_USERNAME"],
-                password:       $parsedData["database"]["QUESTIONNAIRE_PASSWORD"],
-            );
-        }
 
         if((bool) $parsedData["oie"]["ENABLED"] !== TRUE) {
             $oie = NULL;
@@ -141,8 +112,6 @@ class Config
             ormsDb:             $ormsDb,
             logDb:              $logDb,
             oie:                $oie,
-            opalDb:             $opalDb,
-            questionnaireDb:    $questionnaireDb,
             sms:                $sms,
             opal:               $opal
         );

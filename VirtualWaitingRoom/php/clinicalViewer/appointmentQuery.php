@@ -6,9 +6,11 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Util\Encoding;
+use Orms\DateTime;
 use Orms\DataAccess\Database;
-use Orms\Hospital\Opal;
 use Orms\Diagnosis\DiagnosisInterface;
+use Orms\Hospital\OIE\Fetch;
+use Orms\Patient\PatientInterface;
 
 $sDateInit              = $_GET["sDate"] ?? NULL;
 $eDateInit              = $_GET["eDate"] ?? NULL;
@@ -43,7 +45,7 @@ $activeStatusConditions = array_filter($statusConditions);
 
 $sDate = "$sDateInit $sTime";
 $eDate = "$eDateInit $eTime";
-$qDate = "$qDateInit $qTime";
+$qDate = "$qDateInit $qTime:00";
 
 //Set the filter for SMS/OPAL status, based on the parameters.
 $opalFilter = "";
@@ -144,42 +146,55 @@ if($afilter === FALSE)
         if($app["SMSAlertNum"] !== NULL) $app["SMSAlertNum"] = substr($app["SMSAlertNum"],0,3) ."-". substr($app["SMSAlertNum"],3,3) ."-". substr($app["SMSAlertNum"],6,4);
 
         //define opal fields and fill them if the patient is an opal patient
-        $app["QuestionnaireName"] = "";
-        $app["QStatus"] = "";
+        $app["QStatus"] = NULL;
         $recentlyAnswered = NULL;
         $answeredQuestionnaire = FALSE;
 
         if($app["OpalPatient"] === "1")
         {
-            $opalQuestionnaire = Opal::getLastCompletedPatientQuestionnaireClinicalViewer($app["MedicalRecordNumber"],$app["HospitalCode"],$qDate);
+            $patient = PatientInterface::getPatientById((int) $app["PatientSerNum"]) ?? throw new Exception("Unknown patient id $app[PatientSerNum]");
 
-            $app["QuestionnaireName"] = $opalQuestionnaire["QuestionnaireName"] ?? "";
+            //check the patient's last completed questionnaire
+            try {
+                $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
+            }
+            catch(Exception $e) {
+                $questionnaire = NULL;
+                error_log((string) $e);
+            }
 
-            $lastCompleted = $opalQuestionnaire["QuestionnaireCompletionDate"] ?? NULL;
-            $recentlyAnswered = $opalQuestionnaire["RecentlyAnswered"] ?? NULL;
+            if($questionnaire !== NULL)
+            {
+                $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s",$qDate);
+                $recentlyAnswered = $questionnaireDateLimit <= $questionnaire["lastUpdated"];
 
-            $completedWithinWeek = $opalQuestionnaire["CompletedWithinLastWeek"] ?? NULL;
-            $app["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
+                $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
+                $completedWithinWeek = ($oneWeekAgo <=  $questionnaire["completionDate"]);
 
-            if (
-                ($lastCompleted !== NULL && $app["LastQuestionnaireReview"] === NULL)
-                ||
-                (
-                    ($lastCompleted !== NULL && $app["LastQuestionnaireReview"] !== NULL)
-                    && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($app["LastQuestionnaireReview"]))->getTimestamp()
-                )
-            ) $app["QStatus"] = "red-circle";
+                $app["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
+
+                $lastQuestionnaireReview = ($app["LastQuestionnaireReview"] !== NULL) ? new DateTime($app["LastQuestionnaireReview"]) : NULL;
+
+                if($lastQuestionnaireReview === NULL || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
+                    $app["QStatus"] = "red-circle";
+                }
+            }
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
-            $listOfPatientQuestionnaires = array_column(Opal::getListOfQuestionnairesForPatientClinicalViewer($app["MedicalRecordNumber"],$app["HospitalCode"]),"QuestionnaireName_EN");
+            try {
+                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient),"QuestionnaireId");
+            }
+            catch(Exception $e) {
+                $patientQuestionnaires = [];
+                error_log((string) $e);
+            }
             $userSelectedQuestionnaires = explode(",",$qspecificApp);
-
-            $answeredQuestionnaire = (array_intersect($listOfPatientQuestionnaires,$userSelectedQuestionnaires) !== []);
+            $answeredQuestionnaire = (array_intersect($patientQuestionnaires,$userSelectedQuestionnaires) !== []);
         }
 
         if(
             ($appdType === "all" || checkDiagnosis((int) $app["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
-            && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === "1")
+            && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === TRUE)
             && ($qType === "all" || $answeredQuestionnaire === TRUE)
         ) {
             $listOfAppointments[] = [
@@ -199,9 +214,9 @@ if($afilter === FALSE)
                 "QStatus"       => $app["QStatus"],
                 "opalpatient"   => $app["OpalPatient"],
                 "age"           => $app["Age"],
-                "sex"           => substr($app["Sex"],0,1),
+                "sex"           => substr($app["Sex"] ?? "",0,1),
                 "SMSAlertNum"   => $app["SMSAlertNum"],
-                "LastReview"    => $app["LastQuestionnaireReview"],
+                "LastReview"    => $app["LastQuestionnaireReview"] ?? NULL,
             ];
         }
     }
@@ -211,10 +226,14 @@ if($afilter === FALSE)
 if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 {
     $qappFilter = ($qType === "all") ? [] : explode(",",$qspecificApp);
+    $qappFilter = array_map(fn($x) => (int) $x,$qappFilter);
 
-    //we need to know which site to look
+    $patients = Fetch::getPatientsWhoCompletedQuestionnaires($qappFilter);
 
-    $patients = Opal::getOpalPatientsAccordingToVariousFilters($qappFilter,$qDate);
+    // CASE
+    // WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
+    //     ELSE 0
+    // END AS RecentlyAnswered
 
     $queryPatientInformation = $dbh->prepare("
         SELECT
@@ -247,18 +266,18 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
     foreach($patients as $pat)
     {
         //filter as many patients as possible before doing any processing
-        $recentlyAnswered = $pat["RecentlyAnswered"] ?? NULL;
+
+        $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s",$qDate);
+        $recentlyAnswered = $questionnaireDateLimit <= $pat["lastUpdated"];
 
         if(! (
             in_array($pat["PatientSerNum"] ?? NULL,$patientList) === FALSE
-            && ($offbutton === "OFF" || $recentlyAnswered === "1")
-            && ($qType === "all" || $pat["QuestionnaireName"] !== NULL)
-            && $pat["QuestionnaireCompletionDate"] !== NULL
+            && ($offbutton === "OFF" || $recentlyAnswered === TRUE)
         )) continue;
 
         $queryPatientInformation->execute([
-            ":mrn"  => $pat["Mrn"],
-            ":site" => $pat["Site"]
+            ":mrn"  => $pat["mrn"],
+            ":site" => $pat["site"]
         ]);
         $ormsInfo = $queryPatientInformation->fetchAll()[0] ?? [];
 
@@ -267,25 +286,27 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             || ($appdType === "all" || checkDiagnosis((int) $ormsInfo["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
         ) continue;
 
-        $completedWithinWeek = $pat["CompletedWithinLastWeek"] ?? NULL;
-        $pat["QStatus"] = ($completedWithinWeek === "1") ? "green-circle" : "";
 
-        $lastCompleted = $pat["QuestionnaireCompletionDate"] ?? NULL;
-        if( /** @phpstan-ignore-next-line */
-            ($lastCompleted !== NULL && $ormsInfo["LastQuestionnaireReview"] === NULL)
-            || (
-                ($lastCompleted !== NULL && $ormsInfo["LastQuestionnaireReview"] !== NULL)
-                && (new DateTime($lastCompleted))->getTimestamp() > (new DateTime($ormsInfo["LastQuestionnaireReview"]))->getTimestamp()
-            )
-        ) $pat["QStatus"] = "red-circle";
+        $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
+        $completedWithinWeek = ($oneWeekAgo <=  $pat["completionDate"]);
+
+        $pat["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
+
+        /** @phpstan-ignore-next-line */
+        $lastQuestionnaireReview = ($ormsInfo["LastQuestionnaireReview"] !== NULL) ? new DateTime($ormsInfo["LastQuestionnaireReview"]) : NULL;
+
+        /** @phpstan-ignore-next-line */
+        if($lastQuestionnaireReview === NULL || $pat["completionDate"] > $lastQuestionnaireReview) {
+            $pat["QStatus"] = "red-circle";
+        }
 
         if($ormsInfo["SMSAlertNum"]) $ormsInfo["SMSAlertNum"] = substr($ormsInfo["SMSAlertNum"],0,3) ."-". substr($ormsInfo["SMSAlertNum"],3,3) ."-". substr($ormsInfo["SMSAlertNum"],6,4);
 
         $listOfAppointments[] = [
             "fname"         => $ormsInfo["FirstName"],
             "lname"         => $ormsInfo["LastName"],
-            "mrn"           => $pat["MedicalRecordNumber"],
-            "site"          => $pat["HospitalCode"],
+            "mrn"           => $pat["mrn"],
+            "site"          => $pat["site"],
             "patientId"     => $ormsInfo["PatientSerNum"],
             "appName"       => NULL,
             "appClinic"     => NULL,
@@ -298,7 +319,7 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             "QStatus"       => $pat["QStatus"],
             "opalpatient"   => $ormsInfo["OpalPatient"],
             "age"           => $ormsInfo["Age"],
-            "sex"           => substr($ormsInfo["Sex"],0,1),
+            "sex"           => substr($ormsInfo["Sex"] ?? "",0,1),
             "SMSAlertNum"   => $ormsInfo["SMSAlertNum"],
             "LastReview"    => $ormsInfo["LastQuestionnaireReview"],
         ];
@@ -310,7 +331,7 @@ echo json_encode($listOfAppointments);
 
 /**
  *
- * @param mixed[] $diagnosisList
+ * @param string[] $diagnosisList
  */
 function checkDiagnosis(int $patientId,array $diagnosisList): bool
 {

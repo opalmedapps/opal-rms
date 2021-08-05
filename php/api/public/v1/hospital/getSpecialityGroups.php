@@ -7,7 +7,7 @@ use Orms\Util\Encoding;
 use Orms\Hospital\SpecialityInterface;
 
 try {
-    $fields = Http::parseApiInputs();
+    Http::parseApiInputs();
 }
 catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));

@@ -34,8 +34,10 @@ class Authentication
 
     /**
      *
-     * @return mixed[]
-     * @throws Exception
+     * @return array{
+     *      name: string,
+     *      key: string
+     * }
      */
     static function createUserSession(string $username): array
     {

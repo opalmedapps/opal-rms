@@ -621,6 +621,48 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
+  /auth/createSession.php:
+    post:
+      summary: Create a user session
+      description: Create a user session by authenticating with a user's hospital AD account
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: Hospital AD username
+                  type: string
+                password:
+                  description: Hospital AD password
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    description: Name of the auth cookie
+                    type: string
+                  key:
+                    description: Authentication cookie key
+                    type: string
+        400:
+          $ref: '#/components/responses/400'
+        406:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
 components:
   responses:
     200:

@@ -32,7 +32,12 @@ class SpecialityInterface
         $hubs = SpecialityAccess::getHubs();
 
         $specialityGroups = array_reduce($hubs,function($x,$y) {
-            $x[$y["specialityGroupName"]][] = $y;
+            $x[$y["specialityGroupName"]] = [
+                "clinicHubId"           => (int) $y["clinicHubId"],
+                "clinicHubName"         => (string) $y["clinicHubName"],
+                "specialityGroupId"     => (int) $y["specialityGroupId"],
+                "specialityGroupName"   => (string) $y["specialityGroupName"],
+            ];
 
             return $x;
         },[]);

@@ -177,4 +177,9 @@ class PatientInterface
     {
         PatientAccess::serializePatientMeasurement($patient,$height,$weight,$bsa,$appointmentSourceId,$appointmentSourceSystem);
     }
+
+    static function isInsuranceValid(string $insuranceNumber,string $insuranceType): bool
+    {
+        return PatientAccess::isInsuranceValid($insuranceNumber,$insuranceType);
+    }
 }

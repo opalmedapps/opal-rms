@@ -14,16 +14,16 @@ catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
 }
 
-$potentialPatient = new class(
-    mrn:  $fields["mrn"],
-    site: $fields["site"],
+$insurance = new class(
+    insuranceNumber:  $fields["insuranceNumber"],
+    type:             $fields["type"],
 ) {
     function __construct(
-        public string $mrn,
-        public string $site
+        public string $insuranceNumber,
+        public string $type
     ) {}
 };
 
-$patientFound = PatientInterface::getPatientByMrn($potentialPatient->mrn,$potentialPatient->site) !== NULL;
+$valid = PatientInterface::isInsuranceValid($insurance->insuranceNumber,$insurance->type);
 
-Http::generateResponseJsonAndExit(200,$patientFound);
+Http::generateResponseJsonAndExit(200,data: $valid);

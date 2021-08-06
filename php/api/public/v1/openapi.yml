@@ -45,6 +45,45 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
+  /patient/checkIfInsuranceIsValid.php:
+    post:
+      summary: Checks if an insurance is valid
+      description: Verifies if an insurance number format is valid for a given insurance type
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                insuranceNumber:
+                  description: Value of the insurance (not necessarily a number)
+                  type: string
+                type:
+                  description: Type of the insurance
+                  type: string
+              required:
+                - insuranceNumber
+                - type
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: True if the insurance is valid
+                    type: boolean
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
   /patient/checkInToLocation.php:
     post:
       summary: Check a patient in for their appointments

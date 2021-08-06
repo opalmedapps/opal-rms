@@ -42,7 +42,7 @@ foreach($questions as $question)
     }
 
     //sanitize question text
-    $questionText = $question["questionText"];
+    $questionText = $question["questionTitle"];
     $questionText = str_replace("<br />","\\n",$questionText);
     $questionText = addslashes($questionText);
 

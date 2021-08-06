@@ -182,7 +182,7 @@ if($afilter === FALSE)
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
             try {
-                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient),"QuestionnaireId");
+                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient),"questionnaireId");
             }
             catch(Exception $e) {
                 $patientQuestionnaires = [];

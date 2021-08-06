@@ -416,6 +416,25 @@ class PatientAccess
         }
     }
 
+    static function isInsuranceValid(string $insuranceNumber,string $insuranceType): bool
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                Format
+            FROM
+                Insurance
+            WHERE
+                InsuranceCode = :type
+        ");
+        $query->execute([
+            ":type" => $insuranceType
+        ]);
+
+        $format = $query->fetchAll()[0]["Format"] ?? NULL;
+
+        return ($format !== NULL) && (preg_match("/$format/",$insuranceNumber) === 1);
+    }
+
     /**
      *
      * @return array<Patient|NULL>

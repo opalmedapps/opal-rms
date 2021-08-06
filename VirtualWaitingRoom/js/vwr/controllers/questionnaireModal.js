@@ -111,7 +111,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         }
 
         if(purpose.title !== 'Research') {
-            return $scope.clinicianQuestionnaireList.some(x => x.PurposeId === purpose.purposeId && x.completed === false);
+            return $scope.clinicianQuestionnaireList.some(x => x.purposeId === purpose.purposeId && x.completed === false);
         }
 
         return $scope.studyList.some(x => $scope.alertDotForStudy(x));

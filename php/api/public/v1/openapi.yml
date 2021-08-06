@@ -586,8 +586,8 @@ paths:
 
   /hospital/getHubs:
     post:
-      summary: aaa
-      description: aaa
+      summary: Get a list of room hubs
+      description: Get a list of room hubs defined in ORMS
       tags:
         - hospital
       requestBody:

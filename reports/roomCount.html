@@ -249,7 +249,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/roomCount.php?"
+            url = "./Scripts/roomCount"
 
             $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&period="+period+"&speciality="+speciality).then(function (response)
             {

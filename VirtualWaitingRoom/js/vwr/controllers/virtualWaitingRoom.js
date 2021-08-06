@@ -123,7 +123,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             $scope.selectedAppointments = $scope.pageSettings.Appointments;
 
             $http({
-                url: "php/profile/getAllOptions.php",
+                url: "php/profile/getAllOptions",
                 method: "GET",
                 params:
                 {
@@ -219,7 +219,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //first we check in there are any other patients with the same name as the one we are checking in
         //if there are, we add the patient's date of birth to the screen display
         $http({
-            url: "php/getSimilarCheckins.php",
+            url: "php/getSimilarCheckins",
             method: "GET",
             params:
             {
@@ -337,7 +337,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendToLocation = function (patient,sendLocation,removeFromFB)
     {
         $http({
-            url: "/php/api/private/v1/patient/checkInToLocation.php",
+            url: "/php/api/private/v1/patient/checkInToLocation",
             method: "POST",
             data:
             {
@@ -364,7 +364,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         // Check the patient in for his/her remaining appointments but for a venue
         // that indicates that the current appointment is complete
         $http({
-            url: "/php/api/private/v1/appointment/completeAppointment.php",
+            url: "/php/api/private/v1/appointment/completeAppointment",
             method: "POST",
             data:
             {
@@ -441,7 +441,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         // Call the patient to the selected location
         //====================================================================
         $http({
-            url: "php/getLocationInfo.php",
+            url: "php/getLocationInfo",
             method: "GET",
             params: {Location: selectedLocation}
         }).then(function(response)
@@ -543,7 +543,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             else if(situation == "EXAM ONLY")
             {
                 $http({
-                    url: "php/getOccupants.php",
+                    url: "php/getOccupants",
                     method: "GET",
                     params: {checkinVenue: selectedLocations[0].Name}
                 }).then(function (response)
@@ -751,7 +751,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.loadPatientDiagnosis = function(patient)
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            url: "./php/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
@@ -790,7 +790,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.logMessage = function(identifier,type,message)
     {
         $http({
-            url: "php/logMessage.php",
+            url: "php/logMessage",
             method: "GET",
             params:
             {

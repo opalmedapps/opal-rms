@@ -77,7 +77,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //at this point, we have everything we need to get all the options the user can select
         $http({
-            url: "php/profile/getAllOptions.php",
+            url: "php/profile/getAllOptions",
             method: "GET",
             params:
             {
@@ -91,7 +91,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //also get the columns that the user can select
         $http({
-            url: "php/profile/getPossibleColumns.php",
+            url: "php/profile/getPossibleColumns",
             method: "GET",
             params:
             {
@@ -108,7 +108,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //also get a list of all profile Ids in the db
         $http({
-            url: "php/profile/getProfileList.php",
+            url: "php/profile/getProfileList",
             method: "GET"
         }).then(function (response)
         {
@@ -148,7 +148,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         {
             //get the selected profile info
             $http({
-                url: "php/profile/getProfileDetails.php",
+                url: "php/profile/getProfileDetails",
                 method: "GET",
                 params:
                 {
@@ -215,7 +215,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
     $scope.updateProfile = function()
     {
         $http({
-            url: "php/profile/updateProfile.php",
+            url: "php/profile/updateProfile",
             method: "POST",
             data: [$scope.selectedProfile,$scope.possibleColumns.chosen]
         }).then(function(response)
@@ -230,7 +230,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
     $scope.deleteProfile = function()
     {
         $http({
-            url: "php/profile/deleteProfile.php",
+            url: "php/profile/deleteProfile",
             method: "GET",
             params:
             {

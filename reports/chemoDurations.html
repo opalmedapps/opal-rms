@@ -259,7 +259,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/chemoDurations.php?"
+            url = "./Scripts/chemoDurations"
 
             $http.get(url+"sDate="+sDate+"&eDate="+eDate).then(function (response)
             {

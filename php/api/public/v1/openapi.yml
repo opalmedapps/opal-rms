@@ -6,7 +6,7 @@ servers:
     - url: https://serverUrl/php/api/public/v1
 
 paths:
-  /patient/checkIfPatientExists.php:
+  /patient/checkIfPatientExists:
     post:
       summary: Checks if a patient exists in ORMS
       description: Matches a patient in the ORMS database using an mrn and site
@@ -45,7 +45,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /patient/checkIfInsuranceIsValid.php:
+  /patient/checkIfInsuranceIsValid:
     post:
       summary: Checks if an insurance is valid
       description: Verifies if an insurance number format is valid for a given insurance type
@@ -84,7 +84,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /patient/checkInToLocation.php:
+  /patient/checkInToLocation:
     post:
       summary: Check a patient in for their appointments
       description: Updates the patient's location in the hospital for all their appointments of the day
@@ -117,7 +117,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /patient/updateOpalStatus.php:
+  /patient/updateOpalStatus:
     post:
       summary: Update a patient's opal status
       description: Mark a patient as registered for Opal or not
@@ -153,7 +153,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /patient/updatePatientDemographics.php:
+  /patient/updatePatientDemographics:
     post:
       summary: Update patient demographic information
       description: Update a patient's record in ORMS with demograhic information from a hospital source system
@@ -228,7 +228,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /appointment/deleteAppointment.php:
+  /appointment/deleteAppointment:
     post:
       summary: Delete a patient's appointment
       description: Due to a bug in Medivist, deleted appointments don't have the same source id as the original appointment. This api deletes all appointments for a patient that match the deleted one.
@@ -283,7 +283,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /appointment/insertOrUpdateAppointment.php:
+  /appointment/insertOrUpdateAppointment:
     post:
       summary: Create a new appointment, or update an existing one
       description: Imports or updates appointments from (external) source systems into ORMS
@@ -370,7 +370,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /sms/smsAppointment/getSmsAppointments.php:
+  /sms/smsAppointment/getSmsAppointments:
     post:
       summary: Get a list of all the sms appointments
       description: Get a list of all the sms appointments in the system
@@ -429,7 +429,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /sms/smsAppointment/updateSmsAppointment.php:
+  /sms/smsAppointment/updateSmsAppointment:
     post:
       summary: Updates an sms appointment entry
       description: Updates the type and status of an sms appointment entry
@@ -466,7 +466,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /sms/smsMessage/getMessages.php:
+  /sms/smsMessage/getMessages:
     post:
       summary: Get a list of sms messages
       description: Get a list of sms messages sorted by event
@@ -520,7 +520,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /sms/smsMessage/getTypes.php:
+  /sms/smsMessage/getTypes:
     post:
       summary: Get a list of message types
       description: Get a list of sms message types for a speciality group
@@ -555,7 +555,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /sms/smsMessage/updateMessage.php:
+  /sms/smsMessage/updateMessage:
     post:
       summary: Update the content of an sms message
       description: Update the content of an sms message
@@ -584,7 +584,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /hospital/getHubs.php:
+  /hospital/getHubs:
     post:
       summary: aaa
       description: aaa
@@ -623,7 +623,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /hospital/getSpecialityGroups.php:
+  /hospital/getSpecialityGroups:
     post:
       summary: Get a list of all speciality groups
       description: Get a list of all the speciality group in the hospital
@@ -660,7 +660,7 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /auth/createSession.php:
+  /auth/createSession:
     post:
       summary: Create a user session
       description: Create a user session by authenticating with a user's hospital AD account

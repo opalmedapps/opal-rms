@@ -20,7 +20,7 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
     //see which rooms are occupied
     //however, venues cannot be occupied by definition (since they have space for many people) so we have to exclude them from the check and then add them back
     $http({
-        url: "php/getOccupants.php",
+        url: "php/getOccupants",
         method: "GET",
         params: {checkinVenue: examRooms.map(function (e) {return e.Name}).join()}
     }).then(function (response)

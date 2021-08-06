@@ -79,7 +79,7 @@ class Http
         );
 
         //get the specification section for the api being called
-        $apiPath = str_replace($publicApiPath,"",$_SERVER["SCRIPT_FILENAME"] ?? "");
+        $apiPath = str_replace([$publicApiPath,".php"],"",$_SERVER["SCRIPT_FILENAME"] ?? "");
         $method = strtolower($_SERVER["REQUEST_METHOD"] ?? "");
         $content = preg_replace("/;\s?charset=.+$/","",$_SERVER["CONTENT_TYPE"] ?? ""); //remove the charset
 

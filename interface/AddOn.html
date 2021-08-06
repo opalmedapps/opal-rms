@@ -139,7 +139,7 @@ app.controller('main',function($scope,$http,$window,$location)
 
     //load list of oncology resources
     $http({
-        url: "/php/api/private/v1/hospital/getSites.php",
+        url: "/php/api/private/v1/hospital/getSites",
         method: "GET",
     }).then(function(response)
     {
@@ -156,7 +156,7 @@ app.controller('main',function($scope,$http,$window,$location)
             ramq: $scope.ramq
         };
 
-        $http.get("/php/api/private/v1/patient/findPatient.php", {params: params})
+        $http.get("/php/api/private/v1/patient/findPatient", {params: params})
         .then(response => {
             let patients = response.data.data;
             if(patients.length === 0) {

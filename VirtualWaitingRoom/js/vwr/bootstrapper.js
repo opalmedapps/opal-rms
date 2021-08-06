@@ -15,7 +15,7 @@ angular.element(document).ready(function()
     if(urlParams.profile)
     {
         $http({
-            url: "php/profile/getProfileDetails.php",
+            url: "php/profile/getProfileDetails",
             method: "GET",
             params:
             {

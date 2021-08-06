@@ -19,7 +19,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all questionnaires answered by the input patient
     $http({
-        url: "./php/questionnaire/getQuestionnaires.php",
+        url: "./php/questionnaire/getQuestionnaires",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response)
@@ -36,7 +36,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all clinician questionnaires
     $http({
-        url: "./php/questionnaire/getClinicianQuestionnaires.php",
+        url: "./php/questionnaire/getClinicianQuestionnaires",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response) {
@@ -45,7 +45,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all the studies in the database
     $http({
-        url: "./php/questionnaire/getStudiesForPatient.php",
+        url: "./php/questionnaire/getStudiesForPatient",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response) {
@@ -54,7 +54,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all the possible purpose for a questionnaire
     $http({
-        url: "./php/questionnaire/getQuestionnairePurposes.php",
+        url: "./php/questionnaire/getQuestionnairePurposes",
         method: "GET"
     }).then(function(response) {
         $scope.purposeList = response.data.data;
@@ -148,7 +148,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $mdDialog.show(answer).then( result => {
             $scope.patient.QStatus = "green-circle";
             $http({
-                url: "./php/questionnaire/insertQuestionnaireReview.php",
+                url: "./php/questionnaire/insertQuestionnaireReview",
                 method: "GET",
                 params: {
                     user: result,
@@ -173,7 +173,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         if($scope.selectedQuestionnaire.visualization === "1")
         {
             $http({
-                url: "./php/questionnaire/reportDisplay.php",
+                url: "./php/questionnaire/reportDisplay",
                 method: "GET",
                 params: {
                     patientId:       $scope.patient.PatientId,
@@ -216,7 +216,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         else if($scope.selectedQuestionnaire.visualization === "0")
         {
             $http({
-                url: "./php/questionnaire/reportDisplayNonChart.php",
+                url: "./php/questionnaire/reportDisplayNonChart",
                 method: "GET",
                 params: {
                     patientId:        $scope.patient.PatientId,

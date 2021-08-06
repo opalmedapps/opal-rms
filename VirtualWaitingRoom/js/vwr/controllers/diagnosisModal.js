@@ -27,7 +27,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             return $http({
-                url: "./php/diagnosis/insertPatientDiagnosis.php",
+                url: "./php/diagnosis/insertPatientDiagnosis",
                 method: "GET",
                 params: {
                     patientId: patient.PatientId,
@@ -47,7 +47,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             $http({
-                url: "./php/diagnosis/updatePatientDiagnosis.php",
+                url: "./php/diagnosis/updatePatientDiagnosis",
                 method: "GET",
                 params: {
                     patientId: patientDiagnosis.patientId,
@@ -82,7 +82,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     function getDiagnosisCodes(filter)
     {
         return $http({
-            url: "php/diagnosis/getDiagnosisCodeList.php",
+            url: "php/diagnosis/getDiagnosisCodeList",
             method: "GET",
             params: {
                 filter: filter
@@ -93,7 +93,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     function loadPatientDiagnosis()
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            url: "./php/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId

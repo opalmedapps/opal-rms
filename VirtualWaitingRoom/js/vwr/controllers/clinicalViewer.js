@@ -235,22 +235,22 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     //=========================================================================
     // Get resource, appointment code and diagnosis list
     //=========================================================================
-    $http.get("./php/clinicalViewer/resourceQuery.php?speciality="+speciality).then(function(response)
+    $http.get("./php/clinicalViewer/resourceQuery?speciality="+speciality).then(function(response)
     {
         $scope.clinics = response.data;
     });
 
-    $http.get("./php/clinicalViewer/getAppointmentCode.php?speciality="+speciality).then(function(response)
+    $http.get("./php/clinicalViewer/getAppointmentCode?speciality="+speciality).then(function(response)
     {
         $scope.codes = response.data;
     });
 
-    $http.get("./php/clinicalViewer/getDiagnosis.php?").then(function(response)
+    $http.get("./php/clinicalViewer/getDiagnosis?").then(function(response)
     {
         $scope.diagnosis = response.data;
     });
 
-    $http.get("./php/clinicalViewer/getQuestionnaireName.php?").then(function(response)
+    $http.get("./php/clinicalViewer/getQuestionnaireName?").then(function(response)
     {
         $scope.questionnaireType = response.data.map(x => ({
             Name:            x["name"],
@@ -477,7 +477,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     $scope.loadPatientDiagnosis = function(patient)
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            url: "./php/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
@@ -491,7 +491,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     $scope.loadPatientDiagnosis = function(appoint)
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList.php",
+            url: "./php/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: appoint.patientId
@@ -637,7 +637,7 @@ app.factory('callScript',function($http,$q)
 
             let questionnaireType = inputs.selectedQuestionnaire.map(x => x.QuestionnaireId).join(",");
 
-            url = "./php/clinicalViewer/appointmentQuery.php?"
+            url = "./php/clinicalViewer/appointmentQuery?"
 
             comp = (inputs.comp) ? "&comp=1" : "";
             openn = (inputs.openn) ? "&openn=1" : "";

@@ -119,6 +119,7 @@ class Fetch
      *
      * @return array<array-key, array{
      *      completionDate: string,
+     *      completed: true,
      *      purposeId: int,
      *      purposeTitle: string,
      *      questionnaireId: int,
@@ -142,6 +143,7 @@ class Fetch
 
         return array_map(fn($x) => [
             "completionDate"        => (string) $x["completionDate"],
+            "completed"             => TRUE,
             "status"                => (string) $x["status"],
             "questionnaireId"       => (int) $x["questionnaireDBId"],
             "questionnaireName"     => (string) $x["name_EN"],
@@ -225,18 +227,18 @@ class Fetch
         $response = utf8_encode($response);
 
         return array_map(fn($x) => [
-                "questionnaireAnswerId" => (int) $x["answerQuestionnaireId"],
-                "questionId"            => (int) $x["questionId"],
-                "dateTimeAnswered"      => (string) $x["dateTimeAnswered"],
-                "questionTitle"         => (string) $x["question_EN"],
-                "questionLabel"         => (string) $x["display_EN"],
-                "position"              => (int) $x["questionOrder"],
-                "hasScale"              => ($x["legacyTypeId"] === "2"),
-                "options"               => array_map(fn($y) => [
-                                                "value"       => (int) $y["value"],
-                                                "description" => (string) $y["description_EN"]
-                                           ],$x["options"]),
-                "answers"               => array_map(fn($y) => (string) $y["answer"],$x["answers"])
+            "questionnaireAnswerId" => (int) $x["answerQuestionnaireId"],
+            "questionId"            => (int) $x["questionId"],
+            "dateTimeAnswered"      => (string) $x["dateTimeAnswered"],
+            "questionTitle"         => (string) $x["question_EN"],
+            "questionLabel"         => (string) $x["display_EN"],
+            "position"              => (int) $x["questionOrder"],
+            "hasScale"              => ($x["legacyTypeId"] === "2"),
+            "options"               => array_map(fn($y) => [
+                                            "value"       => (int) $y["value"],
+                                            "description" => (string) $y["description_EN"]
+                                        ],$x["options"]),
+            "answers"               => array_map(fn($y) => (string) $y["answer"],$x["answers"])
         ],json_decode($response,TRUE));
     }
 
@@ -327,52 +329,17 @@ class Fetch
     static function getStudiesForPatient(Patient $patient): array
     {
         $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/study/get/studies-patient-consented",[
-                "form_params" => [
-                    "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                    "site"      => $patient->getActiveMrns()[0]->site
-                ]
-            ])?->getBody()?->getContents() ?? "[]";
+            "form_params" => [
+                "mrn"       => $patient->getActiveMrns()[0]->mrn,
+                "site"      => $patient->getActiveMrns()[0]->site
+            ]
+        ])?->getBody()?->getContents() ?? "[]";
         $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "studyId"         => (int) $x["studyId"],
             "title"           => (string) $x["title_EN"]
         ],json_decode($response,TRUE));
-    }
-
-    /**
-     *
-     * @return list<array{
-     *      CompletionDate: string,
-     *      Name: string,
-     *      QuestionnaireId: int,
-     *      Visualization: string,
-     *      completed: true,
-     *      purposeId: int,
-     *      studyIdList: int[]
-     * }>
-     */
-    static function getClinicianQuestionnaires(Patient $patient): array
-    {
-        $response = Connection::getOpalHttpClient()?->request("POST","questionnaire/get/questionnaires-list-orms",[
-                "form_params" => [
-                    "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                    "site"      => $patient->getActiveMrns()[0]->site
-                ]
-            ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
-
-        $response = array_filter(json_decode($response,TRUE),fn($x) => $x["respondent_EN"] === 'Clinician');
-        $response = array_values($response);
-        return array_map(fn($x) => [
-            "CompletionDate"        => (string) $x["completionDate"],
-            "completed"             => TRUE,
-            "QuestionnaireId"       => (int) $x["questionnaireDBId"],
-            "Name"                  => (string) $x["name_EN"],
-            "Visualization"         => (string) $x["visualization"],
-            "purposeId"             => (int) $x["purposeId"],
-            "studyIdList"           => array_map("intval",$x["studies"] ?? [])
-        ],$response);
     }
 
 }

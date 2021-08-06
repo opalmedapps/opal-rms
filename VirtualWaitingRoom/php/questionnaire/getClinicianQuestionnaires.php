@@ -18,6 +18,7 @@ if($patient === NULL) {
     Http::generateResponseJsonAndExit(400,error: "Unknown patient");
 }
 
-$clinicianQuestionnaires = Fetch::getClinicianQuestionnaires($patient);
+$clinicianQuestionnaires = Fetch::getListOfCompletedQuestionnairesForPatient($patient);
+$clinicianQuestionnaires = array_filter($clinicianQuestionnaires,fn($x) => $x["respondentTitle"] === "Clinician");
 
 Http::generateResponseJsonAndExit(200,data: $clinicianQuestionnaires);

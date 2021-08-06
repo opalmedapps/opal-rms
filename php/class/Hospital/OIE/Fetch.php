@@ -118,15 +118,15 @@ class Fetch
     /**
      *
      * @return array<array-key, array{
-     *      CompletionDate: string,
-     *      PurposeId: int,
-     *      PurposeTitle: string,
-     *      QuestionnaireId: int,
-     *      QuestionnaireName_EN: string,
-     *      RespondentId: int,
-     *      RespondentTitle: string,
-     *      Status: string,
-     *      Visualization: string,
+     *      completionDate: string,
+     *      purposeId: int,
+     *      purposeTitle: string,
+     *      questionnaireId: int,
+     *      questionnaireName: string,
+     *      respondentId: int,
+     *      respondentTitle: string,
+     *      status: string,
+     *      visualization: string,
      *      studyIdList: int[]
      * }>
      */
@@ -141,15 +141,15 @@ class Fetch
         $response = utf8_encode($response);
 
         return array_map(fn($x) => [
-            "CompletionDate"        => (string) $x["completionDate"],
-            "Status"                => (string) $x["status"],
-            "QuestionnaireId"       => (int) $x["questionnaireDBId"],
-            "QuestionnaireName_EN"  => (string) $x["name_EN"],
-            "Visualization"         => (string) $x["visualization"],
-            "PurposeId"             => (int) $x["purposeId"],
-            "RespondentId"          => (int) $x["respondentId"],
-            "PurposeTitle"          => (string) $x["purpose_EN"],
-            "RespondentTitle"       => (string) $x["respondent_EN"],
+            "completionDate"        => (string) $x["completionDate"],
+            "status"                => (string) $x["status"],
+            "questionnaireId"       => (int) $x["questionnaireDBId"],
+            "questionnaireName"     => (string) $x["name_EN"],
+            "visualization"         => (string) $x["visualization"],
+            "purposeId"             => (int) $x["purposeId"],
+            "respondentId"          => (int) $x["respondentId"],
+            "purposeTitle"          => (string) $x["purpose_EN"],
+            "respondentTitle"       => (string) $x["respondent_EN"],
             "studyIdList"           => array_map("intval",$x["studies"] ?? [])
         ],json_decode($response,TRUE));
     }
@@ -157,7 +157,10 @@ class Fetch
     /**
      *
      * @return list<array{
+     *  questionId: int,
      *  questionTitle: string,
+     *  questionLabel: string,
+     *  position: int,
      *  answers: array<array-key,array{
      *       dateTimeAnswered: int,
      *       answer: int
@@ -181,7 +184,10 @@ class Fetch
             usort($x["answers"],fn($a,$b) => $a["dateTimeAnswered"] <=> $b["dateTimeAnswered"]);
 
             return [
+                "questionId"    => (int) $x["questionId"],
                 "questionTitle" => (string) $x["question_EN"],
+                "questionLabel" => (string) $x["display_EN"],
+                "position"      => (int) $x["questionOrder"],
                 "answers"       => array_map(fn($y) => [
                                         "dateTimeAnswered" => (int) $y["dateTimeAnswered"],
                                         "answer"           => (int) $y["answer"]
@@ -194,8 +200,11 @@ class Fetch
      *
      * @return list<array{
      *  questionnaireAnswerId: int,
+     *  questionId: int,
      *  dateTimeAnswered: string,
-     *  questionText: string,
+     *  questionTitle: string,
+     *  questionLabel: string,
+     *  position: int,
      *  hasScale: bool,
      *  options: array<array-key,array{
      *      value: int,
@@ -217,8 +226,11 @@ class Fetch
 
         return array_map(fn($x) => [
                 "questionnaireAnswerId" => (int) $x["answerQuestionnaireId"],
+                "questionId"            => (int) $x["questionId"],
                 "dateTimeAnswered"      => (string) $x["dateTimeAnswered"],
-                "questionText"          => (string) $x["question_EN"],
+                "questionTitle"         => (string) $x["question_EN"],
+                "questionLabel"         => (string) $x["display_EN"],
+                "position"              => (int) $x["questionOrder"],
                 "hasScale"              => ($x["legacyTypeId"] === "2"),
                 "options"               => array_map(fn($y) => [
                                                 "value"       => (int) $y["value"],

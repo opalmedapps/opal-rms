@@ -28,9 +28,9 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
         angular.forEach($scope.questionnaireList, function(val)
         {
-            val.Name = val.QuestionnaireName_EN;
-            val.Selected = false;
-            val.reviewed = (val.CompletionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
+            val.name = val.questionnaireName;
+            val.selected = false;
+            val.reviewed = (val.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
         });
     });
 
@@ -106,7 +106,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     //Determining if an alert dot should be displayed for purpose buttons.
     $scope.alertDotForPurpose = function(purpose)
     {
-        if($scope.questionnaireList.some(x => x.PurposeId === purpose.purposeId && x.reviewed === "red-circle")) {
+        if($scope.questionnaireList.some(x => x.purposeId === purpose.purposeId && x.reviewed === "red-circle")) {
             return true;
         }
 
@@ -170,14 +170,14 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         //get the answers to the selected questionnaire
 
         //use if the answers are displayed as a chart
-        if($scope.selectedQuestionnaire.Visualization === "1")
+        if($scope.selectedQuestionnaire.visualization === "1")
         {
             $http({
                 url: "./php/questionnaire/reportDisplay.php",
                 method: "GET",
                 params: {
                     patientId:       $scope.patient.PatientId,
-                    questionnaireId: $scope.selectedQuestionnaire.QuestionnaireId
+                    questionnaireId: $scope.selectedQuestionnaire.questionnaireId
                 }
             }).then(function (response) {
                     $scope.selectedQuestionnaire.questions = response.data;
@@ -213,18 +213,18 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
             });
         }
         //use if the answers are displayed as a list
-        else if($scope.selectedQuestionnaire.Visualization === "0")
+        else if($scope.selectedQuestionnaire.visualization === "0")
         {
             $http({
                 url: "./php/questionnaire/reportDisplayNonChart.php",
                 method: "GET",
                 params: {
                     patientId:        $scope.patient.PatientId,
-                    questionnaireId:  $scope.selectedQuestionnaire.QuestionnaireId
+                    questionnaireId:  $scope.selectedQuestionnaire.questionnaireId
                 }
             }).then(function (response) {
                     $scope.selectedQuestionnaire.questions = {
-                        lastDateAnswered: $scope.selectedQuestionnaire.CompletionDate,
+                        lastDateAnswered: $scope.selectedQuestionnaire.completionDate,
                         qData: response.data,
                     }
 
@@ -240,7 +240,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         filter = type || '';
         return function(que) {
-            return (que.Status === 'New' && (filter === false || que.Name.toLowerCase().includes(filter.toLowerCase())));
+            return (que.status === 'New' && (filter === false || que.name.toLowerCase().includes(filter.toLowerCase())));
         }
     }
 
@@ -248,7 +248,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         filter = type || '';
         return function(que) {
-            return (filter === false || que.Name.toLowerCase().includes(filter.toLowerCase()));
+            return (filter === false || que.name.toLowerCase().includes(filter.toLowerCase()));
         }
     }
 }

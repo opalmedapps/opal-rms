@@ -56,8 +56,8 @@
             </div>
         </div>
         <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="que in ques = (questionnaireList | filter: listFilter(qfilter) )" ng-click="displayChart(que)">
-            <div ng-if="que.RespondentTitle === 'Patient' && que.PurposeId === purposeSelected.purposeId && checkStudy(que)">
-                <input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.Name}}">
+            <div ng-if="que.respondentTitle === 'Patient' && que.purposeId === purposeSelected.purposeId && checkStudy(que)">
+                <input type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': que === selectedQuestionnaire}" value="{{que.name}}">
                 <span style="padding-top: 5%;width: 5%;right: 0%;" class="alert-circle {{que.reviewed}}"></span>
             </div>
         </div>
@@ -71,7 +71,7 @@
         </div>
         <div class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="clinician in clinicianQuestionnaire = (clinicianQuestionnaireList | filter: clinicalListFilter(qfilter) )" ng-click="displayClinicalQuestionnaire(clinician)">
             <div ng-if="clinician.purpose === purposeSelected.purposeId && checkStudy(clinician)">
-                <input  type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': clinician === selectedQuestionnaire}" value="{{clinician.Name}}">
+                <input  type="button" class="btn btn-info btn-block btn-que" ng-class="{'selected-button': clinician === selectedQuestionnaire}" value="{{clinician.name}}">
                 <span style="padding-top: 5%;width: 5%;right: 0%;" ng-class="{'alert-circle red-circle' : !clinician.completed}"></span>
             </div>
         </div>

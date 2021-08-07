@@ -7,7 +7,7 @@ use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
 
 //get webpage parameters
-$profileId = Encoding::utf8_decode_recursive($_GET['profileId']);
+$profileId = Encoding::utf8_decode_recursive($_GET["profileId"]);
 
 //connect to db
 $dbh = Database::getOrmsConnection();

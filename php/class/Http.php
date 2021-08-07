@@ -141,8 +141,8 @@ class Http
         http_response_code($httpCode);
         header("Content-Type: application/json");
         echo $returnString;
-        header('Connection: close');
-        header('Content-Length: '.ob_get_length());
+        header("Connection: close");
+        header("Content-Length: ".ob_get_length());
         ob_end_flush();
         ob_flush();
         flush();

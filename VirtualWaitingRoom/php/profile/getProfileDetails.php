@@ -51,32 +51,32 @@ if($profile === NULL || $profile["ClinicalArea"] === NULL) {
     exit;
 }
 
-$json['ProfileSer']           = $profile['ProfileSer'];
-$json['ProfileId']            = $profile['ProfileId'];
-$json['Category']             = $profile['Category'];
-$json['Speciality']           = $profile['Speciality'];
-$json['ClinicalArea']         = $profile['ClinicalArea'];
+$json["ProfileSer"]           = $profile["ProfileSer"];
+$json["ProfileId"]            = $profile["ProfileId"];
+$json["Category"]             = $profile["Category"];
+$json["Speciality"]           = $profile["Speciality"];
+$json["ClinicalArea"]         = $profile["ClinicalArea"];
 $json["ClinicHubId"]          = $clinicHubId;
-$json['WaitingRoom']          = "WAITING ROOM";
-$json['IntermediateVenues']   = [];
-$json['TreatmentVenues']      = [];
-$json['Resources']            = [];
-$json['ExamRooms']            = [];
-$json['Appointments']         = [];
-$json['ColumnsDisplayed']     = [];
+$json["WaitingRoom"]          = "WAITING ROOM";
+$json["IntermediateVenues"]   = [];
+$json["TreatmentVenues"]      = [];
+$json["Resources"]            = [];
+$json["ExamRooms"]            = [];
+$json["Appointments"]         = [];
+$json["ColumnsDisplayed"]     = [];
 
 //if a location is specified, set the associated waiting room
-$json['WaitingRoom'] = strtoupper($json['ClinicalArea']) ." WAITING ROOM";
+$json["WaitingRoom"] = strtoupper($json["ClinicalArea"]) ." WAITING ROOM";
 
 //set the load order of the appointments on the vwr page depending the category
-$json['sortOrder'] = 'LastName'; //default
-if($json['Category'] === 'PAB' or $json['Category'] === 'Treatment Machine' or $json['Category'] === 'Physician')
+$json["sortOrder"] = "LastName"; //default
+if($json["Category"] === "PAB" or $json["Category"] === "Treatment Machine" or $json["Category"] === "Physician")
 {
-    $json['sortOrder'] = ['ScheduledStartTime_hh','ScheduledStartTime_mm'];
+    $json["sortOrder"] = ["ScheduledStartTime_hh","ScheduledStartTime_mm"];
 }
-else if($json['Category'] === 'Pharmacy')
+else if($json["Category"] === "Pharmacy")
 {
-    $json['sortOrder'] = 'LastName';
+    $json["sortOrder"] = "LastName";
 }
 
 //==========================================================
@@ -100,7 +100,7 @@ $queryColumns = $dbh->prepare( "
 ");
 $queryColumns->execute([$json["ProfileSer"]]);
 
-$json['ColumnsDisplayed'] = $queryColumns->fetchAll();
+$json["ColumnsDisplayed"] = $queryColumns->fetchAll();
 
 //=======================================================
 //next get the profile options
@@ -120,50 +120,50 @@ $queryOptions->execute([$json["ProfileSer"]]);
 
 foreach($queryOptions->fetchAll() as $row)
 {
-    if($row['Type'] === 'Appointment') {$appointments[] = $row['Options'];}
-    else if($row['Type'] === 'IntermediateVenue')
+    if($row["Type"] === "Appointment") {$appointments[] = $row["Options"];}
+    else if($row["Type"] === "IntermediateVenue")
     {
-        $intermediateVenues[] = $row['Options'];
-        $json['IntermediateVenues'][] = $row;
+        $intermediateVenues[] = $row["Options"];
+        $json["IntermediateVenues"][] = $row;
     }
-    else if($row['Type'] === 'TreatmentVenue')
+    else if($row["Type"] === "TreatmentVenue")
     {
-        $treatmentVenues[] = $row['Options'];
-        $json['TreatmentVenues'][] = $row;
+        $treatmentVenues[] = $row["Options"];
+        $json["TreatmentVenues"][] = $row;
     }
-    else if($row['Type'] === 'ExamRoom')
+    else if($row["Type"] === "ExamRoom")
     {
-        $examRooms[] = $row['Options'];
-        $json['ExamRooms'][] = $row;
+        $examRooms[] = $row["Options"];
+        $json["ExamRooms"][] = $row;
     }
-    else if($row['Type'] === 'Resource') {$resources[] = $row['Options'];}
+    else if($row["Type"] === "Resource") {$resources[] = $row["Options"];}
 }
 
 //add the type to each element of the arrays and then add them to the json return object
-$json['Resources'] = [];
+$json["Resources"] = [];
 foreach($resources as $val)
 {
-    $json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
+    $json["Resources"][] = ["Name"=>$val,"Type"=>"Resource"];
 }
 
-$json['Appointments'] = [];
+$json["Appointments"] = [];
 foreach($appointments as $val)
 {
-    $json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
+    $json["Appointments"][] = ["Name"=>$val,"Type"=>"Appointment"];
 }
 
-$json['Locations'] = [];
+$json["Locations"] = [];
 foreach($intermediateVenues as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"IntermediateVenue"];
 }
 foreach($treatmentVenues as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"TreatmentVenue"];
 }
 foreach($examRooms as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"ExamRoom"];
 }
 
 //get page settings
@@ -172,7 +172,7 @@ $configs = Config::getApplicationSettings();
 $json["FirebaseUrl"] = $configs->environment->firebaseUrl;
 $json["FirebaseSecret"] = $configs->environment->firebaseSecret;
 
-$json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/checkin/{$profile['Speciality']}.json";
+$json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/checkin/{$profile["Speciality"]}.json";
 
 //encode and return the json object
 $json = Encoding::utf8_encode_recursive($json);

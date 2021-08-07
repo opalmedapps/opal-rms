@@ -6,7 +6,7 @@ require_once __DIR__."/../../../vendor/autoload.php";
 use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
 
-$speciality = $_GET['speciality'] ?? NULL;
+$speciality = $_GET["speciality"] ?? NULL;
 
 //connect to db
 $dbh = Database::getOrmsConnection();

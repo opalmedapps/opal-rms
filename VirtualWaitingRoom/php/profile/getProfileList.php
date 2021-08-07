@@ -7,8 +7,8 @@ use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
 
 //get webpage parameters
-$category = Encoding::utf8_decode_recursive($_GET['category'] ?? NULL);
-$speciality = Encoding::utf8_decode_recursive($_GET['speciality'] ?? NULL) ;
+$category = Encoding::utf8_decode_recursive($_GET["category"] ?? NULL);
+$speciality = Encoding::utf8_decode_recursive($_GET["speciality"] ?? NULL) ;
 
 //connect to db
 $dbh = Database::getOrmsConnection();

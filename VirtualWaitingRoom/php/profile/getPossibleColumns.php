@@ -7,7 +7,7 @@ use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
 
 //get webpage parameters
-$speciality = $_GET['speciality'];
+$speciality = $_GET["speciality"];
 
 //connect to db
 $dbh = Database::getOrmsConnection();

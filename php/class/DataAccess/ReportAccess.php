@@ -103,8 +103,8 @@ class ReportAccess
             ORDER BY ScheduledDate,ScheduledTime
         ";
 
-        $sqlStringWithStatus = Database::generateBoundedSqlString($sql,":statusFilter:","MV","Status",$statusFilter);
-        $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"],":codeFilter:","CR","ResourceName",$codeFilter);
+        $sqlStringWithStatus = Database::generateBoundedSqlString($sql,":statusFilter:","MV.Status",$statusFilter);
+        $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"],":codeFilter:","CR.ResourceName",$codeFilter);
 
         $query = Database::getOrmsConnection()->prepare($sqlStringWithCode["sqlString"]);
         $query->execute(array_merge(

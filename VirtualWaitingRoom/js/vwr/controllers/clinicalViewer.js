@@ -207,9 +207,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                 afilterdisable: false,
                 qfilterdisable: false,
                 dfilterdisable: false,
-                /*specificType: {name: ''},
-                cspecificType: {name: ''},
-                dspecificType: {name: ''},*/
                 selectedclinics: [],
                 selectedcodes: [],
                 selecteddiagnosis: [],
@@ -221,15 +218,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.liveMode = 'Live';
         $scope.liveState = 'Paused';
         $scope.test.emptyList = false;
-        /*if(resetPressed)
-        {
-            $scope.inputs.type = 'specific';
-            $scope.inputs.specificType = $scope.clinics[0];
-            $scope.inputs.ctype = 'specific';
-            $scope.inputs.cspecificType = $scope.codes[0];
-            $scope.inputs.dtype = 'specific';
-            $scope.inputs.dspecificType = $scope.diagnosis[0];
-        }*/
     }
 
     //=========================================================================
@@ -628,10 +616,10 @@ app.factory('callScript',function($http,$q)
         {
             let defer = $q.defer();
 
-            let clinics = inputs.selectedclinics.map(x => "\""+ x.Name +"\"").join(",");
+            let clinics = inputs.selectedclinics.map(x => x.Name).join("|||");
             // if(clinics.length > 5300)break; why was this there in the original for loop?
 
-            let codes = inputs.selectedcodes.map(x => "'"+ x.Name +"'").join(",");
+            let codes = inputs.selectedcodes.map(x => x.Name).join("|||");
 
             let diagnosis = inputs.selecteddiagnosis.map(x => "\""+ x.subcode +"\"").join(",");
 

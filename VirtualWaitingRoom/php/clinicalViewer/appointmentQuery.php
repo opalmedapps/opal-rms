@@ -37,9 +37,9 @@ $afilter                = isset($_GET["afilter"]);
 $qfilter                = isset($_GET["qfilter"]);
 
 $statusConditions = [
-    "completed" => isset($_GET["comp"]) ? "'Completed'" : NULL,
-    "open"      => isset($_GET["openn"]) ? "'Open'" : NULL,
-    "cancelled" => isset($_GET["canc"]) ? "'Cancelled'" : NULL,
+    isset($_GET["comp"]) ? "Completed" : NULL,
+    isset($_GET["openn"]) ? "Open" : NULL,
+    isset($_GET["canc"]) ? "Cancelled" : NULL,
 ];
 $activeStatusConditions = array_filter($statusConditions);
 
@@ -63,14 +63,10 @@ else {
     $opalFilter = "AND (P.SMSAlertNum IS NOT NULL OR P.OpalPatient = 1)";
 }
 
-$statusFilter = " AND MV.Status IN (". implode(",",$activeStatusConditions) .")";
-$appFilter = ($appType === "all") ? "" : " AND CR.ResourceName IN ($specificApp)";
-$cappFilter = ($appcType === "all") ? "" : " AND COALESCE(AC.DisplayName,AC.AppointmentCode) IN ($cspecificApp)";
-
 //ORMS database query run under "and" mode for basic appoint information
 $dbh = Database::getOrmsConnection();
 
-$queryAppointments = $dbh->prepare("
+$sqlAppointments = "
     SELECT
         MV.AppointmentSerNum,
         P.FirstName,
@@ -99,12 +95,12 @@ $queryAppointments = $dbh->prepare("
             AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
             $opalFilter
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            $statusFilter
-            $appFilter
+            AND :statusFilter:
+            AND :appointmentFilter:
         INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
             AND SG.SpecialityGroupId = :spec
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-            $cappFilter
+            AND :codeFilter:
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
             AND PH.HospitalId = SG.HospitalId
             AND PH.Active = 1
@@ -112,7 +108,18 @@ $queryAppointments = $dbh->prepare("
     ORDER BY
         MV.ScheduledDate,
         MV.ScheduledTime
-");
+";
+
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointments,":statusFilter:","MV.Status",$activeStatusConditions);
+$boundValues = $sqlAppointmentsMod["boundValues"];
+
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"],":appointmentFilter:","CR.ResourceName",$appType === "all" ? [] : explode("|||",$specificApp));
+$boundValues = array_merge($boundValues,$sqlAppointmentsMod["boundValues"]);
+
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"],":codeFilter:","COALESCE(AC.DisplayName,AC.AppointmentCode)",$appcType === "all" ? [] : explode("|||",$cspecificApp));
+$boundValues = array_merge($boundValues,$sqlAppointmentsMod["boundValues"]);
+
+$queryAppointments = $dbh->prepare($sqlAppointmentsMod["sqlString"]);
 
 $listOfAppointments = [];
 $patientList = [];
@@ -120,11 +127,14 @@ $patientList = [];
 //get ORMS patients if the appointment filter is disabled
 if($afilter === FALSE)
 {
-    $queryAppointments->execute([
-        ":sDate" => $sDate,
-        ":eDate" => $eDate,
-        ":spec"  => $speciality
-    ]);
+    $queryAppointments->execute(array_merge(
+        [
+            ":sDate" => $sDate,
+            ":eDate" => $eDate,
+            ":spec"  => $speciality
+        ],
+        $boundValues
+    ));
 
     foreach($queryAppointments->fetchAll() as $app)
     {

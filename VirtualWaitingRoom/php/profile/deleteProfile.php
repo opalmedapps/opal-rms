@@ -13,11 +13,5 @@ $profileId = Encoding::utf8_decode_recursive($_GET['profileId']);
 $dbh = Database::getOrmsConnection();
 
 //call the delete stored procedure
-
-$sqlDeleteProfile = "CALL DeleteProfile('$profileId');";
-
-echo $sqlDeleteProfile;
-
-$queryDeleteProfile = $dbh->query($sqlDeleteProfile);
-
-if($queryDeleteProfile) {echo "Profile deleted";}
+$query = Database::getOrmsConnection()->prepare("CALL DeleteProfile(?);");
+$query->execute([$profileId]);

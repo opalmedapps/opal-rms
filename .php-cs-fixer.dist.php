@@ -56,7 +56,6 @@ class DoubleQuoteFixer implements FixerInterface
                 && str_contains($content,"\"") === false
             ) {
                 $content = substr($content,1,-1);
-                // $content = preg_replace("/\"/","\\\"",$content); //replace all double quotes in the string with an escaped double quote
                 $content = "\"$content\"";
 
                 $tokens[$index] = new Token($content);
@@ -80,7 +79,7 @@ return $config->registerCustomFixers([
     // ],
     // "mb_str_functions" => true,
     "dir_constant" => true,
-    //"Orms/double_quote_fixer" => true
+    "Orms/double_quote_fixer" => true
 ])
 ->setRiskyAllowed(true)
 ->setCacheFile(__DIR__."/vendor/php-cs-fixer/.php-cs-fixer.cache")

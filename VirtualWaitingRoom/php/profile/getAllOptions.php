@@ -75,11 +75,11 @@ $query4->execute([$clinicHub]);
 // Process results
 foreach($query4->fetchAll() as $row)
 {
-    if(preg_match('/(TX AREA|RT TX ROOM)/',$row['AriaVenueId'])) {
-        $treatmentVenues[] = $row['AriaVenueId'];
+    if(preg_match("/(TX AREA|RT TX ROOM)/",$row["AriaVenueId"])) {
+        $treatmentVenues[] = $row["AriaVenueId"];
     }
     else {
-        $intermediateVenues[] = $row['AriaVenueId'];
+        $intermediateVenues[] = $row["AriaVenueId"];
     }
 }
 
@@ -121,30 +121,30 @@ $examRooms = array_filter(array_unique($examRooms));
 sort($examRooms);
 
 //add the type to each element of the arrays and then add them to the json return object
-$json['Resources'] = [];
+$json["Resources"] = [];
 foreach($resources as $val)
 {
-    $json['Resources'][] = ['Name'=>$val,'Type'=>'Resource'];
+    $json["Resources"][] = ["Name"=>$val,"Type"=>"Resource"];
 }
 
-$json['Appointments'] = [];
+$json["Appointments"] = [];
 foreach($appointments as $val)
 {
-    $json['Appointments'][] = ['Name'=>$val,'Type'=>'Appointment'];
+    $json["Appointments"][] = ["Name"=>$val,"Type"=>"Appointment"];
 }
 
-$json['Locations'] = [];
+$json["Locations"] = [];
 foreach($intermediateVenues as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'IntermediateVenue'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"IntermediateVenue"];
 }
 foreach($treatmentVenues as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'TreatmentVenue'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"TreatmentVenue"];
 }
 foreach($examRooms as $val)
 {
-    $json['Locations'][] = ['Name'=>$val,'Type'=>'ExamRoom'];
+    $json["Locations"][] = ["Name"=>$val,"Type"=>"ExamRoom"];
 }
 
 //return results in json format

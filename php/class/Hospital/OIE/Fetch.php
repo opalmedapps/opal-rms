@@ -193,7 +193,7 @@ class Fetch
                 "answers"       => array_map(fn($y) => [
                                         "dateTimeAnswered" => (int) $y["dateTimeAnswered"],
                                         "answer"           => (int) $y["answer"]
-                    ]               ,$x["answers"])
+                                ],$x["answers"])
             ];
         },json_decode($response,TRUE));
     }

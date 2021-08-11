@@ -32,7 +32,7 @@ class PatientAccess
                     OpalPatient         = :status,
                     SMSAlertNum         = :smsNum,
                     SMSSignupDate       = IF(:smsNum IS NULL,NULL,COALESCE(SMSSignupDate,NOW())),
-                    SMSLastUpdated      = NOW(),
+                    SMSLastUpdated      = IF(:smsNum <=> SMSAlertNum AND :language <=> LanguagePreference,SMSLastUpdated,NOW()),
                     LanguagePreference  = :language
             ";
 

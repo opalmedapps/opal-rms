@@ -12,7 +12,9 @@ $tableQuery = $dbh->prepare("
     FROM
         information_schema.tables
     WHERE
-        TABLE_SCHEMA = DATABASE();
+        TABLE_SCHEMA = DATABASE()
+    ORDER BY
+        TABLE_NAME
 ");
 $tableQuery->execute();
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Orms\Patient;
 
 use Exception;
+use Orms\ApplicationException;
 use Orms\DataAccess\PatientAccess;
 use Orms\DateTime;
 use Orms\Patient\Model\Insurance;
@@ -68,7 +69,7 @@ class PatientInterface
         );
 
         if($newPatient->getActiveMrns() === []) {
-            throw new Exception("Failed to create patient with no active mrns");
+            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to create patient with no active mrns");
         }
 
         PatientAccess::serializePatient($newPatient);
@@ -108,7 +109,7 @@ class PatientInterface
         ?string $phoneNumber = self::NO_PHONE_NUMBER,
         int $opalStatus = null,
         ?string $languagePreference = self::NO_LANGUAGE,
-        array $mrns = null,
+        array $mrns = [],
         array $insurances = null
     ): Patient
     {
@@ -130,6 +131,17 @@ class PatientInterface
             }
         }
 
+        //combine the patient's mrns with the new incoming ones
+        //filter the new mrns and then add them back to capture any changes
+        $newMrns = array_merge(
+            array_udiff($patient->mrns,$mrns,fn($x,$y) => [$x->mrn,$x->site] <=> [$y->mrn,$y->site]),
+            $mrns
+        );
+
+        if($patient->getActiveMrns() === []) {
+            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
+        }
+
         $newPatient = new Patient(
             id:                  $patient->id,
             firstName:           $firstName ?? $patient->firstName,
@@ -139,13 +151,9 @@ class PatientInterface
             phoneNumber:         $phoneNumber,
             opalStatus:          $opalStatus ?? $patient->opalStatus,
             languagePreference:  $languagePreference,
-            mrns:                $mrns ?? $patient->mrns,
+            mrns:                $newMrns,
             insurances:          $insurances ?? $patient->insurances
         );
-
-        if($patient->getActiveMrns() === []) {
-            throw new Exception("Failed to create patient with no active mrns");
-        }
 
         //overwrite the previous version of the patient in the database with the updated copy
         PatientAccess::serializePatient($newPatient);

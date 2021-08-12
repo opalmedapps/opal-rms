@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //script to get a list of patient columns in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
 //get webpage parameters
 $speciality = $_GET["speciality"];

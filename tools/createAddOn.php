@@ -1,26 +1,28 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 // script that takes a patient's mrn and site and created an add-on with the first clinic code it can find
 
 require_once __DIR__ ."/../vendor/autoload.php";
 
 use GetOpt\GetOpt;
+use Orms\Appointment\Appointment;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\PatientInterface;
-use Orms\Appointment\Appointment;
 
 //get csv file name from command line arguments and load it
 $opts = new GetOpt([
     ["mrn"],
     ["site"]
-],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+], [GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
 $opts->process();
 
 $mrn = $opts->getOption("mrn") ?? "";
 $site = $opts->getOption("site") ?? "";
 
-$patient = PatientInterface::getPatientByMrn($mrn,$site) ?? throw new Exception("Unknown patient");
+$patient = PatientInterface::getPatientByMrn($mrn, $site) ?? throw new Exception("Unknown patient");
 
 $dbh = Database::getOrmsConnection();
 
@@ -59,12 +61,12 @@ Appointment::createOrUpdateAppointment(
     patient: $patient,
     appointmentCode: $appointmentCode["AppointmentCode"],
     creationDate: new DateTime(),
-    referringMd: NULL,
+    referringMd: null,
     clinicCode: $clinicCode["ResourceCode"],
     clinicDescription: $clinicCode["ResourceName"],
     scheduledDateTime: new DateTime(),
     sourceId: "ORMS-$mrn-$site-". (new DateTime())->getTimestamp(),
-    sourceStatus: NULL,
+    sourceStatus: null,
     specialityGroupCode: $clinicCode["SpecialityGroupCode"],
     status: "Open",
     system: $clinicCode["SourceSystem"],

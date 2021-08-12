@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\Authentication;
 use Orms\Http;
 use Orms\Util\Encoding;
-use Orms\Authentication;
 
 //script to authenticate a user trying to log into ORMS
 //creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
@@ -14,7 +16,7 @@ try {
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $user = new class(
@@ -27,10 +29,10 @@ $user = new class(
     ) {}
 };
 
-if(Authentication::validateUserCredentials($user->username,$user->password) === FALSE) {
+if(Authentication::validateUserCredentials($user->username, $user->password) === false) {
     Http::generateResponseJsonAndExit(406);
 }
 
 $cookie = Authentication::createUserSession($user->username);
 
-Http::generateResponseJsonAndExit(200,data: $cookie);
+Http::generateResponseJsonAndExit(200, data: $cookie);

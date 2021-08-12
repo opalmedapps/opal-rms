@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\Appointment\Location;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
-use Orms\Appointment\Location;
 
 try {
     $fields = Http::parseApiInputs();
@@ -13,7 +15,7 @@ try {
         site:  $fields["site"],
         room:  $fields["room"],
     ) {
-        function __construct(
+        public function __construct(
             public string $mrn,
             public string $site,
             public string $room
@@ -21,15 +23,15 @@ try {
     };
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
-$patient = PatientInterface::getPatientByMrn($checkIn->mrn,$checkIn->site);
+$patient = PatientInterface::getPatientByMrn($checkIn->mrn, $checkIn->site);
 
-if($patient === NULL)  {
-    Http::generateResponseJsonAndExit(400,error: "Patient not found");
+if($patient === null)  {
+    Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-Location::movePatientToLocation($patient,$checkIn->room);
+Location::movePatientToLocation($patient, $checkIn->room);
 
 Http::generateResponseJsonAndExit(200);

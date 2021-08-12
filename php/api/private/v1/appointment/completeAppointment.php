@@ -1,30 +1,32 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Http;
 use Orms\Appointment\Appointment;
-use Orms\Patient\PatientInterface;
 use Orms\Appointment\Location;
+use Orms\Http;
+use Orms\Patient\PatientInterface;
 
 $params = Http::getPostContents();
 
-$appointmentId = $params["appointmentId"] ?? NULL;
-$patientId     = $params["patientId"] ?? NULL;
-$room          = $params["room"] ?? NULL;
+$appointmentId = $params["appointmentId"] ?? null;
+$patientId     = $params["patientId"] ?? null;
+$room          = $params["room"] ?? null;
 
-if($room === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Room is invalid");
+if($room === null) {
+    Http::generateResponseJsonAndExit(400, error: "Room is invalid");
 }
 
-if($appointmentId === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Appointment id is invalid");
+if($appointmentId === null) {
+    Http::generateResponseJsonAndExit(400, error: "Appointment id is invalid");
 }
 
 $patient = PatientInterface::getPatientById((int) $patientId);
 
-if($patient === NULL)  {
-    Http::generateResponseJsonAndExit(400,error: "Patient not found");
+if($patient === null)  {
+    Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
 //after completing the appointment, un-check out the patient for that appointment
@@ -32,4 +34,4 @@ if($patient === NULL)  {
 Appointment::completeAppointment($appointmentId);
 
 Location::removePatientLocationForAppointment($appointmentId);
-Location::movePatientToLocation($patient,$room,$appointmentId);
+Location::movePatientToLocation($patient, $room, $appointmentId);

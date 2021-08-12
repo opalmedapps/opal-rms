@@ -1,16 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\Hospital\SpecialityInterface;
 use Orms\Http;
 use Orms\Util\Encoding;
-use Orms\Hospital\SpecialityInterface;
 
 try {
     Http::parseApiInputs();
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $specialityGroups = SpecialityInterface::getSpecialityGroups();

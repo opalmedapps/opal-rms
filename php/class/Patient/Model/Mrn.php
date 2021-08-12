@@ -1,13 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Patient\Model;
 
 /** @psalm-immutable */
 class Mrn
 {
-     function __construct(
-        public string $mrn,
-        public string $site,
-        public bool $active
-    ) {}
+     public function __construct(
+         public string $mrn,
+         public string $site,
+         public bool $active
+     ) {}
 }

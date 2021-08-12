@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //script to insert/create a profile in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
-use Orms\Http;
 use Orms\DataAccess\Database;
+use Orms\Http;
+use Orms\Util\Encoding;
 
 //get webpage parameters
 $postData = Http::getPostContents();
@@ -65,21 +67,15 @@ $queryProperties->closeCursor();
 //insert the profile options
 
 //first create an option string to give to the query
-$optionNameString = implode("|||",array_map(function ($obj) {
-    return $obj["Name"];
-},array_merge($profile["ExamRooms"],$profile["IntermediateVenues"],$profile["TreatmentVenues"],$profile["Resources"])));
-$optionTypeString = implode("|||",array_map(function ($obj) {
-    return $obj["Type"];
-},array_merge($profile["ExamRooms"],$profile["IntermediateVenues"],$profile["TreatmentVenues"],$profile["Resources"])));
+$optionNameString = implode("|||", array_map(fn($obj) => $obj["Name"], array_merge($profile["ExamRooms"], $profile["IntermediateVenues"], $profile["TreatmentVenues"], $profile["Resources"])));
+$optionTypeString = implode("|||", array_map(fn($obj) => $obj["Type"], array_merge($profile["ExamRooms"], $profile["IntermediateVenues"], $profile["TreatmentVenues"], $profile["Resources"])));
 
 $queryOptions = $dbh->prepare("CALL UpdateProfileOptions(?,?,?)");
 $queryOptions->execute([$profile["ProfileId"],$optionNameString,$optionTypeString]);
 $queryOptions->closeCursor();
 
 //insert the profile columns
-$columnNameString = implode("|||",array_map(function ($obj) {
-    return $obj["ColumnName"];
-},$columns));
+$columnNameString = implode("|||", array_map(fn($obj) => $obj["ColumnName"], $columns));
 
 $queryColumns = $dbh->prepare("CALL UpdateProfileColumns(?,?)");
 $queryColumns->execute([$profile["ProfileId"],$columnNameString]);

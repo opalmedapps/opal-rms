@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Hospital;
 
@@ -13,7 +15,7 @@ class SpecialityInterface
      *      specialityName: string
      * }>
      */
-    static function getSpecialityGroups(): array
+    public static function getSpecialityGroups(): array
     {
         return SpecialityAccess::getSpecialityGroups();
     }
@@ -27,11 +29,11 @@ class SpecialityInterface
      *      specialityGroupName: string
      * }>>
      */
-    static function getHubs(): array
+    public static function getHubs(): array
     {
         $hubs = SpecialityAccess::getHubs();
 
-        $specialityGroups = array_reduce($hubs,function($x,$y) {
+        $specialityGroups = array_reduce($hubs, function($x, $y) {
             $x[$y["specialityGroupName"]][] = [
                 "clinicHubId"           => (int) $y["clinicHubId"],
                 "clinicHubName"         => (string) $y["clinicHubName"],
@@ -40,7 +42,7 @@ class SpecialityInterface
             ];
 
             return $x;
-        },[]);
+        }, []);
 
         return $specialityGroups;
     }

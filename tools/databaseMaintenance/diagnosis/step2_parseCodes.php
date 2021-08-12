@@ -1,16 +1,18 @@
-<?php declare(strict_types = 1);
+<?php
 
-#convert ICD-10 data to a more convient format
+declare(strict_types=1);
+
+//convert ICD-10 data to a more convient format
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
-$data = json_decode(file_get_contents(__DIR__."/data/raw_codes.json") ?: "",TRUE);
+$data = json_decode(file_get_contents(__DIR__."/data/raw_codes.json") ?: "", true);
 
-#do some cleaning up
-$data = array_map("addElementForCodesWithoutSubcodes",$data);
-$data = array_map("removeNestedCodeRanges",$data);
-$data = array_map("stripNameFromNodes",$data);
+//do some cleaning up
+$data = array_map("addElementForCodesWithoutSubcodes", $data);
+$data = array_map("removeNestedCodeRanges", $data);
+$data = array_map("stripNameFromNodes", $data);
 
-#format the data to the desired format
+//format the data to the desired format
 $listOfChapters = [];
 $listOfCodes = [];
 $listOfSubcodes = [];
@@ -46,7 +48,7 @@ foreach($data as $chapter)
     }
 }
 
-file_put_contents(__DIR__."/data/processed_codes.json",json_encode([
+file_put_contents(__DIR__."/data/processed_codes.json", json_encode([
     "chapters" => $listOfChapters,
     "codes" => $listOfCodes,
     "subcodes" => $listOfSubcodes
@@ -55,7 +57,7 @@ file_put_contents(__DIR__."/data/processed_codes.json",json_encode([
 
 
 
-##############################################
+//#############################################
 /**
  * adds a subcode for codes with no subcodes (the code itself is used as a subcode)
  * @param mixed[] $node
@@ -63,11 +65,11 @@ file_put_contents(__DIR__."/data/processed_codes.json",json_encode([
  */
 function addElementForCodesWithoutSubcodes(array $node): array
 {
-    if($node["data"] === NULL && !preg_match("/\./",$node["name"])) {
+    if($node["data"] === null && !preg_match("/\./", $node["name"])) {
         $node["data"] = [$node];
     }
-    elseif($node["data"] !== NULL) {
-        $node["data"] = array_map("addElementForCodesWithoutSubcodes",$node["data"]);
+    elseif($node["data"] !== null) {
+        $node["data"] = array_map("addElementForCodesWithoutSubcodes", $node["data"]);
     }
 
     return $node;
@@ -78,25 +80,25 @@ function addElementForCodesWithoutSubcodes(array $node): array
  * @param mixed[] $node
  * @return mixed[]
  */
-function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE): array
+function removeNestedCodeRanges(array $node, bool $getLeafNodes = false): array
 {
-    if($getLeafNodes === TRUE)
+    if($getLeafNodes === true)
     {
-        $nodes = new RecursiveIteratorIterator(new RecursiveArrayIterator($node["data"]),RecursiveIteratorIterator::SELF_FIRST);
+        $nodes = new RecursiveIteratorIterator(new RecursiveArrayIterator($node["data"]), RecursiveIteratorIterator::SELF_FIRST);
         $leaves = [];
         foreach($nodes as $x) {
-            if(is_array($x) && key_exists("name",$x) && !preg_match("/-/",$x["name"]) && $x["data"] !== NULL) $leaves[] = $x;
+            if(is_array($x) && key_exists("name", $x) && !preg_match("/-/", $x["name"]) && $x["data"] !== null) $leaves[] = $x;
         }
 
         return $leaves;
     }
-    elseif(preg_match("/-/",$node["name"]))
+    elseif(preg_match("/-/", $node["name"]))
     {
-        $node["data"] = removeNestedCodeRanges($node,TRUE);
+        $node["data"] = removeNestedCodeRanges($node, true);
     }
     else
     {
-        $node["data"] = array_map("removeNestedCodeRanges",$node["data"]);
+        $node["data"] = array_map("removeNestedCodeRanges", $node["data"]);
     }
 
     return $node;
@@ -109,8 +111,8 @@ function removeNestedCodeRanges(array $node,bool $getLeafNodes = FALSE): array
  */
 function stripNameFromNodes(array $node): array
 {
-    $node["desc"] = preg_replace("/$node[name] /","",$node["desc"]);
-    $node["data"] = ($node["data"] === NULL) ? NULL : array_map("stripNameFromNodes",$node["data"]);
+    $node["desc"] = preg_replace("/$node[name] /", "", $node["desc"]);
+    $node["data"] = ($node["data"] === null) ? null : array_map("stripNameFromNodes", $node["data"]);
 
     return $node;
 }

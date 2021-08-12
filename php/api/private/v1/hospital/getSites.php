@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Http;
 use Orms\DataAccess\Database;
+use Orms\Http;
 
 $dbh = Database::getOrmsConnection();
 
@@ -16,4 +18,4 @@ $query = $dbh->prepare("
 ");
 $query->execute();
 
-Http::generateResponseJsonAndExit(200,data: $query->fetchAll());
+Http::generateResponseJsonAndExit(200, data: $query->fetchAll());

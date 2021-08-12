@@ -1,13 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-use \DateTime;
+use DateTime;
 use Orms\DataAccess\Database;
 
 class LoggerAccess
 {
-    static function insertSmsEvent(
+    public static function insertSmsEvent(
         string $clientNumber,
         string $serviceNumber,
         string $messageId,

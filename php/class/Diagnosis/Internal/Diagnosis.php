@@ -1,16 +1,17 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Diagnosis\Internal;
 
 use Exception;
-use PDOException;
-
 use Orms\DataAccess\Database;
+use PDOException;
 
 /** @psalm-immutable */
 class Diagnosis
 {
-    function __construct(
+    public function __construct(
         public int $id,
         public string $subcode,
         public string $subcodeDescription,
@@ -26,7 +27,7 @@ class Diagnosis
      * @throws PDOException
      * @throws Exception
      */
-    static function getDiagnosisFromId(int $id): self
+    public static function getDiagnosisFromId(int $id): self
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -47,9 +48,9 @@ class Diagnosis
                 DS.DiagnosisSubcodeId = :id
         ");
         $query->execute([":id" => $id]);
-        $row = $query->fetchAll()[0] ?? NULL;
+        $row = $query->fetchAll()[0] ?? null;
 
-        if($row === NULL) throw new Exception("Unknown diagnosis code");
+        if($row === null) throw new Exception("Unknown diagnosis code");
 
         return new Diagnosis(
             (int) $row["DiagnosisSubcodeId"],
@@ -68,12 +69,12 @@ class Diagnosis
      * @return Diagnosis[]
      * @throws PDOException
      */
-    static function getSubcodeList(?string $filter = NULL): array
+    public static function getSubcodeList(?string $filter = null): array
     {
         $queryFilters = "";
         $paramFilter = [];
 
-        if($filter !== NULL)
+        if($filter !== null)
         {
             $queryFilters = "
                 AND (
@@ -116,7 +117,7 @@ class Diagnosis
                 $x["Chapter"],
                 $x["ChapterDescription"]
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
@@ -124,7 +125,7 @@ class Diagnosis
      * @return Diagnosis[]
      * @throws PDOException
      */
-    static function getUsedSubCodeList(): array
+    public static function getUsedSubCodeList(): array
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -158,7 +159,7 @@ class Diagnosis
                 $x["Chapter"],
                 $x["ChapterDescription"]
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
 }

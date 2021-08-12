@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Patient\Model;
 
 use Orms\DateTime;
-use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\Mrn;
 
 /** @psalm-immutable */
 class Patient
@@ -12,7 +14,7 @@ class Patient
     /**
      * Only use in PatientInferface class and DataAccess layer.
      */
-    function __construct(
+    public function __construct(
         public int $id,
         public string $firstName,
         public string $lastName,
@@ -21,22 +23,22 @@ class Patient
         public ?string $phoneNumber,
         public int $opalStatus,
         public ?string $languagePreference,
-        /** @var Mrn[] $mrns */ public array $mrns,
-        /** @var Insurance[] $insurances */ public array $insurances
+        /** @var Mrn[] $mrns */
+        public array $mrns,
+        /** @var Insurance[] $insurances */
+        public array $insurances
     ) {}
 
     /**
      *
      * @return Mrn[]
      */
-    function getActiveMrns(): array
+    public function getActiveMrns(): array
     {
-        $mrns = array_values(array_filter($this->mrns,fn($x) => $x->active === TRUE));
+        $mrns = array_values(array_filter($this->mrns, fn($x) => $x->active === true));
 
         //sort the mrns to guarentee that they're always in the same order
-        usort($mrns,function($a,$b) {
-            return [$a->mrn,$a->site] <=> [$b->mrn,$b->site];
-        });
+        usort($mrns, fn($a, $b) => [$a->mrn,$a->site] <=> [$b->mrn,$b->site]);
 
         return $mrns;
     }

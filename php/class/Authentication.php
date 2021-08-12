@@ -1,22 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms;
 
 use Exception;
-use Memcached;
-
 use GuzzleHttp\Client;
+use Memcached;
 
 class Authentication
 {
     private static string $authUrl = "https://fedauthfcp.rtss.qc.ca/fedauth/wsapi/login";
     private static string $institution = "06-ciusss-cusm";
 
-    static function validateUserCredentials(string $username,string $password): bool
+    public static function validateUserCredentials(string $username, string $password): bool
     {
         //check if the credentials are valid in the AD
         $client = new Client();
-        $request = $client->request("POST",self::$authUrl,[
+        $request = $client->request("POST", self::$authUrl, [
             "form_params" => [
                 "uid"           => $username,
                 "pwd"           => $password,
@@ -24,9 +25,9 @@ class Authentication
             ]
         ])->getBody()->getContents();
 
-        $requestResult = json_decode($request,TRUE);
+        $requestResult = json_decode($request, true);
 
-        $roles = preg_grep("/GA-ORMS/",$requestResult["roles"] ?? []) ?: []; //filter all groups that aren't ORMS
+        $roles = preg_grep("/GA-ORMS/", $requestResult["roles"] ?? []) ?: []; //filter all groups that aren't ORMS
         $statusCode = (int) ($requestResult["statusCode"] ?? 1); //if the return status is 0, then the user's credentials are valid
 
         return ($roles !== []) && ($statusCode === 0);
@@ -39,14 +40,14 @@ class Authentication
      *      key: string
      * }
      */
-    static function createUserSession(string $username): array
+    public static function createUserSession(string $username): array
     {
         //store the user session in the memcache
-        $memcache = new Memcached; // connect to memcached on localhost port 11211
-        $memcache->addServer("localhost",11211) ?: throw new Exception("Failed to connect to memcached server");
+        $memcache = new Memcached(); // connect to memcached on localhost port 11211
+        $memcache->addServer("localhost", 11211) ?: throw new Exception("Failed to connect to memcached server");
 
         //generate cookie uniq session id
-        $key = md5(uniqid((string) rand(),TRUE) .$_SERVER["REMOTE_ADDR"]. time());
+        $key = md5(uniqid((string) rand(), true) .$_SERVER["REMOTE_ADDR"]. time());
 
         //$exists = $memcache->get($key);
 
@@ -57,7 +58,7 @@ class Authentication
         //$value.="Expiration=60\r\n"; //duration is handled server side; default is 1 hr and the time left refreshes on every page connection
 
         //store value for the key in memcache deamon
-        $memcache->set($key,$value);
+        $memcache->set($key, $value);
 
         //return a cookie object
         return [

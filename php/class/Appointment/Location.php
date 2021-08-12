@@ -1,19 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Appointment;
 
-use PDOException;
-
 use Orms\DataAccess\Database;
-use Orms\Patient\Model\Patient;
 use Orms\Hospital\OIE\Export;
+use Orms\Patient\Model\Patient;
+use PDOException;
 
 class Location
 {
     /**
      * Updates a patient's location for every appointment they have. If an appointment id was supplied, that appointment will be marked as the cause for the move in the db
      */
-    static function movePatientToLocation(Patient $patient,string $room,int $appointmentId = NULL): void
+    public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null): void
     {
         //get the list of appointments that the patient has today
         //only open appointments can be updated
@@ -40,10 +41,10 @@ class Location
         {
             $intendedAppointment = (((int) $app["AppointmentSerNum"]) === $appointmentId);
 
-            self::_movePatientToLocationForAppointment((int) $app["AppointmentSerNum"],$room,$intendedAppointment);
+            self::_movePatientToLocationForAppointment((int) $app["AppointmentSerNum"], $room, $intendedAppointment);
 
             //also export the appointment to other systems
-            Export::exportPatientLocation($app["AppointId"],$app["AppointSys"],$room);
+            Export::exportPatientLocation($app["AppointId"], $app["AppointSys"], $room);
         }
     }
 
@@ -51,7 +52,7 @@ class Location
      * Returns the revCount of the PatentLocation row that was removed, or 0 if there was none
      * @throws PDOException
      */
-    static function removePatientLocationForAppointment(int $appointmentId): int
+    public static function removePatientLocationForAppointment(int $appointmentId): int
     {
         $dbh = Database::getOrmsConnection();
 
@@ -70,9 +71,9 @@ class Location
         ");
         $queryExistingCheckIn->execute([$appointmentId]);
 
-        $currentLocation = $queryExistingCheckIn->fetchAll()[0] ?? NULL;
+        $currentLocation = $queryExistingCheckIn->fetchAll()[0] ?? null;
 
-        if($currentLocation === NULL) return 0;
+        if($currentLocation === null) return 0;
 
         //move the old location to the MH table and then delete it
         $queryInsertLocationMH = $dbh->prepare("
@@ -104,7 +105,7 @@ class Location
         return (int) $currentLocation["PatientLocationRevCount"];
     }
 
-    private static function _movePatientToLocationForAppointment(int $appointmentId,string $room,bool $intendedAppointment): void
+    private static function _movePatientToLocationForAppointment(int $appointmentId, string $room, bool $intendedAppointment): void
     {
         //remove any current PatientLocation rows for this appointment
         $currentRevCount = self::removePatientLocationForAppointment($appointmentId) +1;

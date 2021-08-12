@@ -1,27 +1,29 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\Appointment\Location;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
-use Orms\Appointment\Location;
 
 $params = Http::getPostContents();
 
-$appointmentId    = $params["appointmentId"] ?? NULL;
-$patientId        = $params["patientId"] ?? NULL;
-$room             = $params["room"] ?? NULL;
+$appointmentId    = $params["appointmentId"] ?? null;
+$patientId        = $params["patientId"] ?? null;
+$room             = $params["room"] ?? null;
 
-if($room === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Room is invalid");
+if($room === null) {
+    Http::generateResponseJsonAndExit(400, error: "Room is invalid");
 }
 
 $patient = PatientInterface::getPatientById((int) $patientId);
 
-if($patient === NULL)  {
-    Http::generateResponseJsonAndExit(400,error: "Patient not found");
+if($patient === null)  {
+    Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-Location::movePatientToLocation($patient,$room,$appointmentId);
+Location::movePatientToLocation($patient, $room, $appointmentId);
 
 Http::generateResponseJsonAndExit(200);

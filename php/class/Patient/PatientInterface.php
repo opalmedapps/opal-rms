@@ -1,13 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Patient;
 
 use Exception;
-use Orms\DateTime;
 use Orms\DataAccess\PatientAccess;
-use Orms\Patient\Model\Patient;
-use Orms\Patient\Model\Mrn;
+use Orms\DateTime;
 use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\PatientMeasurement;
 
 class PatientInterface
@@ -16,20 +18,20 @@ class PatientInterface
     private const NO_PHONE_NUMBER = "000-0000-0000";
     private const NO_LANGUAGE = "UNKNOWN_LANG";
 
-    static function getPatientById(int $id): ?Patient
+    public static function getPatientById(int $id): ?Patient
     {
         return self::_fetchPatient($id);
     }
 
-    static function getPatientByMrn(string $mrn,string $site): ?Patient
+    public static function getPatientByMrn(string $mrn, string $site): ?Patient
     {
-        $id = PatientAccess::getPatientIdForMrn($mrn,$site);
+        $id = PatientAccess::getPatientIdForMrn($mrn, $site);
         return self::_fetchPatient($id);
     }
 
-    static function getPatientByInsurance(string $insuranceNumber,string $type): ?Patient
+    public static function getPatientByInsurance(string $insuranceNumber, string $type): ?Patient
     {
-        $id = PatientAccess::getPatientIdForInsurance($insuranceNumber,$type);
+        $id = PatientAccess::getPatientIdForInsurance($insuranceNumber, $type);
         return self::_fetchPatient($id);
     }
 
@@ -43,7 +45,7 @@ class PatientInterface
      * @param Mrn[] $mrns
      * @param Insurance[] $insurances
      */
-    static function insertNewPatient(
+    public static function insertNewPatient(
         string $firstName,
         string $lastName,
         DateTime $dateOfBirth,
@@ -58,9 +60,9 @@ class PatientInterface
             lastName:            $lastName,
             dateOfBirth:         $dateOfBirth,
             sex:                 $sex,
-            phoneNumber:         NULL,
+            phoneNumber:         null,
             opalStatus:          0,
-            languagePreference:  NULL,
+            languagePreference:  null,
             mrns:                $mrns,
             insurances:          $insurances
         );
@@ -72,26 +74,24 @@ class PatientInterface
         PatientAccess::serializePatient($newPatient);
 
         //patient should exist now, so searching for them will work
-        return self::getPatientByMrn($mrns[0]->mrn,$mrns[0]->site) ?? throw new Exception("Failed to create patient");
+        return self::getPatientByMrn($mrns[0]->mrn, $mrns[0]->site) ?? throw new Exception("Failed to create patient");
     }
 
     /**
      * Finds all patients who have the input phone number and unregisters that phone number. Returns an array of patients who had their numbers removed
      * @return Patient[]
      */
-    static function unregisterPhoneNumberFromPatients(string $phoneNumber): array
+    public static function unregisterPhoneNumberFromPatients(string $phoneNumber): array
     {
         //phone number must be exactly 10 digits
-        if(!preg_match("/[0-9]{10}/",$phoneNumber)) {
+        if(!preg_match("/[0-9]{10}/", $phoneNumber)) {
             throw new Exception("Invalid phone number");
         }
 
         $patients = PatientAccess::getPatientsWithPhoneNumber($phoneNumber);
         $patients = array_filter($patients);
 
-        return array_map(function($x) {
-            return self::updatePatientInformation($x,phoneNumber: NULL,languagePreference: NULL);
-        },$patients);
+        return array_map(fn($x) => self::updatePatientInformation($x, phoneNumber: null, languagePreference: null), $patients);
     }
 
     /**
@@ -99,17 +99,17 @@ class PatientInterface
      * @param Mrn[] $mrns
      * @param Insurance[] $insurances
      */
-    static function updatePatientInformation(
+    public static function updatePatientInformation(
         Patient $patient,
-        string $firstName = NULL,
-        string $lastName = NULL,
-        Datetime $dateOfBirth = NULL,
-        string $sex = NULL,
+        string $firstName = null,
+        string $lastName = null,
+        Datetime $dateOfBirth = null,
+        string $sex = null,
         ?string $phoneNumber = self::NO_PHONE_NUMBER,
-        int $opalStatus = NULL,
+        int $opalStatus = null,
         ?string $languagePreference = self::NO_LANGUAGE,
-        array $mrns = NULL,
-        array $insurances = NULL
+        array $mrns = null,
+        array $insurances = null
     ): Patient
     {
         //since the phone number can be null, we can't tell apart the default null or a user inputted null
@@ -120,12 +120,12 @@ class PatientInterface
         }
         else {
             //phone number must be exactly 10 digits
-            if($phoneNumber !== NULL && !preg_match("/[0-9]{10}/",$phoneNumber)) {
+            if($phoneNumber !== null && !preg_match("/[0-9]{10}/", $phoneNumber)) {
                 throw new Exception("Invalid phone number");
             }
 
             //if the patient has a phone number, the language preference must also be specified
-            if($phoneNumber !== NULL && ($languagePreference === NULL || $languagePreference === self::NO_LANGUAGE)) {
+            if($phoneNumber !== null && ($languagePreference === null || $languagePreference === self::NO_LANGUAGE)) {
                 throw new Exception("Phone number must have a language preference");
             }
         }
@@ -159,27 +159,27 @@ class PatientInterface
      * @param Patient $acquirer the patient entry that will remain after the merge
      * @param Patient $target the patient entry that will be merged (and then deleted)
      */
-    static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
+    public static function mergePatientEntries(Patient $acquirer, Patient $target): Patient
     {
-        return PatientAccess::mergePatientEntries($acquirer,$target);
+        return PatientAccess::mergePatientEntries($acquirer, $target);
     }
 
     /**
      *
      * @return PatientMeasurement[]
      */
-    static function getPatientMeasurements(Patient $patient): array
+    public static function getPatientMeasurements(Patient $patient): array
     {
         return PatientAccess::deserializePatientMeasurements($patient);
     }
 
-    static function insertPatientMeasurement(Patient $patient,float $height,float $weight,float $bsa,string $appointmentSourceId,string $appointmentSourceSystem): void
+    public static function insertPatientMeasurement(Patient $patient, float $height, float $weight, float $bsa, string $appointmentSourceId, string $appointmentSourceSystem): void
     {
-        PatientAccess::serializePatientMeasurement($patient,$height,$weight,$bsa,$appointmentSourceId,$appointmentSourceSystem);
+        PatientAccess::serializePatientMeasurement($patient, $height, $weight, $bsa, $appointmentSourceId, $appointmentSourceSystem);
     }
 
-    static function isInsuranceValid(string $insuranceNumber,string $insuranceType): bool
+    public static function isInsuranceValid(string $insuranceNumber, string $insuranceType): bool
     {
-        return PatientAccess::isInsuranceValid($insuranceNumber,$insuranceType);
+        return PatientAccess::isInsuranceValid($insuranceNumber, $insuranceType);
     }
 }

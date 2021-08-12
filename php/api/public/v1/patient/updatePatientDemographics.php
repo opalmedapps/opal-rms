@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 //api endpoint that accepts patient demographics information
 //if the patient exists, the patient is updated, otherwise the patient is inserted into the db
@@ -6,12 +8,12 @@
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\ApplicationException;
-use Orms\Http;
-use Orms\Patient\Model\Patient;
-use Orms\Patient\Model\Mrn;
-use Orms\Patient\PatientInterface;
 use Orms\DateTime;
+use Orms\Http;
 use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Patient;
+use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
 
 try {
@@ -19,7 +21,7 @@ try {
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $demographics = new class(
@@ -27,25 +29,27 @@ $demographics = new class(
     lastName:           $fields["lastName"],
     dateOfBirth:        $fields["dateOfBirth"],
     sex:                $fields["sex"],
-    mrns:               array_map(fn($x) => new Mrn(mrn: $x["mrn"],site: $x["site"],active: $x["active"]),$fields["mrns"]),
+    mrns:               array_map(fn($x) => new Mrn(mrn: $x["mrn"], site: $x["site"], active: $x["active"]), $fields["mrns"]),
     insurances:         array_map(fn($x) => new Insurance(
-                            $x["insuranceNumber"],
-                            DateTime::createFromFormatN("Y-m-d H:i:s",$x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
-                            $x["type"],
-                            $x["active"]
-                        ),$fields["insurances"] ?? [])
+        $x["insuranceNumber"],
+        DateTime::createFromFormatN("Y-m-d H:i:s", $x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
+        $x["type"],
+        $x["active"]
+    ), $fields["insurances"] ?? [])
 ) {
     public DateTime $dateOfBirth;
 
-    function __construct(
+    public function __construct(
         public string $firstName,
         public string $lastName,
         string $dateOfBirth,
         public string $sex,
-        /** @var Mrn[] $mrns */ public array $mrns,
-        /** @var Insurance[] $insurances */ public array $insurances
+        /** @var Mrn[] $mrns */
+        public array $mrns,
+        /** @var Insurance[] $insurances */
+        public array $insurances
     ) {
-        $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s",$dateOfBirth) ?? throw new Exception("Invalid date of birth");
+        $this->dateOfBirth = DateTime::createFromFormatN("Y-m-d H:i:s", $dateOfBirth) ?? throw new Exception("Invalid date of birth");
     }
 };
 
@@ -90,7 +94,7 @@ try
         //repeat the merge until all mrns belong to one patient
         while(count($patients) > 1)
         {
-            PatientInterface::mergePatientEntries($patients[0],$patients[1]);
+            PatientInterface::mergePatientEntries($patients[0], $patients[1]);
             $patients = getPatientsFromMrns($demographics->mrns);
         }
     }
@@ -99,7 +103,7 @@ try
     //  make separate api?
 }
 catch(ApplicationException $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 Http::generateResponseJsonAndExit(200);
@@ -112,13 +116,11 @@ Http::generateResponseJsonAndExit(200);
  */
 function getPatientsFromMrns(array $mrns): array
 {
-    $patients = array_map(function($x) {
-        return PatientInterface::getPatientByMrn($x->mrn,$x->site);
-    },$mrns);
+    $patients = array_map(fn($x) => PatientInterface::getPatientByMrn($x->mrn, $x->site), $mrns);
 
     $patients = array_filter($patients); //filter nulls
-    $patients = array_unique($patients,SORT_REGULAR); //filter duplicates
-    usort($patients,fn($a,$b) => $a->id <=> $b->id);  //sort by oldest record first in case of merge
+    $patients = array_unique($patients, SORT_REGULAR); //filter duplicates
+    usort($patients, fn($a, $b) => $a->id <=> $b->id);  //sort by oldest record first in case of merge
 
     return $patients;
 }

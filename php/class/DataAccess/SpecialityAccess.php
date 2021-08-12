@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
@@ -11,7 +13,7 @@ class SpecialityAccess
      *      specialityName: string
      * }>
      */
-    static function getSpecialityGroups(): array
+    public static function getSpecialityGroups(): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
@@ -37,7 +39,7 @@ class SpecialityAccess
      *      specialityGroupName: string
      * }>
      */
-    static function getHubs(): array
+    public static function getHubs(): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -59,7 +61,7 @@ class SpecialityAccess
             "clinicHubName"         => (string) $x["ClinicHubName"],
             "specialityGroupId"     => (int) $x["SpecialityGroupId"],
             "specialityGroupName"   => (string) $x["SpecialityGroupName"],
-        ],$query->fetchAll());
+        ], $query->fetchAll());
     }
 
 }

@@ -1,11 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class AppointmentSourceSystem
 {
     //update appointment table so that the sourceId + sourceSystem is a unique key
-    static function createSourceSystemKey(PDO $dbh): void
+    public static function createSourceSystemKey(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
@@ -14,7 +16,7 @@ class AppointmentSourceSystem
         ;");
     }
 
-    static function removeSourceSystemConstraint(PDO $dbh): void
+    public static function removeSourceSystemConstraint(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
@@ -22,7 +24,7 @@ class AppointmentSourceSystem
         ;");
     }
 
-    static function removeAriaPrefixFromSourceId(PDO $dbh): void
+    public static function removeAriaPrefixFromSourceId(PDO $dbh): void
     {
         //update appointment list
         $dbh->query("

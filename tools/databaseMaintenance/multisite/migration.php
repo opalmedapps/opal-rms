@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
@@ -29,7 +31,7 @@ try {
     AppointmentSourceSystem::removeAriaPrefixFromSourceId($dbh);
     AppointmentCodes::deleteAddOns($dbh);
     AppointmentCodes::fixZoomAppointments($dbh);
-    AppointmentCodes::fixAriaAppointmentCodes($dbh,__DIR__."/appointment/misnamed_appointment_codes.csv");
+    AppointmentCodes::fixAriaAppointmentCodes($dbh, __DIR__."/appointment/misnamed_appointment_codes.csv");
     $dbh->commit();
 }
 catch(Exception $e) {
@@ -64,14 +66,14 @@ PatientTable::fixSmsDates($dbh);
 $unknownPatients = PatientTable::migratePatientDemographics($dbh);
 echo "$unknownPatients not matched in ADT\n";
 
-$userInput = NULL;
+$userInput = null;
 while($userInput !== "CONTINUE")
 {
     echo "Please verify the unknown patients and then type 'CONTINUE'\n";
     $userInput = readline();
 }
 
-$unknownPatients = PatientTable::migratePatientDemographics($dbh,FALSE);
+$unknownPatients = PatientTable::migratePatientDemographics($dbh, false);
 echo "$unknownPatients not matched in ADT\n";
 
 PatientTable::removeDeprecatedPatientColumns($dbh);

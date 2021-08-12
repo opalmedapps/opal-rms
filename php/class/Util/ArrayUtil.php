@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Util;
 
@@ -9,15 +11,15 @@ class ArrayUtil
      * @param mixed[] $arr
      * @return mixed[]
      */
-    static function groupArrayByKey(array $arr,string $key,bool $keepKey = FALSE): array
+    public static function groupArrayByKey(array $arr, string $key, bool $keepKey = false): array
     {
         $groupedArr = [];
         foreach($arr as $assoc)
         {
             $keyVal = $assoc[$key];
-            if(!array_key_exists("$keyVal",$groupedArr)) $groupedArr["$keyVal"] = [];
+            if(!array_key_exists("$keyVal", $groupedArr)) $groupedArr["$keyVal"] = [];
 
-            if($keepKey === FALSE) unset($assoc[$key]);
+            if($keepKey === false) unset($assoc[$key]);
             $groupedArr["$keyVal"][] = $assoc;
         }
 
@@ -30,17 +32,17 @@ class ArrayUtil
      * @param mixed[] $arr
      * @return mixed[]
      */
-    static function groupArrayByKeyRecursive(array $arr,string ...$keys): array
+    public static function groupArrayByKeyRecursive(array $arr, string ...$keys): array
     {
         $key = array_shift($keys);
-        if($key === NULL) return $arr;
+        if($key === null) return $arr;
 
-        $groupedArr = self::groupArrayByKey($arr,"$key");
+        $groupedArr = self::groupArrayByKey($arr, "$key");
 
         if($keys !== [])
         {
             foreach($groupedArr as &$subArr) {
-                $subArr = self::groupArrayByKeyRecursive($subArr,...$keys);
+                $subArr = self::groupArrayByKeyRecursive($subArr, ...$keys);
             }
         }
 
@@ -52,17 +54,17 @@ class ArrayUtil
      * @param mixed[] $arr
      * @return mixed[]
      */
-    static function groupArrayByKeyRecursiveKeepKeys(array $arr,string ...$keys): array
+    public static function groupArrayByKeyRecursiveKeepKeys(array $arr, string ...$keys): array
     {
         $key = array_shift($keys);
-        if($key === NULL) return $arr;
+        if($key === null) return $arr;
 
-        $groupedArr = self::groupArrayByKey($arr,"$key",TRUE);
+        $groupedArr = self::groupArrayByKey($arr, "$key", true);
 
         if($keys !== [])
         {
             foreach($groupedArr as &$subArr) {
-                $subArr = self::groupArrayByKeyRecursiveKeepKeys($subArr,...$keys);
+                $subArr = self::groupArrayByKeyRecursiveKeepKeys($subArr, ...$keys);
             }
         }
 
@@ -74,13 +76,13 @@ class ArrayUtil
      * @param mixed $arr
      * @return array|mixed
      */
-    static function convertSingleElementArraysRecursive($arr)
+    public static function convertSingleElementArraysRecursive($arr)
     {
         if(gettype($arr) === "array")
         {
             foreach($arr as &$val) $val = self::convertSingleElementArraysRecursive($val);
 
-            if(self::checkIfArrayIsAssoc($arr) === FALSE && count($arr) === 1) {
+            if(self::checkIfArrayIsAssoc($arr) === false && count($arr) === 1) {
                 $arr = $arr[0];
             }
         }
@@ -89,9 +91,9 @@ class ArrayUtil
     }
 
     /** @phpstan-ignore-next-line */
-    static function checkIfArrayIsAssoc(array $arr): bool
+    public static function checkIfArrayIsAssoc(array $arr): bool
     {
-        return array_keys($arr) !== range(0,count($arr)-1);
+        return array_keys($arr) !== range(0, count($arr)-1);
     }
 
 }

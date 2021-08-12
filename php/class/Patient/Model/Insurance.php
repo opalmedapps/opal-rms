@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Patient\Model;
 
@@ -7,7 +9,7 @@ use Orms\DateTime;
 /** @psalm-immutable */
 class Insurance
 {
-    function __construct(
+    public function __construct(
         public string $number,
         public DateTime $expiration,
         public string $type,

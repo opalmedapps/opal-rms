@@ -1,20 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //script to get a list of profiles in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
 //get webpage parameters
-$category = Encoding::utf8_decode_recursive($_GET["category"] ?? NULL);
-$speciality = Encoding::utf8_decode_recursive($_GET["speciality"] ?? NULL) ;
+$category = Encoding::utf8_decode_recursive($_GET["category"] ?? null);
+$speciality = Encoding::utf8_decode_recursive($_GET["speciality"] ?? null) ;
 
 //connect to db
 $dbh = Database::getOrmsConnection();
 
 //get profiles
-if($category === NULL || $speciality === NULL) {
+if($category === null || $speciality === null) {
     $query = $dbh->prepare("
         SELECT
             Profile.ProfileSer,

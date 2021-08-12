@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Document\Measurement;
 
@@ -6,10 +8,10 @@ use Exception;
 
 use Orms\Config;
 use Orms\DateTime;
+use Orms\Document\Highcharts;
+use Orms\Document\Pdf;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\PatientInterface;
-use Orms\Document\Pdf;
-Use Orms\Document\Highcharts;
 
 class Generator
 {
@@ -17,10 +19,10 @@ class Generator
      * loads a json highcharts template and returns a php array equivalent filled with the patient's measurements
      * @return mixed[]
      */
-    static function generateChartArray(Patient $patient,bool $weightsOnly = FALSE): array
+    public static function generateChartArray(Patient $patient, bool $weightsOnly = false): array
     {
         //get the chart template
-        $chart = json_decode(file_get_contents(__DIR__ ."/highchartsTemplate.json") ?: "{}",TRUE);
+        $chart = json_decode(file_get_contents(__DIR__ ."/highchartsTemplate.json") ?: "{}", true);
 
         $weightSeries = &$chart["series"][0];
         $heightSeries = &$chart["series"][1];
@@ -36,25 +38,25 @@ class Generator
                 if($index === 1) $value = $measurement->height;
                 elseif($index === 2) $value = $measurement->bsa;
 
-                #if the patient mrn stored with the measurement does not match the patient mrn, set the dot color to red to alert the chart user
+                //if the patient mrn stored with the measurement does not match the patient mrn, set the dot color to red to alert the chart user
                 $series["data"][] = [
                     "x"     => $measurement->datetime->getTimestamp() *1000,
                     "y"     => $value,
-                    "color" => in_array($measurement->mrnSite,array_map(fn($x) => $x->mrn ."-". $x->site,$patient->mrns)) ? $series["color"] : "red",
+                    "color" => in_array($measurement->mrnSite, array_map(fn($x) => $x->mrn ."-". $x->site, $patient->mrns)) ? $series["color"] : "red",
                 ];
 
             }
         }
 
-        if(($weightsOnly === TRUE)) $chart["series"] = [$chart["series"][0]];
+        if(($weightsOnly === true)) $chart["series"] = [$chart["series"][0]];
 
         return $chart;
     }
 
-    static function generatePdfString(Patient $patient): string
+    public static function generatePdfString(Patient $patient): string
     {
         //generate a highcharts image and save it locally
-        $chart = self::generateChartArray($patient,TRUE);
+        $chart = self::generateChartArray($patient, true);
 
         //translate sections of the graph to french
         $chart["title"]["text"] = "Mesures Historique";
@@ -64,8 +66,8 @@ class Generator
         $imagePath = Config::getApplicationSettings()->environment->basePath ."/tmp/". uniqid((string) rand()) .".png";
 
         try {
-            file_put_contents($imagePath,base64_decode($imageStr)) ?: throw new Exception("Unable to create image file!");
-            $pdfStr = Pdf::generatePdfStringFromLatexString(self::_generateLatexString($patient,$imagePath));
+            file_put_contents($imagePath, base64_decode($imageStr)) ?: throw new Exception("Unable to create image file!");
+            $pdfStr = Pdf::generatePdfStringFromLatexString(self::_generateLatexString($patient, $imagePath));
         }
         catch(Exception $e) {
             throw $e;
@@ -78,13 +80,13 @@ class Generator
         return $pdfStr;
     }
 
-    private static function _generateLatexString(Patient $patient,string $chartImagePath): string
+    private static function _generateLatexString(Patient $patient, string $chartImagePath): string
     {
         $measurements   = PatientInterface::getPatientMeasurements($patient);
         $fname          = $patient->firstName;
         $lname          = $patient->lastName;
-        $mrn            = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new Exception("No RVH mrn");
-        $site           = array_values(array_filter($patient->getActiveMrns(),fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
+        $mrn            = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new Exception("No RVH mrn");
+        $site           = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->site ?? throw new Exception("No RVH mrn");
         $imagePath      = Config::getApplicationSettings()->environment->imagePath;
 
         //convert english month abreviation to french

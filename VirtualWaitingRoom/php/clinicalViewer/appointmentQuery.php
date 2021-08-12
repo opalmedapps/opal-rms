@@ -1,45 +1,47 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //---------------------------------------------------------------------------------------------------------------
 // This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.
 //---------------------------------------------------------------------------------------------------------------
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
-use Orms\DateTime;
 use Orms\DataAccess\Database;
+use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
 use Orms\Hospital\OIE\Fetch;
 use Orms\Patient\PatientInterface;
+use Orms\Util\Encoding;
 
-$sDateInit              = $_GET["sDate"] ?? NULL;
-$eDateInit              = $_GET["eDate"] ?? NULL;
-$sTime                  = $_GET["sTime"] ?? NULL;
-$eTime                  = $_GET["eTime"] ?? NULL;
-$speciality             = $_GET["speciality"] ?? NULL;
+$sDateInit              = $_GET["sDate"] ?? null;
+$eDateInit              = $_GET["eDate"] ?? null;
+$sTime                  = $_GET["sTime"] ?? null;
+$eTime                  = $_GET["eTime"] ?? null;
+$speciality             = $_GET["speciality"] ?? null;
 $checkForArrived        = isset($_GET["arrived"]);
 $checkForNotArrived     = isset($_GET["notArrived"]);
 $opal                   = isset($_GET["opal"]);
 $sms                    = isset($_GET["SMS"]);
-$appType                = $_GET["type"] ?? NULL;
+$appType                = $_GET["type"] ?? null;
 $specificApp            = $_GET["specificType"] ?? "NULL";
-$appcType               = $_GET["ctype"] ?? NULL;
+$appcType               = $_GET["ctype"] ?? null;
 $cspecificApp           = $_GET["cspecificType"] ?? "NULL";
-$appdType               = $_GET["dtype"] ?? NULL;
+$appdType               = $_GET["dtype"] ?? null;
 $dspecificApp           = $_GET["dspecificType"] ?? "NULL";
-$qType                  = $_GET["qtype"] ?? NULL;
+$qType                  = $_GET["qtype"] ?? null;
 $qspecificApp           = $_GET["qspecificType"] ?? "NULL";
-$qDateInit              = $_GET["qselectedDate"] ?? NULL;
-$qTime                  = $_GET["qselectedTime"] ?? NULL;
-$offbutton              = $_GET["offbutton"] ?? NULL;
-$andbutton              = $_GET["andbutton"] ?? NULL;
+$qDateInit              = $_GET["qselectedDate"] ?? null;
+$qTime                  = $_GET["qselectedTime"] ?? null;
+$offbutton              = $_GET["offbutton"] ?? null;
+$andbutton              = $_GET["andbutton"] ?? null;
 $afilter                = isset($_GET["afilter"]);
 $qfilter                = isset($_GET["qfilter"]);
 
 $statusConditions = [
-    isset($_GET["comp"]) ? "Completed" : NULL,
-    isset($_GET["openn"]) ? "Open" : NULL,
-    isset($_GET["canc"]) ? "Cancelled" : NULL,
+    isset($_GET["comp"]) ? "Completed" : null,
+    isset($_GET["openn"]) ? "Open" : null,
+    isset($_GET["canc"]) ? "Cancelled" : null,
 ];
 $activeStatusConditions = array_filter($statusConditions);
 
@@ -50,13 +52,13 @@ $qDate = "$qDateInit $qTime:00";
 //Set the filter for SMS/OPAL status, based on the parameters.
 $opalFilter = "";
 
-if($opal === FALSE && $sms === FALSE) {
+if($opal === false && $sms === false) {
     $opalFilter = "AND (P.SMSAlertNum IS NULL OR P.OpalPatient = 0)";
 }
-elseif($opal === FALSE) {
+elseif($opal === false) {
     $opalFilter .= "AND P.SMSAlertNum IS NOT NULL";
 }
-elseif($sms === FALSE) {
+elseif($sms === false) {
     $opalFilter .= "AND P.OpalPatient = 1";
 }
 else {
@@ -110,14 +112,14 @@ $sqlAppointments = "
         MV.ScheduledTime
 ";
 
-$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointments,":statusFilter:","MV.Status",$activeStatusConditions);
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointments, ":statusFilter:", "MV.Status", $activeStatusConditions);
 $boundValues = $sqlAppointmentsMod["boundValues"];
 
-$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"],":appointmentFilter:","CR.ResourceName",$appType === "all" ? [] : explode("|||",$specificApp));
-$boundValues = array_merge($boundValues,$sqlAppointmentsMod["boundValues"]);
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"], ":appointmentFilter:", "CR.ResourceName", $appType === "all" ? [] : explode("|||", $specificApp));
+$boundValues = array_merge($boundValues, $sqlAppointmentsMod["boundValues"]);
 
-$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"],":codeFilter:","COALESCE(AC.DisplayName,AC.AppointmentCode)",$appcType === "all" ? [] : explode("|||",$cspecificApp));
-$boundValues = array_merge($boundValues,$sqlAppointmentsMod["boundValues"]);
+$sqlAppointmentsMod = Database::generateBoundedSqlString($sqlAppointmentsMod["sqlString"], ":codeFilter:", "COALESCE(AC.DisplayName,AC.AppointmentCode)", $appcType === "all" ? [] : explode("|||", $cspecificApp));
+$boundValues = array_merge($boundValues, $sqlAppointmentsMod["boundValues"]);
 
 $queryAppointments = $dbh->prepare($sqlAppointmentsMod["sqlString"]);
 
@@ -125,7 +127,7 @@ $listOfAppointments = [];
 $patientList = [];
 
 //get ORMS patients if the appointment filter is disabled
-if($afilter === FALSE)
+if($afilter === false)
 {
     $queryAppointments->execute(array_merge(
         [
@@ -139,26 +141,26 @@ if($afilter === FALSE)
     foreach($queryAppointments->fetchAll() as $app)
     {
         //filter apppointments on whether the patient checked in for it
-        $checkInTime = $app["CurrentCheckInTime"] ?? $app["PreviousCheckInTime"] ?? NULL;
+        $checkInTime = $app["CurrentCheckInTime"] ?? $app["PreviousCheckInTime"] ?? null;
 
-        if($checkForArrived === TRUE && $checkForNotArrived === TRUE)   $filterAppointment = FALSE;
-        elseif($checkForArrived === TRUE && $checkInTime === NULL)      $filterAppointment = TRUE;
-        elseif($checkForNotArrived === TRUE && $checkInTime !== NULL)   $filterAppointment = TRUE;
-        else                                                            $filterAppointment = FALSE;
+        if($checkForArrived === true && $checkForNotArrived === true)   $filterAppointment = false;
+        elseif($checkForArrived === true && $checkInTime === null)      $filterAppointment = true;
+        elseif($checkForNotArrived === true && $checkInTime !== null)   $filterAppointment = true;
+        else                                                            $filterAppointment = false;
 
-        if($filterAppointment === TRUE) continue;
+        if($filterAppointment === true) continue;
 
         //mark this patient as seen
-        if(in_array($app["PatientSerNum"],$patientList) === FALSE) {
+        if(in_array($app["PatientSerNum"], $patientList) === false) {
             $patientList[] = $app["PatientSerNum"];
         }
 
-        if($app["SMSAlertNum"] !== NULL) $app["SMSAlertNum"] = substr($app["SMSAlertNum"],0,3) ."-". substr($app["SMSAlertNum"],3,3) ."-". substr($app["SMSAlertNum"],6,4);
+        if($app["SMSAlertNum"] !== null) $app["SMSAlertNum"] = mb_substr($app["SMSAlertNum"], 0, 3) ."-". mb_substr($app["SMSAlertNum"], 3, 3) ."-". mb_substr($app["SMSAlertNum"], 6, 4);
 
         //define opal fields and fill them if the patient is an opal patient
-        $app["QStatus"] = NULL;
-        $recentlyAnswered = NULL;
-        $answeredQuestionnaire = FALSE;
+        $app["QStatus"] = null;
+        $recentlyAnswered = null;
+        $answeredQuestionnaire = false;
 
         if($app["OpalPatient"] === "1")
         {
@@ -169,43 +171,43 @@ if($afilter === FALSE)
                 $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
             }
             catch(Exception $e) {
-                $questionnaire = NULL;
+                $questionnaire = null;
                 error_log((string) $e);
             }
 
-            if($questionnaire !== NULL)
+            if($questionnaire !== null)
             {
-                $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s",$qDate);
+                $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s", $qDate);
                 $recentlyAnswered = $questionnaireDateLimit <= $questionnaire["lastUpdated"];
 
                 $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
                 $completedWithinWeek = ($oneWeekAgo <=  $questionnaire["completionDate"]);
 
-                $app["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
+                $app["QStatus"] = ($completedWithinWeek === true) ? "green-circle" : null;
 
-                $lastQuestionnaireReview = ($app["LastQuestionnaireReview"] !== NULL) ? new DateTime($app["LastQuestionnaireReview"]) : NULL;
+                $lastQuestionnaireReview = ($app["LastQuestionnaireReview"] !== null) ? new DateTime($app["LastQuestionnaireReview"]) : null;
 
-                if($lastQuestionnaireReview === NULL || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
+                if($lastQuestionnaireReview === null || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
                     $app["QStatus"] = "red-circle";
                 }
             }
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
             try {
-                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient),"questionnaireId");
+                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient), "questionnaireId");
             }
             catch(Exception $e) {
                 $patientQuestionnaires = [];
                 error_log((string) $e);
             }
-            $userSelectedQuestionnaires = explode(",",$qspecificApp);
-            $answeredQuestionnaire = (array_intersect($patientQuestionnaires,$userSelectedQuestionnaires) !== []);
+            $userSelectedQuestionnaires = explode(",", $qspecificApp);
+            $answeredQuestionnaire = (array_intersect($patientQuestionnaires, $userSelectedQuestionnaires) !== []);
         }
 
         if(
-            ($appdType === "all" || checkDiagnosis((int) $app["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
-            && ($qfilter === TRUE || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === TRUE)
-            && ($qType === "all" || $answeredQuestionnaire === TRUE)
+            ($appdType === "all" || checkDiagnosis((int) $app["PatientSerNum"], explode(",", $dspecificApp)) === true)
+            && ($qfilter === true || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === true)
+            && ($qType === "all" || $answeredQuestionnaire === true)
         ) {
             $listOfAppointments[] = [
                 "fname"         => $app["FirstName"],
@@ -224,19 +226,19 @@ if($afilter === FALSE)
                 "QStatus"       => $app["QStatus"],
                 "opalpatient"   => $app["OpalPatient"],
                 "age"           => $app["Age"],
-                "sex"           => substr($app["Sex"] ?? "",0,1),
+                "sex"           => mb_substr($app["Sex"] ?? "", 0, 1),
                 "SMSAlertNum"   => $app["SMSAlertNum"],
-                "LastReview"    => $app["LastQuestionnaireReview"] ?? NULL,
+                "LastReview"    => $app["LastQuestionnaireReview"] ?? null,
             ];
         }
     }
 }
 
 //if appointment filter is disabled or clinical viewer is under "or" mode
-if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
+if($andbutton === "Or" || ($qfilter === false && $afilter === true))
 {
-    $qappFilter = ($qType === "all") ? [] : explode(",",$qspecificApp);
-    $qappFilter = array_map(fn($x) => (int) $x,$qappFilter);
+    $qappFilter = ($qType === "all") ? [] : explode(",", $qspecificApp);
+    $qappFilter = array_map(fn($x) => (int) $x, $qappFilter);
 
     $patients = Fetch::getPatientsWhoCompletedQuestionnaires($qappFilter);
 
@@ -277,12 +279,12 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
     {
         //filter as many patients as possible before doing any processing
 
-        $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s",$qDate);
+        $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i:s", $qDate);
         $recentlyAnswered = $questionnaireDateLimit <= $pat["lastUpdated"];
 
         if(! (
-            in_array($pat["PatientSerNum"] ?? NULL,$patientList) === FALSE
-            && ($offbutton === "OFF" || $recentlyAnswered === TRUE)
+            in_array($pat["PatientSerNum"] ?? null, $patientList) === false
+            && ($offbutton === "OFF" || $recentlyAnswered === true)
         )) continue;
 
         $queryPatientInformation->execute([
@@ -293,24 +295,24 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
 
         if(
             $ormsInfo === []
-            || ($appdType === "all" || checkDiagnosis((int) $ormsInfo["PatientSerNum"],explode(",",$dspecificApp)) === TRUE)
+            || ($appdType === "all" || checkDiagnosis((int) $ormsInfo["PatientSerNum"], explode(",", $dspecificApp)) === true)
         ) continue;
 
 
         $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
         $completedWithinWeek = ($oneWeekAgo <=  $pat["completionDate"]);
 
-        $pat["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
+        $pat["QStatus"] = ($completedWithinWeek === true) ? "green-circle" : null;
 
         /** @phpstan-ignore-next-line */
-        $lastQuestionnaireReview = ($ormsInfo["LastQuestionnaireReview"] !== NULL) ? new DateTime($ormsInfo["LastQuestionnaireReview"]) : NULL;
+        $lastQuestionnaireReview = ($ormsInfo["LastQuestionnaireReview"] !== null) ? new DateTime($ormsInfo["LastQuestionnaireReview"]) : null;
 
         /** @phpstan-ignore-next-line */
-        if($lastQuestionnaireReview === NULL || $pat["completionDate"] > $lastQuestionnaireReview) {
+        if($lastQuestionnaireReview === null || $pat["completionDate"] > $lastQuestionnaireReview) {
             $pat["QStatus"] = "red-circle";
         }
 
-        if($ormsInfo["SMSAlertNum"]) $ormsInfo["SMSAlertNum"] = substr($ormsInfo["SMSAlertNum"],0,3) ."-". substr($ormsInfo["SMSAlertNum"],3,3) ."-". substr($ormsInfo["SMSAlertNum"],6,4);
+        if($ormsInfo["SMSAlertNum"]) $ormsInfo["SMSAlertNum"] = mb_substr($ormsInfo["SMSAlertNum"], 0, 3) ."-". mb_substr($ormsInfo["SMSAlertNum"], 3, 3) ."-". mb_substr($ormsInfo["SMSAlertNum"], 6, 4);
 
         $listOfAppointments[] = [
             "fname"         => $ormsInfo["FirstName"],
@@ -318,18 +320,18 @@ if($andbutton === "Or" || ($qfilter === FALSE && $afilter === TRUE))
             "mrn"           => $pat["mrn"],
             "site"          => $pat["site"],
             "patientId"     => $ormsInfo["PatientSerNum"],
-            "appName"       => NULL,
-            "appClinic"     => NULL,
-            "appType"       => NULL,
-            "appStatus"     => NULL,
-            "appDay"        => NULL,
-            "appTime"       => NULL,
-            "checkin"       => NULL,
-            "mediStatus"    => NULL,
+            "appName"       => null,
+            "appClinic"     => null,
+            "appType"       => null,
+            "appStatus"     => null,
+            "appDay"        => null,
+            "appTime"       => null,
+            "checkin"       => null,
+            "mediStatus"    => null,
             "QStatus"       => $pat["QStatus"],
             "opalpatient"   => $ormsInfo["OpalPatient"],
             "age"           => $ormsInfo["Age"],
-            "sex"           => substr($ormsInfo["Sex"] ?? "",0,1),
+            "sex"           => mb_substr($ormsInfo["Sex"] ?? "", 0, 1),
             "SMSAlertNum"   => $ormsInfo["SMSAlertNum"],
             "LastReview"    => $ormsInfo["LastQuestionnaireReview"],
         ];
@@ -343,13 +345,13 @@ echo json_encode($listOfAppointments);
  *
  * @param string[] $diagnosisList
  */
-function checkDiagnosis(int $patientId,array $diagnosisList): bool
+function checkDiagnosis(int $patientId, array $diagnosisList): bool
 {
     $patientDiagnosis = DiagnosisInterface::getDiagnosisListForPatient($patientId);
     foreach($patientDiagnosis as $d) {
-        if(in_array($d->diagnosis->subcode,$diagnosisList)) {
-            return TRUE;
+        if(in_array($d->diagnosis->subcode, $diagnosisList)) {
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }

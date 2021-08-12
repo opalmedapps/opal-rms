@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class AppointmentForeignKeys
 {
-    static function updatePatientTableLink(PDO $dbh): void
+    public static function updatePatientTableLink(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
@@ -12,7 +14,7 @@ class AppointmentForeignKeys
         ");
     }
 
-    static function updateResourceCodeLinks(PDO $dbh): void
+    public static function updateResourceCodeLinks(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Sms\Internal;
 
@@ -6,7 +8,7 @@ use DateTime;
 
 class SmsReceivedMessage
 {
-    function __construct(
+    public function __construct(
         public string $messageId,
         public string $body,
         public string $clientNumber,

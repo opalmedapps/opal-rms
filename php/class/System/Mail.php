@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\System;
 
@@ -6,16 +8,16 @@ use Orms\Config;
 
 class Mail
 {
-    static function sendEmail(string $subject,string $message): void
+    public static function sendEmail(string $subject, string $message): void
     {
-        $recepients = implode(",",Config::getApplicationSettings()->system->emails);
+        $recepients = implode(",", Config::getApplicationSettings()->system->emails);
         if($recepients === "") return;
 
         $headers = [
             "From" => "opal@muhc.mcgill.ca"
         ];
 
-        mail($recepients,$subject,$message,$headers);
+        mail($recepients, $subject, $message, $headers);
     }
 
 }

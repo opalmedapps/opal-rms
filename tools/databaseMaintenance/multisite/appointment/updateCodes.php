@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
@@ -6,7 +8,7 @@ use Orms\Util\Csv;
 
 class AppointmentCodes
 {
-    static function extendCodeLength(PDO $dbh): void
+    public static function extendCodeLength(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `AppointmentCode`
@@ -14,7 +16,7 @@ class AppointmentCodes
         ");
     }
 
-    static function addDisplayColumn(PDO $dbh): void
+    public static function addDisplayColumn(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `AppointmentCode`
@@ -22,7 +24,7 @@ class AppointmentCodes
         ");
     }
 
-    static function correctSourceSystem(PDO $dbh): void
+    public static function correctSourceSystem(PDO $dbh): void
     {
         $dbh->query("
             UPDATE AppointmentCode
@@ -59,7 +61,7 @@ class AppointmentCodes
 
     //merges Aria zoom and teams appointments
     //the zoom appointments are merged into the teams ones
-    static function fixZoomAppointments(PDO $dbh): void
+    public static function fixZoomAppointments(PDO $dbh): void
     {
         //get the teams codes that we need to merge
         $queryTeams = $dbh->prepare("
@@ -92,10 +94,10 @@ class AppointmentCodes
         foreach($queryTeams->fetchAll() as $x)
         {
             //get the associated zoom code
-            $queryZoom->execute([str_replace("TEAMS","ZOOM",$x["AppointmentCode"])]);
-            $zoomCode = $queryZoom->fetchAll()[0] ?? NULL;
+            $queryZoom->execute([str_replace("TEAMS", "ZOOM", $x["AppointmentCode"])]);
+            $zoomCode = $queryZoom->fetchAll()[0] ?? null;
 
-            if($zoomCode !== NULL) {
+            if($zoomCode !== null) {
                 $codes[] = [
                     "teamsId"   => $x["AppointmentCodeId"],
                     "teamsCode" => $x["AppointmentCode"],
@@ -154,7 +156,7 @@ class AppointmentCodes
     }
 
     //opens a file containing Aria appointment codes and descriptions and updates ORMS to use the appointment code instead of the description
-    static function fixAriaAppointmentCodes(PDO $dbh,string $csvFilename): void
+    public static function fixAriaAppointmentCodes(PDO $dbh, string $csvFilename): void
     {
         $codes = Csv::loadCsvFromFile($csvFilename);
 
@@ -190,7 +192,7 @@ class AppointmentCodes
     }
 
     //remove all add-ons appointments from ORMS, and all connected information
-    static function deleteAddOns(PDO $dbh): void
+    public static function deleteAddOns(PDO $dbh): void
     {
         $dbh->query("
             DELETE FROM AppointmentCode

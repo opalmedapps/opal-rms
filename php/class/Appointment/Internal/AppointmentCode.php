@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Appointment\Internal;
 
@@ -6,7 +8,7 @@ use Orms\DataAccess\Database;
 
 class AppointmentCode
 {
-    static function getAppointmentCodeId(string $code,int $specialityGroupId): ?int
+    public static function getAppointmentCodeId(string $code, int $specialityGroupId): ?int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -23,11 +25,11 @@ class AppointmentCode
             ":spec" => $specialityGroupId,
         ]);
 
-        $id = (int) ($query->fetchAll()[0]["AppointmentCodeId"] ?? NULL);
-        return $id ?: NULL;
+        $id = (int) ($query->fetchAll()[0]["AppointmentCodeId"] ?? null);
+        return $id ?: null;
     }
 
-    static function insertAppointmentCode(string $code,int $specialityGroupId,string $system): int
+    public static function insertAppointmentCode(string $code, int $specialityGroupId, string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("

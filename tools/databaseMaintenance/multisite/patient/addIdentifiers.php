@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class PatientIdentifiers
 {
-    static function createHospitalTable(PDO $dbh): void
+    public static function createHospitalTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TABLE `Hospital` (
@@ -28,7 +30,7 @@ class PatientIdentifiers
         ");
     }
 
-    static function createPatientHospitalIdentifierTable(PDO $dbh): void
+    public static function createPatientHospitalIdentifierTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TABLE `PatientHospitalIdentifier` (
@@ -48,7 +50,7 @@ class PatientIdentifiers
         ");
     }
 
-    static function createInsuranceTable(PDO $dbh): void
+    public static function createInsuranceTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TABLE `Insurance` (
@@ -82,7 +84,7 @@ class PatientIdentifiers
         $dbh->query("SET NAMES latin1;");
     }
 
-    static function createPatientInsuranceIdentifierTable(PDO $dbh): void
+    public static function createPatientInsuranceIdentifierTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TABLE `PatientInsuranceIdentifier` (

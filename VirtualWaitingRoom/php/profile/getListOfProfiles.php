@@ -1,12 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 //script to get a list of profiles in the WRM database
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
-$speciality = $_GET["speciality"] ?? NULL;
+$speciality = $_GET["speciality"] ?? null;
 
 //connect to db
 $dbh = Database::getOrmsConnection();

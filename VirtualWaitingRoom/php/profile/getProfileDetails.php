@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //script to get the page settings for a profile
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
 //get webpage parameters
 $profileId = $_GET["profileId"];
@@ -43,10 +45,10 @@ $queryProfile->execute([
     ":chId"  => $clinicHubId
 ]);
 
-$profile = $queryProfile->fetchAll()[0] ?? NULL;
+$profile = $queryProfile->fetchAll()[0] ?? null;
 
 /** @phpstan-ignore-next-line */
-if($profile === NULL || $profile["ClinicalArea"] === NULL) {
+if($profile === null || $profile["ClinicalArea"] === null) {
     echo "{}";
     exit;
 }
@@ -66,7 +68,7 @@ $json["Appointments"]         = [];
 $json["ColumnsDisplayed"]     = [];
 
 //if a location is specified, set the associated waiting room
-$json["WaitingRoom"] = strtoupper($json["ClinicalArea"]) ." WAITING ROOM";
+$json["WaitingRoom"] = mb_strtoupper($json["ClinicalArea"]) ." WAITING ROOM";
 
 //set the load order of the appointments on the vwr page depending the category
 $json["sortOrder"] = "LastName"; //default
@@ -74,7 +76,7 @@ if($json["Category"] === "PAB" or $json["Category"] === "Treatment Machine" or $
 {
     $json["sortOrder"] = ["ScheduledStartTime_hh","ScheduledStartTime_mm"];
 }
-else if($json["Category"] === "Pharmacy")
+elseif($json["Category"] === "Pharmacy")
 {
     $json["sortOrder"] = "LastName";
 }
@@ -82,7 +84,7 @@ else if($json["Category"] === "Pharmacy")
 //==========================================================
 //get the profile columns
 //==========================================================
-$queryColumns = $dbh->prepare( "
+$queryColumns = $dbh->prepare("
     SELECT
         PCD.ColumnName,
         PCD.DisplayName,
@@ -121,22 +123,22 @@ $queryOptions->execute([$json["ProfileSer"]]);
 foreach($queryOptions->fetchAll() as $row)
 {
     if($row["Type"] === "Appointment") {$appointments[] = $row["Options"];}
-    else if($row["Type"] === "IntermediateVenue")
+    elseif($row["Type"] === "IntermediateVenue")
     {
         $intermediateVenues[] = $row["Options"];
         $json["IntermediateVenues"][] = $row;
     }
-    else if($row["Type"] === "TreatmentVenue")
+    elseif($row["Type"] === "TreatmentVenue")
     {
         $treatmentVenues[] = $row["Options"];
         $json["TreatmentVenues"][] = $row;
     }
-    else if($row["Type"] === "ExamRoom")
+    elseif($row["Type"] === "ExamRoom")
     {
         $examRooms[] = $row["Options"];
         $json["ExamRooms"][] = $row;
     }
-    else if($row["Type"] === "Resource") {$resources[] = $row["Options"];}
+    elseif($row["Type"] === "Resource") {$resources[] = $row["Options"];}
 }
 
 //add the type to each element of the arrays and then add them to the json return object
@@ -176,4 +178,4 @@ $json["CheckInFile"] = $configs->environment->baseUrl ."/VirtualWaitingRoom/chec
 
 //encode and return the json object
 $json = Encoding::utf8_encode_recursive($json);
-echo json_encode($json,JSON_NUMERIC_CHECK);
+echo json_encode($json, JSON_NUMERIC_CHECK);

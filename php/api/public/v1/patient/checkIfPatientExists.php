@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 //checks if a patient with an mrn + site combination exists in the database and return json true or false
 
@@ -11,19 +13,19 @@ try {
     $fields = Http::parseApiInputs();
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $potentialPatient = new class(
     mrn:  $fields["mrn"],
     site: $fields["site"],
 ) {
-    function __construct(
+    public function __construct(
         public string $mrn,
         public string $site
     ) {}
 };
 
-$patientFound = PatientInterface::getPatientByMrn($potentialPatient->mrn,$potentialPatient->site) !== NULL;
+$patientFound = PatientInterface::getPatientByMrn($potentialPatient->mrn, $potentialPatient->site) !== null;
 
-Http::generateResponseJsonAndExit(200,$patientFound);
+Http::generateResponseJsonAndExit(200, $patientFound);

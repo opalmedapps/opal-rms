@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Sms\Internal;
 
@@ -7,11 +9,11 @@ use DateTimeZone;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use RuntimeException;
-
 use Orms\Config;
+use Orms\Sms\Internal\SmsClassInterface;
+use Orms\Sms\Internal\SmsReceivedMessage;
 use Orms\Util\ArrayUtil;
-use Orms\Sms\Internal\{SmsClassInterface,SmsReceivedMessage};
+use RuntimeException;
 
 class SmsCdyne implements SmsClassInterface
 {
@@ -20,7 +22,7 @@ class SmsCdyne implements SmsClassInterface
     private string $licence;
     private Client $client;
 
-    function __construct()
+    public function __construct()
     {
         $configs = Config::getApplicationSettings()->sms;
 
@@ -37,20 +39,20 @@ class SmsCdyne implements SmsClassInterface
      * @throws GuzzleException
      * @throws RuntimeException
      */
-    function sendSms(string $clientNumber,string $serviceNumber,string $message): string
+    public function sendSms(string $clientNumber, string $serviceNumber, string $message): string
     {
-        $sentSms = $this->client->request("POST",$this->sendMessageUrl,[
+        $sentSms = $this->client->request("POST", $this->sendMessageUrl, [
             "json" => [
                 "Body"          => $message,
                 "LicenseKey"    => $this->licence,
                 "From"          => $serviceNumber,
                 "To"            => [$clientNumber],
-                "Concatenate"   => TRUE,
-                "UseMMS"        => FALSE,
-                "IsUnicode"     => TRUE
+                "Concatenate"   => true,
+                "UseMMS"        => false,
+                "IsUnicode"     => true
             ]
         ])->getBody()->getContents();
-        $sentSms = json_decode($sentSms,TRUE)[0];
+        $sentSms = json_decode($sentSms, true)[0];
 
         return $sentSms["MessageID"];
     }
@@ -60,17 +62,17 @@ class SmsCdyne implements SmsClassInterface
      * @return SmsReceivedMessage[]
      * @throws GuzzleException
      */
-    function getReceivedMessages(array $availableNumbers,DateTime $timestamp): array
+    public function getReceivedMessages(array $availableNumbers, DateTime $timestamp): array
     {
         try
         {
-            $messages = $this->client->request("POST",$this->getUnreadMessagesUrl,[
+            $messages = $this->client->request("POST", $this->getUnreadMessagesUrl, [
                 "json" => [
                     "LicenseKey" => $this->licence,
-                    "UnreadMessagesOnly" => TRUE
+                    "UnreadMessagesOnly" => true
                 ]
             ])->getBody()->getContents();
-            $messages = json_decode($messages,TRUE) ?? [];
+            $messages = json_decode($messages, true) ?? [];
 
             //messages have the following structure:
             //the values are either string or NULL
@@ -89,27 +91,25 @@ class SmsCdyne implements SmsClassInterface
                 )
             */
 
-            #long messages are received in chunks so piece together the full message
-            $messages = ArrayUtil::groupArrayByKey($messages,"OutgoingMessageID");
+            //long messages are received in chunks so piece together the full message
+            $messages = ArrayUtil::groupArrayByKey($messages, "OutgoingMessageID");
             $messages = array_map(function($x) {
-                $msg = array_reduce($x,function(string $acc,array $y) {
-                    return $acc . $y["Payload"];
-                },"");
+                $msg = array_reduce($x, fn(string $acc, array $y) => $acc . $y["Payload"], "");
 
                 $x = array_merge(...$x);
                 $x["Payload"] = $msg;
 
-                #also convert the received utc timestamp into the local one
-                #timezone isn't really utc; it actually has an offset
-                $timestampWithOffset = preg_replace("/[^0-9 -]/","",$x["ReceivedDate"]);
-                $timestamp = (int) substr($timestampWithOffset,0,-5) / 1000;
-                $tzOffset = (new DateTime("",new DateTimeZone(substr($timestampWithOffset,-5))))->getOffset();
+                //also convert the received utc timestamp into the local one
+                //timezone isn't really utc; it actually has an offset
+                $timestampWithOffset = preg_replace("/[^0-9 -]/", "", $x["ReceivedDate"]);
+                $timestamp = (int) mb_substr($timestampWithOffset, 0, -5) / 1000;
+                $tzOffset = (new DateTime("", new DateTimeZone(mb_substr($timestampWithOffset, -5))))->getOffset();
                 $utcTime = (new DateTime("@$timestamp"))->modify("$tzOffset second");
 
                 $x["ReceivedDate"] = $utcTime->setTimezone(new DateTimeZone(date_default_timezone_get()));
 
                 return $x;
-            },$messages);
+            }, $messages);
         }
         catch(Exception)
         {
@@ -117,8 +117,8 @@ class SmsCdyne implements SmsClassInterface
         }
 
         $messages = array_map(function($x) {
-            #remove international code client phone number because it might have been entered into the ORMS system without it
-            if(strlen($x["From"]) === 11) $x["From"] = substr($x["From"],1);
+            //remove international code client phone number because it might have been entered into the ORMS system without it
+            if(mb_strlen($x["From"]) === 11) $x["From"] = mb_substr($x["From"], 1);
 
             return new SmsReceivedMessage(
                 $x["IncomingMessageID"],
@@ -128,11 +128,9 @@ class SmsCdyne implements SmsClassInterface
                 $x["ReceivedDate"],
                 "Cdyne"
             );
-        },$messages);
+        }, $messages);
 
-        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
-            return $a->timeReceived <=> $b->timeReceived;
-        });
+        usort($messages, fn(SmsReceivedMessage $a, SmsReceivedMessage $b) => $a->timeReceived <=> $b->timeReceived);
 
         return $messages;
     }

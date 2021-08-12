@@ -1,9 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-use Orms\DateTime;
 use Orms\DataAccess\Database;
+use Orms\DateTime;
 
 class ReportAccess
 {
@@ -14,7 +16,7 @@ class ReportAccess
      *      resource: string
      * }>
      */
-    static function getClinicCodes(int $specialityId): array
+    public static function getClinicCodes(int $specialityId): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
@@ -35,7 +37,7 @@ class ReportAccess
                 "name"      => $x["ResourceName"],
                 "resource" =>  $x["ResourceCode"]
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
@@ -59,7 +61,7 @@ class ReportAccess
      *      mediStatus: ?string
      * }>
      */
-    static function getListOfAppointmentsInDateRange(DateTime $startDate,DateTime $endDate,int $specialiyGroupId,array $statusFilter,array $codeFilter): array
+    public static function getListOfAppointmentsInDateRange(DateTime $startDate, DateTime $endDate, int $specialiyGroupId, array $statusFilter, array $codeFilter): array
     {
         $sql = "
             SELECT
@@ -103,8 +105,8 @@ class ReportAccess
             ORDER BY ScheduledDate,ScheduledTime
         ";
 
-        $sqlStringWithStatus = Database::generateBoundedSqlString($sql,":statusFilter:","MV.Status",$statusFilter);
-        $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"],":codeFilter:","CR.ResourceName",$codeFilter);
+        $sqlStringWithStatus = Database::generateBoundedSqlString($sql, ":statusFilter:", "MV.Status", $statusFilter);
+        $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"], ":codeFilter:", "CR.ResourceName", $codeFilter);
 
         $query = Database::getOrmsConnection()->prepare($sqlStringWithCode["sqlString"]);
         $query->execute(array_merge(
@@ -123,19 +125,19 @@ class ReportAccess
                 "lname"                 => $x["LastName"],
                 "mrn"                   => $x["MedicalRecordNumber"],
                 "site"                  => $x["HospitalCode"],
-                "ramq"                  => $x["InsuranceNumber"] ?? NULL,
+                "ramq"                  => $x["InsuranceNumber"] ?? null,
                 "appName"               => $x["ResourceName"],
                 "appClinic"             => $x["ResourceCode"],
                 "appType"               => $x["AppointmentCode"],
                 "appStatus"             => $x["Status"],
                 "appDay"                => $x["ScheduledDate"],
-                "appTime"               => substr($x["ScheduledTime"],0,-3),
+                "appTime"               => mb_substr($x["ScheduledTime"], 0, -3),
                 "checkin"               => $x["ArrivalDateTimePL"] ?? $x["ArrivalDateTimePLM"],
                 "createdToday"          => (new DateTime($x["CreationDate"]))->format("Y-m-d") === (new DateTime($x["ScheduledDate"]))->format("Y-m-d"), //"today" refers to the date of the appointment
                 "referringPhysician"    => $x["ReferringPhysician"],
                 "mediStatus"            => $x["MedivisitStatus"],
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
@@ -156,7 +158,7 @@ class ReportAccess
      *  Duration: string
      * }>
      */
-    static function getChemoAppointments(DateTime $startDate,DateTime $endDate): array
+    public static function getChemoAppointments(DateTime $startDate, DateTime $endDate): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
@@ -220,7 +222,7 @@ class ReportAccess
                 "DichargeThisLocationDateTime"  => $x["DichargeThisLocationDateTime"],
                 "Duration"                      => $x["Duration"],
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
@@ -231,9 +233,9 @@ class ReportAccess
      *  ScheduledDate: string
      * }>
      */
-    static function getRoomUsage(DateTime $startDate,DateTime $endDate,DateTime $startTime,DateTime $endTime,int $specialityGroupId): array
+    public static function getRoomUsage(DateTime $startDate, DateTime $endDate, DateTime $startTime, DateTime $endTime, int $specialityGroupId): array
     {
-        #get a list of all rooms that patients were checked into and for which appointment
+        //get a list of all rooms that patients were checked into and for which appointment
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
                 CR.ResourceName,
@@ -265,7 +267,7 @@ class ReportAccess
                 "CheckinVenueName" => $x["CheckinVenueName"],
                 "ScheduledDate"    => $x["ScheduledDate"],
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
@@ -284,7 +286,7 @@ class ReportAccess
      *  appointmentId: int
      * }>
      */
-    static function getWaitingRoomAppointments(DateTime $startDate,DateTime $endDate,int $specialityGroupId): array
+    public static function getWaitingRoomAppointments(DateTime $startDate, DateTime $endDate, int $specialityGroupId): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
@@ -343,6 +345,6 @@ class ReportAccess
                 "resourceCode"  => $x["ResourceCode"],
                 "appointmentId" => (int) $x["AppointmentSerNum"]
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Appointment\Internal;
 
@@ -6,7 +8,7 @@ use Orms\DataAccess\Database;
 
 class SmsAppointment
 {
-    static function getSmsAppointmentId(int $clinicResourceId,int $appointmentCodeId): ?int
+    public static function getSmsAppointmentId(int $clinicResourceId, int $appointmentCodeId): ?int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -23,11 +25,11 @@ class SmsAppointment
             ":app"  => $appointmentCodeId,
         ]);
 
-        $id = (int) ($query->fetchAll()[0]["SmsAppointmentId"] ?? NULL);
-        return $id ?: NULL;
+        $id = (int) ($query->fetchAll()[0]["SmsAppointmentId"] ?? null);
+        return $id ?: null;
     }
 
-    static function insertSmsAppointment(int $clinicResourceId,int $appointmentCodeId,int $specialityGroupId,string $system): int
+    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): int
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //====================================================================================
 // php code to query the MySQL database and extract information
 // regarding a given room location
@@ -6,11 +8,10 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
 use Orms\Http;
+use Orms\Util\Encoding;
 
-// Extract the webpage parameters
 $location = Encoding::utf8_decode_recursive($_GET["Location"]);
 
 $dbh = Database::getOrmsConnection();
@@ -35,10 +36,10 @@ $query = $dbh->prepare("
 ");
 $query->execute([":location" => $location]);
 
-$room = $query->fetchAll()[0] ?? NULL;
+$room = $query->fetchAll()[0] ?? null;
 
-if($room === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Unknown room");
+if($room === null) {
+    Http::generateResponseJsonAndExit(400, error: "Unknown room");
 }
 
-Http::generateResponseJsonAndExit(200,data: Encoding::utf8_encode_recursive($room));
+Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($room));

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms;
 
@@ -7,22 +9,22 @@ use JsonSerializable;
 
 class DateTime extends \DateTime implements JsonSerializable
 {
-    static function createFromUnixTimestamp(int $timestamp): self
+    public static function createFromUnixTimestamp(int $timestamp): self
     {
         return (new DateTime("@$timestamp"))->setTimezone(new DateTimeZone(date_default_timezone_get()));
     }
 
-    static function createFromFormatN(string $format,string $datetimeString,?\DateTimeZone $timezone = null): ?self
+    public static function createFromFormatN(string $format, string $datetimeString, ?\DateTimeZone $timezone = null): ?self
     {
-        return DateTime::createFromFormat($format,$datetimeString,$timezone) ?: NULL;
+        return DateTime::createFromFormat($format, $datetimeString, $timezone) ?: null;
     }
 
-    function modifyN(string $modify): ?self
+    public function modifyN(string $modify): ?self
     {
-        return $this->modify($modify) ?: NULL; /** @phpstan-ignore-line */ //for some reason, phpstan thinks that modify always returns a datetime
+        return $this->modify($modify) ?: null; /** @phpstan-ignore-line */ //for some reason, phpstan thinks that modify always returns a datetime
     }
 
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->format(static::ISO8601);
     }

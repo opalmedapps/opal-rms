@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class PatientMeasurementTable
 {
-    static function linkPatientMeasurementTable(PDO $dbh): void
+    public static function linkPatientMeasurementTable(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `PatientMeasurement`
@@ -13,7 +15,7 @@ class PatientMeasurementTable
         ");
     }
 
-    static function updatePatientIdColumn(PDO $dbh): void
+    public static function updatePatientIdColumn(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `PatientMeasurement`

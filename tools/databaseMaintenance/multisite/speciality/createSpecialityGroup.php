@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class SpecialityGroup
 {
-    static function createSpecialityGroupTable(PDO $dbh): void
+    public static function createSpecialityGroupTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TABLE `SpecialityGroup` (
@@ -29,7 +31,7 @@ class SpecialityGroup
         ");
     }
 
-    static function linkAppointmentCodeTable(PDO $dbh): void
+    public static function linkAppointmentCodeTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS AppointmentCode_TEMP AS (SELECT * FROM AppointmentCode);
@@ -59,7 +61,7 @@ class SpecialityGroup
         ");
     }
 
-    static function linkClinicResourcesTable(PDO $dbh): void
+    public static function linkClinicResourcesTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS ClinicResources_TEMP AS (SELECT * FROM ClinicResources);
@@ -88,7 +90,7 @@ class SpecialityGroup
         ");
     }
 
-    static function linkProfileTable(PDO $dbh): void
+    public static function linkProfileTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS Profile_TEMP AS (SELECT * FROM Profile);
@@ -116,7 +118,7 @@ class SpecialityGroup
         ");
     }
 
-    static function linkSmsAppointmentTable(PDO $dbh): void
+    public static function linkSmsAppointmentTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS SmsAppointment_TEMP AS (SELECT * FROM SmsAppointment);
@@ -144,7 +146,7 @@ class SpecialityGroup
         ");
     }
 
-    static function linkSmsMessageTable(PDO $dbh): void
+    public static function linkSmsMessageTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS SmsMessage_TEMP AS (SELECT * FROM SmsMessage);

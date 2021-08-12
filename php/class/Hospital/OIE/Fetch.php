@@ -1,35 +1,37 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Hospital\OIE;
 
 use Exception;
 use Orms\DateTime;
-use Orms\Patient\Model\Patient;
-use Orms\Patient\Model\Mrn;
-use Orms\Patient\Model\Insurance;
 use Orms\Hospital\OIE\Internal\Connection;
 use Orms\Hospital\OIE\Internal\ExternalPatient;
+use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Patient;
 
 class Fetch
 {
-    static function getExternalPatientByMrnAndSite(string $mrn,string $site): ?ExternalPatient
+    public static function getExternalPatientByMrnAndSite(string $mrn, string $site): ?ExternalPatient
     {
-        $response = Connection::getHttpClient()?->request("POST","patient/get",[
+        $response = Connection::getHttpClient()?->request("POST", "patient/get", [
             "json" => [
                 "mrn"  => $mrn,
                 "site" => $site
             ]
         ])?->getBody()?->getContents();
 
-        return ($response === NULL) ? NULL : self::_generateExternalPatient($response);
+        return ($response === null) ? null : self::_generateExternalPatient($response);
     }
 
     private static function _generateExternalPatient(string $data): ExternalPatient
     {
-        $data = json_decode($data,TRUE)["data"];
+        $data = json_decode($data, true)["data"];
 
         foreach($data as &$x) {
-            if(is_string($x) === TRUE && ctype_space($x) || $x === "") $x = NULL;
+            if(is_string($x) === true && ctype_space($x) || $x === "") $x = null;
         }
 
         $mrns = array_map(function($x) {
@@ -38,21 +40,21 @@ class Fetch
                 $x["site"],
                 $x["active"]
             );
-        },$data["mrns"]);
+        }, $data["mrns"]);
 
         $insurances = array_map(function($x) {
             return new Insurance(
                 $x["insuranceNumber"],
-                DateTime::createFromFormatN("Y-m-d H:i:s",$x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
+                DateTime::createFromFormatN("Y-m-d H:i:s", $x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
                 $x["type"],
                 $x["active"]
             );
-        },$data["insurances"]);
+        }, $data["insurances"]);
 
         return new ExternalPatient(
             firstName:          $data["firstName"],
             lastName:           $data["lastName"],
-            dateOfBirth:        DateTime::createFromFormatN("Y-m-d H:i:s",$data["dateOfBirth"]) ?? throw new Exception("Invalid date of birth"),
+            dateOfBirth:        DateTime::createFromFormatN("Y-m-d H:i:s", $data["dateOfBirth"]) ?? throw new Exception("Invalid date of birth"),
             mrns:               $mrns,
             insurances:         $insurances
         );
@@ -71,9 +73,9 @@ class Fetch
      *  }
      * }>
      */
-    static function getPatientDiagnosis(Patient $patient): array
+    public static function getPatientDiagnosis(Patient $patient): array
     {
-        $response = Connection::getHttpClient()?->request("GET","Patient/Diagnosis",[
+        $response = Connection::getHttpClient()?->request("GET", "Patient/Diagnosis", [
             "json" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site,
@@ -94,7 +96,7 @@ class Fetch
                 "subcode"               => (string) $x["DiagnosisCode"],
                 "subcodeDescription"    => (string) $x["Description_EN"]
             ]
-        ],json_decode($response,TRUE));
+        ], json_decode($response, true));
     }
 
     /**
@@ -104,15 +106,15 @@ class Fetch
      *    name: string
      * }>
      */
-    static function getListOfQuestionnaires(): array
+    public static function getListOfQuestionnaires(): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","questionnaire/get/published-questionnaires")?->getBody()?->getContents() ?? "[]";
+        $response = Connection::getOpalHttpClient()?->request("POST", "questionnaire/get/published-questionnaires")?->getBody()?->getContents() ?? "[]";
         $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "questionnaireId"  => (int) $x["ID"],
             "name"             => (string) $x["name_EN"]
-        ],json_decode($response,TRUE));
+        ], json_decode($response, true));
     }
 
     /**
@@ -131,9 +133,9 @@ class Fetch
      *      studyIdList: int[]
      * }>
      */
-    static function getListOfCompletedQuestionnairesForPatient(Patient $patient): array
+    public static function getListOfCompletedQuestionnairesForPatient(Patient $patient): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","questionnaire/get/questionnaires-list-orms",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "questionnaire/get/questionnaires-list-orms", [
             "form_params" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site
@@ -143,7 +145,7 @@ class Fetch
 
         return array_map(fn($x) => [
             "completionDate"        => (string) $x["completionDate"],
-            "completed"             => TRUE,
+            "completed"             => true,
             "status"                => (string) $x["status"],
             "questionnaireId"       => (int) $x["questionnaireDBId"],
             "questionnaireName"     => (string) $x["name_EN"],
@@ -152,8 +154,8 @@ class Fetch
             "respondentId"          => (int) $x["respondentId"],
             "purposeTitle"          => (string) $x["purpose_EN"],
             "respondentTitle"       => (string) $x["respondent_EN"],
-            "studyIdList"           => array_map("intval",$x["studies"] ?? [])
-        ],json_decode($response,TRUE));
+            "studyIdList"           => array_map("intval", $x["studies"] ?? [])
+        ], json_decode($response, true));
     }
 
     /**
@@ -169,9 +171,9 @@ class Fetch
      *  }>
      * }>
      */
-    static function getPatientAnswersForChartTypeQuestionnaire(Patient $patient,int $questionnaireId): array
+    public static function getPatientAnswersForChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/questionnaire/get/chart-answers-patient",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/questionnaire/get/chart-answers-patient", [
             "form_params" => [
                 "mrn"               => $patient->getActiveMrns()[0]->mrn,
                 "site"              => $patient->getActiveMrns()[0]->site,
@@ -183,7 +185,7 @@ class Fetch
         return array_map(function($x) {
 
             //data should be sorted in asc datetime order
-            usort($x["answers"],fn($a,$b) => $a["dateTimeAnswered"] <=> $b["dateTimeAnswered"]);
+            usort($x["answers"], fn($a, $b) => $a["dateTimeAnswered"] <=> $b["dateTimeAnswered"]);
 
             return [
                 "questionId"    => (int) $x["questionId"],
@@ -193,9 +195,9 @@ class Fetch
                 "answers"       => array_map(fn($y) => [
                                         "dateTimeAnswered" => (int) $y["dateTimeAnswered"],
                                         "answer"           => (int) $y["answer"]
-                                ],$x["answers"])
+                                ], $x["answers"])
             ];
-        },json_decode($response,TRUE));
+        }, json_decode($response, true));
     }
 
     /**
@@ -215,9 +217,9 @@ class Fetch
      *  answers: string[]
      * }>
      */
-    static function getPatientAnswersForNonChartTypeQuestionnaire(Patient $patient,int $questionnaireId): array
+    public static function getPatientAnswersForNonChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/questionnaire/get/non-chart-answers-patient",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/questionnaire/get/non-chart-answers-patient", [
             "form_params" => [
                 "mrn"               => $patient->getActiveMrns()[0]->mrn,
                 "site"              => $patient->getActiveMrns()[0]->site,
@@ -237,9 +239,9 @@ class Fetch
             "options"               => array_map(fn($y) => [
                                             "value"       => (int) $y["value"],
                                             "description" => (string) $y["description_EN"]
-                                        ],$x["options"]),
-            "answers"               => array_map(fn($y) => (string) $y["answer"],$x["answers"])
-        ],json_decode($response,TRUE));
+                                        ], $x["options"]),
+            "answers"               => array_map(fn($y) => (string) $y["answer"], $x["answers"])
+        ], json_decode($response, true));
     }
 
     /**
@@ -250,25 +252,25 @@ class Fetch
      *  lastUpdated: DateTime
      * }
      */
-    static function getLastCompletedPatientQuestionnaire(Patient $patient): ?array
+    public static function getLastCompletedPatientQuestionnaire(Patient $patient): ?array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/questionnaire/get/last-completed-quesitonnaire",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/questionnaire/get/last-completed-quesitonnaire", [
             "form_params" => [
                 "mrn"               => $patient->getActiveMrns()[0]->mrn,
                 "site"              => $patient->getActiveMrns()[0]->site
             ]
         ])?->getBody()?->getContents() ?? "[]";
         $response = utf8_encode($response);
-        $response = json_decode($response,TRUE);
+        $response = json_decode($response, true);
 
         if($response === []) {
-            return NULL;
+            return null;
         }
 
         return [
             "questionnaireControlId" => (int) $response["questionnaireControlId"],
-            "completionDate"         => DateTime::createFromFormatN("Y-m-d H:i:s",$response["completionDate"]) ?? throw new Exception("Invalid datetime"),
-            "lastUpdated"            => DateTime::createFromFormatN("Y-m-d H:i:s",$response["lastUpdated"]) ?? throw new Exception("Invalid datetime")
+            "completionDate"         => DateTime::createFromFormatN("Y-m-d H:i:s", $response["completionDate"]) ?? throw new Exception("Invalid datetime"),
+            "lastUpdated"            => DateTime::createFromFormatN("Y-m-d H:i:s", $response["lastUpdated"]) ?? throw new Exception("Invalid datetime")
         ];
     }
 
@@ -282,9 +284,9 @@ class Fetch
      *   lastUpdated: DateTime
      * }>
      */
-    static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
+    public static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/questionnaire/get/patients-completed-questionaires",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/questionnaire/get/patients-completed-questionaires", [
             "form_params" => [
                 "questionnaireList" => $questionnaireIds
             ]
@@ -294,9 +296,9 @@ class Fetch
         return array_map(fn($x) => [
             "mrn"             => (string) $x["mrn"],
             "site"            => (string) $x["site"],
-            "completionDate"  => DateTime::createFromFormatN("Y-m-d H:i:s",$x["completionDate"]) ?? throw new Exception("Invalid datetime"),
-            "lastUpdated"     => DateTime::createFromFormatN("Y-m-d H:i:s",$x["lastUpdated"]) ?? throw new Exception("Invalid datetime")
-        ],json_decode($response,TRUE));
+            "completionDate"  => DateTime::createFromFormatN("Y-m-d H:i:s", $x["completionDate"]) ?? throw new Exception("Invalid datetime"),
+            "lastUpdated"     => DateTime::createFromFormatN("Y-m-d H:i:s", $x["lastUpdated"]) ?? throw new Exception("Invalid datetime")
+        ], json_decode($response, true));
 
     }
 
@@ -307,16 +309,16 @@ class Fetch
      *   title: string,
      * }>
      */
-    static function getQuestionnairePurposes(): array
+    public static function getQuestionnairePurposes(): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/questionnaire/get/purposes")?->getBody()?->getContents() ?? "[]";
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/questionnaire/get/purposes")?->getBody()?->getContents() ?? "[]";
         $response = utf8_encode($response);
 
-        $response = array_filter(json_decode($response,TRUE),fn($x) => in_array($x["title_EN"],["Clinical","Research"]));
+        $response = array_filter(json_decode($response, true), fn($x) => in_array($x["title_EN"], ["Clinical","Research"]));
         return array_map(fn($x) => [
             "purposeId"       => (int) $x["ID"],
             "title"           => (string) $x["title_EN"]
-        ],$response);
+        ], $response);
     }
 
     /**
@@ -326,9 +328,9 @@ class Fetch
      *   title: string
      * }>
      */
-    static function getStudiesForPatient(Patient $patient): array
+    public static function getStudiesForPatient(Patient $patient): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST","/opalAdmin/study/get/studies-patient-consented",[
+        $response = Connection::getOpalHttpClient()?->request("POST", "/opalAdmin/study/get/studies-patient-consented", [
             "form_params" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site
@@ -339,7 +341,7 @@ class Fetch
         return array_map(fn($x) => [
             "studyId"         => (int) $x["studyId"],
             "title"           => (string) $x["title_EN"]
-        ],json_decode($response,TRUE));
+        ], json_decode($response, true));
     }
 
 }

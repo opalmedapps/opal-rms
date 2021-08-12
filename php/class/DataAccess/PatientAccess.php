@@ -1,22 +1,24 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-use PDO;
 use Exception;
 use Orms\ApplicationException;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
-use Orms\Patient\Model\Patient;
-use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Insurance;
+use Orms\Patient\Model\Mrn;
+use Orms\Patient\Model\Patient;
 use Orms\Patient\Model\PatientMeasurement;
+use PDO;
 
 class PatientAccess
 {
     // private const PATIENT_TABLE = "Patient"; // TODO: put table and column names as constants at some point...
 
-    static function serializePatient(Patient $patient): void
+    public static function serializePatient(Patient $patient): void
     {
         $dbh = Database::getOrmsConnection();
         $dbh->beginTransaction();
@@ -37,8 +39,8 @@ class PatientAccess
             ";
 
             $setValuesSql = [
-                ":fn"           => strtoupper($patient->firstName),
-                ":ln"           => strtoupper($patient->lastName),
+                ":fn"           => mb_strtoupper($patient->firstName),
+                ":ln"           => mb_strtoupper($patient->lastName),
                 ":dob"          => $patient->dateOfBirth->format("Y-m-d H:i:s"),
                 ":sex"          => $patient->sex,
                 ":status"       => $patient->opalStatus,
@@ -71,11 +73,11 @@ class PatientAccess
             }
 
             foreach($patient->mrns as $m) {
-                self::_serializeMrn($dbh,$patientId,$m->mrn,$m->site,$m->active);
+                self::_serializeMrn($dbh, $patientId, $m->mrn, $m->site, $m->active);
             }
 
             foreach($patient->insurances as $i) {
-                self::_serializeInsurance($dbh,$patientId,$i->number,$i->type,$i->expiration,$i->active);
+                self::_serializeInsurance($dbh, $patientId, $i->number, $i->type, $i->expiration, $i->active);
             }
 
         }
@@ -87,7 +89,7 @@ class PatientAccess
         $dbh->commit();
     }
 
-    static function deserializePatient(int $patientId): ?Patient
+    public static function deserializePatient(int $patientId): ?Patient
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -106,9 +108,9 @@ class PatientAccess
         ");
         $query->execute([$patientId]);
 
-        $row = $query->fetchAll()[0] ?? NULL;
+        $row = $query->fetchAll()[0] ?? null;
 
-        if($row === NULL) return NULL;
+        if($row === null) return null;
 
         return new Patient(
             id:                    $patientId,
@@ -128,7 +130,7 @@ class PatientAccess
      * Returns a patient id if the mrn is found in the system, otherwise returns 0
      *
      */
-    static function getPatientIdForMrn(string $mrn,string $site): int
+    public static function getPatientIdForMrn(string $mrn, string $site): int
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -145,7 +147,7 @@ class PatientAccess
             ":mrn"  => $mrn
         ]);
 
-        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? null);
     }
 
     /**
@@ -153,7 +155,7 @@ class PatientAccess
      * If the mrn doesn't exist, it is inserted.
      * A patient must always have an active mrn.
      */
-    static function _serializeMrn(PDO $dbh,int $patientId,string $mrn,string $site,bool $active): void
+    public static function _serializeMrn(PDO $dbh, int $patientId, string $mrn, string $site, bool $active): void
     {
         //check if the mrn current exists
         //also get the format that the mrn should have
@@ -178,24 +180,24 @@ class PatientAccess
 
         $mrnInfo = $queryExists->fetchAll();
 
-        $hospitalId = $mrnInfo[0]["HospitalId"] ?? NULL;
-        $format = $mrnInfo[0]["Format"] ?? NULL;
-        $mrnActive = $mrnInfo[0]["Active"] ?? NULL;
+        $hospitalId = $mrnInfo[0]["HospitalId"] ?? null;
+        $format = $mrnInfo[0]["Format"] ?? null;
+        $mrnActive = $mrnInfo[0]["Active"] ?? null;
 
         //if the hospital type doesn't exist in the database, reject the mrn
-        if($hospitalId === NULL) {
-            throw new ApplicationException(ApplicationException::UNKNOWN_MRN_TYPE,"Unknown hospital code type $site");
+        if($hospitalId === null) {
+            throw new ApplicationException(ApplicationException::UNKNOWN_MRN_TYPE, "Unknown hospital code type $site");
         }
 
         //check if the format of the incoming mrn is valid
         //if the format is empty or null, the mrn supplied will always match
-        if(preg_match("/$format/",$mrn) !== 1) {
-            throw new ApplicationException(ApplicationException::INVALID_MRN_FORMAT,"Invalid mrn format for $mrn | $site");
+        if(preg_match("/$format/", $mrn) !== 1) {
+            throw new ApplicationException(ApplicationException::INVALID_MRN_FORMAT, "Invalid mrn format for $mrn | $site");
         }
 
         //if the mrn doesn't exist, insert the new mrn
         //if it does and the status changed, update it
-        if($mrnActive === NULL)
+        if($mrnActive === null)
         {
             $dbh->prepare("
                 INSERT INTO PatientHospitalIdentifier(
@@ -240,7 +242,7 @@ class PatientAccess
      *
      * @return Mrn[]
      */
-    static function _deserializeMrnsForPatientId(int $patientId): array
+    public static function _deserializeMrnsForPatientId(int $patientId): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -262,14 +264,14 @@ class PatientAccess
                 $x["HospitalCode"],
                 (bool) $x["Active"]
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
      * Returns a patient id if the insurance is found in the system, otherwise returns 0
      *
      */
-    static function getPatientIdForInsurance(string $insuranceNumber,string $insuranceType): int
+    public static function getPatientIdForInsurance(string $insuranceNumber, string $insuranceType): int
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -286,14 +288,14 @@ class PatientAccess
             ":insurance" => $insuranceNumber
         ]);
 
-        return (int) ($query->fetchAll()[0]["PatientId"] ?? NULL);
+        return (int) ($query->fetchAll()[0]["PatientId"] ?? null);
     }
 
     /**
      *
      * @return Insurance[]
      */
-    static function _deserializeInsurancesForPatientId(int $patientId): array
+    public static function _deserializeInsurancesForPatientId(int $patientId): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -317,14 +319,14 @@ class PatientAccess
                 $x["InsuranceCode"],
                 (bool) $x["Active"]
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
     /**
      * Updates a patient's insurance by comparing it to what the patient has in the database.
      * If the insurance doesn't exist, it is inserted
      */
-    static function _serializeInsurance(PDO $dbh,int $patientId,string $insuranceNumber,string $insuranceType,DateTime $expirationDate,bool $active): void
+    public static function _serializeInsurance(PDO $dbh, int $patientId, string $insuranceNumber, string $insuranceType, DateTime $expirationDate, bool $active): void
     {
         $dbh = Database::getOrmsConnection();
 
@@ -352,25 +354,25 @@ class PatientAccess
 
         $insuranceInfo = $queryExists->fetchAll();
 
-        $insuranceId = $insuranceInfo[0]["InsuranceId"] ?? NULL;
-        $format = $insuranceInfo[0]["Format"] ?? NULL;
-        $insuranceActive = $insuranceInfo[0]["Active"] ?? NULL;
-        $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? NULL;
+        $insuranceId = $insuranceInfo[0]["InsuranceId"] ?? null;
+        $format = $insuranceInfo[0]["Format"] ?? null;
+        $insuranceActive = $insuranceInfo[0]["Active"] ?? null;
+        $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? null;
 
         //if the insurance type doesn't exist in the database, reject the insurance
-        if($insuranceId === NULL) {
-            throw new ApplicationException(ApplicationException::UNKNOWN_INSURANCE_TYPE,"Unknown insurance type $insuranceType");
+        if($insuranceId === null) {
+            throw new ApplicationException(ApplicationException::UNKNOWN_INSURANCE_TYPE, "Unknown insurance type $insuranceType");
         }
 
         //check if the format of the incoming insurance is valid
         //if the format is empty or null, the insurance supplied will always match
-        if(preg_match("/$format/",$insuranceNumber) !== 1) {
-            throw new ApplicationException(ApplicationException::INVALID_INSURANCE_FORMAT,"Invalid insurance format for $insuranceNumber | $insuranceType");
+        if(preg_match("/$format/", $insuranceNumber) !== 1) {
+            throw new ApplicationException(ApplicationException::INVALID_INSURANCE_FORMAT, "Invalid insurance format for $insuranceNumber | $insuranceType");
         }
 
         //if the insurance doesn't exist, insert the new insurance
         //if it does and anything changed, update it
-        if($insuranceActive === NULL || $insuranceActiveExpiration === NULL)
+        if($insuranceActive === null || $insuranceActiveExpiration === null)
         {
             $dbh->prepare("
                 INSERT INTO PatientInsuranceIdentifier(
@@ -416,7 +418,7 @@ class PatientAccess
         }
     }
 
-    static function isInsuranceValid(string $insuranceNumber,string $insuranceType): bool
+    public static function isInsuranceValid(string $insuranceNumber, string $insuranceType): bool
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -430,16 +432,16 @@ class PatientAccess
             ":type" => $insuranceType
         ]);
 
-        $format = $query->fetchAll()[0]["Format"] ?? NULL;
+        $format = $query->fetchAll()[0]["Format"] ?? null;
 
-        return ($format !== NULL) && (preg_match("/$format/",$insuranceNumber) === 1);
+        return ($format !== null) && (preg_match("/$format/", $insuranceNumber) === 1);
     }
 
     /**
      *
      * @return array<Patient|NULL>
      */
-    static function getPatientsWithPhoneNumber(string $phoneNumber): array
+    public static function getPatientsWithPhoneNumber(string $phoneNumber): array
     {
         //find all patients with the phone number
         $query = Database::getOrmsConnection()->prepare("
@@ -452,17 +454,15 @@ class PatientAccess
         ");
         $query->execute([$phoneNumber]);
 
-        return array_map(function($x) {
-            return self::deserializePatient((int) $x["PatientSerNum"]);
-        },$query->fetchAll());
+        return array_map(fn($x) => self::deserializePatient((int) $x["PatientSerNum"]), $query->fetchAll());
     }
 
-    static function mergePatientEntries(Patient $acquirer,Patient $target): Patient
+    public static function mergePatientEntries(Patient $acquirer, Patient $target): Patient
     {
         //get the list of columns using the Patient id column
         $dbh = Database::getOrmsConnection();
 
-        $foreignKeys = Database::getForeignKeysConnectedToColumn($dbh,"Patient","PatientSerNum");
+        $foreignKeys = Database::getForeignKeysConnectedToColumn($dbh, "Patient", "PatientSerNum");
 
         $dbh->beginTransaction();
         try
@@ -520,7 +520,7 @@ class PatientAccess
      *
      * @return PatientMeasurement[]
      */
-    static function deserializePatientMeasurements(Patient $patient): array
+    public static function deserializePatientMeasurements(Patient $patient): array
     {
         //gets the lastest measurement taken during each date to take into account the fact that a patient in be reweighed (in case of an error, etc)
         $query = Database::getOrmsConnection()->prepare("
@@ -556,18 +556,18 @@ class PatientAccess
 
         return array_map(function($x) {
             return new PatientMeasurement(
-               id:              $x["PatientMeasurementSer"],
-               appointmentId:   $x["AppointmentId"],
-               mrnSite:         $x["PatientId"],
-               datetime:        new DateTime($x["Date"] ." ". $x["Time"]),
-               weight:          (float) $x["Weight"],
-               height:          (float) $x["Height"],
-               bsa:             (float) $x["BSA"],
+                id:              $x["PatientMeasurementSer"],
+                appointmentId:   $x["AppointmentId"],
+                mrnSite:         $x["PatientId"],
+                datetime:        new DateTime($x["Date"] ." ". $x["Time"]),
+                weight:          (float) $x["Weight"],
+                height:          (float) $x["Height"],
+                bsa:             (float) $x["BSA"],
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
-    static function serializePatientMeasurement(Patient $patient,float $height,float $weight,float $bsa,string $appointmentSourceId,string $appointmentSourceSystem): void
+    public static function serializePatientMeasurement(Patient $patient, float $height, float $weight, float $bsa, string $appointmentSourceId, string $appointmentSourceSystem): void
     {
         Database::getOrmsConnection()->prepare("
             INSERT INTO PatientMeasurement

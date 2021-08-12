@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__."/../../../vendor/autoload.php";
 require_once __DIR__."/src/QIP/Service/HighchartsServerService.php";
@@ -8,17 +10,17 @@ require_once __DIR__."/src/QIP/Service/PDFBuilderService.php";
 use Orms\Config;
 
 $patientId = 51;// $_GET["patientId"];
-$mrn = 'RVH-123456';// $_GET["mrn"];
-$language = 'EN';// $_GET["language"];
-$name = 'Anton Gladyr';// $_GET["name"];
+$mrn = "RVH-123456";// $_GET["mrn"];
+$language = "EN";// $_GET["language"];
+$name = "Anton Gladyr";// $_GET["name"];
 
 $questServ = new QuestionnaireScrapperService();
 $chartsServ = new HighchartsServerService();
 $pdfBuilder = new PDFBuilderService();
 $dbConn = Database::getQuestionnaireConnection();
 
-$questionnaireAnswers = $questServ->fetchQuestionnaires($dbConn,$patientId,$language);
+$questionnaireAnswers = $questServ->fetchQuestionnaires($dbConn, $patientId, $language);
 
-$chartImagesDir = $chartsServ->buildQuestionnaireCharts($patientId,$questionnaireAnswers);
+$chartImagesDir = $chartsServ->buildQuestionnaireCharts($patientId, $questionnaireAnswers);
 
-$pdfBuilder->buildPDF($patientId,$name,$mrn,$questionnaireAnswers,$chartImagesDir);
+$pdfBuilder->buildPDF($patientId, $name, $mrn, $questionnaireAnswers, $chartImagesDir);

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //====================================================================================
 // php code to check if there are already patients checked in
 // with similar identifiers
@@ -8,10 +10,9 @@ require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\DataAccess\Database;
 
-// Extract the webpage parameters
-$firstName = $_GET["firstName"];
+$firstName          = $_GET["firstName"];
 $lastNameFirstThree = $_GET["lastNameFirstThree"];
-$patientId = $_GET["patientId"];
+$patientId          = $_GET["patientId"];
 
 $dbh = Database::getOrmsConnection();
 

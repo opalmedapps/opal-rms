@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // script that takes a patient's mrn and site and created an add-on with the first clinic code it can find
 
-require_once __DIR__ ."/../vendor/autoload.php";
+require_once __DIR__ ."/../../vendor/autoload.php";
 
 use GetOpt\GetOpt;
 use Orms\Appointment\Appointment;

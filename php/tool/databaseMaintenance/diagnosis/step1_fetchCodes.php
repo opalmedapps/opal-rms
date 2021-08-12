@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 //fetches all ICD-10 diagnosis codes from the WHO'd online dictionary
-require_once __DIR__ ."/../../../vendor/autoload.php";
+require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 use GuzzleHttp\Client;
 

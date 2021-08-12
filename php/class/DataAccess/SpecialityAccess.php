@@ -25,8 +25,8 @@ class SpecialityAccess
         $query->execute();
 
         return array_map(fn($x) => [
-            "specialityCode"    => (string) $x["SpecialityGroupCode"],
-            "specialityName"    => (string) $x["SpecialityGroupName"],
+            "specialityCode"    => $x["SpecialityGroupCode"],
+            "specialityName"    => $x["SpecialityGroupName"],
         ], $query->fetchAll());
     }
 
@@ -58,9 +58,9 @@ class SpecialityAccess
 
         return array_map(fn($x) => [
             "clinicHubId"           => (int) $x["ClinicHubId"],
-            "clinicHubName"         => (string) $x["ClinicHubName"],
+            "clinicHubName"         => $x["ClinicHubName"],
             "specialityGroupId"     => (int) $x["SpecialityGroupId"],
-            "specialityGroupName"   => (string) $x["SpecialityGroupName"],
+            "specialityGroupName"   => $x["SpecialityGroupName"],
         ], $query->fetchAll());
     }
 

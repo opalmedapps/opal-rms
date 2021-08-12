@@ -228,6 +228,35 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
+  /patient/mergeMrn:
+    post:
+      summary: Merge a patient's mrn
+      description: Disable a patient's mrn. Usually the mrn has been "merged" into another one of the patient's mrns.
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                    description: Hospital site
+                    type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
   /appointment/deleteAppointment:
     post:
       summary: Delete a patient's appointment

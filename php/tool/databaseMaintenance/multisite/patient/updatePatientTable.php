@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-use Orms\DataAccess\PatientAccess;
 use Orms\Hospital\OIE\Fetch;
-use Orms\Patient\Model\Insurance;
 use Orms\Patient\PatientInterface;
 
-require_once __DIR__ ."/../../../../vendor/autoload.php";
+require_once __DIR__ ."/../../../../../vendor/autoload.php";
 
 class PatientTable
 {

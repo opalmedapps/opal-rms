@@ -6,9 +6,7 @@
 >
     <projectFiles>
         <directory name="php/" />
-        <directory name="auth/" />
         <directory name="VirtualWaitingRoom/php/" />
-        <directory name="tools/" />
         <ignoreFiles>
             <directory name="vendor" />
             <directory name="VirtualWaitingRoom/php/pdfGenerator/" />

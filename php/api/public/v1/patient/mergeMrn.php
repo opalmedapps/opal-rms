@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\ApplicationException;
 use Orms\Http;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\PatientInterface;
@@ -35,6 +36,11 @@ if($patient === null)  {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-PatientInterface::updatePatientInformation($patient,mrns: [new Mrn($mrn->mrn,$mrn->site,false)]);
+try {
+    PatientInterface::updatePatientInformation($patient,mrns: [new Mrn($mrn->mrn,$mrn->site,false)]);
+}
+catch(ApplicationException $e) {
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
+}
 
 Http::generateResponseJsonAndExit(200);

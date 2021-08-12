@@ -13,6 +13,7 @@ class ApplicationException extends Exception
     public const UNKNOWN_MRN_TYPE = 3;
     public const INVALID_MRN_FORMAT = 4;
     public const INVALID_SMS_APPOINTMENT_STATE = 5;
+    public const NO_ACTIVE_MRNS = 6;
 
     public function __construct(int $errorCode, string $errorMessage)
     {

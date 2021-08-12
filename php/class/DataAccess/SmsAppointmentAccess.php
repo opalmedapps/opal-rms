@@ -41,12 +41,12 @@ class SmsAppointmentAccess
         return array_map(fn($x) => [
             "id"                    => (int) $x["SmsAppointmentId"],
             "type"                  => $x["Type"],
-            "appointmentCode"       => (string) $x["AppointmentCode"],
-            "resourceCode"          => (string) $x["ResourceCode"],
-            "resourceDescription"   => (string) $x["ResourceName"],
+            "appointmentCode"       => $x["AppointmentCode"],
+            "resourceCode"          => $x["ResourceCode"],
+            "resourceDescription"   => $x["ResourceName"],
             "active"                => (int) $x["Active"],
-            "speciality"            => (string) $x["SpecialityGroupName"],
-            "specialityCode"        => (string) $x["SpecialityGroupCode"],
+            "speciality"            => $x["SpecialityGroupName"],
+            "specialityCode"        => $x["SpecialityGroupCode"],
         ], $query->fetchAll());
     }
 
@@ -88,7 +88,7 @@ class SmsAppointmentAccess
         ");
         $query->execute($parameters);
 
-        return array_map(fn($x) => (string) $x["Type"], $query->fetchAll());
+        return array_map(fn($x) => $x["Type"], $query->fetchAll());
     }
 
     /**
@@ -123,10 +123,10 @@ class SmsAppointmentAccess
         ]);
 
         return array_map(fn($x) => [
-            "event"                 => (string) $x["Event"],
-            "language"              => (string) $x["Language"],
+            "event"                 => $x["Event"],
+            "language"              => $x["Language"],
             "messageId"             => (int) $x["SmsMessageId"] ,
-            "smsMessage"            => (string) $x["Message"],
+            "smsMessage"            => $x["Message"],
         ], $query->fetchAll());
     }
 

@@ -385,7 +385,7 @@ app.factory('callScript',function($http,$q)
             var defer = $q.defer();
 
             $http({
-                url: "./Scripts/appointmentQuery",
+                url: "/php/report/appointmentQuery",
                 method: "GET",
                 params:
                 {

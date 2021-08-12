@@ -8,7 +8,6 @@
         <directory name="php/" />
         <directory name="auth/" />
         <directory name="VirtualWaitingRoom/php/" />
-        <directory name="reports/" />
         <directory name="tools/" />
         <ignoreFiles>
             <directory name="vendor" />

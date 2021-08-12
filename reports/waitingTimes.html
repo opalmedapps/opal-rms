@@ -235,7 +235,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "./Scripts/waitingDistribution"
+            url = "/php/report/waitingDistribution?"
 
             $http.get(url+"speciality="+speciality+"&sDate="+sDate+"&eDate="+eDate).then(function (response)
             {

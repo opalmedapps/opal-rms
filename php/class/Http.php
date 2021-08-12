@@ -1,14 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms;
 
-use League\OpenAPIValidation\Schema\SchemaValidator;
 use cebe\openapi\Reader;
 use cebe\openapi\spec\OpenApi;
-
 use Exception;
 use League\OpenAPIValidation\Schema\Exception\InvalidSchema;
 use League\OpenAPIValidation\Schema\Exception\KeywordMismatch;
+use League\OpenAPIValidation\Schema\SchemaValidator;
 use Respect\Validation\Exceptions\ValidatorException;
 
 class Http
@@ -17,7 +18,7 @@ class Http
      *
      * @return mixed[]
      */
-    static function getPostContents(): array
+    public static function getPostContents(): array
     {
         $requestParams = [];
 
@@ -25,13 +26,13 @@ class Http
         {
             $requestParams = $_POST;
         }
-        elseif(preg_match("/application\/json/",$_SERVER["CONTENT_TYPE"]))
+        elseif(preg_match("/application\/json/", $_SERVER["CONTENT_TYPE"]))
         {
-            $requestParams = json_decode(file_get_contents("php://input") ?: "",TRUE) ?? [];
+            $requestParams = json_decode(file_get_contents("php://input") ?: "", true) ?? [];
         }
 
         foreach($requestParams as &$x) {
-            if(is_string($x) === TRUE && ctype_space($x) || $x === "") $x = NULL;
+            if(is_string($x) === true && ctype_space($x) || $x === "") $x = null;
         }
 
         return $requestParams;
@@ -42,20 +43,20 @@ class Http
      * @param mixed[] $params
      * @return mixed[]
      */
-    static function sanitizeRequestParams(array $params): array
+    public static function sanitizeRequestParams(array $params): array
     {
         foreach($params as &$param)
         {
             if(gettype($param) === "string")
             {
-                $param = str_replace("\\","",$param); //remove backslashes
-                $param = str_replace('"',"",$param); //remove double quotes
-                $param = preg_replace("/\n|\r/","",$param); //remove new lines and tabs
-                $param = preg_replace("/\s+/"," ",$param ?? ""); //remove multiple spaces
-                $param = preg_replace("/^\s/","",$param ?? ""); //remove spaces at the start
-                $param = preg_replace("/\s$/","",$param ?? ""); //remove space at the end
+                $param = str_replace("\\", "", $param); //remove backslashes
+                $param = str_replace('"', "", $param); //remove double quotes
+                $param = preg_replace("/\n|\r/", "", $param); //remove new lines and tabs
+                $param = preg_replace("/\s+/", " ", $param ?? ""); //remove multiple spaces
+                $param = preg_replace("/^\s/", "", $param ?? ""); //remove spaces at the start
+                $param = preg_replace("/\s$/", "", $param ?? ""); //remove space at the end
 
-                if(is_string($param) === TRUE && ctype_space($param) || $param === "") $param = NULL;
+                if(is_string($param) === true && ctype_space($param) || $param === "") $param = null;
             }
         }
 
@@ -67,7 +68,7 @@ class Http
      * @return mixed[]
      * @throws Exception
      */
-    static function parseApiInputs(): array
+    public static function parseApiInputs(): array
     {
         //get from config
         $publicApiPath = "/var/www/OnlineRoomManagementSystem/php/api/public/v1";
@@ -75,13 +76,13 @@ class Http
         $specification = Reader::readFromYamlFile(
             fileName: "$publicApiPath/openapi.yml",
             baseType: OpenApi::class,
-            resolveReferences: TRUE
+            resolveReferences: true
         );
 
         //get the specification section for the api being called
-        $apiPath = str_replace([$publicApiPath,".php"],"",$_SERVER["SCRIPT_FILENAME"] ?? "");
-        $method = strtolower($_SERVER["REQUEST_METHOD"] ?? "");
-        $content = preg_replace("/;\s?charset=.+$/","",$_SERVER["CONTENT_TYPE"] ?? ""); //remove the charset
+        $apiPath = str_replace([$publicApiPath,".php"], "", $_SERVER["SCRIPT_FILENAME"] ?? "");
+        $method = mb_strtolower($_SERVER["REQUEST_METHOD"] ?? "");
+        $content = preg_replace("/;\s?charset=.+$/", "", $_SERVER["CONTENT_TYPE"] ?? ""); //remove the charset
 
         $specification = $specification->paths[$apiPath] ?? throw new Exception("Unknown api");
         $specification = $specification->$method->requestBody ?? throw new Exception("Unknown method");
@@ -90,18 +91,18 @@ class Http
         $input = self::getPostContents();
 
         //parse the inputs and ensure they conform to the api spec
-        (new SchemaValidator(SchemaValidator::VALIDATE_AS_REQUEST))->validate($input,$specification->schema);
+        (new SchemaValidator(SchemaValidator::VALIDATE_AS_REQUEST))->validate($input, $specification->schema);
 
         return $input;
     }
 
-    static function generateApiParseError(Exception $e): string
+    public static function generateApiParseError(Exception $e): string
     {
         //various errors can be returned from the parser
         //handle all of them and decompose the errors if needed
         if($e instanceof KeywordMismatch) {
             $failedFields = $e->dataBreadCrumb()?->buildChain() ?? [];
-            $failedString = implode("' -> '",$failedFields);
+            $failedString = implode("' -> '", $failedFields);
             $errorString = "Field '$failedString': {$e->getMessage()}";
         }
         elseif($e instanceof InvalidSchema) {
@@ -126,14 +127,14 @@ class Http
      * Returns a response to client without stopping script execution. Since the connection with the client gets closed, no further responses can be sent.
      *
      */
-    static function generateResponseJsonAndContinue(int $httpCode,mixed $data = NULL,string $error = NULL): void
+    public static function generateResponseJsonAndContinue(int $httpCode, mixed $data = null, string $error = null): void
     {
         $response = [
-            "status" => ($error === NULL) ? "Success" : "Error",
+            "status" => ($error === null) ? "Success" : "Error",
             "error"  => $error,
             "data"   => $data
         ];
-        $response = array_filter($response,fn($x) => $x !== NULL);
+        $response = array_filter($response, fn($x) => $x !== null);
 
         $returnString = json_encode($response) ?: throw new Exception("Unable to generate a response");
 
@@ -152,9 +153,9 @@ class Http
      *
      * @return never
      */
-    static function generateResponseJsonAndExit(int $httpCode,mixed $data = NULL,string $error = NULL): void
+    public static function generateResponseJsonAndExit(int $httpCode, mixed $data = null, string $error = null): void
     {
-        self::generateResponseJsonAndContinue($httpCode,$data,$error);
+        self::generateResponseJsonAndContinue($httpCode, $data, $error);
         exit;
     }
 

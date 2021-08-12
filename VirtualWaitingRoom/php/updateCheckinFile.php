@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //====================================================================================
 // php code to query the database and extract the list of patients
 // who are currently checked in for open appointments today
@@ -6,12 +8,12 @@
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\Config;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Hospital\OIE\Fetch;
 use Orms\Patient\PatientInterface;
+use Orms\Util\Encoding;
 
 // Create MySQL DB connection
 $dbh = Database::getOrmsConnection();
@@ -115,22 +117,22 @@ $appointments = array_map(function($x) {
         "CheckinSystem"           => $x["CheckinSystem"],
         "Birthday"                => $x["Birthday"],
         "Age"                     => $x["Age"],
-        "Sex"                     => substr($x["Sex"],0,1),
+        "Sex"                     => mb_substr($x["Sex"], 0, 1),
         "WeightDate"              => $x["WeightDate"],
         "Weight"                  => $x["Weight"],
         "Height"                  => $x["Height"],
         "BSA"                     => $x["BSA"],
         "LastQuestionnaireReview" => $x["LastQuestionnaireReview"],
     ];
-},$queryWRM->fetchAll());
+}, $queryWRM->fetchAll());
 
 foreach($appointments as $row)
 {
     //perform some processing
-    if($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"],0,3) ."-". substr($row["SMSAlertNum"],3,3) ."-". substr($row["SMSAlertNum"],6,4);
+    if($row["SMSAlertNum"]) $row["SMSAlertNum"] = mb_substr($row["SMSAlertNum"], 0, 3) ."-". mb_substr($row["SMSAlertNum"], 3, 3) ."-". mb_substr($row["SMSAlertNum"], 6, 4);
 
     //if the weight was entered today, indicate it
-    if($row["WeightDate"] !== NULL && time() - (60*60*24) < strtotime($row["WeightDate"]))
+    if($row["WeightDate"] !== null && time() - (60*60*24) < strtotime($row["WeightDate"]))
     {
         $row["WeightDate"] = "Today";
     }
@@ -153,22 +155,22 @@ foreach($appointments as $row)
             $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
         }
         catch(Exception $e) {
-            $questionnaire = NULL;
+            $questionnaire = null;
             error_log((string) $e);
         }
 
-        if($questionnaire !== NULL)
+        if($questionnaire !== null)
         {
             $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
             $completedWithinWeek = ($oneWeekAgo <=  $questionnaire["completionDate"]);
 
-            $row["QStatus"] = ($completedWithinWeek === TRUE) ? "green-circle" : NULL;
+            $row["QStatus"] = ($completedWithinWeek === true) ? "green-circle" : null;
 
             /** @phpstan-ignore-next-line */
-            $lastQuestionnaireReview = ($row["LastQuestionnaireReview"] !== NULL) ? new DateTime($row["LastQuestionnaireReview"]) : NULL;
+            $lastQuestionnaireReview = ($row["LastQuestionnaireReview"] !== null) ? new DateTime($row["LastQuestionnaireReview"]) : null;
 
             /** @phpstan-ignore-next-line */
-            if($lastQuestionnaireReview === NULL || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
+            if($lastQuestionnaireReview === null || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
                 $row["QStatus"] = "red-circle";
             }
         }
@@ -214,21 +216,19 @@ foreach($json as $speciality => $data)
     $data = json_encode($data) ?: "[]";
 
     $checkinlist = fopen("$checkInFilePath/$speciality.json", "w");
-    if($checkinlist === FALSE) {
+    if($checkinlist === false) {
         die("Unable to open checkinlist file!");
     }
 
-    fwrite($checkinlist,$data);
+    fwrite($checkinlist, $data);
     fclose($checkinlist);
 }
 
-#scan for the list of check in files. If any of them were not updated today, empty them
+//scan for the list of check in files. If any of them were not updated today, empty them
 $path = dirname($checkInFilePath);
 $files = scandir($path) ?: [];
 
-$files = array_filter($files,function($x) {
-    return preg_match("/\.json/",$x) ? TRUE : FALSE ;
-});
+$files = array_filter($files, fn($x) => preg_match("/\.json/", $x) ? true : false);
 
 foreach($files as $file)
 {
@@ -237,9 +237,9 @@ foreach($files as $file)
 
     if($modDate === $today) continue;
 
-    $handle = fopen("$path/$file","w");
-    if($handle === FALSE) continue;
+    $handle = fopen("$path/$file", "w");
+    if($handle === false) continue;
 
-    fwrite($handle,"[]");
+    fwrite($handle, "[]");
     fclose($handle);
 }

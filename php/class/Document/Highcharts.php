@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Document;
 
@@ -14,14 +16,14 @@ class Highcharts
      * @param mixed[] $chart
      * @throws GuzzleException
      */
-    static function generateImageDataFromChart(array $chart): string
+    public static function generateImageDataFromChart(array $chart): string
     {
         $url = Config::getApplicationSettings()->environment->highchartsUrl;
 
-        if($url === NULL) return "";
+        if($url === null) return "";
 
         $client = new Client();
-        $request = $client->request("POST",$url,[
+        $request = $client->request("POST", $url, [
             "json" => [
                 "options" => json_encode($chart),
                 "type"    => "png",

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Hospital\OIE\Internal;
 
@@ -9,32 +11,32 @@ use Orms\Config;
 
 class Connection
 {
-    static function getHttpClient(): ?Client
+    public static function getHttpClient(): ?Client
     {
         $config = Config::getApplicationSettings()->oie;
-        if($config === NULL) return NULL;
+        if($config === null) return null;
 
         return new Client([
             "base_uri"      => $config->oieUrl,
-            "verify"        => FALSE, //this should be changed at some point...
+            "verify"        => false, //this should be changed at some point...
             // "http_errors"   => FALSE,
             "auth"          => [$config->username,$config->password]
         ]);
     }
 
-    static function getOpalHttpClient(): ?Client
+    public static function getOpalHttpClient(): ?Client
     {
         $url = Config::getApplicationSettings()->opal?->opalAdminUrl;
-        if($url === NULL) return NULL;
+        if($url === null) return null;
 
-        $url = $url . (substr($url,-1) === "/" ? "" : "/"); //add trailing slash if there is none
+        $url = $url . (mb_substr($url, -1) === "/" ? "" : "/"); //add trailing slash if there is none
 
         //make an initial login request to get an auth cookie
         $cookies = new CookieJar();
         (new Client([
             "base_uri"      => $url,
-            "verify"        => FALSE,
-        ]))->request("POST","user/system-login",[
+            "verify"        => false,
+        ]))->request("POST", "user/system-login", [
             "form_params" => [
                 "username" => Config::getApplicationSettings()->opal?->opalAdminUsername,
                 "password" => Config::getApplicationSettings()->opal?->opalAdminPassword
@@ -42,12 +44,12 @@ class Connection
             "cookies" => $cookies
         ]);
 
-        $authCookie = new CookieJar(FALSE,[$cookies->getCookieByName("PHPSESSID")]);
+        $authCookie = new CookieJar(false, [$cookies->getCookieByName("PHPSESSID")]);
 
         //create an client that can authenticate with OpalAdmin
         return new Client([
             "base_uri"      => $url,
-            "verify"        => FALSE, //this should be changed at some point...
+            "verify"        => false, //this should be changed at some point...
             // "http_errors"   => FALSE
             "cookies"       => $authCookie
         ]);

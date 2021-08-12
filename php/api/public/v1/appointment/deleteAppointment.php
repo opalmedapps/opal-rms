@@ -1,11 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Http;
-use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;
 use Orms\DateTime;
+use Orms\Http;
+use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
 
 try {
@@ -14,7 +16,7 @@ try {
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $deletedAppointment = new class(
@@ -29,7 +31,7 @@ $deletedAppointment = new class(
     public string $clinicCode;
 
     /** @param mixed[] $clinics */
-    function __construct(
+    public function __construct(
         public string $appointmentCode,
         array $clinics,
         public string $mrn,
@@ -37,24 +39,24 @@ $deletedAppointment = new class(
         public string $specialityGroupCode,
         string $scheduledDatetime
     ) {
-        $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s",$scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
+        $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s", $scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
 
-        $clinics = array_map(fn($x) => new DeletionClinic(clinicCode: $x["clinicCode"]),$clinics);
-        $this->clinicCode = implode("; ",array_map(fn($x) => $x->clinicCode,$clinics));
+        $clinics = array_map(fn($x) => new DeletionClinic(clinicCode: $x["clinicCode"]), $clinics);
+        $this->clinicCode = implode("; ", array_map(fn($x) => $x->clinicCode, $clinics));
     }
 };
 
 class DeletionClinic
 {
-    function __construct(
+    public function __construct(
         public string $clinicCode
     ) {}
 }
 
-$patient = PatientInterface::getPatientByMrn($deletedAppointment->mrn,$deletedAppointment->site);
+$patient = PatientInterface::getPatientByMrn($deletedAppointment->mrn, $deletedAppointment->site);
 
-if($patient === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+if($patient === null) {
+    Http::generateResponseJsonAndExit(400, error: "Unknown patient");
 }
 
 Appointment::deleteSimilarAppointments(

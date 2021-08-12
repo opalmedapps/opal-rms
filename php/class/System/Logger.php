@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\System;
 
-use \DateTime;
+use DateTime;
 use Orms\DataAccess\LoggerAccess;
 
 class Logger
@@ -11,7 +13,7 @@ class Logger
      * Logs an sms event
      *
      */
-    static function logSmsEvent(
+    public static function logSmsEvent(
         string $clientNumber,
         string $serviceNumber,
         string $messageId,

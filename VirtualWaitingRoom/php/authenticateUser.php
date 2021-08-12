@@ -1,19 +1,21 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__."/../../vendor/autoload.php";
 
-use Orms\Http;
 use Orms\Authentication;
+use Orms\Http;
 
 $postParams = Http::getPostContents();
 
-$username = $postParams["username"] ?? NULL;
-$password = $postParams["password"] ?? NULL;
+$username = $postParams["username"] ?? null;
+$password = $postParams["password"] ?? null;
 
 if(
-    $username === NULL
-    || $password === NULL
-    || Authentication::validateUserCredentials($username,$password) === FALSE
+    $username === null
+    || $password === null
+    || Authentication::validateUserCredentials($username, $password) === false
 )
 {
     http_response_code(406);

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms;
 
@@ -26,9 +28,9 @@ class Config
         return self::$self;
     }
 
-    static function __init(): void
+    public static function __init(): void
     {
-        $loadedData = parse_ini_file(__DIR__."/../../config/config.conf",TRUE) ?: throw new Exception("Loading configs failed");
+        $loadedData = parse_ini_file(__DIR__."/../../config/config.conf", true) ?: throw new Exception("Loading configs failed");
         $parsedData = self::_parseData($loadedData);
 
         //create required configs
@@ -40,12 +42,12 @@ class Config
             logPath:        $parsedData["path"]["LOG_PATH"],
             firebaseUrl:    $parsedData["path"]["FIREBASE_URL"],
             firebaseSecret: $parsedData["path"]["FIREBASE_SECRET"],
-            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? NULL
+            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? null
         );
 
         $system = new SystemConfig(
             emails:          $parsedData["system"]["EMAIL"] ?? [],
-            sendWeights:     (bool) ($parsedData["system"]["SEND_WEIGHTS"] ?? FALSE)
+            sendWeights:     (bool) ($parsedData["system"]["SEND_WEIGHTS"] ?? false)
         );
 
         $ormsDb = new DatabaseConfig(
@@ -68,8 +70,8 @@ class Config
 
         //create optional configs
 
-        if((bool) $parsedData["oie"]["ENABLED"] !== TRUE) {
-            $oie = NULL;
+        if((bool) $parsedData["oie"]["ENABLED"] !== true) {
+            $oie = null;
         }
         else {
             $oie = new OpalInterfaceEngineConfig(
@@ -79,8 +81,8 @@ class Config
             );
         }
 
-        if((bool) $parsedData["sms"]["ENABLED"] !== TRUE) {
-            $sms = NULL;
+        if((bool) $parsedData["sms"]["ENABLED"] !== true) {
+            $sms = null;
         }
         else {
             $sms = new SmsConfig(
@@ -95,8 +97,8 @@ class Config
             );
         }
 
-        if((bool) $parsedData["opal"]["ENABLED"] !== TRUE) {
-            $opal = NULL;
+        if((bool) $parsedData["opal"]["ENABLED"] !== true) {
+            $opal = null;
         }
         else {
             $opal = new OpalConfig(
@@ -127,7 +129,7 @@ class Config
         foreach($arr as &$val)
         {
             $val = is_array($val) ? self::_parseData($val) : $val;
-            $val = ($val !== "") ? $val : NULL;
+            $val = ($val !== "") ? $val : null;
         }
 
         return $arr;
@@ -137,7 +139,7 @@ class Config
 /** @psalm-immutable */
 class EnvironmentConfig
 {
-    function __construct(
+    public function __construct(
         public string $basePath,
         public string $baseUrl,
         public string $imagePath,
@@ -152,7 +154,7 @@ class EnvironmentConfig
 /** @psalm-immutable */
 class OpalInterfaceEngineConfig
 {
-    function __construct(
+    public function __construct(
         public string $oieUrl,
         public string $username,
         public string $password
@@ -162,7 +164,7 @@ class OpalInterfaceEngineConfig
 /** @psalm-immutable */
 class DatabaseConfig
 {
-    function __construct(
+    public function __construct(
         public string $type,
         public string $host,
         public string $port,
@@ -177,7 +179,7 @@ class SystemConfig
 {
     /** @param string[] $emails */
 
-    function __construct(
+    public function __construct(
         public array $emails,
         public bool $sendWeights
     ) {}
@@ -190,7 +192,7 @@ class SmsConfig
      * @param string[] $longCodes
      */
 
-    function __construct(
+    public function __construct(
         public string $provider,
         public string $licenceKey,
         public string $token,
@@ -205,7 +207,7 @@ class SmsConfig
 /** @psalm-immutable */
 class OpalConfig
 {
-    function __construct(
+    public function __construct(
         public string $opalAdminUrl,
         public string $opalAdminUsername,
         public string $opalAdminPassword

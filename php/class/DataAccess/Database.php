@@ -1,19 +1,18 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-use PDO;
-
 use Orms\Config;
 use Orms\DatabaseConfig;
+use PDO;
 
 //returns db connection handles to a requested database
 class Database
 {
-    private static ?PDO $ormsConnection = NULL;
-    private static ?PDO $logsConnection = NULL;
-    private static ?PDO $opalConnection = NULL;
-    private static ?PDO $questionnaireConnection = NULL;
+    private static ?PDO $ormsConnection = null;
+    private static ?PDO $logsConnection = null;
 
     /** @var array<int,int> */
     private static array $pdoOptions = [
@@ -21,9 +20,9 @@ class Database
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ];
 
-    static function getOrmsConnection(): PDO
+    public static function getOrmsConnection(): PDO
     {
-        if(self::$ormsConnection === NULL) {
+        if(self::$ormsConnection === null) {
             $dbInfo = Config::getApplicationSettings()->ormsDb;
             self::$ormsConnection = self::_getDatabaseConnection($dbInfo);
         }
@@ -31,9 +30,9 @@ class Database
         return self::$ormsConnection;
     }
 
-    static function getLogsConnection(): PDO
+    public static function getLogsConnection(): PDO
     {
-        if(self::$logsConnection === NULL) {
+        if(self::$logsConnection === null) {
             $dbInfo = Config::getApplicationSettings()->logDb;
             self::$logsConnection = self::_getDatabaseConnection($dbInfo);
         }
@@ -44,14 +43,14 @@ class Database
     private static function _getDatabaseConnection(DatabaseConfig $dbConf): PDO
     {
         return new PDO(
-            self::_generateMysqlConnectionString($dbConf->host,$dbConf->port,$dbConf->databaseName),
+            self::_generateMysqlConnectionString($dbConf->host, $dbConf->port, $dbConf->databaseName),
             $dbConf->username,
             $dbConf->password,
             self::$pdoOptions
         );
     }
 
-    private static function _generateMysqlConnectionString(string $host,string $port,string $dbName): string
+    private static function _generateMysqlConnectionString(string $host, string $port, string $dbName): string
     {
         return "mysql:host={$host};port={$port};dbname={$dbName}";
     }
@@ -66,13 +65,13 @@ class Database
      *      boundValues: array
      * }
      */
-    static function generateBoundedSqlString(string $sqlString,string $placeholder,string $column,array $elements): array
+    public static function generateBoundedSqlString(string $sqlString, string $placeholder, string $column, array $elements): array
     {
         $boundElements = [];
-        $placeholderStripped = str_replace(":","",$placeholder);
+        $placeholderStripped = str_replace(":", "", $placeholder);
 
         if($elements === []) {
-            $bindString = NULL;
+            $bindString = null;
         }
         else {
             $boundIndexes = [];
@@ -83,10 +82,10 @@ class Database
                 $boundElements[":bindParam$placeholderStripped$index"] = $val;
             }
 
-            $bindString = "$column IN (". implode(",",$boundIndexes) .")";
+            $bindString = "$column IN (". implode(",", $boundIndexes) .")";
         }
 
-        $sqlString = str_replace($placeholder,$bindString ?? "1=1",$sqlString); //if the input array was empty, remove the placeholder
+        $sqlString = str_replace($placeholder, $bindString ?? "1=1", $sqlString); //if the input array was empty, remove the placeholder
 
         return [
             "sqlString"   => $sqlString,
@@ -104,7 +103,7 @@ class Database
      *      referencedColumn: string
      *   }>
      */
-    static function getForeignKeysConnectedToColumn(PDO $dbh,string $tableName,string $columnName): array
+    public static function getForeignKeysConnectedToColumn(PDO $dbh, string $tableName, string $columnName): array
     {
         $query = $dbh->prepare("
             SELECT
@@ -133,7 +132,7 @@ class Database
                 "referencedTable"   => $x["REFERENCED_TABLE_NAME"],
                 "referencedColumn"  => $x["REFERENCED_COLUMN_NAME"],
             ];
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
 }

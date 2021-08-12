@@ -1,15 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 class HighchartsServerService
 {
-    CONST CHART_IMAGES_DIR = __DIR__ . '/../../../built-chart-images';
-    CONST HIGHCHARTS_LOG_DIR = __DIR__ . '/../../../highcharts-export-server-log';
-    CONST HIGHCHARTS_CONFIG = __DIR__ . '/../Resources/highcharts-config';
-    CONST HIGHCHARTS_SERVER_HOST = '127.0.0.1';
-    CONST HIGHCHARTS_SERVER_PORT = '7801';
-    CONST NUMERIC_TYPE_QUESTION = 2;
-    CONST TEXT_TYPE_QUESTION = 3;
-    CONST ONE_LINE_LABEL = 15;
+    public const CHART_IMAGES_DIR = __DIR__ . "/../../../built-chart-images";
+    public const HIGHCHARTS_LOG_DIR = __DIR__ . "/../../../highcharts-export-server-log";
+    public const HIGHCHARTS_CONFIG = __DIR__ . "/../Resources/highcharts-config";
+    public const HIGHCHARTS_SERVER_HOST = "127.0.0.1";
+    public const HIGHCHARTS_SERVER_PORT = "7801";
+    public const NUMERIC_TYPE_QUESTION = 2;
+    public const TEXT_TYPE_QUESTION = 3;
+    public const ONE_LINE_LABEL = 15;
     // TODO: Add labeling type question when it's implemented in the Opal App
 
     /**
@@ -21,11 +23,11 @@ class HighchartsServerService
         $patientId,
         array $questionnaireAnswers
     ) {
-        $date = new \DateTime('now', new \DateTimeZone('UTC'));
+        $date = new \DateTime("now", new \DateTimeZone("UTC"));
         $timestamp = $date->getTimestamp();
 
         // path to patient charts
-        $patientDir = HighchartsServerService::CHART_IMAGES_DIR . '/patientID_' . $patientId . '/' . $timestamp;
+        $patientDir = HighchartsServerService::CHART_IMAGES_DIR . "/patientID_" . $patientId . "/" . $timestamp;
 //        $chartImagesDir = $patientDir . '/images';
 //
 //        // Check if the folder for highchart images exists
@@ -35,7 +37,7 @@ class HighchartsServerService
 //                die('Failed to create folders...');
 //        }
 
-        $highchartsServerUrl = HighchartsServerService::HIGHCHARTS_SERVER_HOST . ':' . HighchartsServerService::HIGHCHARTS_SERVER_PORT;
+        $highchartsServerUrl = HighchartsServerService::HIGHCHARTS_SERVER_HOST . ":" . HighchartsServerService::HIGHCHARTS_SERVER_PORT;
         $curlArr = [];
         $jsonPaths = $this->buildJsonFilesForCharts($questionnaireAnswers, $patientDir);
 
@@ -48,13 +50,13 @@ class HighchartsServerService
 //            $cfile = new \CURLFile($jsonPaths[$i],'application/json', $jsonPaths[$i]);
             $data = file_get_contents($jsonPaths[$i]);
             // set URL and other appropriate options
-            curl_setopt_array($curlArr[$i],[
+            curl_setopt_array($curlArr[$i], [
                 CURLOPT_CUSTOMREQUEST   => "POST",
                 CURLOPT_RETURNTRANSFER  => true,
                 CURLOPT_POSTFIELDS      => $data,
                 CURLOPT_HTTPHEADER      => [
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($data)
+                    "Content-Type: application/json",
+                    "Content-Length: " . mb_strlen($data)
                 ]
             ]);
             //add the handles
@@ -81,7 +83,7 @@ class HighchartsServerService
         }
         curl_multi_close($master);
 
-        return 'patientID_' . $patientId . '/' . $timestamp;
+        return "patientID_" . $patientId . "/" . $timestamp;
     }
 
     /**
@@ -91,7 +93,7 @@ class HighchartsServerService
      */
     private function buildJsonFilesForCharts(array $questionnaireAnswers, $patientDir) {
         $jsonFilesPathArr = [];
-        $jsonConfig = '';
+        $jsonConfig = "";
         //    "minorGridLineWidth": 1,
         //    "minorTickInterval": "auto",
         $yAxis = [
@@ -103,10 +105,10 @@ class HighchartsServerService
                 "y" => -35,
                 "rotation" => 0,
                 "style" => [
-                    "color" => 'red',
+                    "color" => "red",
                     "width" => 200,
-                    "textOverflow" => 'ellipsis',
-                    "whiteSpace" => 'nowrap'
+                    "textOverflow" => "ellipsis",
+                    "whiteSpace" => "nowrap"
                 ],
                 "useHTML" => true,
                 "text" => null,
@@ -133,30 +135,30 @@ class HighchartsServerService
             "color" => "#7cb5ec"
         ];
 
-        $jsonConfig = file_get_contents(HighchartsServerService::HIGHCHARTS_CONFIG . '/lineChart.json');
+        $jsonConfig = file_get_contents(HighchartsServerService::HIGHCHARTS_CONFIG . "/lineChart.json");
 
         if (!empty($jsonConfig)) {
             foreach ($questionnaireAnswers as $questionnaireKey => $questionnaire) {
                 $yAxisId = 0;
                 $top = 0; // The top position of the Y axis
-                $json['infile'] = json_decode($jsonConfig, true);
-                foreach ($questionnaire['questions'] as $questionKey => $question) {
-                    if ($question['question_type_id'] != HighchartsServerService::NUMERIC_TYPE_QUESTION)
+                $json["infile"] = json_decode($jsonConfig, true);
+                foreach ($questionnaire["questions"] as $questionKey => $question) {
+                    if ($question["question_type_id"] !== HighchartsServerService::NUMERIC_TYPE_QUESTION)
                         continue;
 
 //                    $json["infile"]['title']['text'] = $question['question_text'];
-                    $questionLabel = $question['question_label'];
-                    $yAxis['title']['text'] = $this->getSVGLabelBox($questionLabel);
-                    $yAxis['max'] = $question['max_value'];
-                    $yAxis['min'] = $question['min_value'];
+                    $questionLabel = $question["question_label"];
+                    $yAxis["title"]["text"] = $this->getSVGLabelBox($questionLabel);
+                    $yAxis["max"] = $question["max_value"];
+                    $yAxis["min"] = $question["min_value"];
                     $json["infile"]["yAxis"][] = $yAxis;
-                    $series["data"] = $question['values'];
+                    $series["data"] = $question["values"];
                     $series["yAxis"]  = $yAxisId;
-                    $json['infile']['series'][] = $series;
+                    $json["infile"]["series"][] = $series;
                     $yAxisId++;
                 }
 
-                if (empty($json['infile']['series']))
+                if (empty($json["infile"]["series"]))
                     continue;
 
 
@@ -176,12 +178,12 @@ class HighchartsServerService
 
                 if (!is_dir($jsonDir)) {
                     if (!mkdir($jsonDir, 0777, true))
-                        die('Failed to create folders...');
+                        die("Failed to create folders...");
                 }
 
                 if (!is_dir($imagesDir)) {
                     if (!mkdir($imagesDir, 0777, true))
-                        die('Failed to create folders...');
+                        die("Failed to create folders...");
                 }
 
                 $jsonFile = $jsonDir . "/$questionnaireKey" . ".json";
@@ -201,21 +203,25 @@ class HighchartsServerService
                      . $questionLabel
                      . "</text>";
         // split the string on lines
-        $lines = explode("\n", wordwrap($questionLabel,
+        $lines = explode(
+            "\n",
+            wordwrap(
+                $questionLabel,
                 HighchartsServerService::ONE_LINE_LABEL,
                 "\n",
-                true)
+                true
+            )
         );
 
         // form lines in a label-box
-        if (count($lines) == 2) { // if two lines
+        if (count($lines) === 2) { // if two lines
             $labelText = "<text x=50% y=35% font-family=Arial font-size=25 dominant-baseline=middle text-anchor=middle fill=white>"
                 . utf8_encode($lines[0])
                 . "</text>"
                 . "<text x=50% y=75% font-family=Arial font-size=25 dominant-baseline=middle text-anchor=middle fill=white>"
                 . utf8_encode($lines[1])
                 . "</text>";
-        } elseif (count($lines) == 3) { // if three lines
+        } elseif (count($lines) === 3) { // if three lines
             $labelText = "<text x=50% y=25% font-family=Arial font-size=20 dominant-baseline=middle text-anchor=middle fill=white>"
                 . $lines[0]
                 . "</text>"
@@ -234,8 +240,8 @@ class HighchartsServerService
                 . utf8_encode($lines[1])
                 . "</text>"
                 . "<text x=50% y=80% font-family=Arial font-size=20 dominant-baseline=middle text-anchor=middle fill=white>"
-                . strlen(utf8_encode($lines[2])) > HighchartsServerService::ONE_LINE_LABEL ?
-                        substr(utf8_encode($lines[2]),0,HighchartsServerService::ONE_LINE_LABEL) . "..." : utf8_encode($lines[2])
+                . mb_strlen(utf8_encode($lines[2])) > HighchartsServerService::ONE_LINE_LABEL ?
+                        mb_substr(utf8_encode($lines[2]), 0, HighchartsServerService::ONE_LINE_LABEL) . "..." : utf8_encode($lines[2])
                 . "</text>";
         }
 

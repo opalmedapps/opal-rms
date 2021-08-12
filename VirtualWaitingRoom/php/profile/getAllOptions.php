@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 //====================================================================================
 // php code to query the database and
 // extract the list of options, which includes resources, appointments, and rooms
@@ -6,8 +8,8 @@
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
 //get webpage parameters
 $speciality = $_GET["speciality"];
@@ -75,7 +77,7 @@ $query4->execute([$clinicHub]);
 // Process results
 foreach($query4->fetchAll() as $row)
 {
-    if(preg_match("/(TX AREA|RT TX ROOM)/",$row["AriaVenueId"])) {
+    if(preg_match("/(TX AREA|RT TX ROOM)/", $row["AriaVenueId"])) {
         $treatmentVenues[] = $row["AriaVenueId"];
     }
     else {

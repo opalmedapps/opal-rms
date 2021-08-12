@@ -1,11 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
 
-#insert diagnosis codes in database
+declare(strict_types=1);
+
+//insert diagnosis codes in database
 require_once __DIR__ ."/../../../vendor/autoload.php";
 
 use Orms\DataAccess\Database;
 
-$data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json") ?: "",TRUE);
+$data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json") ?: "", true);
 
 $dbh = Database::getOrmsConnection();
 $dbh->query("SET FOREIGN_KEY_CHECKS = 0;");
@@ -19,13 +21,13 @@ createPatientDiagnosisMHTriggers($dbh);
 
 $dbh->query("SET FOREIGN_KEY_CHECKS = 1;");
 
-insertChapters($dbh,$data["chapters"]);
-insertCodes($dbh,$data["codes"]);
-insertSubcodes($dbh,$data["subcodes"]);
+insertChapters($dbh, $data["chapters"]);
+insertCodes($dbh, $data["codes"]);
+insertSubcodes($dbh, $data["subcodes"]);
 
 addDiagnosisColumnToVwr($dbh);
 
-############################################
+//###########################################
 function createDiagnosisChapterTable(PDO $dbh): void
 {
     $dbh->query("DROP TABLE IF EXISTS DiagnosisChapter;");
@@ -196,7 +198,7 @@ function createPatientDiagnosisMHTriggers(PDO $dbh): void
 }
 
 /** @param mixed[] $chapters */
-function insertChapters(PDO $dbh,array $chapters): void
+function insertChapters(PDO $dbh, array $chapters): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisChapter(Chapter,Description)
@@ -212,7 +214,7 @@ function insertChapters(PDO $dbh,array $chapters): void
 }
 
 /** @param mixed[] $codes */
-function insertCodes(PDO $dbh,array $codes): void
+function insertCodes(PDO $dbh, array $codes): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisCode(Code,DiagnosisChapterId,Category,Description)
@@ -235,7 +237,7 @@ function insertCodes(PDO $dbh,array $codes): void
 }
 
 /** @param mixed[] $subcodes */
-function insertSubcodes(PDO $dbh,array $subcodes): void
+function insertSubcodes(PDO $dbh, array $subcodes): void
 {
     $query = $dbh->prepare("
         INSERT INTO DiagnosisSubcode(Subcode,DiagnosisCodeId,Description)

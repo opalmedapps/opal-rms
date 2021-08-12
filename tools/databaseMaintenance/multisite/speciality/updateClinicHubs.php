@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class ClinicHubs
 {
-    static function recreateClinicHubTable(PDO $dbh): void
+    public static function recreateClinicHubTable(PDO $dbh): void
     {
         $dbh->query("
             DROP TABLE IF EXISTS `ClinicHub`;
@@ -36,7 +38,7 @@ class ClinicHubs
         ");
     }
 
-    static function linkExamRoomTable(PDO $dbh): void
+    public static function linkExamRoomTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS ExamRoom_TEMP AS (SELECT * FROM ExamRoom);
@@ -64,7 +66,7 @@ class ClinicHubs
         ");
     }
 
-    static function linkIntermediateVenueTable(PDO $dbh): void
+    public static function linkIntermediateVenueTable(PDO $dbh): void
     {
         $dbh->query("
             CREATE TEMPORARY TABLE IF NOT EXISTS IntermediateVenue_TEMP AS (SELECT * FROM IntermediateVenue);
@@ -92,7 +94,7 @@ class ClinicHubs
         ");
     }
 
-    static function unlinkProfileTable(PDO $dbh): void
+    public static function unlinkProfileTable(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `Profile`

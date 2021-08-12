@@ -1,19 +1,23 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Sms;
 
 use DateTime;
 use Exception;
-use PDOException;
 use GuzzleHttp\Exception\GuzzleException;
-
-use Orms\Util\Encoding;
 use Orms\Config;
-use Orms\SmsConfig;
 use Orms\DataAccess\Database;
-use Orms\Sms\Internal\{SmsTwilio,SmsCdyne,SmsClassInterface,SmsReceivedMessage};
-use Orms\Util\ArrayUtil;
+use Orms\Sms\Internal\SmsCdyne;
+use Orms\Sms\Internal\SmsClassInterface;
+use Orms\Sms\Internal\SmsReceivedMessage;
+use Orms\Sms\Internal\SmsTwilio;
+use Orms\SmsConfig;
 use Orms\System\Logger;
+use Orms\Util\ArrayUtil;
+use Orms\Util\Encoding;
+use PDOException;
 
 SmsInterface::__init();
 
@@ -22,7 +26,7 @@ class SmsInterface
     private static ?SmsConfig $configs;
     private static SmsClassInterface $smsProvider;
 
-    static function __init(): void
+    public static function __init(): void
     {
         self::$configs = Config::getApplicationSettings()->sms;
 
@@ -35,18 +39,18 @@ class SmsInterface
      * @throws GuzzleException
      * @throws PDOException
      */
-    static function sendSms(string $clientNumber,string $message,string $serviceNumber = NULL): void
+    public static function sendSms(string $clientNumber, string $message, string $serviceNumber = null): void
     {
-        if(self::$configs === NULL) return;
+        if(self::$configs === null) return;
 
-        #by default, we send sms using Twilio
-        if($serviceNumber === NULL) {
+        //by default, we send sms using Twilio
+        if($serviceNumber === null) {
             $serviceNumber = self::$configs->longCodes[array_rand(self::$configs->longCodes)];
         }
 
         try
         {
-            $messageId = self::$smsProvider->sendSms($clientNumber,$serviceNumber,$message);
+            $messageId = self::$smsProvider->sendSms($clientNumber, $serviceNumber, $message);
             $result = "SUCCESS";
         }
         catch(Exception $e)
@@ -73,14 +77,12 @@ class SmsInterface
      * @throws GuzzleException
      * @throws PDOException
      */
-    static function getNewReceivedMessages(DateTime $timestamp): array
+    public static function getNewReceivedMessages(DateTime $timestamp): array
     {
-        if(self::$configs === NULL) return [];
+        if(self::$configs === null) return [];
 
-        $messages = self::$smsProvider->getReceivedMessages(self::$configs->longCodes,$timestamp);
-        $messages = array_filter($messages,function($x) {
-            return self::_checkIfMessageAlreadyReceived($x) === FALSE;
-        });
+        $messages = self::$smsProvider->getReceivedMessages(self::$configs->longCodes, $timestamp);
+        $messages = array_filter($messages, fn($x) => self::_checkIfMessageAlreadyReceived($x) === false);
 
         foreach($messages as $x) {
             Logger::logSmsEvent(
@@ -106,9 +108,9 @@ class SmsInterface
      * @return string[][][][][]
      * @throws PDOException
      */
-    static function getPossibleSmsMessages(): array
+    public static function getPossibleSmsMessages(): array
     {
-        if(self::$configs === NULL) return [];
+        if(self::$configs === null) return [];
 
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -129,7 +131,7 @@ class SmsInterface
         $query->execute();
 
         $messages = $query->fetchAll();
-        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages,"SpecialityGroupId","Type","Event","Language");
+        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages, "SpecialityGroupId", "Type", "Event", "Language");
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
         return Encoding::utf8_encode_recursive($messages);
@@ -139,10 +141,10 @@ class SmsInterface
      *
      * param 'English'|'French' $language #too cumbersome to actually use with the code's current state
      */
-    static function getDefaultFailedCheckInMessage(string $language): ?string
+    public static function getDefaultFailedCheckInMessage(string $language): ?string
     {
-        if(self::$configs === NULL) {
-            return NULL;
+        if(self::$configs === null) {
+            return null;
         }
 
         if($language === "English") {
@@ -152,17 +154,17 @@ class SmsInterface
             return self::$configs->failedCheckInMessageFrench;
         }
 
-        return NULL;
+        return null;
     }
 
     /**
      *
      * param 'English'|'French' $language #too cumbersome to actually use with the code's current state
      */
-    static function getDefaultUnknownCommandMessage(string $language): ?string
+    public static function getDefaultUnknownCommandMessage(string $language): ?string
     {
-        if(self::$configs === NULL) {
-            return NULL;
+        if(self::$configs === null) {
+            return null;
         }
 
         if($language === "English") {
@@ -172,7 +174,7 @@ class SmsInterface
             return self::$configs->unknownCommandMessageFrench;
         }
 
-        return NULL;
+        return null;
     }
 
     private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool

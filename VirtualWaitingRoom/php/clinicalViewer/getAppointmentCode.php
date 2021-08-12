@@ -1,15 +1,17 @@
-<?php declare(strict_types=1);
+<?php
 
-#-------------------------------------------------
-# Returns a list of resources depending on the speciality specified
-#-------------------------------------------------
+declare(strict_types=1);
+
+//-------------------------------------------------
+// Returns a list of resources depending on the speciality specified
+//-------------------------------------------------
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Util\Encoding;
 use Orms\DataAccess\Database;
+use Orms\Util\Encoding;
 
-$speciality = $_GET["speciality"] ?? NULL;
+$speciality = $_GET["speciality"] ?? null;
 
 $dbh = Database::getOrmsConnection();
 
@@ -25,9 +27,7 @@ $query = $dbh->prepare("
 ");
 $query->execute([$speciality]);
 
-$resources = array_map(function($x) {
-    return ["Name" => $x["AppointmentCode"]];
-},$query->fetchAll());
+$resources = array_map(fn($x) => ["Name" => $x["AppointmentCode"]], $query->fetchAll());
 
 $resources = Encoding::utf8_encode_recursive($resources);
 echo json_encode($resources);

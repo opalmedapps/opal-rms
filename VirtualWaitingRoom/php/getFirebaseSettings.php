@@ -1,5 +1,7 @@
-<?php declare(strict_types = 1);
-#script to get the parameters needed to connect to firebase
+<?php
+
+declare(strict_types=1);
+//script to get the parameters needed to connect to firebase
 
 require_once __DIR__."/../../vendor/autoload.php";
 

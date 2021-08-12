@@ -1,29 +1,31 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Hospital\OIE\Fetch;
-use Orms\Patient\PatientInterface;
 use Orms\Http;
+use Orms\Patient\PatientInterface;
 
-$patientId       = $_GET["patientId"] ?? NULL;
-$questionnaireId = $_GET["questionnaireId"] ?? NULL;
+$patientId       = $_GET["patientId"] ?? null;
+$questionnaireId = $_GET["questionnaireId"] ?? null;
 
-if($patientId === NULL || $questionnaireId === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Missing fields!");
+if($patientId === null || $questionnaireId === null) {
+    Http::generateResponseJsonAndExit(400, error: "Missing fields!");
 }
 
 $patient = PatientInterface::getPatientById((int) $patientId);
 
-if($patient === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Unknown patient");
+if($patient === null) {
+    Http::generateResponseJsonAndExit(400, error: "Unknown patient");
 }
 
-$questions = Fetch::getPatientAnswersForChartTypeQuestionnaire($patient,(int) $questionnaireId);
+$questions = Fetch::getPatientAnswersForChartTypeQuestionnaire($patient, (int) $questionnaireId);
 
 //get the date of the last questionnaire that the patient answered
 if($questions[0]["answers"] === []) {
-    $lastDateAnswered = NULL;
+    $lastDateAnswered = null;
 }
 else {
     $lastDateAnswered = $questions[0]["answers"][count($questions[0]["answers"])-1]["dateTimeAnswered"];
@@ -35,10 +37,10 @@ $questions = array_map(function($x) {
     $x["answers"] = array_map(function($y) {
         $y["dateTimeAnswered"] = $y["dateTimeAnswered"] *1000;
         return $y;
-    },$x["answers"]);
+    }, $x["answers"]);
 
     return $x;
-},$questions);
+}, $questions);
 
 //the return array, will be in JSON format
 $jstring = [
@@ -52,30 +54,30 @@ foreach($questions as $q)
     $lastAnswer = $questions[0]["answers"][count($questions[0]["answers"])-1]["answer"];
 
     $jstring["qData"][] = [
-        "credits" => ["enabled" => FALSE],
-        "exporting" => ["enabled" => FALSE],
+        "credits" => ["enabled" => false],
+        "exporting" => ["enabled" => false],
         "chart" => [
             "type" => "line",
             "zoomType" => "x",
             "borderWidth" => 0
         ],
         "title" => ["text" => $q["questionTitle"]],
-        "tooltip" => ["formatter" => NULL],
+        "tooltip" => ["formatter" => null],
         "xAxis" => [
             "type" => "datetime",
             "minTickInterval" => 28*24*3600*1000,
-            "startOnTick" => TRUE,
-            "endOnTick" => TRUE,
+            "startOnTick" => true,
+            "endOnTick" => true,
             "labels" => [
                 "style"  => ["fontSize" => "14px"],
-                "format" => NULL
+                "format" => null
             ]
         ],
         "yAxis" => [
             "min" => 0,
             "max" => 10,
-            "startOnTick" => FALSE,
-            "endOnTick" => FALSE,
+            "startOnTick" => false,
+            "endOnTick" => false,
             "title" => [
                 "text"  => "Response",
                 "style" => ["fontSize" => "15px"]
@@ -95,12 +97,12 @@ foreach($questions as $q)
                 ]
             ]
         ],
-        "plotOptions" => ["line" => ["marker" => ["enabled" => TRUE]]],
+        "plotOptions" => ["line" => ["marker" => ["enabled" => true]]],
         "series" => [
             [
                 "name"         => $q["questionTitle"],
-                "showInLegend" => FALSE,
-                "data"         => array_map(fn($x) => [$x["dateTimeAnswered"],$x["answer"]],$q["answers"]), //convert to non-assoc array for highcharts
+                "showInLegend" => false,
+                "data"         => array_map(fn($x) => [$x["dateTimeAnswered"],$x["answer"]], $q["answers"]), //convert to non-assoc array for highcharts
                 "tooltip"      => ["valueDecimals" => 0]
             ]
         ]

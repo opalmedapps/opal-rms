@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../vendor/autoload.php";
 
@@ -18,7 +20,7 @@ $tableQuery = $dbh->prepare("
 ");
 $tableQuery->execute();
 
-$tables = array_map(fn($x) => $x["TABLE_NAME"],$tableQuery->fetchAll());
+$tables = array_map(fn($x) => $x["TABLE_NAME"], $tableQuery->fetchAll());
 
 foreach($tables as $table)
 {

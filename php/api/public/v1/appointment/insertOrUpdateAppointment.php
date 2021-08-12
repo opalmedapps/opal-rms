@@ -1,13 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 // inserts an appointment into db, updates that appointment if there's already an appointment with the same id
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Http;
-use Orms\Patient\PatientInterface;
 use Orms\Appointment\Appointment;
 use Orms\DateTime;
+use Orms\Http;
+use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
 
 try {
@@ -16,7 +18,7 @@ try {
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $appointment = new class(
@@ -24,11 +26,11 @@ $appointment = new class(
     clinics:                $fields["clinics"],
     creationDatetime:       $fields["creationDatetime"],
     mrn:                    $fields["mrn"],
-    referringDoctor:        $fields["referringDoctor"] ?? NULL,
+    referringDoctor:        $fields["referringDoctor"] ?? null,
     scheduledDatetime:      $fields["scheduledDatetime"],
     site:                   $fields["site"],
     sourceId:               $fields["sourceId"],
-    sourceStatus:           $fields["sourceStatus"] ?? NULL,
+    sourceStatus:           $fields["sourceStatus"] ?? null,
     sourceSystem:           $fields["sourceSystem"],
     specialityGroupCode:    $fields["specialityGroupCode"],
     status:                 $fields["status"],
@@ -39,7 +41,7 @@ $appointment = new class(
     public string $clinicDescription;
 
     /** @param mixed[] $clinics */
-    function __construct(
+    public function __construct(
         public string $appointmentCode,
         //public string $appointmentCodeDescription,
         array $clinics,
@@ -54,27 +56,27 @@ $appointment = new class(
         public string $specialityGroupCode,
         public string $status
     ) {
-        $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s",$scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
-        $this->creationDatetime = DateTime::createFromFormatN("Y-m-d H:i:s",$creationDatetime) ?? throw new Exception("Incorrect datetime format");
+        $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s", $scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
+        $this->creationDatetime = DateTime::createFromFormatN("Y-m-d H:i:s", $creationDatetime) ?? throw new Exception("Incorrect datetime format");
 
-        $clinics = array_map(fn($x) => new AppClinic(clinicCode: $x["clinicCode"],clinicDescription: $x["clinicDescription"]),$clinics);
-        $this->clinicCode = implode("; ",array_map(fn($x) => $x->clinicCode,$clinics));
-        $this->clinicDescription = implode("; ",array_map(fn($x) => $x->clinicDescription,$clinics));
+        $clinics = array_map(fn($x) => new AppClinic(clinicCode: $x["clinicCode"], clinicDescription: $x["clinicDescription"]), $clinics);
+        $this->clinicCode = implode("; ", array_map(fn($x) => $x->clinicCode, $clinics));
+        $this->clinicDescription = implode("; ", array_map(fn($x) => $x->clinicDescription, $clinics));
     }
 };
 
 class AppClinic
 {
-    function __construct(
+    public function __construct(
         public string $clinicCode,
         public string $clinicDescription
     ) {}
 }
 
-$patient = PatientInterface::getPatientByMrn($appointment->mrn,$appointment->site);
+$patient = PatientInterface::getPatientByMrn($appointment->mrn, $appointment->site);
 
-if($patient === NULL) {
-    Http::generateResponseJsonAndExit(400,error: "Patient not found");
+if($patient === null) {
+    Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
 Appointment::createOrUpdateAppointment(

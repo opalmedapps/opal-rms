@@ -1,18 +1,19 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Diagnosis\Internal;
 
 use Exception;
-use PDOException;
-
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Diagnosis\Internal\Diagnosis;
+use PDOException;
 
 /** @psalm-immutable */
 class PatientDiagnosis
 {
-    function __construct(
+    public function __construct(
         public int $id,
         public int $patientId,
         public string $status,
@@ -28,18 +29,18 @@ class PatientDiagnosis
      * @return PatientDiagnosis[]
      * @throws PDOException
      */
-    static function getDiagnosisListForPatient(int $patientId): array
+    public static function getDiagnosisListForPatient(int $patientId): array
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
-                PatientDiagnosisId
-                ,PatientSerNum
-                ,DiagnosisSubcodeId
-                ,Status
-                ,DiagnosisDate
-                ,CreatedDate
-                ,LastUpdated
+                PatientDiagnosisId,
+                PatientSerNum,
+                DiagnosisSubcodeId,
+                Status,
+                DiagnosisDate,
+                CreatedDate,
+                LastUpdated
             FROM
                 PatientDiagnosis
             WHERE
@@ -60,21 +61,21 @@ class PatientDiagnosis
                 new DateTime($x["LastUpdated"]),
                 Diagnosis::getDiagnosisFromId((int) $x["DiagnosisSubcodeId"])
             );
-        },$query->fetchAll());
+        }, $query->fetchAll());
     }
 
-    static function getDiagnosisById(int $id): PatientDiagnosis
+    public static function getDiagnosisById(int $id): PatientDiagnosis
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             SELECT
-                PatientDiagnosisId
-                ,PatientSerNum
-                ,DiagnosisSubcodeId
-                ,DiagnosisDate
-                ,Status
-                ,CreatedDate
-                ,LastUpdated
+                PatientDiagnosisId,
+                PatientSerNum,
+                DiagnosisSubcodeId,
+                DiagnosisDate,
+                Status,
+                CreatedDate,
+                LastUpdated
             FROM
                 PatientDiagnosis
             WHERE
@@ -84,9 +85,9 @@ class PatientDiagnosis
         ");
         $query->execute([":id" => $id]);
 
-        $row = $query->fetchAll()[0] ?? NULL;
+        $row = $query->fetchAll()[0] ?? null;
 
-        if($row === NULL) throw new Exception("Unknown patient diagnosis code");
+        if($row === null) throw new Exception("Unknown patient diagnosis code");
 
         return new PatientDiagnosis(
             (int) $row["PatientDiagnosisId"],
@@ -99,7 +100,7 @@ class PatientDiagnosis
         );
     }
 
-    static function insertPatientDiagnosis(int $patientId,int $diagnosisSubcodeId,DateTime $diagnosisDate,string $user): int
+    public static function insertPatientDiagnosis(int $patientId, int $diagnosisSubcodeId, DateTime $diagnosisDate, string $user): int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
@@ -116,23 +117,23 @@ class PatientDiagnosis
         return (int) $dbh->lastInsertId();
     }
 
-    static function updatePatientDiagnosis(int $patientDiagnosisId,int $diagnosisId,DateTime $diagnosisDate,string $status,string $user): int
+    public static function updatePatientDiagnosis(int $patientDiagnosisId, int $diagnosisId, DateTime $diagnosisDate, string $status, string $user): int
     {
         $dbh = Database::getOrmsConnection();
         $query = $dbh->prepare("
             UPDATE PatientDiagnosis
             SET
-                DiagnosisSubcodeId = :codeId
-                ,DiagnosisDate = :dDate
-                ,Status = :status
-                ,UpdatedBy = :user
+                DiagnosisSubcodeId = :codeId,
+                DiagnosisDate = :dDate,
+                Status = :status,
+                UpdatedBy = :user
             WHERE
                 PatientDiagnosisId = :pdId
         ");
         $query->execute([
             ":pdId"     => $patientDiagnosisId,
             ":codeId"   => $diagnosisId,
-            "dDate"     => $diagnosisDate->format("Y-m-d H:i:s"),
+            ":dDate"     => $diagnosisDate->format("Y-m-d H:i:s"),
             ":status"   => $status,
             ":user"     => $user
         ]);

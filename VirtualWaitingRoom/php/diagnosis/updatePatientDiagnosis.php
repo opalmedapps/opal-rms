@@ -1,12 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__."/../../../vendor/autoload.php";
 
-use Orms\Http;
-use Orms\Diagnosis\DiagnosisInterface;
 use Orms\DateTime;
-use Orms\Patient\PatientInterface;
+use Orms\Diagnosis\DiagnosisInterface;
 use Orms\Hospital\OIE\Export;
+use Orms\Http;
+use Orms\Patient\PatientInterface;
 
 $patientId           = (int) $_GET["patientId"];
 $patientDiagnosisId  = (int) $_GET["patientDiagnosisId"];
@@ -15,14 +17,14 @@ $diagnosisDate       = new DateTime($_GET["diagnosisDate"] ?? "");
 $status              = $_GET["status"];
 $user                = $_GET["user"];
 
-$updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId,$diagnosisId,$diagnosisDate,$status,$user);
+$updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId, $diagnosisId, $diagnosisDate, $status, $user);
 
 Http::generateResponseJsonAndContinue(200);
 
 //export the diagnosis to external systems
 $patient = PatientInterface::getPatientById($patientId);
 
-if($patient !== NULL)
+if($patient !== null)
 {
     Export::exportPatientDiagnosis(
         $patient,

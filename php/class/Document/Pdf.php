@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Document;
 
@@ -11,7 +13,7 @@ class Pdf
     /**
      * Returns a base64 encoded pdf string generated from a latex string
      */
-    static function generatePdfStringFromLatexString(string $latexString): string
+    public static function generatePdfStringFromLatexString(string $latexString): string
     {
         $outputDir = Config::getApplicationSettings()->environment->basePath ."/tmp";
         $filename = uniqid((string) rand());
@@ -19,7 +21,7 @@ class Pdf
         $fullFilePath = "$outputDir/$filename";
 
         //save the latex string to a .tex file
-        file_put_contents("$fullFilePath.tex",$latexString);
+        file_put_contents("$fullFilePath.tex", $latexString);
 
         //pdflatex cannot write to absolute paths...
         /** @psalm-suppress ForbiddenCode */

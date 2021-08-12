@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class Rooms
 {
-    static function extendRoomNameLength(PDO $dbh): void
+    public static function extendRoomNameLength(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `IntermediateVenue`

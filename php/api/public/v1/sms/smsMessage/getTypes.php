@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require __DIR__."/../../../../../../vendor/autoload.php";
 
@@ -11,11 +13,11 @@ try {
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400,error: Http::generateApiParseError($e));
+    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
 $fields = new class(
-    specialityCode: $fields["specialityCode"] ?? NULL,
+    specialityCode: $fields["specialityCode"] ?? null,
 ) {
     public function __construct(
         public ?string $specialityCode,

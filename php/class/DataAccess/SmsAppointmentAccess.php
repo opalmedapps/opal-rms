@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
@@ -16,7 +18,7 @@ class SmsAppointmentAccess
      *      speciality: string,
      * }>
      */
-    static function getAppointmentsForSms(): array
+    public static function getAppointmentsForSms(): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -51,7 +53,7 @@ class SmsAppointmentAccess
     /**
      * Updates an sms appointment's type and status.
      */
-    static function updateSmsAppointment(int $id, int $active, ?string $type): void
+    public static function updateSmsAppointment(int $id, int $active, ?string $type): void
     {
         Database::getOrmsConnection()->prepare("
             UPDATE SmsAppointment
@@ -71,10 +73,10 @@ class SmsAppointmentAccess
      * Returns a list of sms appointment types in a speciality group.
      * @return string[]
      */
-    static function getSmsAppointmentTypes(?string $specialityCode = NULL): array
+    public static function getSmsAppointmentTypes(?string $specialityCode = null): array
     {
-        $specialityFilter = ($specialityCode === NULL) ? NULL : "AND SG.SpecialityGroupCode = :specialityCode";
-        $parameters = ($specialityCode === NULL) ? [] : [":specialityCode" => $specialityCode];
+        $specialityFilter = ($specialityCode === null) ? null : "AND SG.SpecialityGroupCode = :specialityCode";
+        $parameters = ($specialityCode === null) ? [] : [":specialityCode" => $specialityCode];
 
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
@@ -98,7 +100,7 @@ class SmsAppointmentAccess
      *      smsMessage: string
      * }>
      */
-    static function getSmsAppointmentMessages(string $specialityCode, string $type): ?array
+    public static function getSmsAppointmentMessages(string $specialityCode, string $type): ?array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
@@ -131,7 +133,7 @@ class SmsAppointmentAccess
     /**
      * Updates the message text for an sms message.
      */
-    static function updateMessageForSms(int $messageId, string $smsMessage): void
+    public static function updateMessageForSms(int $messageId, string $smsMessage): void
     {
         Database::getOrmsConnection()->prepare("
             UPDATE SmsMessage

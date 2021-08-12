@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
     php code to send an SMS message to a given patient using their cell number
     registered in the ORMS database
@@ -18,25 +20,25 @@ $opts = new GetOpt([
     ["patientId"],
     ["messageFR"],
     ["messageEN"]
-],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+], [GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
 $opts->process();
 
-$patientId  = $opts->getOption("patientId") ?? NULL;
-$messageFR = $opts->getOption("messageFR") ?? NULL;
-$messageEN = $opts->getOption("messageEN") ?? NULL;
+$patientId  = $opts->getOption("patientId") ?? null;
+$messageFR = $opts->getOption("messageFR") ?? null;
+$messageEN = $opts->getOption("messageEN") ?? null;
 
 //find the patient
-if($patientId === NULL || $messageEN === NULL || $messageFR === NULL) {
+if($patientId === null || $messageEN === null || $messageFR === null) {
     exit("Missing arguments!");
 }
 
 $patient = PatientInterface::getPatientById((int) $patientId);
 
-if($patient === NULL) {
+if($patient === null) {
     exit("Unknown patient");
 }
 
-if($patient->phoneNumber === NULL || $patient->languagePreference === NULL) {
+if($patient->phoneNumber === null || $patient->languagePreference === null) {
     exit("No SMS alert phone number so will not attempt to send");
 }
 

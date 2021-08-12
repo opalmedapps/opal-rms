@@ -70,15 +70,23 @@ return $config->registerCustomFixers([
     new DoubleQuoteFixer()
 ])
 ->setRules([
-    //"@PSR12" => true,
-    // "visibility_required" => [],
+    "@PSR12:risky" => true,
+    "braces" => false,
+    "class_definition" => [], //currently, default @PSR12 doesn't work well with anonymous classes
     "declare_strict_types" => true,
-    "strict_comparison" => true,
-    // "function_declaration" => [
-    //     "closure_function_spacing" => "none"
-    // ],
-    // "mb_str_functions" => true,
     "dir_constant" => true,
+    "function_declaration" => [
+        "closure_function_spacing" => "none"
+    ],
+    "ordered_imports" => [
+        "sort_algorithm" => "alpha"
+    ],
+    "single_line_comment_style" => [
+        "comment_types" => ["asterisk","hash"]
+    ],
+    "strict_comparison" => true,
+    "mb_str_functions" => true,
+    "use_arrow_functions" => true,
     "Orms/double_quote_fixer" => true
 ])
 ->setRiskyAllowed(true)
@@ -86,5 +94,4 @@ return $config->registerCustomFixers([
 ->setFinder(PhpCsFixer\Finder::create()
     ->in(__DIR__)
     ->exclude("vendor")
-    ->exclude("VirtualWaitingRoom/php/pdfGenerator")
 );

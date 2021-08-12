@@ -1,8 +1,8 @@
-<?php declare(strict_types = 1);
+<?php
 
-/*
-    This script takes in an input csv file and updates the SmsMessages db table to match it's contents. It also exports the updated table to a csv file (to account for new codes that have been added).
-*/
+declare(strict_types=1);
+
+// This script takes in an input csv file and updates the SmsMessages db table to match it's contents. It also exports the updated table to a csv file (to account for new codes that have been added).
 
 require_once __DIR__ ."/../vendor/autoload.php";
 
@@ -14,7 +14,7 @@ use Orms\Util\Csv;
 //get csv file name from command line arguments and load it
 $opts = new GetOpt([
     ["file"],
-],[GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
+], [GetOpt::SETTING_DEFAULT_MODE => GetOpt::OPTIONAL_ARGUMENT]);
 $opts->process();
 
 $csvFile = $opts->getOption("file") ?? "";
@@ -24,7 +24,7 @@ $combinations = Csv::loadCsvFromFile($csvFile);
 $dbh = Database::getOrmsConnection();
 $dbh->beginTransaction();
 
-#update the db
+//update the db
 $queryUpdateComb = $dbh->prepare("
     UPDATE SmsAppointment SA
     INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = SA.ClinicResourcesSerNum
@@ -55,7 +55,7 @@ foreach($combinations as $c){
 
 $dbh->commit();
 
-#generate a new csv, updated csv file
+//generate a new csv, updated csv file
 $queryGetComb = $dbh->prepare("
     SELECT
         CR.ResourceCode,
@@ -75,8 +75,8 @@ $queryGetComb->execute();
 
 $newCombs = $queryGetComb->fetchAll();
 
-$newFile = preg_replace("/\.csv/","_new.csv",$csvFile);
+$newFile = preg_replace("/\.csv/", "_new.csv", $csvFile);
 
-$return = Csv::writeCsvFromData($newFile,$newCombs);
+$return = Csv::writeCsvFromData($newFile, $newCombs);
 
 echo "$return\n";

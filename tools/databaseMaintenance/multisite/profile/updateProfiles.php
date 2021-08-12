@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 class Profile
 {
-    static function removeLegacyProfileColumns(PDO $dbh): void
+    public static function removeLegacyProfileColumns(PDO $dbh): void
     {
         $dbh->query("
             ALTER TABLE `Profile`

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Orms\Util;
 
@@ -12,24 +14,22 @@ class Csv
      * @return array[]
      */
     // $row = array_map('utf8_encode',$row); TODO: add encoding parameter to function
-    static function loadCsvFromFile(string $filePath,bool $headersPresent = TRUE): array
+    public static function loadCsvFromFile(string $filePath, bool $headersPresent = true): array
     {
-        $fileHandle = fopen($filePath,"r"); #$handle is stream
+        $fileHandle = fopen($filePath, "r"); //$handle is stream
 
-        if($fileHandle === FALSE) return [];
+        if($fileHandle === false) return [];
 
         $data = [];
-        $headers = ($headersPresent === TRUE) ? fgetcsv($fileHandle) : [];
+        $headers = ($headersPresent === true) ? fgetcsv($fileHandle) : [];
         $headers = $headers ?: [];
 
-        while(($row = fgetcsv($fileHandle) ?? []) !== FALSE)
+        while(($row = fgetcsv($fileHandle) ?? []) !== false)
         {
-            #if a cell is empty, then it's value is null
-            $row = array_map(function($x) {
-                return ($x !== "") ? $x : NULL;
-            },$row);
+            //if a cell is empty, then it's value is null
+            $row = array_map(fn($x) => ($x !== "") ? $x : null, $row);
 
-            $row = ($headersPresent === TRUE) ? array_combine($headers,$row) : $row;
+            $row = ($headersPresent === true) ? array_combine($headers, $row) : $row;
 
             $data[] = $row ?: [];
         }
@@ -43,26 +43,26 @@ class Csv
      *
      * @param array[] $data
      */
-    static function writeCsvFromData(string $filePath,array $data): bool
+    public static function writeCsvFromData(string $filePath, array $data): bool
     {
-        $fileHandle = fopen($filePath,"w");
+        $fileHandle = fopen($filePath, "w");
 
-        if($fileHandle === FALSE) return FALSE;
+        if($fileHandle === false) return false;
 
-        #check if the first row is assoc to get headers
+        //check if the first row is assoc to get headers
         $firstRow = $data[0] ?? [];
         $includeHeaders = ArrayUtil::checkIfArrayIsAssoc($firstRow);
 
-        if($includeHeaders === TRUE)
+        if($includeHeaders === true)
         {
             $headers = array_keys($firstRow);
-            fputcsv($fileHandle,$headers);
+            fputcsv($fileHandle, $headers);
         }
 
         foreach($data as $x) {
-            fputcsv($fileHandle,array_values($x));
+            fputcsv($fileHandle, array_values($x));
         }
 
-        return TRUE;
+        return true;
     }
 }

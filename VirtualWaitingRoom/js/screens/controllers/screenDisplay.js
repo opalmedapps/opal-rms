@@ -156,7 +156,7 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
     async function getFirebaseSettings()
     {
         return $http({
-            url: "php/getFirebaseSettings",
+            url: "/php/api/private/v1/vwr/getFirebaseSettings",
             method: "GET"
         }).then( result => result.data);
     }

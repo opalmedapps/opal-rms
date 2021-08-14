@@ -3,7 +3,7 @@ info:
   title: ORMS Public Api
   version: 0.2.0
 servers:
-    - url: https://serverUrl/php/api/public/v1
+  - url: https://serverUrl/php/api/public/v1
 
 paths:
   /patient/checkIfPatientExists:
@@ -630,23 +630,30 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      clinicHubId:
-                        description: Hub id
-                        type: integer
-                      clinicHubName:
-                        description: Hub name
-                        type: string
-                      specialityGroupId:
-                        description: Speciality group id
-                        type: integer
-                      specialityGroupName:
-                        description: Speciality group name
-                        type: string
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of hubs
+                    type: array
+                    items:
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            clinicHubId:
+                              description: Hub id
+                              type: integer
+                            clinicHubName:
+                              description: Hub name
+                              type: string
+                            specialityGroupId:
+                              description: Speciality group id
+                              type: integer
+                            specialityGroupName:
+                              description: Speciality group name
+                              type: string
         400:
           $ref: '#/components/responses/400'
         500:
@@ -718,12 +725,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  name:
-                    description: Name of the auth cookie
-                    type: string
-                  key:
-                    description: Authentication cookie key
-                    type: string
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    properties:
+                      name:
+                        description: Name of the auth cookie
+                        type: string
+                      key:
+                        description: Authentication cookie key
+                        type: string
         400:
           $ref: '#/components/responses/400'
         406:

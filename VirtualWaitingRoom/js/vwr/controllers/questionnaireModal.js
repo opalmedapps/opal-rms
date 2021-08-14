@@ -19,33 +19,29 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all questionnaires answered by the input patient
     $http({
-        url: "./php/questionnaire/getQuestionnaires",
+        url: "/php/api/private/v1/patient/questionnaire/getQuestionnaires",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response)
     {
-        $scope.questionnaireList = response.data.data;
+        $scope.questionnaireList = response.data.data.map(x => {
+            x.name = x.questionnaireName;
+            x.selected = false;
+            x.reviewed = (x.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
 
-        angular.forEach($scope.questionnaireList, function(val)
-        {
-            val.name = val.questionnaireName;
-            val.selected = false;
-            val.reviewed = (val.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
+            return x;
         });
-    });
 
-    //Get all clinician questionnaires
-    $http({
-        url: "./php/questionnaire/getClinicianQuestionnaires",
-        method: "GET",
-        params: {patientId: $scope.patient.PatientId}
-    }).then(function(response) {
-        $scope.clinicianQuestionnaireList = response.data.data;
+        $scope.clinicianQuestionnaireList = response.data.data.filter(x => x.respondentTitle === "Clinician").map(x => {
+            x.name = x.questionnaireName;
+
+            return x;
+        });
     });
 
     //Get all the studies in the database
     $http({
-        url: "./php/questionnaire/getStudiesForPatient",
+        url: "/php/api/private/v1/patient/questionnaire/getStudies",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response) {
@@ -54,7 +50,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all the possible purpose for a questionnaire
     $http({
-        url: "./php/questionnaire/getQuestionnairePurposes",
+        url: "/php/api/private/v1/questionnaire/getPurposes",
         method: "GET"
     }).then(function(response) {
         $scope.purposeList = response.data.data;
@@ -85,8 +81,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     $scope.back = function()
     {
         $scope.selectedQuestionnaire = null;
-        $scope.selectedQuestionnaireIsChart = false;
-        $scope.selectedQuestionnaireIsNonChart = false;
 
         if($scope.purposeSelected.title === 'Research' && $scope.studySelected !== '') {
             $scope.studySelected = '';
@@ -99,8 +93,6 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     $scope.changeIndexGroup = function()
     {
         $scope.selectedQuestionnaire = null;
-        $scope.selectedQuestionnaireIsChart = false;
-        $scope.selectedQuestionnaireIsNonChart = false;
     }
 
     //Determining if an alert dot should be displayed for purpose buttons.
@@ -148,9 +140,9 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $mdDialog.show(answer).then( result => {
             $scope.patient.QStatus = "green-circle";
             $http({
-                url: "./php/questionnaire/insertQuestionnaireReview",
-                method: "GET",
-                params: {
+                url: "/php/api/private/v1/patient/questionnaire/insertReview",
+                method: "POST",
+                data: {
                     user: result,
                     patientId: $scope.patient.PatientId,
                 }
@@ -164,75 +156,36 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         $scope.selectedQuestionnaire = que;
 
-        $scope.selectedQuestionnaireIsChart = false;
-        $scope.selectedQuestionnaireIsNonChart = false;
-
         //get the answers to the selected questionnaire
-
-        //use if the answers are displayed as a chart
-        if($scope.selectedQuestionnaire.visualization === "1")
+        $http({
+            url: "/php/api/private/v1/patient/questionnaire/getQuestions",
+            method: "GET",
+            params: {
+                patientId:       $scope.patient.PatientId,
+                questionnaireId: $scope.selectedQuestionnaire.questionnaireId,
+                visualization:   $scope.selectedQuestionnaire.visualization
+            }
+        }).then(function(response)
         {
-            $http({
-                url: "./php/questionnaire/reportDisplay",
-                method: "GET",
-                params: {
-                    patientId:       $scope.patient.PatientId,
-                    questionnaireId: $scope.selectedQuestionnaire.questionnaireId
-                }
-            }).then(function (response) {
-                    $scope.selectedQuestionnaire.questions = response.data;
-                    //Slider questions werent displaying so on request I'm adding a hotfix
-                    //The slider questions were not being displayed in charts because
-                    //charts doesnt like strings, and we have to have 0  & 10 be strings for some reason, so I'm manually removing them here.
-                    //I think this goes without saying, but this requires a more long term solution in the future...
+            $scope.selectedQuestionnaire.lastDateAnswered = response.data.data.lastDateAnswered;
+            $scope.selectedQuestionnaire.questions = response.data.data.questions;
 
-                    //outer for loop iterates over each chart
-                    angular.forEach($scope.selectedQuestionnaire.questions.qData,function(val,key)
-                    {    //inner loop iterates over each data point within a given chart
-                        angular.forEach(val.series[0].data, function(innerVal, key){
-                            if(typeof innerVal[1] === 'string' || innerVal[1] instanceof String){
-                                innerVal[1] = parseInt(innerVal[1].split(" ",1)[0]);
-                            }
-                        });
-                    });
-                    $scope.selectedQuestionnaireIsChart = true;
-                    //$scope.$apply();
-
-                    $scope.$$postDigest(function()
+            if($scope.selectedQuestionnaire.visualization === 1)
+            {
+                $scope.$$postDigest(function()
+                {
+                    angular.forEach($scope.selectedQuestionnaire.questions,function(chart,index)
                     {
-                        angular.forEach($scope.selectedQuestionnaire.questions.qData,function(chart,index)
-                        {
-                            chart.tooltip.formatter = function() {
-                                return '<b>Date: </b>' + Highcharts.dateFormat('%Y - %b - %e', new Date(this.x)) +'<br /> <b>' + this.series.name +': </b>'  + this.y;
-                            };
-                            chart.xAxis.labels.format = "'{value:%Y}'+<br />+{value:%b}'";
+                        chart.tooltip.formatter = function() {
+                            return '<b>Date: </b>' + Highcharts.dateFormat('%Y - %b - %e', new Date(this.x)) +'<br /> <b>' + this.series.name +': </b>'  + this.y;
+                        };
+                        chart.xAxis.labels.format = "'{value:%Y}'+<br />+{value:%b}'";
 
-                            Highcharts.chart('question'+index,chart)
-                        });
+                        Highcharts.chart('question'+index,chart)
                     });
-            });
-        }
-        //use if the answers are displayed as a list
-        else if($scope.selectedQuestionnaire.visualization === "0")
-        {
-            $http({
-                url: "./php/questionnaire/reportDisplayNonChart",
-                method: "GET",
-                params: {
-                    patientId:        $scope.patient.PatientId,
-                    questionnaireId:  $scope.selectedQuestionnaire.questionnaireId
-                }
-            }).then(function (response) {
-                    $scope.selectedQuestionnaire.questions = {
-                        lastDateAnswered: $scope.selectedQuestionnaire.completionDate,
-                        qData: response.data,
-                    }
-
-                    $scope.selectedQuestionnaireIsNonChart = true;
-            });
-
-        }
-        else {console.log("Unknown questionnaire");}
+                });
+            }
+        });
     }
 
     //custom filter that filters the list of shown questionnaires; depends on user search input

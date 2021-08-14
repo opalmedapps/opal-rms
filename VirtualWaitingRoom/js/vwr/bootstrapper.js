@@ -15,22 +15,21 @@ angular.element(document).ready(function()
     if(urlParams.profile)
     {
         $http({
-            url: "php/profile/getProfileDetails",
+            url: "/php/api/private/v1/profile/getProfile",
             method: "GET",
-            params:
-            {
+            params: {
                 profileId: urlParams.profile,
                 clinicHubId: urlParams.clinicHub
             }
-        }).then(function (response)
+        }).then(function(response)
         {
-            if(angular.equals(response.data,{}))
+            if(angular.equals(response.data.data,{}))
             {
                 $window.location.href = "./";
             }
 
             //finally, after we have all necessary settings, bootstrap the true page controller
-            angular.module('vwr').constant('ProfileSettings',response.data);
+            angular.module('vwr').constant('ProfileSettings',response.data.data);
             angular.bootstrap(document,['vwr']);
         });
     }

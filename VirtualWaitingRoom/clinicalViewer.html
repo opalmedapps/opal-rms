@@ -270,12 +270,12 @@
                             <span ng-repeat="loc in inputs.selectedclinics"><mark>{{loc.Name}}</mark> </span></div></td>
                 </tr>
                 <tr ng-show="test.showMenu  === 'Hide Menu' &&!inputs.afilterdisable">
-                    <td><b>Clinic Code: </b></td>
+                    <td><b>Appointment Code: </b></td>
                     <td>
                         <div class="btn-group">
                             <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
                             <label ng-model="inputs.ctype" class="btn btn-primary" ng-change="inputchange()"
-                                   ng-click="openSelectorModal(codes, inputs.selectedcodes,'Clinic Code(s) Selection')" uib-btn-radio="'specific'">Specific</label>
+                                   ng-click="openSelectorModal(codes, inputs.selectedcodes,'Appointment Code(s) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
                         <div select ng-show="inputs.ctype == 'specific'" class = "option-holder" style="width: 500px">
@@ -348,7 +348,7 @@
                         <div class="btn-group">
                             <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()" uib-btn-radio="'all'" >All</label>
                             <label ng-model="inputs.dtype" class="btn btn-primary" ng-change="inputchange()"
-                                   ng-click="openSelectorModal(diagnosis, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
+                                   ng-click="openSelectorModal(diagnosisList, inputs.selecteddiagnosis,'Diagnosis(es) Selection')" uib-btn-radio="'specific'">Specific</label>
                         </div></td>
                     <td style="display:inline-flex;vertical-align:bottom;">
                         <div  ng-show="inputs.dtype == 'specific'" class = "option-holder" style="width: 500px">
@@ -399,7 +399,7 @@
                     <span ng-if="optionSelected.arrived">CheckedIn </span>
                     <span ng-if="optionSelected.notArrived">NotCheckedIn </span>
                 </td>
-                <td><b>Clinic Code: </b></td><td>{{hideCodeType ? appCodeName : 'All'}}</td>
+                <td><b>Appointment Code: </b></td><td>{{hideCodeType ? appCodeName : 'All'}}</td>
             </tr>
             <tr>
                 <td><b>Patient Source</b></td>

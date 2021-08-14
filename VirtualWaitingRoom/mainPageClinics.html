@@ -84,11 +84,11 @@ app.controller('main', function($scope,$location,$http,$cookies)
     //get list of profiles available
     $http({
         method: "GET",
-        url: "./php/profile/getListOfProfiles",
+        url: "/php/api/private/v1/profile/getList",
         params: {speciality: speciality}
     })
     .then( response => {
-        response.data.forEach( x => {
+        response.data.data.forEach( x => {
             $scope.profileList[x.Category] = $scope.profileList[x.Category] || [];
             $scope.profileList[x.Category].push(x);
         });

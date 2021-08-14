@@ -22,14 +22,16 @@ require __DIR__ ."/../../vendor/autoload.php";
 
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
+use Orms\Http;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
 
-//parse input parameters
-$sDate  = $_GET["sDate"] ?? throw new Exception("Invalid date");
-$eDate  = $_GET["eDate"] ?? throw new Exception("Invalid date");
-$period = $_GET["period"] ?? null;
-$speciality = $_GET["speciality"] ?? null;
+$params = Http::getRequestContents();
+
+$sDate      = $params["sDate"] ?? throw new Exception("Invalid date");
+$eDate      = $params["eDate"] ?? throw new Exception("Invalid date");
+$period     = $params["period"] ?? null;
+$speciality = $params["speciality"] ?? null;
 
 //check what period of the day the user specified and filter appointments that are not within that timeframe
 $sDate = DateTime::createFromFormatN("Y-m-d", $sDate)?->modifyN("midnight") ?? throw new Exception("Invalid date");

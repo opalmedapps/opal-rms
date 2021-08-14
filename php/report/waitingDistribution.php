@@ -9,13 +9,15 @@ require __DIR__ ."/../../vendor/autoload.php";
 
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
+use Orms\Http;
 use Orms\Util\Encoding;
 
-//parse input parameters
-$sDate        = $_GET["sDate"] ?? throw new Exception("Invalid date");
-$eDate        = $_GET["eDate"] ?? throw new Exception("Invalid date");
-$speciality   = $_GET["speciality"] ?? null; //speciality of appointments to find
-$method       = $_GET["method"] ?? null; //normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
+$params = Http::getRequestContents();
+
+$sDate        = $params["sDate"] ?? throw new Exception("Invalid date");
+$eDate        = $params["eDate"] ?? throw new Exception("Invalid date");
+$speciality   = $params["speciality"] ?? null; //speciality of appointments to find
+$method       = $params["method"] ?? null; //normally blank, but if it is set to 'scheduled', the report will find the time difference from when the patient was called to their appointment scheduled time
 
 $sDate = DateTime::createFromFormatN("Y-m-d", $sDate)?->modifyN("midnight") ?? throw new Exception("Invalid date");
 $eDate = DateTime::createFromFormatN("Y-m-d", $eDate)?->modifyN("tomorrow") ?? throw new Exception("Invalid date");

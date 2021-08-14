@@ -49,7 +49,7 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
     {
         //get the list of profiles in this group
         $http({
-            url: "php/profile/getProfileList",
+            url: "/php/api/private/v1/profile/getList",
             method: "GET",
             params:
             {
@@ -58,7 +58,7 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
             }
         }).then(function (response)
         {
-            $scope.userOptions.Profiles = response.data;
+            $scope.userOptions.Profiles = response.data.data;
 
             //put css on each button and also the create profile button
             $scope.lastButtonBorder = CrossCtrlFuncs.assignBorderClass($scope.userOptions.Profiles);

@@ -78,9 +78,9 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         }
 
         $http({
-            url: "php/measurement/updatePatientMeasurements",
-            method: "GET",
-            params: {
+            url: "/php/api/private/v1/patient/measurement/insertMeasurement",
+            method: "POST",
+            data: {
                 patientId: $scope.patient.patientId,
                 height: $scope.patient.height,
                 weight: $scope.patient.weight,
@@ -106,14 +106,14 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
     function getHistoricalMeasurementsAsync()
     {
         return $http({
-            url: "php/measurement/getPatientMeasurementChart",
+            url: "/php/api/private/v1/patient/measurement/getHistoricalChart",
             method: "GET",
             params: {
                 patientId: $scope.patient.patientId
             }
         }).then(function (response)
         {
-            let chart = response.data;
+            let chart = response.data.data;
 
             //add the tooltip function for the display
             chart.tooltip =

@@ -27,9 +27,9 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             return $http({
-                url: "./php/diagnosis/insertPatientDiagnosis",
-                method: "GET",
-                params: {
+                url: "/php/api/private/v1/patient/diagnosis/insertPatientDiagnosis",
+                method: "POST",
+                data: {
                     patientId: patient.PatientId,
                     diagnosisId: diag.id,
                     diagnosisDate: (new Date($scope.userSelectedDate)).toLocaleDateString(),
@@ -47,9 +47,9 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             $http({
-                url: "./php/diagnosis/updatePatientDiagnosis",
-                method: "GET",
-                params: {
+                url: "/php/api/private/v1/patient/diagnosis/updatePatientDiagnosis",
+                method: "POST",
+                data: {
                     patientId: patientDiagnosis.patientId,
                     patientDiagnosisId: patientDiagnosis.id,
                     diagnosisId: patientDiagnosis.diagnosis.id,
@@ -82,18 +82,18 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     function getDiagnosisCodes(filter)
     {
         return $http({
-            url: "php/diagnosis/getDiagnosisCodeList",
+            url: "/php/api/private/v1/diagnosis/getCodes",
             method: "GET",
             params: {
                 filter: filter
             }
-        }).then(x => x.data);
+        }).then(x => x.data.data);
     }
 
     function loadPatientDiagnosis()
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList",
+            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
@@ -104,7 +104,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
                 count: 10
             },{
                 counts: [],
-                dataset: res.data
+                dataset: res.data.data
             });
         });
     }

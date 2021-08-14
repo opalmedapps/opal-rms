@@ -7,7 +7,6 @@ node_modules/*
 vendor/
 
 #ignore lock files
-VirtualWaitingRoom/cronjob/*.lock
 smsReceiver.lock
 
 #ignore log files

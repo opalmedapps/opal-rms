@@ -12,28 +12,28 @@ require __DIR__ ."/../../vendor/autoload.php";
 
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
+use Orms\Http;
 use Orms\Util\Encoding;
 
-//------------------------------------------
-//parse input parameters
-//------------------------------------------
-$sDateInit      = $_GET["sDate"];
-$eDateInit      = $_GET["eDate"];
-$sTime          = $_GET["sTime"];
-$eTime          = $_GET["eTime"];
-$comp           = $_GET["comp"];
-$open           = $_GET["openn"];
-$prog           = $_GET["prog"];
-$canc           = $_GET["canc"];
-$arrived        = $_GET["arrived"];
-$notArrived     = $_GET["notArrived"];
-$speciality     = $_GET["speciality"];
-$appType        = $_GET["type"];
-$specificType   = $_GET["specificType"] ?? null;
-$mediAbsent     = $_GET["mediAbsent"];
-$mediAddOn      = $_GET["mediAddOn"];
-$mediCancelled  = $_GET["mediCancelled"];
-$mediPresent    = $_GET["mediPresent"];
+$params = Http::getRequestContents();
+
+$sDateInit      = $params["sDate"];
+$eDateInit      = $params["eDate"];
+$sTime          = $params["sTime"];
+$eTime          = $params["eTime"];
+$comp           = $params["comp"];
+$open           = $params["openn"];
+$prog           = $params["prog"];
+$canc           = $params["canc"];
+$arrived        = $params["arrived"];
+$notArrived     = $params["notArrived"];
+$speciality     = $params["speciality"];
+$appType        = $params["type"];
+$specificType   = $params["specificType"] ?? null;
+$mediAbsent     = $params["mediAbsent"];
+$mediAddOn      = $params["mediAddOn"];
+$mediCancelled  = $params["mediCancelled"];
+$mediPresent    = $params["mediPresent"];
 
 $sDate = DateTime::createFromFormatN("Y-m-d H:i", "$sDateInit $sTime") ?? throw new Exception("Invalid datetime");
 $eDate = DateTime::createFromFormatN("Y-m-d H:i", "$eDateInit $eTime") ?? throw new Exception("Invalid datetime");

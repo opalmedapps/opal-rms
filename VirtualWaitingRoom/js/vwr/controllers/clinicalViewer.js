@@ -221,25 +221,39 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     }
 
     //=========================================================================
-    // Get resource, appointment code and diagnosis list
+    // Get clinic, appointment code and diagnosis list
     //=========================================================================
-    $http.get("./php/clinicalViewer/resourceQuery?speciality="+speciality).then(function(response)
-    {
-        $scope.clinics = response.data;
+    $http({
+        url: "/php/api/private/v1/appointment/getClinics",
+        method: "GET",
+        params: {
+            speciality: speciality
+        }
+    }).then(function(response) {
+        $scope.clinics = response.data.data.map(x => ({Name: x.description}));
     });
 
-    $http.get("./php/clinicalViewer/getAppointmentCode?speciality="+speciality).then(function(response)
-    {
-        $scope.codes = response.data;
+    $http({
+        url: "/php/api/private/v1/appointment/getAppointmentCodes",
+        method: "GET",
+        params: {
+            speciality: speciality
+        }
+    }).then(function(response) {
+        $scope.codes = response.data.data.map(x => ({Name: x.AppointmentCode}));
     });
 
-    $http.get("./php/clinicalViewer/getDiagnosis?").then(function(response)
-    {
-        $scope.diagnosis = response.data;
+    $http({
+        url: "/php/api/private/v1/diagnosis/getCodesInUse",
+        method: "GET"
+    }).then(function(response) {
+        $scope.diagnosisList = response.data.data;
     });
 
-    $http.get("./php/clinicalViewer/getQuestionnaireName?").then(function(response)
-    {
+    $http({
+        url: "/php/api/private/v1/questionnaire/getList",
+        method: "GET"
+    }).then(function(response) {
         $scope.questionnaireType = response.data.map(x => ({
             Name:            x["name"],
             QuestionnaireId: x["questionnaireId"]
@@ -462,31 +476,17 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         })
     }
 
-    $scope.loadPatientDiagnosis = function(patient)
+    $scope.loadPatientDiagnosis = function(appointment)
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList",
+            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
-                patientId: patient.PatientId
-            }
-        })
-            .then(res => {
-                $scope.lastPatientDiagnosisList = res.data
-            });
-    }
-
-    $scope.loadPatientDiagnosis = function(appoint)
-    {
-        $http({
-            url: "./php/diagnosis/getPatientDiagnosisList",
-            method: "GET",
-            params: {
-                patientId: appoint.patientId
+                patientId: appointment.patientId
             }
         })
         .then(res => {
-            $scope.lastPatientDiagnosisList = res.data
+            $scope.lastPatientDiagnosisList = res.data.data
         });
     }
 
@@ -528,9 +528,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     {
         if($scope.zoomLink.length> 10 || $scope.zoomLink.includes("zoom.us")) {
             $http({
-                url: "php/sms/sendSmsForZoom",
-                method: "GET",
-                params:
+                url: "/php/api/private/v1/patient/sms/sendSmsForZoom",
+                method: "POST",
+                data:
                     {
                         patientId: appoint.patientId,
                         zoomLink: $scope.zoomLink,
@@ -583,8 +583,6 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
             callScript.getData($scope.convertDate($scope.sDate), $scope.convertDate($scope.eDate), $scope.convertTime($scope.sTime), $scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate), $scope.inputs, speciality).then(function (response) {
                 $scope.tableData = response;
 
-                //filter all blood test appointments
-
                 if ($scope.inputs.type == 'all') {
                     $scope.titleLabel = 'All';
                 } else if ($scope.inputs.type == 'specific') {
@@ -625,7 +623,7 @@ app.factory('callScript',function($http,$q)
 
             let questionnaireType = inputs.selectedQuestionnaire.map(x => x.QuestionnaireId).join(",");
 
-            url = "./php/clinicalViewer/appointmentQuery?"
+            url = "/php/api/private/v1/appointment/getAppointments?"
 
             comp = (inputs.comp) ? "&comp=1" : "";
             openn = (inputs.openn) ? "&openn=1" : "";
@@ -664,7 +662,7 @@ app.factory('callScript',function($http,$q)
                 notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType +
                 qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&speciality="+speciality).then(function (response){
                 let info = {};
-                info = response.data;
+                info = response.data.data;
                 defer.resolve(info);
             });
             return defer.promise;

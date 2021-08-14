@@ -8,7 +8,7 @@ use Orms\Appointment\Location;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
-$params = Http::getPostContents();
+$params = Http::getRequestContents();
 
 $appointmentId    = $params["appointmentId"] ?? null;
 $patientId        = $params["patientId"] ?? null;

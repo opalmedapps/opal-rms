@@ -8,10 +8,12 @@ use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 
-$patientId          = $_GET["patientId"] ?? null;
-$phoneNumber        = $_GET["phoneNumber"] ?? null;
-$languagePreference = $_GET["languagePreference"] ?? null;
-$specialityGroupId  = $_GET["specialityGroupId"] ?? null;
+$params = Http::getRequestContents();
+
+$patientId          = $params["patientId"] ?? null;
+$phoneNumber        = $params["phoneNumber"] ?? null;
+$languagePreference = $params["languagePreference"] ?? null;
+$specialityGroupId  = $params["specialityGroupId"] ?? null;
 
 if($patientId === null || $languagePreference === null || $specialityGroupId === null) {
     Http::generateResponseJsonAndExit(400, error: "Input parameters are missing");
@@ -40,5 +42,6 @@ if($patient->phoneNumber !== null)
     Http::generateResponseJsonAndContinue(200);
     SmsInterface::sendSms($patient->phoneNumber, $message);
 }
-
-Http::generateResponseJsonAndExit(200);
+else {
+    Http::generateResponseJsonAndExit(200);
+}

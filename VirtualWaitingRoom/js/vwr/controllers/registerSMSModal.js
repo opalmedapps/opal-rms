@@ -29,8 +29,8 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
     {
         $http({
             url: "/php/api/private/v1/patient/updatePhoneNumber",
-            method: "GET",
-            params: {
+            method: "POST",
+            data: {
                 patientId: patient.PatientId,
                 phoneNumber: $scope.patient.enteredNumber || null,
                 languagePreference: $scope.patient.selectedLanguage,

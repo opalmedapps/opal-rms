@@ -77,39 +77,39 @@
         </div>
     </div>
 
-    <div ng-if="selectedQuestionnaireIsChart">
+    <div ng-if="selectedQuestionnaire.visualization === 1">
         <hr>
         <h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
-        <h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
+        <h3>Last Answered On: {{selectedQuestionnaire.lastDateAnswered}}</h3>
 
         <br>
 
         <div class="row">
-            <div class="col-xs-4 col-md-4" ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
+            <div class="col-xs-4 col-md-4" ng-repeat="questions in selectedQuestionnaire.questions track by $index">
                 <div id='question{{$index}}'></div>
             </div>
         </div>
     </div>
 
-    <div ng-if="selectedQuestionnaireIsNonChart">
+    <div ng-if="selectedQuestionnaire.visualization === 0">
         <hr>
         <h2 style="text-align: center">{{selectedQuestionnaire.Name}}</h2>
-        <h3>Last Answered On: {{selectedQuestionnaire.questions.lastDateAnswered}}</h3>
+        <h3>Last Answered On: {{selectedQuestionnaire.lastDateAnswered}}</h3>
 
         <br>
 
         <center>
         <table border=0 width='90%'>
         <tr>
-                <td width='5%'></td>
-                <td width='15%'>Date Answered</td>
-                <td width='50%'>Question</td>
-                <td width='30%'>Answer</td>
+            <td width='5%'></td>
+            <td width='15%'>Date Answered</td>
+            <td width='50%'>Question</td>
+            <td width='30%'>Answer</td>
         </tr>
         </table>
         </center>
 
-        <div ng-repeat="questions in selectedQuestionnaire.questions.qData track by $index">
+        <div ng-repeat="questions in selectedQuestionnaire.questions track by $index">
             <hr ng-if="questions.DisplayDate">
             <center>
             <table border=0 width='90%'>

@@ -12,8 +12,8 @@ class ReportAccess
     /**
      *
      * @return list<array{
-     *      name: string,
-     *      resource: string
+     *      description: string,
+     *      code: string
      * }>
      */
     public static function getClinicCodes(int $specialityId): array
@@ -25,19 +25,18 @@ class ReportAccess
             FROM
                 ClinicResources
             WHERE
-                SpecialityGroupId = ?
+                Active = 1
+                AND SpecialityGroupId = ?
             ORDER BY
                 ResourceName,
                 ResourceCode
         ");
         $query->execute([$specialityId]);
 
-        return array_map(function($x) {
-            return [
-                "name"      => $x["ResourceName"],
-                "resource" =>  $x["ResourceCode"]
-            ];
-        }, $query->fetchAll());
+        return array_map(fn($x) => [
+            "description" => $x["ResourceName"],
+            "code"        =>  $x["ResourceCode"]
+        ], $query->fetchAll());
     }
 
     /**

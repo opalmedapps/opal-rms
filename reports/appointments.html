@@ -159,7 +159,7 @@
                     <label ng-model="inputs.type" class="btn btn-primary" uib-btn-radio="'specific'">Specific</label>
                 </div></td>
             <td style="display:inline-flex;vertical-align:bottom;">
-                <select ng-show="inputs.type == 'specific'" ng-model="inputs.specificType" ng-options="val.name for val in clinics"></select></td>
+                <select ng-show="inputs.type === 'specific'" ng-model="inputs.specificType" ng-options="val.description for val in clinics"></select></td>
             </tr>
 
             <tr><td><br></td></tr>
@@ -409,7 +409,7 @@ app.factory('callScript',function($http,$q)
                 }
             }).then(function (response)
             {
-                var info = {};
+                let info = {};
                 info = response.data;
                 defer.resolve(info);
             });

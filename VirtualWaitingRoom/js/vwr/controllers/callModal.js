@@ -20,12 +20,12 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
     //see which rooms are occupied
     //however, venues cannot be occupied by definition (since they have space for many people) so we have to exclude them from the check and then add them back
     $http({
-        url: "php/getOccupants",
+        url: "/php/api/private/v1/vwr/location/getOccupants",
         method: "GET",
-        params: {checkinVenue: examRooms.map(function (e) {return e.Name}).join()}
+        params: {"examRooms[]": examRooms.map(x => x.Name)}
     }).then(function (response)
     {
-        $scope.callDestinations = response.data;
+        $scope.callDestinations = response.data.data;
 
         //add the types back for exam rooms
         angular.forEach($scope.callDestinations,function (destination)

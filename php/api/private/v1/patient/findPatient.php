@@ -7,9 +7,11 @@ require __DIR__."/../../../../../vendor/autoload.php";
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
-$ramq = $_GET["ramq"] ?? null;
-$mrn  = $_GET["mrn"] ?? null;
-$site = $_GET["site"] ?? null;
+$params = Http::getRequestContents();
+
+$ramq = $params["ramq"] ?? null;
+$mrn  = $params["mrn"] ?? null;
+$site = $params["site"] ?? null;
 
 //use the http params to fetch the patient from ORMS
 $patient = null;

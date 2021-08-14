@@ -38,9 +38,7 @@ myApp.filter('multiResourceFilter', function()
         let out = [];
 
         let resources = inputs[0].map( x => x.Name);
-        let appointments = inputs[1];
-        let fbArray = inputs[2];
-        let pageSettings = inputs[3];
+        let pageSettings = inputs[1];
 
         //filter by selected RowTypes
         out = input.filter( x => pageSettings.SelectedRowTypes[x.RowType] === true);

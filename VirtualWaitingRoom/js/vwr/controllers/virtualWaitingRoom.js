@@ -111,7 +111,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 firebaseScreenRef.child("Metadata").set({LastUpdated: Firebase.ServerValue.TIMESTAMP});
             }
 
-            //get the list of all resources/locations/appointments available from WRM
+            //get the list of all resources/locations available from WRM
             //also set the selected resources that we got from the profile
             $scope.allResources = [];
             $scope.selectedResources = $scope.pageSettings.Resources;
@@ -119,26 +119,28 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             $scope.allLocations = [];
             $scope.selectedLocations = $scope.pageSettings.Locations;
 
-            $scope.allAppointments = [];
-            $scope.selectedAppointments = $scope.pageSettings.Appointments;
-
             $http({
-                url: "php/profile/getAllOptions",
+                url: "/php/api/private/v1/appointment/getClinics",
                 method: "GET",
-                params:
-                {
+                params: {
                     speciality: $scope.pageSettings.Speciality,
                     clinicHub: $scope.pageSettings.ClinicHubId
                 }
-            }).then(function (response)
+            }).then(function(response)
             {
-                var options = response.data;
+                $scope.allResources = response.data.data.map(x => ({Name: x.description,Type: "Resource"}));
 
-                $scope.allResources = options.Resources;
-                $scope.allLocations = options.Locations;
-                $scope.allAppointments = options.Appointments;
+                $http({
+                    url: "/php/api/private/v1/hospital/getRooms",
+                    method: "GET",
+                    params: {
+                        clinicHub: $scope.pageSettings.ClinicHubId
+                    }
+                }).then(function(response) {
+                    $scope.allLocations = response.data.data;
 
-                $scope.resourceLoadingEnabled = 1;
+                    $scope.resourceLoadingEnabled = 1;
+                });
             });
 
             //make sure we have the right waiting room
@@ -153,8 +155,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 $interval(function()
                 {
-                    if($scope.patientLoadingEnabled)
-                    {
+                    if($scope.patientLoadingEnabled) {
                         loadPatients();
                     }
                 },3500);
@@ -219,21 +220,18 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //first we check in there are any other patients with the same name as the one we are checking in
         //if there are, we add the patient's date of birth to the screen display
         $http({
-            url: "php/getSimilarCheckins",
-            method: "GET",
-            params:
-            {
-                firstName: patient.FirstName,
-                lastNameFirstThree: patient.LastName.substring(0,3),
+            url: "/php/api/private/v1/vwr/location/getSimilarCheckins",
+            method: "POST",
+            data:{
                 patientId: patient.PatientId
             }
         }).then(function (response)
         {
-            $scope.numNames = response.data;
+            $scope.numNames = response.data.data;
 
             let pseudoLastName;
 
-            if($scope.numNames == 0)
+            if($scope.numNames === 0)
             {
                 pseudoLastName = patient.LastName.substring(0,3) + "*****"; // first three digits of last name
             }
@@ -276,9 +274,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 // Send the patient an SMS message
                 //-----------------------------------------------------------------------
                 $http({
-                    url: "php/sms/sendSmsRoom",
-                    method: "GET",
-                    params:
+                    url: "/php/api/private/v1/patient/sms/sendSmsRoom",
+                    method: "POST",
+                    data:
                     {
                         patientId: patient.PatientId,
                         sourceId: patient.SourceId,
@@ -291,8 +289,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         });
 
         //-----------------------------------------------------------------------
-        // Check the patient into the calling location - all subsequent appointments
-        // will see this location
+        // Check the patient into the calling location - all subsequent appointments will see this location
         //-----------------------------------------------------------------------
         if(updateDB)
         {
@@ -441,9 +438,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         // Call the patient to the selected location
         //====================================================================
         $http({
-            url: "php/getLocationInfo",
+            url: "/php/api/private/v1/vwr/location/getLocationInfo",
             method: "GET",
-            params: {Location: selectedLocation}
+            params: {
+                location: selectedLocation
+            }
         }).then(function(response)
         {
             var patientDestination = response.data.data;
@@ -499,25 +498,23 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //exam rooms however can only hold one person, so if there are other patients checked into it, we put the other patients into the 'BACK TO WAITING ROOM' room
 
         //look at the types of selected location to see what type of situation we are dealing with
-        var situation =
+        let situation =
         {
             iPresent: 0, //intermediate venue
-            tPresent: 0, //treatment venue
             ePresent: 0 //exam room
         };
 
         angular.forEach(selectedLocations,function (opt)
         {
             if(opt.Type == 'IntermediateVenue') {situation.iPresent = 1;}
-            else if(opt.Type == 'TreatmentVenue') {situation.tPresent = 1;}
             else if(opt.Type == 'ExamRoom') {situation.ePresent = 1;}
         });
 
-        if(situation.ePresent && (situation.iPresent || situation.tPresent)) {situation = "MIXED";}
-        else if(situation.iPresent || situation.tPresent) {situation = "VENUE ONLY";}
+        if(situation.ePresent && situation.iPresent) {situation = "MIXED";}
+        else if(situation.iPresent) {situation = "VENUE ONLY";}
         else if(situation.ePresent) {situation = "EXAM ONLY";}
 
-        if(selectedLocations.length == 0)
+        if(selectedLocations.length === 0)
         {
             //if there are no selectedLocations, tell the user to select some
             $mdDialog.show($mdDialog.alert()
@@ -534,21 +531,21 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             //however, if the selected location is an exam room, we have to check if its occupied
             //if it is, we sent the occupying patient to the 'BACK TO WAITING ROOM' room
 
-            if(situation == "VENUE ONLY")
+            if(situation === "VENUE ONLY")
             {
                 $scope.logMessage("call_venue_only","General","Function call on Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" and location "+ selectedLocations[0].Name);
 
                 $scope.callPatientToSelectedLocation(patient,selectedLocations[0].Name,true);
             }
-            else if(situation == "EXAM ONLY")
+            else if(situation === "EXAM ONLY")
             {
                 $http({
-                    url: "php/getOccupants",
+                    url: "/php/api/private/v1/vwr/location/getOccupants",
                     method: "GET",
-                    params: {checkinVenue: selectedLocations[0].Name}
+                    params: {"examRooms[]": [selectedLocations[0].Name]}
                 }).then(function (response)
                 {
-                    var occupyingPatient = response.data[0];
+                    let occupyingPatient = response.data.data[0];
 
                     if(
                         occupyingPatient.PatientId != "Nobody"
@@ -631,7 +628,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         }
     };
 
-    //initialize the modal function that lets us select resources/locations/appointments
+    //initialize the modal function that lets us select resources/locations
     $scope.openSelectorModal = function(options,selectedOptions,title)
     {
         $uibModal.open(
@@ -751,14 +748,14 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.loadPatientDiagnosis = function(patient)
     {
         $http({
-            url: "./php/diagnosis/getPatientDiagnosisList",
+            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
             }
         })
         .then(res => {
-            $scope.lastPatientDiagnosisList = res.data
+            $scope.lastPatientDiagnosisList = res.data.data
         });
     }
 
@@ -767,32 +764,15 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     $scope.openFormModal = function(patient)
     {
-        /*
-        var modalInstance = $uibModal.open(
-        {
-            animation: true,
-            templateUrl: 'js/vwr/templates/formModal.htm',
-            controller: formModalController,
-            windowClass: 'formModal',
-            resolve:
-            {
-                patient: function() {return patient;}
-            }
-        }).result.then(function (result)
-        {
-            //complete the patient's appointment when the modal is closed
-            $scope.completeAppointment(patient);
-        });
-        */
         $scope.completeAppointment(patient);
     }
 
     $scope.logMessage = function(identifier,type,message)
     {
         $http({
-            url: "php/logMessage",
-            method: "GET",
-            params:
+            url: "/php/api/private/v1/vwr/logMessage",
+            method: "POST",
+            data:
             {
                 printJSON: 1,
                 filename: 'VirtualWaitingRoom.html',
@@ -816,11 +796,11 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendZoomLink = function(patient)
     {
         $http({
-            url: "php/sms/sendSmsForZoom",
-            method: "GET",
-            params:
+            url: "/php/api/private/v1/patient/sms/sendSmsForZoom",
+            method: "POST",
+            data:
             {
-                patientId: patient.PatientId,
+                patientId:  patient.PatientId,
                 zoomLink:   $scope.pageSettings.zoomLink,
                 resName:    patient.ResourceName
             }

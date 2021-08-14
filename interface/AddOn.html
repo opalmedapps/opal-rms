@@ -150,13 +150,15 @@ app.controller('main',function($scope,$http,$window,$location)
     {
         document.getElementById("VerifyPat").style.visibility = "visible";
 
-        let params = {
-            mrn: $scope.mrn,
-            site: $scope.site,
-            ramq: $scope.ramq
-        };
-
-        $http.get("/php/api/private/v1/patient/findPatient", {params: params})
+        $http({
+            url: "/php/api/private/v1/patient/findPatient",
+            method: "POST",
+            data: {
+                mrn: $scope.mrn,
+                site: $scope.site,
+                ramq: $scope.ramq
+            }
+        })
         .then(response => {
             let patients = response.data.data;
             if(patients.length === 0) {

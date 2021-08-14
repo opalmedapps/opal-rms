@@ -6,7 +6,7 @@ angular.module('index').component('editor',{
 function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 {
     $scope.selectedTab = 1; //current tab the user is in
-    $scope.givenOptions = {}; //list of all resources/locations/appointments user can select
+    $scope.givenOptions = {}; //list of all resources/locations user can select
     $scope.possibleColumns =  //get the possible columns that can be selected
     {
         chosen: [],
@@ -24,7 +24,6 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
             index: '',
             data:
             {
-                Appointments: [],
                 Category: $scope.group,
                 ColumnsDisplayed: [],
                 ExamRooms: [],
@@ -34,8 +33,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
                 ProfileSer: -1,
                 Resources: [],
                 Speciality: $scope.speciality,
-                ClinicHub: $scope.clinicHub,
-                TreatmentVenues: []
+                ClinicHub: $scope.clinicHub
             }
         };
 
@@ -77,24 +75,31 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //at this point, we have everything we need to get all the options the user can select
         $http({
-            url: "php/profile/getAllOptions",
+            url: "/php/api/private/v1/appointment/getClinics",
             method: "GET",
-            params:
-            {
+            params: {
                 speciality: $scope.speciality,
                 clinicHub: $scope.clinicHub
             }
-        }).then(function (response)
-        {
-            $scope.givenOptions = response.data;
+        }).then(function(response) {
+            $scope.givenOptions.Resources = response.data.data.map(x => ({Name: x.description,Type: "Resource"}));
+
+            $http({
+                url: "/php/api/private/v1/hospital/getRooms",
+                method: "GET",
+                params: {
+                    clinicHub: $scope.clinicHub
+                }
+            }).then(function(response) {
+                $scope.givenOptions.Locations = response.data.data;
+            });
         });
 
         //also get the columns that the user can select
         $http({
-            url: "php/profile/getPossibleColumns",
+            url: "/php/api/private/v1/profile/getColumns",
             method: "GET",
-            params:
-            {
+            params: {
                 speciality: $scope.speciality
             }
         }).then(function (response)
@@ -103,16 +108,16 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
             $scope.possibleColumns.chosen = [];
             $scope.possibleColumns.focusedColumn = {};
 
-            $scope.possibleColumns.possible = response.data;
+            $scope.possibleColumns.possible = response.data.data;
         });
 
         //also get a list of all profile Ids in the db
         $http({
-            url: "php/profile/getProfileList",
+            url: "/php/api/private/v1/profile/getList",
             method: "GET"
         }).then(function (response)
         {
-            $scope.allProfiles = response.data;
+            $scope.allProfiles = response.data.data;
         });
 
 
@@ -148,16 +153,15 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         {
             //get the selected profile info
             $http({
-                url: "php/profile/getProfileDetails",
+                url: "/php/api/private/v1/profile/getProfile",
                 method: "GET",
-                params:
-                {
+                params: {
                     profileId: $scope.profiles[index].ProfileId,
                     clinicHubId: $scope.clinicHub
                 }
-            }).then(function (response)
+            }).then(function(response)
             {
-                $scope.selectedProfile.data = response.data;
+                $scope.selectedProfile.data = response.data.data;
 
                 //after the profile has finished loading, process the columns in the profile
                 $scope.resetSelectedColumns();
@@ -181,7 +185,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
     $scope.verifyIfIdIsTaken = function (examinedProfile)
     {
-        var idAlreadyExists = false;
+        let idAlreadyExists = false;
 
         angular.forEach($scope.allProfiles,function (pro)
         {
@@ -214,10 +218,22 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
     $scope.updateProfile = function()
     {
+        let profile = $scope.selectedProfile.data;
+
         $http({
-            url: "php/profile/updateProfile",
+            url: "/php/api/private/v1/profile/updateProfile",
             method: "POST",
-            data: [$scope.selectedProfile,$scope.possibleColumns.chosen]
+            data: {
+                profileSer:             profile.ProfileSer,
+                profileId:              profile.ProfileId,
+                speciality:             profile.Speciality,
+                category:               profile.Category,
+                clinicalArea:           profile.ClinicalArea,
+                clinics:                profile.Resources.map(x => x.Name),
+                examRooms:              profile.Locations.filter(x => x.Type === "ExamRoom").map(x => x.Name),
+                intermediateVenues:     profile.Locations.filter(x => x.Type === "IntermediateVenue").map(x => x.Name),
+                columns:                $scope.possibleColumns.chosen.map(x => x.ColumnName)
+            }
         }).then(function(response)
         {
             $scope.selectedTab = 1;
@@ -230,13 +246,12 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
     $scope.deleteProfile = function()
     {
         $http({
-            url: "php/profile/deleteProfile",
-            method: "GET",
-            params:
-            {
+            url: "/php/api/private/v1/profile/deleteProfile",
+            method: "POST",
+            data:{
                 profileId: $scope.selectedProfile.data.ProfileId
             }
-        }).then(function (response)
+        }).then(function(response)
         {
             $scope.selectedTab = 1;
 

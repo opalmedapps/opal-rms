@@ -7,7 +7,9 @@ require __DIR__."/../../../../../vendor/autoload.php";
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
-$phoneNumber = $_GET["phoneNumber"] ?? null;
+$params = Http::getRequestContents();
+
+$phoneNumber = $params["phoneNumber"] ?? null;
 
 //phone number must be exactly 10 digits
 if($phoneNumber === null || !preg_match("/[0-9]{10}/", $phoneNumber)) {

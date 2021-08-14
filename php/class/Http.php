@@ -18,17 +18,17 @@ class Http
      *
      * @return mixed[]
      */
-    public static function getPostContents(): array
+    public static function getRequestContents(): array
     {
-        $requestParams = [];
+        $requestParams = $_GET;
 
-        if(!empty($_POST))
-        {
-            $requestParams = $_POST;
+        if($_POST !== []) {
+            $requestParams = array_merge($requestParams,$_POST);
         }
-        elseif(preg_match("/application\/json/", $_SERVER["CONTENT_TYPE"]))
+        elseif(preg_match("/application\/json/", $_SERVER["CONTENT_TYPE"] ?? ""))
         {
-            $requestParams = json_decode(file_get_contents("php://input") ?: "", true) ?? [];
+            $json = json_decode(file_get_contents("php://input") ?: "", true) ?? [];
+            $requestParams = array_merge($requestParams,$json);
         }
 
         foreach($requestParams as &$x) {
@@ -88,7 +88,7 @@ class Http
         $specification = $specification->$method->requestBody ?? throw new Exception("Unknown method");
         $specification = $specification->content[$content] ?? throw new Exception("Unknown content type");
 
-        $input = self::getPostContents();
+        $input = self::getRequestContents();
 
         //parse the inputs and ensure they conform to the api spec
         (new SchemaValidator(SchemaValidator::VALIDATE_AS_REQUEST))->validate($input, $specification->schema);

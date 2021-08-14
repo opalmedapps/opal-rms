@@ -4,6 +4,6 @@ parameters:
         - php/
         - VirtualWaitingRoom/php/
     excludes_analyse:
-        - VirtualWaitingRoom/php/pdfGenerator/
+        - php/tool/pdfGenerator/
     stubFiles:
         - php/stub/PDOStatement.stub

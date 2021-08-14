@@ -80,7 +80,7 @@
                     {{column.DisplayName}}<br /><span class="glyphicon {{column.Glyphicon}}"></span>
                 </th>
             </tr>
-            <tr ng-repeat="patient in checkins | multiResourceFilter: [selectedResources,selectedAppointments,screenRows,pageSettings] | orderBy: pageSettings.sortOrder | orderBy: sortByRowType" ng-class="determineRowClass(patient)">
+            <tr ng-repeat="patient in checkins | multiResourceFilter: [selectedResources,pageSettings] | orderBy: pageSettings.sortOrder | orderBy: sortByRowType" ng-class="determineRowClass(patient)">
                 <td></td>
                 <td ng-repeat="column in pageSettings.ColumnsDisplayed" ng-switch="column.ColumnName" style="text-align: center;">
                     <span ng-switch-when="AppointmentCode">{{patient.AppointmentName}}<br>[{{patient.CheckinSystem}}]</span>

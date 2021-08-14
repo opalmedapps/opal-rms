@@ -12,12 +12,12 @@ require __DIR__ ."/../../vendor/autoload.php";
 
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
+use Orms\Http;
 
-//------------------------------------------
-//parse input parameters
-//------------------------------------------
-$sDateInit = $_GET["sDate"];
-$eDateInit = $_GET["eDate"];
+$params = Http::getRequestContents();
+
+$sDateInit = $params["sDate"];
+$eDateInit = $params["eDate"];
 
 $sDate = DateTime::createFromFormatN("Y-m-d", $sDateInit)?->modifyN("midnight") ?? throw new Exception("Invalid date");
 $eDate = DateTime::createFromFormatN("Y-m-d", $eDateInit)?->modifyN("tomorrow") ?? throw new Exception("Invalid date");

@@ -15,7 +15,7 @@ function authDialogController($scope,$http,$cookies,$mdDialog)
     $scope.authenticate = async function()
     {
         await $http({
-            url: "./php/authenticateUser",
+            url: "/php/api/private/v1/vwr/authenticateUser",
             method: "POST",
             data: {
                 username: $scope.page.username,

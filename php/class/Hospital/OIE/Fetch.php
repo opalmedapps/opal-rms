@@ -129,7 +129,7 @@ class Fetch
      *      respondentId: int,
      *      respondentTitle: string,
      *      status: string,
-     *      visualization: string,
+     *      visualization: int,
      *      studyIdList: int[]
      * }>
      */
@@ -149,7 +149,7 @@ class Fetch
             "status"                => (string) $x["status"],
             "questionnaireId"       => (int) $x["questionnaireDBId"],
             "questionnaireName"     => (string) $x["name_EN"],
-            "visualization"         => (string) $x["visualization"],
+            "visualization"         => (int) $x["visualization"],
             "purposeId"             => (int) $x["purposeId"],
             "respondentId"          => (int) $x["respondentId"],
             "purposeTitle"          => (string) $x["purpose_EN"],
@@ -164,7 +164,6 @@ class Fetch
      *  questionId: int,
      *  questionTitle: string,
      *  questionLabel: string,
-     *  position: int,
      *  answers: array<array-key,array{
      *       dateTimeAnswered: int,
      *       answer: int
@@ -191,7 +190,7 @@ class Fetch
                 "questionId"    => (int) $x["questionId"],
                 "questionTitle" => (string) $x["question_EN"],
                 "questionLabel" => (string) $x["display_EN"],
-                "position"      => (int) $x["questionOrder"],
+                // "position"      => (int) $x["questionOrder"],
                 "answers"       => array_map(fn($y) => [
                                         "dateTimeAnswered" => (int) $y["dateTimeAnswered"],
                                         "answer"           => (int) $y["answer"]
@@ -208,7 +207,6 @@ class Fetch
      *  dateTimeAnswered: string,
      *  questionTitle: string,
      *  questionLabel: string,
-     *  position: int,
      *  hasScale: bool,
      *  options: array<array-key,array{
      *      value: int,
@@ -234,7 +232,7 @@ class Fetch
             "dateTimeAnswered"      => (string) $x["dateTimeAnswered"],
             "questionTitle"         => (string) $x["question_EN"],
             "questionLabel"         => (string) $x["display_EN"],
-            "position"              => (int) $x["questionOrder"],
+            // "position"              => (int) $x["questionOrder"],
             "hasScale"              => ($x["legacyTypeId"] === "2"),
             "options"               => array_map(fn($y) => [
                                             "value"       => (int) $y["value"],

@@ -9,7 +9,7 @@
         <directory name="VirtualWaitingRoom/php/" />
         <ignoreFiles>
             <directory name="vendor" />
-            <directory name="VirtualWaitingRoom/php/pdfGenerator/" />
+            <directory name="php/tool/pdfGenerator/" />
         </ignoreFiles>
     </projectFiles>
 

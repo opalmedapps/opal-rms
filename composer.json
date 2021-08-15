@@ -6,7 +6,7 @@
         "files": ["php/settings.php"]
     },
     "require": {
-        "php": "8.0.2",
+        "php": "8.0.9",
         "twilio/sdk": "^6.18",
         "guzzlehttp/guzzle": "^7.2",
         "ulrichsg/getopt-php": "^3.4",

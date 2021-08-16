@@ -6,257 +6,6 @@ servers:
   - url: https://serverUrl/php/api/public/v1
 
 paths:
-  /patient/checkIfPatientExists:
-    post:
-      summary: Checks if a patient exists in ORMS
-      description: Matches a patient in the ORMS database using an mrn and site
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mrn:
-                  description: Medical record number
-                  type: string
-                site:
-                  description: Hospital site
-                  type: string
-              required:
-                - mrn
-                - site
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    $ref: '#/components/schemas/SuccessProperty'
-                  data:
-                    description: True if the patient exists
-                    type: boolean
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /patient/checkIfInsuranceIsValid:
-    post:
-      summary: Checks if an insurance is valid
-      description: Verifies if an insurance number format is valid for a given insurance type
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                insuranceNumber:
-                  description: Value of the insurance (not necessarily a number)
-                  type: string
-                type:
-                  description: Type of the insurance
-                  type: string
-              required:
-                - insuranceNumber
-                - type
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    $ref: '#/components/schemas/SuccessProperty'
-                  data:
-                    description: True if the insurance is valid
-                    type: boolean
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /patient/checkInToLocation:
-    post:
-      summary: Check a patient in for their appointments
-      description: Updates the patient's location in the hospital for all their appointments of the day
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mrn:
-                  description: Medical record number
-                  type: string
-                site:
-                  description: Hospital site
-                  type: string
-                room:
-                  description: Hospital location
-                  type: string
-              required:
-                - mrn
-                - site
-                - room
-      responses:
-        200:
-          $ref: '#/components/responses/200'
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /patient/updateOpalStatus:
-    post:
-      summary: Update a patient's opal status
-      description: Mark a patient as registered for Opal or not
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mrn:
-                  description: Medical record number
-                  type: string
-                site:
-                  description: Hospital site
-                  type: string
-                opalStatus:
-                  description: Whether a patient is registered for Opal or not
-                  type: integer
-                  enum:
-                    - 0
-                    - 1
-              required:
-                - mrn
-                - site
-                - opalStatus
-      responses:
-        200:
-          $ref: '#/components/responses/200'
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /patient/updatePatientDemographics:
-    post:
-      summary: Update patient demographic information
-      description: Update a patient's record in ORMS with demograhic information from a hospital source system
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                firstName:
-                  description: The patient's first name
-                  type: string
-                lastName:
-                  description: The patient's last name
-                  type: string
-                dateOfBirth:
-                  description: The patient's date of birth
-                  type: string
-                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
-                sex:
-                  description: The patient's sex
-                  type: string
-                mrns:
-                  description: List of all mrns of the patient
-                  type: array
-                  minItems: 1
-                  items:
-                    type: object
-                    properties:
-                      mrn:
-                        description: Medical record number
-                        type: string
-                      site:
-                        description: Hospital site
-                        type: string
-                      active:
-                        description: Status of the mrn
-                        type: boolean
-                insurances:
-                  description: List of all insurances of the patient
-                  type: array
-                  minItems: 1
-                  items:
-                    type: object
-                    properties:
-                      insuranceNumber:
-                        description: Value of the insurance (not necessarily a number)
-                        type: string
-                      expirationDate:
-                        description: Expiration date of the insurance
-                        type: string
-                        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
-                      type:
-                        description: Type of the insurance
-                        type: string
-                      active:
-                        description: Status of the insurance
-                        type: boolean
-              required:
-                - firstName
-                - lastName
-                - dateOfBirth
-                - sex
-                - mrns
-      responses:
-        200:
-          $ref: '#/components/responses/200'
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /patient/mergeMrn:
-    post:
-      summary: Merge a patient's mrn
-      description: Disable a patient's mrn. Usually the mrn has been "merged" into another one of the patient's mrns.
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mrn:
-                  description: Medical record number
-                  type: string
-                site:
-                    description: Hospital site
-                    type: string
-              required:
-                - mrn
-                - site
-      responses:
-        200:
-          $ref: '#/components/responses/200'
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
   /appointment/deleteAppointment:
     post:
       summary: Delete a patient's appointment
@@ -391,6 +140,386 @@ paths:
                 - sourceSystem
                 - specialityGroupCode
                 - status
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /auth/createSession:
+    post:
+      summary: Create a user session
+      description: Create a user session by authenticating with a user's hospital AD account
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: Hospital AD username
+                  type: string
+                password:
+                  description: Hospital AD password
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    properties:
+                      name:
+                        description: Name of the auth cookie
+                        type: string
+                      key:
+                        description: Authentication cookie key
+                        type: string
+        400:
+          $ref: '#/components/responses/400'
+        406:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /hospital/getHubs:
+    post:
+      summary: Get a list of room hubs
+      description: Get a list of room hubs defined in ORMS
+      tags:
+        - hospital
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of hubs
+                    type: array
+                    items:
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            clinicHubId:
+                              description: Hub id
+                              type: integer
+                            clinicHubName:
+                              description: Hub name
+                              type: string
+                            specialityGroupId:
+                              description: Speciality group id
+                              type: integer
+                            specialityGroupName:
+                              description: Speciality group name
+                              type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /hospital/getSpecialityGroups:
+    post:
+      summary: Get a list of all speciality groups
+      description: Get a list of all the speciality group in the hospital
+      tags:
+        - hospital
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: List of speciality groups
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        specialityCode:
+                          description: Speciality group code
+                          type: string
+                        specialityName:
+                          description: Speciality group name
+                          type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/checkIfInsuranceIsValid:
+    post:
+      summary: Checks if an insurance is valid
+      description: Verifies if an insurance number format is valid for a given insurance type
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                insuranceNumber:
+                  description: Value of the insurance (not necessarily a number)
+                  type: string
+                type:
+                  description: Type of the insurance
+                  type: string
+              required:
+                - insuranceNumber
+                - type
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: True if the insurance is valid
+                    type: boolean
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/checkIfPatientExists:
+    post:
+      summary: Checks if a patient exists in ORMS
+      description: Matches a patient in the ORMS database using an mrn and site
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: True if the patient exists
+                    type: boolean
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/checkInToLocation:
+    post:
+      summary: Check a patient in for their appointments
+      description: Updates the patient's location in the hospital for all their appointments of the day
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                room:
+                  description: Hospital location
+                  type: string
+              required:
+                - mrn
+                - site
+                - room
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/mergeMrn:
+    post:
+      summary: Merge a patient's mrn
+      description: Disable a patient's mrn. Usually the mrn has been "merged" into another one of the patient's mrns.
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                    description: Hospital site
+                    type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/updateOpalStatus:
+    post:
+      summary: Update a patient's opal status
+      description: Mark a patient as registered for Opal or not
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                opalStatus:
+                  description: Whether a patient is registered for Opal or not
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+              required:
+                - mrn
+                - site
+                - opalStatus
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /patient/updatePatientDemographics:
+    post:
+      summary: Update patient demographic information
+      description: Update a patient's record in ORMS with demograhic information from a hospital source system
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  description: The patient's first name
+                  type: string
+                lastName:
+                  description: The patient's last name
+                  type: string
+                dateOfBirth:
+                  description: The patient's date of birth
+                  type: string
+                  pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                sex:
+                  description: The patient's sex
+                  type: string
+                mrns:
+                  description: List of all mrns of the patient
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      mrn:
+                        description: Medical record number
+                        type: string
+                      site:
+                        description: Hospital site
+                        type: string
+                      active:
+                        description: Status of the mrn
+                        type: boolean
+                insurances:
+                  description: List of all insurances of the patient
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      insuranceNumber:
+                        description: Value of the insurance (not necessarily a number)
+                        type: string
+                      expirationDate:
+                        description: Expiration date of the insurance
+                        type: string
+                        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+                      type:
+                        description: Type of the insurance
+                        type: string
+                      active:
+                        description: Status of the insurance
+                        type: boolean
+              required:
+                - firstName
+                - lastName
+                - dateOfBirth
+                - sex
+                - mrns
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -609,135 +738,6 @@ paths:
         200:
           $ref: '#/components/responses/200'
         400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /hospital/getHubs:
-    post:
-      summary: Get a list of room hubs
-      description: Get a list of room hubs defined in ORMS
-      tags:
-        - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    $ref: '#/components/schemas/SuccessProperty'
-                  data:
-                    description: A list of hubs
-                    type: array
-                    items:
-                      additionalProperties:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            clinicHubId:
-                              description: Hub id
-                              type: integer
-                            clinicHubName:
-                              description: Hub name
-                              type: string
-                            specialityGroupId:
-                              description: Speciality group id
-                              type: integer
-                            specialityGroupName:
-                              description: Speciality group name
-                              type: string
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /hospital/getSpecialityGroups:
-    post:
-      summary: Get a list of all speciality groups
-      description: Get a list of all the speciality group in the hospital
-      tags:
-        - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    $ref: '#/components/schemas/SuccessProperty'
-                  data:
-                    description: List of speciality groups
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        specialityCode:
-                          description: Speciality group code
-                          type: string
-                        specialityName:
-                          description: Speciality group name
-                          type: string
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
-  /auth/createSession:
-    post:
-      summary: Create a user session
-      description: Create a user session by authenticating with a user's hospital AD account
-      tags:
-        - auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  description: Hospital AD username
-                  type: string
-                password:
-                  description: Hospital AD password
-                  type: string
-              required:
-                - username
-                - password
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    $ref: '#/components/schemas/SuccessProperty'
-                  data:
-                    properties:
-                      name:
-                        description: Name of the auth cookie
-                        type: string
-                      key:
-                        description: Authentication cookie key
-                        type: string
-        400:
-          $ref: '#/components/responses/400'
-        406:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'

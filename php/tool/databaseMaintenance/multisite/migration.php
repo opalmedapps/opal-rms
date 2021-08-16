@@ -92,3 +92,5 @@ ClinicHubs::recreateClinicHubTable($dbh);
 ClinicHubs::linkExamRoomTable($dbh);
 ClinicHubs::linkIntermediateVenueTable($dbh);
 ClinicHubs::unlinkProfileTable($dbh);
+
+echo "Migration done\n";

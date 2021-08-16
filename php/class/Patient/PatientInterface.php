@@ -138,10 +138,6 @@ class PatientInterface
             $mrns
         );
 
-        if($patient->getActiveMrns() === []) {
-            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
-        }
-
         $newPatient = new Patient(
             id:                  $patient->id,
             firstName:           $firstName ?? $patient->firstName,
@@ -154,6 +150,10 @@ class PatientInterface
             mrns:                $newMrns,
             insurances:          $insurances ?? $patient->insurances
         );
+
+        if($newPatient->getActiveMrns() === []) {
+            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
+        }
 
         //overwrite the previous version of the patient in the database with the updated copy
         PatientAccess::serializePatient($newPatient);

@@ -42,14 +42,28 @@ class Fetch
             );
         }, $data["mrns"]);
 
-        $insurances = array_map(function($x) {
-            return new Insurance(
-                $x["insuranceNumber"],
-                DateTime::createFromFormatN("Y-m-d H:i:s", $x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
-                $x["type"],
-                $x["active"]
-            );
-        }, $data["insurances"]);
+        // $insurances = array_map(function($x) {
+        //     return new Insurance(
+        //         $x["insuranceNumber"],
+        //         DateTime::createFromFormatN("Y-m-d H:i:s", $x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
+        //         $x["type"],
+        //         $x["active"]
+        //     );
+        // }, $data["insurances"]);
+
+        if($data["ramq"] !== null && $data["ramqExpiration"] !== null) {
+            $insurances = [
+                new Insurance(
+                    $data["ramq"],
+                    DateTime::createFromFormatN("Y-m-d H:i:s",$data["ramqExpiration"]) ?? throw new Exception("Invalid date of birth"),
+                    "RAMQ",
+                    true
+                )
+            ];
+        }
+        else {
+            $insurances = [];
+        }
 
         return new ExternalPatient(
             firstName:          $data["firstName"],

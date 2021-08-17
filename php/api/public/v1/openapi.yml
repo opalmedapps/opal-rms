@@ -195,15 +195,11 @@ paths:
           $ref: '#/components/responses/500'
 
   /hospital/getHubs:
-    post:
+    get:
       summary: Get a list of room hubs
       description: Get a list of room hubs defined in ORMS
       tags:
         - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success
@@ -241,15 +237,11 @@ paths:
           $ref: '#/components/responses/500'
 
   /hospital/getSpecialityGroups:
-    post:
+    get:
       summary: Get a list of all speciality groups
       description: Get a list of all the speciality group in the hospital
       tags:
         - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success
@@ -529,15 +521,11 @@ paths:
           $ref: '#/components/responses/500'
 
   /sms/smsAppointment/getSmsAppointments:
-    post:
+    get:
       summary: Get a list of all the sms appointments
       description: Get a list of all the sms appointments in the system
       tags:
         - sms
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success
@@ -625,26 +613,24 @@ paths:
           $ref: '#/components/responses/500'
 
   /sms/smsMessage/getMessages:
-    post:
+    get:
       summary: Get a list of sms messages
       description: Get a list of sms messages sorted by event
       tags:
         - sms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                specialityCode:
-                  description: Speciality group code
-                  type: string
-                type:
-                  description: Message type
-                  type: string
-              required:
-                - specialityCode
-                - type
+      parameters:
+        - in: query
+          name: specialityCode
+          description: Speciality group code
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: type
+          description: Message type
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: Success
@@ -679,20 +665,17 @@ paths:
           $ref: '#/components/responses/500'
 
   /sms/smsMessage/getTypes:
-    post:
+    get:
       summary: Get a list of message types
       description: Get a list of sms message types for a speciality group
       tags:
         - sms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                specialityCode:
-                  description: Speciality group code
-                  type: string
+      parameters:
+        - in: query
+          name: specialityCode
+          description: Speciality group code
+          schema:
+            type: string
       responses:
         200:
           description: Success

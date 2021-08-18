@@ -15,6 +15,9 @@ HIGHCHARTS_URL                  =
 
 [system]
 SEND_WEIGHTS                    =
+VWR_CRON_ENABLED                =
+SMS_REMINDER_CRON_ENABLED       =
+INCOMING_SMS_CRON_ENABLED       =
 EMAIL[]                         =
 
 [database]

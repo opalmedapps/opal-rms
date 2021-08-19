@@ -11,7 +11,8 @@
         "guzzlehttp/guzzle": "^7.2",
         "ulrichsg/getopt-php": "^3.4",
         "league/openapi-psr7-validator": "^0.15.2",
-        "cebe/php-openapi": "^1.5"
+        "cebe/php-openapi": "^1.5",
+        "lavary/crunz": "^3.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12",

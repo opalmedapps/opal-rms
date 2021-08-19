@@ -346,4 +346,148 @@ class ReportAccess
             ];
         }, $query->fetchAll());
     }
+
+    /**
+     *
+     * @return list<array{
+     *   Age: int,
+     *   AppointmentId: int,
+     *   AppointmentName: string,
+     *   ArrivalDateTime: ?string,
+     *   ArrivalDateTime_hh: ?int,
+     *   ArrivalDateTime_mm: ?int,
+     *   Birthday: string,
+     *   BSA: ?float,
+     *   CheckinSystem: string,
+     *   FirstName: string,
+     *   Height: ?float,
+     *   LanguagePreference: string,
+     *   LastName: string,
+     *   LastQuestionnaireReview: ?string,
+     *   Mrn: string,
+     *   OpalPatient: int,
+     *   PatientId: int,
+     *   ResourceName: string,
+     *   ScheduledStartTime: string,
+     *   ScheduledStartTime_hh: int,
+     *   ScheduledStartTime_mm: int,
+     *   Sex: string,
+     *   Site: string,
+     *   SMSAlertNum: string,
+     *   SourceId: string,
+     *   SpecialityGroupId: int,
+     *   Status: string,
+     *   TimeRemaining: int,
+     *   VenueId: string,
+     *   WaitTime: int,
+     *   Weight: ?float,
+     *   WeightDate: ?string
+     * }>
+     */
+    public static function getCurrentDaysAppointments(): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                MV.AppointmentSerNum AS AppointmentId,
+                MV.AppointId AS SourceId,
+                SG.SpecialityGroupId,
+                PL.ArrivalDateTime,
+                COALESCE(AC.DisplayName,AC.AppointmentCode) AS AppointmentName,
+                P.LastName,
+                P.FirstName,
+                P.PatientSerNum AS PatientId,
+                PH.MedicalRecordNumber AS Mrn,
+                H.HospitalCode AS Site,
+                P.OpalPatient,
+                P.SMSAlertNum,
+                CASE WHEN P.LanguagePreference IS NOT NULL THEN P.LanguagePreference ELSE 'French' END AS LanguagePreference,
+                MV.Status,
+                LTRIM(RTRIM(CR.ResourceName)) AS ResourceName,
+                MV.ScheduledDateTime AS ScheduledStartTime,
+                HOUR(MV.ScheduledDateTime) AS ScheduledStartTime_hh,
+                MINUTE(MV.ScheduledDateTime) AS ScheduledStartTime_mm,
+                TIMESTAMPDIFF(MINUTE,NOW(), MV.ScheduledDateTime) AS TimeRemaining,
+                TIMESTAMPDIFF(MINUTE,PL.ArrivalDateTime,NOW()) AS WaitTime,
+                HOUR(PL.ArrivalDateTime) AS ArrivalDateTime_hh,
+                MINUTE(PL.ArrivalDateTime) AS ArrivalDateTime_mm,
+                PL.CheckinVenueName AS VenueId,
+                MV.AppointSys AS CheckinSystem,
+                DATE_FORMAT(P.DateOfBirth,'%b %d') AS Birthday,
+                TIMESTAMPDIFF(YEAR,P.DateOfBirth,CURDATE()) AS Age,
+                P.Sex,
+                PM.Date AS WeightDate,
+                PM.Weight,
+                PM.Height,
+                PM.BSA,
+                (SELECT DATE_FORMAT(MAX(ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE PatientSer = P.PatientSerNum) AS LastQuestionnaireReview
+            FROM
+                MediVisitAppointmentList MV
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
+                INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+                INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+                    AND PH.HospitalId = SG.HospitalId
+                    AND PH.Active = 1
+                INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+                LEFT JOIN PatientLocation PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
+                LEFT JOIN PatientMeasurement PM ON PM.PatientMeasurementSer =
+                    (
+                        SELECT
+                            PMM.PatientMeasurementSer
+                        FROM
+                            PatientMeasurement PMM
+                        WHERE
+                            PMM.PatientSer = P.PatientSerNum
+                            AND PMM.Date BETWEEN DATE_SUB(CURDATE(), INTERVAL 21 DAY) AND NOW()
+                        ORDER BY
+                            PMM.Date DESC,
+                            PMM.Time DESC
+                        LIMIT 1
+                    )
+            WHERE
+                MV.ScheduledDate = CURDATE()
+                AND MV.Status IN ('Open','Completed','In Progress')
+            ORDER BY
+                P.LastName,
+                MV.ScheduledDateTime,
+                MV.AppointmentSerNum
+        ");
+        $query->execute();
+
+        return array_map(fn($x) => [
+            "Age"                     => (int) $x["Age"],
+            "AppointmentId"           => (int) $x["AppointmentId"],
+            "AppointmentName"         => $x["AppointmentName"],
+            "ArrivalDateTime"         => $x["ArrivalDateTime"] ?? null,
+            "ArrivalDateTime_hh"      => ($x["ArrivalDateTime_hh"] ?? null) ? (int) $x["ArrivalDateTime_hh"] : null,
+            "ArrivalDateTime_mm"      => ($x["ArrivalDateTime_mm"] ?? null) ? (int) $x["ArrivalDateTime_mm"] : null,
+            "Birthday"                => $x["Birthday"],
+            "BSA"                     => ($x["BSA"] ?? null) ? (float) $x["BSA"] : null,
+            "CheckinSystem"           => $x["CheckinSystem"],
+            "FirstName"               => $x["FirstName"],
+            "Height"                  => ($x["Height"] ?? null) ? (float) $x["Height"]: null,
+            "LanguagePreference"      => $x["LanguagePreference"],
+            "LastName"                => $x["LastName"],
+            "LastQuestionnaireReview" => $x["LastQuestionnaireReview"] ?? null,
+            "Mrn"                     => $x["Mrn"],
+            "OpalPatient"             => (int) $x["OpalPatient"],
+            "PatientId"               => (int) $x["PatientId"],
+            "ResourceName"            => $x["ResourceName"],
+            "ScheduledStartTime"      => $x["ScheduledStartTime"],
+            "ScheduledStartTime_hh"   => (int) $x["ScheduledStartTime_hh"],
+            "ScheduledStartTime_mm"   => (int) $x["ScheduledStartTime_mm"],
+            "Sex"                     => $x["Sex"],
+            "Site"                    => $x["Site"],
+            "SMSAlertNum"             => $x["SMSAlertNum"],
+            "SourceId"                => $x["SourceId"],
+            "SpecialityGroupId"       => (int) $x["SpecialityGroupId"],
+            "Status"                  => $x["Status"],
+            "TimeRemaining"           => (int) $x["TimeRemaining"],
+            "VenueId"                 => $x["VenueId"],
+            "WaitTime"                => (int) $x["WaitTime"],
+            "Weight"                  => ($x["Weight"] ?? null) ? (float) $x["Weight"] : null,
+            "WeightDate"              => $x["WeightDate"] ?? null,
+        ], $query->fetchAll());
+    }
 }

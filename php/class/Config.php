@@ -46,8 +46,11 @@ class Config
         );
 
         $system = new SystemConfig(
-            emails:          $parsedData["system"]["EMAIL"] ?? [],
-            sendWeights:     (bool) ($parsedData["system"]["SEND_WEIGHTS"] ?? false)
+            emails:                             $parsedData["system"]["EMAIL"] ?? [],
+            sendWeights:                        (bool) ($parsedData["system"]["SEND_WEIGHTS"] ?? false),
+            vwrAppointmentCronEnabled:          (bool) ($parsedData["system"]["VWR_CRON_ENABLED"] ?? false),
+            appointmentReminderCronEnabled:     (bool) ($parsedData["system"]["SMS_REMINDER_CRON_ENABLED"] ?? false),
+            processIncomingSmsCronEnabled:      (bool) ($parsedData["system"]["INCOMING_SMS_CRON_ENABLED"] ?? false),
         );
 
         $ormsDb = new DatabaseConfig(
@@ -181,7 +184,10 @@ class SystemConfig
 
     public function __construct(
         public array $emails,
-        public bool $sendWeights
+        public bool $sendWeights,
+        public bool $vwrAppointmentCronEnabled,
+        public bool $appointmentReminderCronEnabled,
+        public bool $processIncomingSmsCronEnabled
     ) {}
 }
 

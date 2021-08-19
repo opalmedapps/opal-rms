@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+// script that loads all of the current day's appointments and saves them to a json file for use in the virtual waiting room
+
+require_once __DIR__."/../../vendor/autoload.php";
+
+use Orms\Config;
+use Orms\DataAccess\ReportAccess;
+use Orms\DateTime;
+use Orms\Hospital\OIE\Fetch;
+use Orms\Patient\PatientInterface;
+use Orms\Util\ArrayUtil;
+use Orms\Util\Encoding;
+
+$appointments = ReportAccess::getCurrentDaysAppointments();
+$appointments = array_map(function($x) {
+    //sex is represented with the first letter only
+    $x["Sex"] = mb_substr($x["Sex"], 0, 1);
+
+    //format phone number
+    if($x["SMSAlertNum"] !== null) {
+        $x["SMSAlertNum"] = mb_substr($x["SMSAlertNum"], 0, 3) ."-". mb_substr($x["SMSAlertNum"], 3, 3) ."-". mb_substr($x["SMSAlertNum"], 6, 4);
+    }
+
+    //if the weight was entered today, indicate it
+    $x["WeightDate"] = ($x["WeightDate"] !== null && time() - (60*60*24) < strtotime($x["WeightDate"])) ? "Today" : "Old";
+
+    $x["RowType"] = match($x["Status"]) {
+        ""           => "NotCheckedIn",
+        "Completed"  => "Completed",
+        default      => "CheckedIn"
+    };
+
+    //cross query OpalDB for questionnaire information
+    $x["QStatus"] = null;
+    if($x["OpalPatient"] === 1)
+    {
+        try {
+            $patient = PatientInterface::getPatientById($x["PatientId"]) ?? throw new Exception("Unknown patient id $x[PatientId]");
+            $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
+        }
+        catch(Exception $e) {
+            $questionnaire = null;
+            error_log((string) $e);
+        }
+
+        if($questionnaire !== null)
+        {
+            $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
+            $completedWithinWeek = ($oneWeekAgo <= $questionnaire["completionDate"]);
+
+            $lastQuestionnaireReview = ($x["LastQuestionnaireReview"] !== null) ? new DateTime($x["LastQuestionnaireReview"]) : null;
+
+            if($lastQuestionnaireReview === null || $questionnaire["completionDate"] > $lastQuestionnaireReview) {
+                $x["QStatus"] = "red-circle";
+            }
+            elseif($completedWithinWeek === true) {
+                $x["QStatus"] = "green-circle";
+            }
+        }
+    }
+
+    return $x;
+}, $appointments);
+
+//group appointments by speciality group
+$appointments = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments,"SpecialityGroupId");
+
+//scan for the list of appointment files. If any of them were not updated today, empty them
+$filePath = Config::getApplicationSettings()->environment->basePath ."/tmp";
+
+$today = (new DateTime())->format("Y-m-d");
+$path = dirname($filePath);
+$files = scandir($path) ?: [];
+
+$files = array_filter($files, fn($x) => preg_match("/\.vwr\.json/", $x) ? true : false);
+
+foreach($files as $file)
+{
+    $modDate = (new DateTime())->setTimestamp(filemtime("$path/$file") ?: 0)->format("Y-m-d");
+
+    if($modDate === $today) continue;
+
+    $handle = fopen("$path/$file", "w");
+    if($handle === false) continue;
+
+    fwrite($handle, "[]");
+    fclose($handle);
+}
+
+//for each speciality, dump the daily appointments in a json file
+foreach($appointments as $speciality => $data)
+{
+    //encode the data to JSON
+    $data = Encoding::utf8_encode_recursive($data);
+    $data = json_encode($data) ?: "[]";
+
+    $checkinlist = fopen("$filePath/$speciality.vwr.json", "w");
+    if($checkinlist === false) {
+        die("Unable to open checkinlist file!");
+    }
+
+    fwrite($checkinlist, $data);
+    fclose($checkinlist);
+}

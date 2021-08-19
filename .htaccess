@@ -1,4 +1,3 @@
-#.htaccess file
 
 Options FollowSymLinks
 Options -Indexes +Multiviews +Includes +ExecCGI
@@ -13,7 +12,7 @@ RedirectMatch 404 ^/config
 ErrorDocument 401 "/auth/login.html"
 
 # use memcache for authentication
-require valid-user
+Require valid-user
 
 Auth_memCookie_CookieName ormsAuth
 Auth_memCookie_Memcached_Configuration --server=127.0.0.1:11211
@@ -23,15 +22,6 @@ Auth_memCookie_Authoritative on
 AuthType Cookie
 AuthName "Login Intranet"
 
-#allow access to certain api scripts without being logged in
 <Files "./favicon.ico">
-    Require all granted
+    Satisfy any
 </Files>
-
-<Files "processAppointmentFromMedivisit.php">
-    Require all granted
-</Files>
-
-<FilesMatch "check(in|In)Patient(AriaMedi|MV)\.php">
-    Require all granted
-</FilesMatch>

@@ -28,7 +28,8 @@ class Highcharts
                 "options" => json_encode($chart),
                 "type"    => "png",
                 "b64"     => true
-            ]
+            ],
+            "verify" => false
         ])->getBody()->getContents();
 
         return $request;

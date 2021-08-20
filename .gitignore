@@ -2,15 +2,15 @@
 #ignore config files
 config/
 
+#ignore cert files
+certs/
+
+#ignore temp dir
+tmp/
+
 #ignore dependencies
 node_modules/*
 vendor/
 
-#ignore lock files
-smsReceiver.lock
-
 #ignore log files
 php-error.log
-
-#track .htaccess files
-!node_modules/.htaccess

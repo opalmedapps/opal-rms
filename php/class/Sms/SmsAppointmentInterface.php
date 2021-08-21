@@ -35,6 +35,10 @@ class SmsAppointmentInterface
             throw new ApplicationException(ApplicationException::INVALID_SMS_APPOINTMENT_STATE, "Sms appointment cannot be active if the type is null");
         }
 
+        if(in_array($type,self::getSmsAppointmentTypes()) === false) {
+            throw new ApplicationException(ApplicationException::INVALID_SMS_APPOINTMENT_TYPE, "Type $type doesn't exist for sms appointments");
+        }
+
         SmsAppointmentAccess::updateSmsAppointment($id, $active, $type);
     }
 
@@ -42,7 +46,7 @@ class SmsAppointmentInterface
      * Returns a list of sms appointment types in a speciality group.
      * @return string[]
      */
-    public static function getSmsAppointmentTypes(?string $specialityCode): ?array
+    public static function getSmsAppointmentTypes(?string $specialityCode = null): array
     {
         return SmsAppointmentAccess::getSmsAppointmentTypes($specialityCode);
     }

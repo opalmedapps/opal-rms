@@ -1,5 +1,3 @@
-Options -Indexes
-
 #Disable caching
 <IfModule mod_headers.c>
     Header set Cache-Control "no-cache, no-store, must-revalidate"

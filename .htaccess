@@ -1,1 +1,27 @@
-#.htaccess file
+
+Options FollowSymLinks
+Options -Indexes +Multiviews +Includes +ExecCGI
+
+AddHandler server-parsed .html
+AddHandler cgi-script .pl .pm
+
+#disable access to the config folder
+RedirectMatch 404 ^/config
+
+# to redirect unauthorized user to the login page
+ErrorDocument 401 "/auth/login.html"
+
+# use memcache for authentication
+Require valid-user
+
+Auth_memCookie_CookieName ormsAuth
+Auth_memCookie_Memcached_Configuration --server=127.0.0.1:11211
+Auth_memCookie_SilmulateAuthBasic on
+
+Auth_memCookie_Authoritative on
+AuthType Cookie
+AuthName "Login Intranet"
+
+<Files "./favicon.ico">
+    Satisfy any
+</Files>

@@ -69,10 +69,9 @@ $appointments = array_map(function($x) {
 $appointments = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments,"SpecialityGroupId");
 
 //scan for the list of appointment files. If any of them were not updated today, empty them
-$filePath = Config::getApplicationSettings()->environment->basePath ."/tmp";
+$path = Config::getApplicationSettings()->environment->basePath ."/tmp";
 
 $today = (new DateTime())->format("Y-m-d");
-$path = dirname($filePath);
 $files = scandir($path) ?: [];
 
 $files = array_filter($files, fn($x) => preg_match("/\.vwr\.json/", $x) ? true : false);
@@ -97,7 +96,7 @@ foreach($appointments as $speciality => $data)
     $data = Encoding::utf8_encode_recursive($data);
     $data = json_encode($data) ?: "[]";
 
-    $checkinlist = fopen("$filePath/$speciality.vwr.json", "w");
+    $checkinlist = fopen("$path/$speciality.vwr.json", "w");
     if($checkinlist === false) {
         die("Unable to open checkinlist file!");
     }

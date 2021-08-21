@@ -12,7 +12,7 @@ use Orms\Util\Encoding;
 //get the list of appointments to process
 //group appointments by patient
 $appointments = getAppointments();
-$patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "mrn");
+$patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "mrnSite");
 
 $messageList = SmsInterface::getPossibleSmsMessages();
 
@@ -62,7 +62,7 @@ foreach($patients as $pat)
     if($pat["appString"] !== "") {
         SmsInterface::sendSms($pat["phoneNumber"], $pat["appString"]);
     }
-    logReminderData($pat["mrn"], $pat["phoneNumber"], $pat["appString"], $pat["appSer"], $pat["appName"]);
+    logReminderData($pat["mrnSite"], $pat["phoneNumber"], $pat["appString"], $pat["appSer"], $pat["appName"]);
     //sleep first to make sure the previous text message had time to be sent
     sleep(2);
 }
@@ -81,7 +81,7 @@ function getAppointments(): array
     $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         SELECT
-            P.PatientId AS mrn,
+            CONCAT(PH.MedicalRecordNumber,'-',H.HospitalCode) AS mrnSite,
             P.SMSAlertNum AS phoneNumber,
             P.LanguagePreference AS language,
             MV.AppointmentSerNum AS appSer,
@@ -105,18 +105,22 @@ function getAppointments(): array
             MediVisitAppointmentList MV
             INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
             INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-            INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
-                AND P.SMSAlertNum != ''
-                AND P.SMSAlertNum IS NOT NULL
             INNER JOIN SmsAppointment SA ON SA.AppointmentCodeId = MV.AppointmentCodeId
                 AND SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                 AND SA.Active = 1
                 AND SA.Type IS NOT NULL
+            INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+                AND P.SMSAlertNum != ''
+                AND P.SMSAlertNum IS NOT NULL
+            INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
+            INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
+            INNER JOIN SpecialityGroup SG ON SG.HospitalId = H.HospitalId
+                AND SG.SpecialityGroupId = SA.SpecialityGroupId
         WHERE
             MV.Status = 'Open'
             AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY
         ORDER BY
-            P.PatientId,
+            mrnSite,
             MV.ScheduledTime
     ");
     $query->execute();
@@ -142,12 +146,12 @@ function checkIfReminderAlreadySent(string $appSer): bool
      return ($query->fetchAll()[0]["SmsReminderLogSer"] ?? false) ? false : true;
 }
 
-function logReminderData(string $mrn, string $phoneNumber, string $message, string $appSer, string $appName): void
+function logReminderData(string $mrnSite, string $phoneNumber, string $message, string $appSer, string $appName): void
 {
     $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
         INSERT INTO TEMP_SmsReminderLog(Mrn,PhoneNumber,MessageSent,AppointmentSer,AppointmentName)
         VALUES(?,?,?,?,?)
     ");
-    $query->execute([$mrn,$phoneNumber,$message,$appSer,$appName]);
+    $query->execute([$mrnSite,$phoneNumber,$message,$appSer,$appName]);
 }

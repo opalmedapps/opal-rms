@@ -64,7 +64,7 @@ httpd settings:
 
             #allow kiosks to access kiosk web page
             <Directory "<<path>>/perl">
-                <Files "Checkin.pl">
+                <Files "CheckIn.pl">
                     #Include hardwareIpList.list
                 </Files>
             </Directory>
@@ -81,10 +81,10 @@ httpd settings:
                 </FilesMatch>
             </Directory>
 
-            <Directory "<<path>>/php/private/v1/vwr/">
-                <Files "getFirebaseSettings.php">
+            <Directory "<<path>>/php/api/private/v1/vwr/">
+                <FilesMatch "getFirebaseSettings">
                     #Include hardwareIpList.list
-                </Files>
+                </FilesMatch>
             </Directory>
 
         </VirtualHost>

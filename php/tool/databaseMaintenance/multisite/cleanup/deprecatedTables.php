@@ -19,4 +19,8 @@ class DeprecatedTables
         $dbh->query("DROP TABLE IF EXISTS Venue");
     }
 
+    public static function removeCheckoutEvent(PDO $dbh): void
+    {
+        $dbh->query("DROP EVENT IF EXISTS EndOfDayCheckout");
+    }
 }

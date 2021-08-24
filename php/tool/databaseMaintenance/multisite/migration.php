@@ -97,5 +97,6 @@ ClinicHubs::unlinkProfileTable($dbh);
 echo "remove deprecated tables\n";
 DeprecatedTables::removeDoctorSchedule($dbh);
 DeprecatedTables::removeVenue($dbh);
+DeprecatedTables::removeCheckoutEvent($dbh);
 
 echo "Migration done\n";

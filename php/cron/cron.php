@@ -54,5 +54,12 @@ $appointmentReminderTask = $schedule->run("php ../php/cron/generateAppointmentRe
 ->timezone(date_default_timezone_get())
 ->description("Appointment sms reminder");
 
+$checkoutTask = $schedule->run("php ../php/cron/endOfDayCheckout.php")
+->daily()
+->hour(23)
+->minute(30)
+->preventOverlapping()
+->timezone(date_default_timezone_get())
+->description("End of day checkout");
 
 return $schedule;

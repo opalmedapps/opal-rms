@@ -120,7 +120,7 @@ function getPatientsFromMrns(array $mrns): array
 
     $patients = array_filter($patients); //filter nulls
     $patients = array_unique($patients, SORT_REGULAR); //filter duplicates
-    usort($patients, fn($a, $b) => $a->id <=> $b->id);  //sort by oldest record first in case of merge
+    usort($patients, fn($a, $b) => $a->id <=> $b->id); //sort by oldest record first in case of merge
 
     return $patients;
 }

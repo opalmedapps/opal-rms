@@ -14,12 +14,13 @@ require_once __DIR__."/profile/updateProfiles.php";
 require_once __DIR__."/speciality/createSpecialityGroup.php";
 require_once __DIR__."/speciality/updateClinicHubs.php";
 require_once __DIR__."/room/updateRooms.php";
+require_once __DIR__."/cleanup/deprecatedTables.php";
 
 use Orms\DataAccess\Database;
 
 $dbh = Database::getOrmsConnection();
 
-//appointment changes
+echo "appointment changes\n";
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
 AppointmentSourceSystem::createSourceSystemKey($dbh);
 AppointmentCodes::extendCodeLength($dbh);
@@ -42,18 +43,18 @@ catch(Exception $e) {
 AppointmentForeignKeys::updatePatientTableLink($dbh);
 AppointmentForeignKeys::updateResourceCodeLinks($dbh);
 
-// profile changes
+echo "profile changes\n";
 Profile::removeLegacyProfileColumns($dbh);
 Profile::removeTreatmentVenues($dbh);
 
-//room changes
+echo "room changes\n";
 Rooms::extendRoomNameLength($dbh);
 
-//patient measurement changes
+echo "patient measurement changes\n";
 PatientMeasurementTable::linkPatientMeasurementTable($dbh);
 PatientMeasurementTable::updatePatientIdColumn($dbh);
 
-//patient changes
+echo "patient changes\n";
 PatientIdentifiers::createHospitalTable($dbh);
 PatientIdentifiers::createInsuranceTable($dbh);
 PatientIdentifiers::createPatientHospitalIdentifierTable($dbh);
@@ -79,7 +80,7 @@ echo "$unknownPatients not matched in ADT\n";
 
 PatientTable::removeDeprecatedPatientColumns($dbh);
 
-//speciality changes
+echo "speciality changes\n";
 SpecialityGroup::createSpecialityGroupTable($dbh);
 SpecialityGroup::linkAppointmentCodeTable($dbh);
 SpecialityGroup::linkClinicResourcesTable($dbh);
@@ -87,10 +88,14 @@ SpecialityGroup::linkProfileTable($dbh);
 SpecialityGroup::linkSmsAppointmentTable($dbh);
 SpecialityGroup::linkSmsMessageTable($dbh);
 
-//clinic hub changes
+echo "clinic hub changes\n";
 ClinicHubs::recreateClinicHubTable($dbh);
 ClinicHubs::linkExamRoomTable($dbh);
 ClinicHubs::linkIntermediateVenueTable($dbh);
 ClinicHubs::unlinkProfileTable($dbh);
+
+echo "remove deprecated tables\n";
+DeprecatedTables::removeDoctorSchedule($dbh);
+DeprecatedTables::removeVenue($dbh);
 
 echo "Migration done\n";

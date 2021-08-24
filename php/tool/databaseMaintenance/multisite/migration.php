@@ -19,6 +19,7 @@ require_once __DIR__."/cleanup/deprecatedTables.php";
 use Orms\DataAccess\Database;
 
 $dbh = Database::getOrmsConnection();
+$dbhLog = Database::getLogsConnection();
 
 echo "appointment changes\n";
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
@@ -99,5 +100,7 @@ DeprecatedTables::removeDoctorSchedule($dbh);
 DeprecatedTables::removeVenue($dbh);
 DeprecatedTables::removeCheckoutEvent($dbh);
 DeprecatedTables::removeScheduler($dbh);
+DeprecatedTables::removeKioskLog($dbhLog);
+DeprecatedTables::removeAppointmentLogs($dbhLog);
 
 echo "Migration done\n";

@@ -30,4 +30,16 @@ class DeprecatedTables
         $dbh->query("ALTER TABLE ClinicResources DROP COLUMN ClinicScheduleSerNum");
     }
 
+    public static function removeKioskLog(PDO $dbh): void
+    {
+        $dbh->query("DROP TABLE IF EXISTS KioskLog");
+    }
+
+    public static function removeAppointmentLogs(PDO $dbh): void
+    {
+        $dbh->query("DROP TABLE IF EXISTS ImportLogForAddOns");
+        $dbh->query("DROP TABLE IF EXISTS ImportLogForImpromptu");
+        $dbh->query("DROP TABLE IF EXISTS ImportLogForMedivisitInterfaceEngine");
+    }
+
 }

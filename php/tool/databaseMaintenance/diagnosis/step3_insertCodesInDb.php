@@ -16,8 +16,6 @@ createDiagnosisChapterTable($dbh);
 createDiagnosisCodeTable($dbh);
 createDiagnosisSubcodeTable($dbh);
 createPatientDiagnosisTable($dbh);
-createPatientDiagnosisMHTable($dbh);
-createPatientDiagnosisMHTriggers($dbh);
 
 $dbh->query("SET FOREIGN_KEY_CHECKS = 1;");
 
@@ -108,92 +106,6 @@ function createPatientDiagnosisTable(PDO $dbh): void
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB
         ;
-    ");
-}
-
-function createPatientDiagnosisMHTable(PDO $dbh): void
-{
-    $dbh->query("DROP TABLE IF EXISTS PatientDiagnosisMH;");
-    $dbh->query("
-        CREATE TABLE `PatientDiagnosisMH` (
-            `PatientDiagnosisMHId` INT NOT NULL AUTO_INCREMENT,
-            `Revision` INT NOT NULL,
-            `PatientDiagnosisId` INT(11) NOT NULL,
-            `PatientSerNum` INT(11) NOT NULL,
-            `DiagnosisSubcodeId` INT(11) NOT NULL,
-            `Status` ENUM('Active','Deleted') NOT NULL DEFAULT 'Active' COLLATE 'latin1_swedish_ci',
-            `DiagnosisDate` DATETIME NOT NULL DEFAULT current_timestamp(),
-            `CreatedDate` DATETIME NOT NULL DEFAULT current_timestamp(),
-            `LastUpdated` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-            `UpdatedBy` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
-            INDEX `FK__Patient` (`PatientSerNum`) USING BTREE,
-            INDEX `FK_PatientDiagnosis_DiagnosisSubcode` (`DiagnosisSubcodeId`) USING BTREE,
-            PRIMARY KEY (`PatientDiagnosisMHId`),
-            CONSTRAINT `FK_PatientDiagnosisMH_DiagnosisSubcode` FOREIGN KEY (`DiagnosisSubcodeId`) REFERENCES `DiagnosisSubcode` (`DiagnosisSubcodeId`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-            CONSTRAINT `FK__PatientDiagnosisMH_Patient` FOREIGN KEY (`PatientSerNum`) REFERENCES `Patient` (`PatientSerNum`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-            CONSTRAINT `FK_PatientDiagnosisMH_PatientDiagnosis` FOREIGN KEY (`PatientDiagnosisId`) REFERENCES `PatientDiagnosis` (`PatientDiagnosisId`)
-        )
-        COLLATE='latin1_swedish_ci'
-        ENGINE=InnoDB
-        ;
-    ");
-}
-
-function createPatientDiagnosisMHTriggers(PDO $dbh): void
-{
-    $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_insert;");
-    $dbh->query("DROP TRIGGER IF EXISTS PatientDiagnosis_after_update;");
-    $dbh->query("
-        CREATE TRIGGER `PatientDiagnosis_after_insert` AFTER INSERT ON `PatientDiagnosis` FOR EACH ROW BEGIN
-        INSERT INTO PatientDiagnosisMH (
-            Revision
-            ,PatientDiagnosisId
-            ,PatientSerNum
-            ,DiagnosisSubcodeId
-            ,Status
-            ,DiagnosisDate
-            ,CreatedDate
-            ,LastUpdated
-            ,UpdatedBy
-        )
-        VALUES (
-            0
-            ,NEW.PatientDiagnosisId
-            ,NEW.PatientSerNum
-            ,NEW.DiagnosisSubcodeId
-            ,NEW.Status
-            ,NEW.DiagnosisDate
-            ,NEW.CreatedDate
-            ,NEW.LastUpdated
-            ,NEW.UpdatedBy
-        );
-        END;
-    ");
-    $dbh->query("
-        CREATE TRIGGER `PatientDiagnosis_after_update` AFTER UPDATE ON `PatientDiagnosis` FOR EACH ROW BEGIN
-        INSERT INTO PatientDiagnosisMH (
-            Revision
-            ,PatientDiagnosisId
-            ,PatientSerNum
-            ,DiagnosisSubcodeId
-            ,Status
-            ,DiagnosisDate
-            ,CreatedDate
-            ,LastUpdated
-            ,UpdatedBy
-        )
-        VALUES (
-            (SELECT PD.Revision +1 FROM PatientDiagnosisMH PD WHERE PD.PatientDiagnosisId = NEW.PatientDiagnosisId)
-            ,NEW.PatientDiagnosisId
-            ,NEW.PatientSerNum
-            ,NEW.DiagnosisSubcodeId
-            ,NEW.Status
-            ,NEW.DiagnosisDate
-            ,NEW.CreatedDate
-            ,NEW.LastUpdated
-            ,NEW.UpdatedBy
-        );
-        END;
     ");
 }
 

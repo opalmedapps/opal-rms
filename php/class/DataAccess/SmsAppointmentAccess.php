@@ -84,7 +84,7 @@ class SmsAppointmentAccess
             FROM
                 SmsMessage SM
                 INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = SM.SpecialityGroupId
-                $specialityFilter
+                    $specialityFilter
         ");
         $query->execute($parameters);
 

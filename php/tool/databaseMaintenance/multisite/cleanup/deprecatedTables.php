@@ -23,4 +23,11 @@ class DeprecatedTables
     {
         $dbh->query("DROP EVENT IF EXISTS EndOfDayCheckout");
     }
+
+    public static function removeScheduler(PDO $dbh): void
+    {
+        $dbh->query("DROP TABLE IF EXISTS ClinicSchedule");
+        $dbh->query("ALTER TABLE ClinicResources DROP COLUMN ClinicScheduleSerNum");
+    }
+
 }

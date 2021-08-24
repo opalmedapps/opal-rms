@@ -98,5 +98,6 @@ echo "remove deprecated tables\n";
 DeprecatedTables::removeDoctorSchedule($dbh);
 DeprecatedTables::removeVenue($dbh);
 DeprecatedTables::removeCheckoutEvent($dbh);
+DeprecatedTables::removeScheduler($dbh);
 
 echo "Migration done\n";

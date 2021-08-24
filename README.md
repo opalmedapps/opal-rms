@@ -15,7 +15,7 @@ Highcharts:
 Cronjobs:
     create of copy of config/crunz.yml.template called config/crunz.yml
     set the error file location, mailer settings, and timezone (important, else the cron won't work)
-    put in crontab: * * * * * cd <<path>>/config && ../vendor/bin/crunz schedule:run
+    put in crontab: * * * * * cd <<path>>/config && ../vendor/bin/crunz schedule:run >/dev/null
 
 httpd settings:
     create the file /etc/httpd/hardwareIpList.list and add the following:

@@ -42,9 +42,6 @@ foreach($messages as $message)
         continue;
     }
 
-    //sleep first to make sure the previous text message had time to be sent
-    sleep(2);
-
     //check if the message is equal to the check in keyword ARRIVE
     //if it's not, send a message to the patient instructing them how to use the service
     if(!preg_match("/ARRIVE|ARRIVÉ/", mb_strtoupper($message->body)))

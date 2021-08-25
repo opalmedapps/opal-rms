@@ -63,8 +63,6 @@ foreach($patients as $pat)
         SmsInterface::sendSms($pat["phoneNumber"], $pat["appString"]);
     }
     logReminderData($pat["mrnSite"], $pat["phoneNumber"], $pat["appString"], $pat["appSer"], $pat["appName"]);
-    //sleep first to make sure the previous text message had time to be sent
-    sleep(2);
 }
 
 

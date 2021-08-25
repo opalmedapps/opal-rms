@@ -23,20 +23,8 @@ $timeLimit = $currentRun->modify("-5 minutes");
 
 $messages = SmsInterface::getNewReceivedMessages($lastRun->modify("-5 minutes"));
 
-//log all received messages immediately in case the script dies in the middle of processing
-foreach($messages as $message) {
-    logMessageData($message->timeReceived, $message->clientNumber, null, $message->body, null, "SMS received");
-}
-
 //filter all messages that were sent over 5 minutes ago, just in case
-$messages = array_filter($messages, function($message) use ($timeLimit) {
-    if($message->timeReceived < $timeLimit) {
-        logMessageData($message->timeReceived, $message->clientNumber, null, $message->body, null, "SMS expired");
-        return false;
-    }
-
-    return true;
-});
+$messages = array_filter($messages, fn($x) => $x->timeReceived >= $timeLimit);
 
 //get default messages
 $messageList = SmsInterface::getPossibleSmsMessages();
@@ -46,17 +34,13 @@ $checkInLocation = "CELL PHONE";
 foreach($messages as $message)
 {
     //find the patient associated with the phone number
-    $patientData = getPatientInfo($message->clientNumber);
+    $patient = PatientInterface::getPatientByPhoneNumber($message->clientNumber);
 
     //return nothing if the patient doesn't exist and skip
-    if($patientData === null)
-    {
-        logMessageData($message->timeReceived, $message->clientNumber, null, $message->body, null, "Patient not found");
+    //also skip if there is no language preference (which should never happen if there is a registered phone number...)
+    if($patient === null || $patient->languagePreference === null) {
         continue;
     }
-
-    $patientSer = $patientData["PatientSerNum"];
-    $language = $patientData["LanguagePreference"];
 
     //sleep first to make sure the previous text message had time to be sent
     sleep(2);
@@ -65,25 +49,21 @@ foreach($messages as $message)
     //if it's not, send a message to the patient instructing them how to use the service
     if(!preg_match("/ARRIVE|ARRIVÉ/", mb_strtoupper($message->body)))
     {
-        $returnString = SmsInterface::getDefaultUnknownCommandMessage($language) ?? throw new Exception("Undefined sms string");
+        $returnString = SmsInterface::getDefaultUnknownCommandMessage($patient->languagePreference) ?? throw new Exception("Undefined sms string");
 
         SmsInterface::sendSms($message->clientNumber, $returnString, $message->serviceNumber);
-        logMessageData($message->timeReceived, $message->clientNumber, $patientSer, $message->body, $returnString, "Success");
-
         continue;
     }
 
     //get the patients next appointments for the day
-    $appointments = getAppointmentList($patientSer);
+    $appointments = getAppointmentList($patient->id);
 
     //if there are no appointments, the check in was a failure
     if($appointments === [])
     {
-        $returnString = SmsInterface::getDefaultFailedCheckInMessage($language) ?? throw new Exception("Undefined sms string");
+        $returnString = SmsInterface::getDefaultFailedCheckInMessage($patient->languagePreference) ?? throw new Exception("Undefined sms string");
 
         SmsInterface::sendSms($message->clientNumber, $returnString, $message->serviceNumber);
-        logMessageData($message->timeReceived, $message->clientNumber, $patientSer, $message->body, $returnString, "Success");
-
         continue;
     }
 
@@ -96,11 +76,12 @@ foreach($messages as $message)
     {
         foreach($v as $type => $apps)
         {
-            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$language]["Message"] ?? "";
+            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$patient->languagePreference]["Message"] ?? "";
 
-            $appListString = array_reduce($apps, function($acc, $x) use ($language) {
-                if($language === "French") return $acc . "$x[name] à $x[time]\n";
-                else return $acc . "$x[name] at $x[time]\n";
+            $appListString = array_reduce($apps, function($acc, $x) use ($patient) {
+                $preposition = ($patient->languagePreference === "French") ? "à" : "at";
+
+                return $acc ."$x[name] $preposition $x[time]\n";
             }, "");
 
             $appointmentString = preg_replace("/<app>/", $appListString, $appointmentString);
@@ -111,34 +92,16 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/", "", $appointmentString) ?? ""; //remove last separator newline
 
     //check the patient into all of his appointments
-    $patient = PatientInterface::getPatientById((int) $patientSer);
-
-    try
-    {
-        if($patient === null) throw new Exception("Unknown patient");
-
-        Location::movePatientToLocation($patient, $checkInLocation);
-
-        SmsInterface::sendSms($message->clientNumber, $appointmentString, $message->serviceNumber);
-        logMessageData($message->timeReceived, $message->clientNumber, $patientSer, $message->body, $appointmentString, "Success");
-    }
-    catch(\Exception $e)
-    {
-        $returnString = SmsInterface::getDefaultUnknownCommandMessage($language) ?? throw new Exception("Undefined sms string");
-
-        SmsInterface::sendSms($message->clientNumber, $returnString, $message->serviceNumber);
-        logMessageData($message->timeReceived, $message->clientNumber, $patientSer, $message->body, $returnString, "Error: ". $e->getTraceAsString());
-    }
+    Location::movePatientToLocation($patient, $checkInLocation);
+    SmsInterface::sendSms($message->clientNumber, $appointmentString, $message->serviceNumber);
 }
 
 //functions
 /**
  *
  * @return array<string,string>
- * @throws Exception
- * @throws PDOException
  */
-function getAppointmentList(string $pSer): array
+function getAppointmentList(int $patientId): array
 {
     $dbh = Database::getOrmsConnection();
     $query = $dbh->prepare("
@@ -168,31 +131,14 @@ function getAppointmentList(string $pSer): array
                 AND SA.Active = 1
                 AND SA.Type IS NOT NULL
         WHERE
-            MV.PatientSerNum = :pSer
+            MV.PatientSerNum = :pid
             AND MV.ScheduledDate = CURDATE()
             AND MV.Status = 'Open'
         ORDER BY MV.ScheduledTime
     ");
-    $query->execute([":pSer" => $pSer]);
+    $query->execute([":pid" => $patientId]);
 
     return Encoding::utf8_encode_recursive($query->fetchAll());
-}
-
-function logMessageData(DateTime $timestamp, string $phoneNumber, ?string $patientSer, string $message, ?string $returnMessage, string $result): void
-{
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        INSERT INTO TEMP_IncomingSmsLog(ReceivedTimestamp,FromPhoneNumber,PatientSerNum,ReceivedMessage,ReturnMessage,Result)
-        VALUES(:rec,:num,:pSer,:msg,:rmsg,:res)
-    ");
-    $query->execute([
-        ":rec" => $timestamp->format("Y:m:d H:i:s"),
-        ":num" => $phoneNumber,
-        ":pSer" => $patientSer,
-        ":msg" => $message,
-        ":rmsg" => $returnMessage,
-        ":res" => $result
-    ]);
 }
 
 /**

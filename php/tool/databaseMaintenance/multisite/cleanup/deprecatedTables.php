@@ -42,4 +42,9 @@ class DeprecatedTables
         $dbh->query("DROP TABLE IF EXISTS ImportLogForMedivisitInterfaceEngine");
     }
 
+    public static function removeSmsLogs(PDO $dbh): void
+    {
+        $dbh->query("DROP TABLE IF EXISTS TEMP_IncomingSmsLog");
+    }
+
 }

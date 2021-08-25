@@ -439,7 +439,7 @@ class PatientAccess
 
     /**
      *
-     * @return array<Patient|NULL>
+     * @return array<Patient|null>
      */
     public static function getPatientsWithPhoneNumber(string $phoneNumber): array
     {

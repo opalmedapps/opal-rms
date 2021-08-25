@@ -6,8 +6,9 @@ declare(strict_types=1);
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Config;
-use Orms\DataAccess\Database;
+use Orms\Hospital\SpecialityInterface;
 use Orms\Http;
+use Orms\User\ProfileInterface;
 use Orms\Util\Encoding;
 
 $params = Http::getRequestContents();
@@ -15,98 +16,44 @@ $params = Http::getRequestContents();
 $profileId   = $params["profileId"];
 $clinicHubId = (int) $params["clinicHubId"];
 
-$configs = Config::getApplicationSettings();
-$dbh = Database::getOrmsConnection();
+$clinicHubs = array_merge(...array_values(SpecialityInterface::getHubs()));
+$clinicHub = array_values(array_filter($clinicHubs,fn($x) => $x["clinicHubId"] === $clinicHubId))[0] ?? null;
 
-//==================================
-//get profile
-//==================================
-$queryProfile = $dbh->prepare("
-    SELECT
-        ProfileSer,
-        ProfileId,
-        Category,
-        SpecialityGroupId AS Speciality,
-        (SELECT ClinicHubName FROM ClinicHub WHERE ClinicHubId = :chId) AS ClinicalArea
-    FROM
-        Profile
-    WHERE
-        ProfileId = :proId
-");
-//process results
-$queryProfile->execute([
-    ":proId" => $profileId,
-    ":chId"  => $clinicHubId
-]);
+$profile = ProfileInterface::getProfile($profileId);
 
-$profile = $queryProfile->fetchAll()[0] ?? null;
-
-/** @phpstan-ignore-next-line */
-if($profile === null || $profile["ClinicalArea"] === null) {
+if($profile === null || $clinicHub === null) {
     Http::generateResponseJsonAndExit(400, data: (object) []);
 }
 
-$profileDetails = [
-    "ProfileSer"           => (int) $profile["ProfileSer"],
-    "ProfileId"            => $profile["ProfileId"],
-    "Category"             => $profile["Category"],
-    "Speciality"           => (int) $profile["Speciality"],
-    "ClinicalArea"         => $profile["ClinicalArea"],
-    "ClinicHubId"          => $clinicHubId,
-    "WaitingRoom"          => mb_strtoupper($profile["ClinicalArea"]) ." WAITING ROOM",
-    "Resources"            => [],
-    "ColumnsDisplayed"     => [],
-    "sortOrder"            => in_array($profile["Category"],["PAB","Treatment Machine","Physician"]) ? ["ScheduledStartTime_hh","ScheduledStartTime_mm"] : "LastName", //set the load order of the appointments on the vwr page depending the category
-    "FirebaseUrl"          => $configs->environment->firebaseUrl,
-    "FirebaseSecret"       => $configs->environment->firebaseSecret,
-    "CheckInFile"          => $configs->environment->baseUrl ."/tmp/$profile[Speciality].vwr.json"
-];
-
-//==========================================================
-//get the profile columns
-//==========================================================
-$queryColumns = $dbh->prepare("
-    SELECT
-        PCD.ColumnName,
-        PCD.DisplayName,
-        PCD.Glyphicon,
-        PC.Position
-    FROM
-        ProfileColumns PC
-        INNER JOIN ProfileColumnDefinition PCD ON PCD.ProfileColumnDefinitionSer = PC.ProfileColumnDefinitionSer
-    WHERE
-        PC.ProfileSer = ?
-        AND PC.Position >= 0
-        AND PC.Active = 1
-    ORDER BY
-        PC.Position
-");
-$queryColumns->execute([$profileDetails["ProfileSer"]]);
-
-$profileDetails["ColumnsDisplayed"] = $queryColumns->fetchAll();
-
-//=======================================================
-//next get the profile options
-//=======================================================
-$queryOptions = $dbh->prepare("
-    SELECT
-        Options,
-        Type
-    FROM
-        ProfileOptions
-    WHERE
-        ProfileSer = ?
-    ORDER BY
-        Options
-");
-$queryOptions->execute([$profileDetails["ProfileSer"]]);
+$configs = Config::getApplicationSettings();
 
 $options = array_map(fn($x) => [
-    "Name"  => $x["Options"],
-    "Type"  => $x["Type"]
-],$queryOptions->fetchAll());
+    "Name" => $x["name"],
+    "Type" => $x["type"]
+],ProfileInterface::getProfileOptions($profileId));
 
-$profileDetails["Resources"] = array_values(array_filter($options,fn($x) => $x["Type"] === "Resource"));
-$profileDetails["Locations"] = array_values(array_filter($options,fn($x) => $x["Type"] === "ExamRoom" || $x["Type"] === "IntermediateVenue"));
+$columns = array_map(fn($x) => [
+    "ColumnName"    => $x["columnName"],
+    "DisplayName"   => $x["displayName"],
+    "Glyphicon"     => $x["glyphicon"],
+    "Position"      => $x["position"],
+],ProfileInterface::getProfileColumns($profileId));
+
+$profileDetails = [
+    "ProfileSer"           => $profile["profileSer"],
+    "ProfileId"            => $profileId,
+    "Category"             => $profile["category"],
+    "Speciality"           => $profile["specialityGroupId"],
+    "ClinicalArea"         => $clinicHub["clinicHubName"],
+    "ClinicHubId"          => $clinicHubId,
+    "WaitingRoom"          => mb_strtoupper($clinicHub["clinicHubName"]) ." WAITING ROOM",
+    "Resources"            => array_values(array_filter($options,fn($x) => $x["Type"] === "Resource")),
+    "Locations"            => array_values(array_filter($options,fn($x) => $x["Type"] === "ExamRoom" || $x["Type"] === "IntermediateVenue")),
+    "ColumnsDisplayed"     => $columns,
+    "sortOrder"            => in_array($profile["category"],["PAB","Treatment Machine","Physician"]) ? ["ScheduledStartTime_hh","ScheduledStartTime_mm"] : "LastName", //set the load order of the appointments on the vwr page depending the category
+    "FirebaseUrl"          => $configs->environment->firebaseUrl,
+    "FirebaseSecret"       => $configs->environment->firebaseSecret,
+    "CheckInFile"          => $configs->environment->baseUrl ."/tmp/$profile[specialityGroupId].vwr.json"
+];
 
 Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($profileDetails));

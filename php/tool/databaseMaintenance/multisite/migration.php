@@ -47,6 +47,7 @@ AppointmentForeignKeys::updateResourceCodeLinks($dbh);
 echo "profile changes\n";
 Profile::removeLegacyProfileColumns($dbh);
 Profile::removeTreatmentVenues($dbh);
+Profile::removeStoredProcedures($dbh);
 
 echo "room changes\n";
 Rooms::extendRoomNameLength($dbh);

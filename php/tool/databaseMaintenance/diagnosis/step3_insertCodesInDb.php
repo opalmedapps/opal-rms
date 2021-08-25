@@ -5,6 +5,7 @@ declare(strict_types=1);
 //insert diagnosis codes in database
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+use Orms\Config;
 use Orms\DataAccess\Database;
 
 $data = json_decode(file_get_contents(__DIR__."/data/processed_codes.json") ?: "", true);
@@ -182,5 +183,7 @@ function addDiagnosisColumnToVwr(PDO $dbh): void
             Speciality     = VALUES(Speciality)
     ")->execute();
 
-    $dbh->query("CALL VerifyProfileColumns()");
+    $scriptPath = Config::getApplicationSettings()->environment->basePath ."/php/tool/verifyProfileColumns.php";
+    /** @psalm-suppress ForbiddenCode */
+    shell_exec("php $scriptPath");
 }

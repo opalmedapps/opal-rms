@@ -5,8 +5,7 @@ To enable git hooks:
     sh .githooks/activateHooks.sh
 
 Profile notes:
-    -When creating or deleting profiles in the WaitRoomMangement DB, be sure to use the stored procedures (SetupProfile/DeleteProfile respectively).
-    -When adding a new column type, run the VerifyProfileColumns procedure right after.
+    -When adding a new column type, run the php/tool/verifyProfileColumns script right after
 
 Highcharts:
     To start the highcharts export server (after running npm install):

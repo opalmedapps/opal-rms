@@ -98,10 +98,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         //also get the columns that the user can select
         $http({
             url: "/php/api/private/v1/profile/getColumns",
-            method: "GET",
-            params: {
-                speciality: $scope.speciality
-            }
+            method: "GET"
         }).then(function (response)
         {
             $scope.possibleColumns.possible = [];
@@ -228,10 +225,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
                 profileId:              profile.ProfileId,
                 speciality:             profile.Speciality,
                 category:               profile.Category,
-                clinicalArea:           profile.ClinicalArea,
-                clinics:                profile.Resources.map(x => x.Name),
-                examRooms:              profile.Locations.filter(x => x.Type === "ExamRoom").map(x => x.Name),
-                intermediateVenues:     profile.Locations.filter(x => x.Type === "IntermediateVenue").map(x => x.Name),
+                options:                profile.Locations.concat(profile.Resources),
                 columns:                $scope.possibleColumns.chosen.map(x => x.ColumnName)
             }
         }).then(function(response)

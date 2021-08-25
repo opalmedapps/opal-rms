@@ -5,16 +5,14 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
 use Orms\Http;
+use Orms\User\ProfileInterface;
 use Orms\Util\Encoding;
 
 $params = Http::getRequestContents();
 
 $profileId = Encoding::utf8_decode_recursive($params["profileId"]);
 
-//call the delete stored procedure
-$query = Database::getOrmsConnection()->prepare("CALL DeleteProfile(?);");
-$query->execute([$profileId]);
+ProfileInterface::deleteProfile($profileId);
 
 Http::generateResponseJsonAndExit(200);

@@ -12,8 +12,10 @@ class Profile
             ALTER TABLE Profile
             DROP COLUMN FetchResourcesFromVenues,
             DROP COLUMN FetchResourcesFromClinics,
-            DROP COLUMN ShowCheckedOutAppointments;
+            DROP COLUMN ShowCheckedOutAppointments
         ;");
+
+        $dbh->query("ALTER TABLE ProfileColumnDefinition DROP COLUMN Speciality");
     }
 
     public static function removeTreatmentVenues(PDO $dbh): void
@@ -30,5 +32,14 @@ class Profile
             ALTER TABLE ProfileOptions
             CHANGE COLUMN Type Type ENUM('ExamRoom','IntermediateVenue','Resource') NOT NULL COLLATE 'latin1_swedish_ci' AFTER Options;
         ");
+    }
+
+    public static function removeStoredProcedures(PDO $dbh): void
+    {
+        $dbh->query("DROP PROCEDURE IF EXISTS DeleteProfile");
+        $dbh->query("DROP PROCEDURE IF EXISTS SetupProfile");
+        $dbh->query("DROP PROCEDURE IF EXISTS UpdateProfileColumns");
+        $dbh->query("DROP PROCEDURE IF EXISTS UpdateProfileOptions");
+        $dbh->query("DROP PROCEDURE IF EXISTS VerifyProfileOptions");
     }
 }

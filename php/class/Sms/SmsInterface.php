@@ -6,7 +6,6 @@ namespace Orms\Sms;
 
 use DateTime;
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use Orms\Config;
 use Orms\DataAccess\Database;
 use Orms\Sms\Internal\SmsCdyne;
@@ -17,33 +16,32 @@ use Orms\SmsConfig;
 use Orms\System\Logger;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
-use PDOException;
 
 SmsInterface::__init();
 
 class SmsInterface
 {
     private static ?SmsConfig $configs;
-    private static SmsClassInterface $smsProvider;
+    private static ?SmsClassInterface $smsProvider;
 
     public static function __init(): void
     {
         self::$configs = Config::getApplicationSettings()->sms;
 
-        if(self::$configs?->provider === "twilio")     self::$smsProvider = new SmsTwilio();
-        elseif(self::$configs?->provider === "cdyne")  self::$smsProvider = new SmsCdyne();
+        self::$smsProvider = match(self::$configs?->provider) {
+            "twilio" => new SmsTwilio(),
+            "cdyne"  => new SmsCdyne(),
+            default  => null
+        };
     }
 
-    /**
-     *
-     * @throws GuzzleException
-     * @throws PDOException
-     */
     public static function sendSms(string $clientNumber, string $message, string $serviceNumber = null): void
     {
-        if(self::$configs === null) return;
+        if(self::$configs === null || self::$smsProvider === null) {
+            return;
+        }
 
-        //by default, we send sms using Twilio
+        //by default, we randomly pick one of the available numbers
         if($serviceNumber === null) {
             $serviceNumber = self::$configs->longCodes[array_rand(self::$configs->longCodes)];
         }
@@ -74,12 +72,12 @@ class SmsInterface
     /**
      *
      * @return SmsReceivedMessage[]
-     * @throws GuzzleException
-     * @throws PDOException
      */
     public static function getNewReceivedMessages(DateTime $timestamp): array
     {
-        if(self::$configs === null) return [];
+        if(self::$configs === null || self::$smsProvider === null) {
+            return [];
+        }
 
         $messages = self::$smsProvider->getReceivedMessages(self::$configs->longCodes, $timestamp);
         $messages = array_filter($messages, fn($x) => self::_checkIfMessageAlreadyReceived($x) === false);
@@ -106,14 +104,14 @@ class SmsInterface
      *  * type is subcategory of the speciality group and is used to link the appointment code to a message
      *  * event indicates when the message should be sent out (during check in, as a reminder, etc)
      * @return string[][][][][]
-     * @throws PDOException
      */
     public static function getPossibleSmsMessages(): array
     {
-        if(self::$configs === null) return [];
+        if(self::$configs === null) {
+            return [];
+        }
 
-        $dbh = Database::getOrmsConnection();
-        $query = $dbh->prepare("
+        $query = Database::getOrmsConnection()->prepare("
             SELECT
                 SpecialityGroupId,
                 Type,
@@ -147,19 +145,16 @@ class SmsInterface
             return null;
         }
 
-        if($language === "English") {
-            return self::$configs->failedCheckInMessageEnglish;
-        }
-        elseif($language === "French") {
-            return self::$configs->failedCheckInMessageFrench;
-        }
-
-        return null;
+        return match($language) {
+            "English" => self::$configs->failedCheckInMessageEnglish,
+            "French"  => self::$configs->failedCheckInMessageFrench,
+            default   => null
+        };
     }
 
     /**
      *
-     * param 'English'|'French' $language #too cumbersome to actually use with the code's current state
+     * param 'English'|'French' $language //too cumbersome to actually use with the code's current state
      */
     public static function getDefaultUnknownCommandMessage(string $language): ?string
     {
@@ -167,20 +162,16 @@ class SmsInterface
             return null;
         }
 
-        if($language === "English") {
-            return self::$configs->unknownCommandMessageEnglish;
-        }
-        elseif($language === "French") {
-            return self::$configs->unknownCommandMessageFrench;
-        }
-
-        return null;
+        return match($language) {
+            "English" => self::$configs->unknownCommandMessageEnglish,
+            "French"  => self::$configs->unknownCommandMessageFrench,
+            default   => null
+        };
     }
 
     private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool
     {
-        $dbh = Database::getLogsConnection();
-        $query = $dbh->prepare("
+        $query = Database::getLogsConnection()->prepare("
             SELECT
                 MessageId
             FROM

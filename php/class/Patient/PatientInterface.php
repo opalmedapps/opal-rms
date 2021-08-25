@@ -36,6 +36,11 @@ class PatientInterface
         return self::_fetchPatient($id);
     }
 
+    public static function getPatientByPhoneNumber(string $phoneNumber): ?Patient
+    {
+        return PatientAccess::getPatientsWithPhoneNumber($phoneNumber)[0] ?? null;
+    }
+
     private static function _fetchPatient(int $id): ?Patient
     {
         return PatientAccess::deserializePatient($id);

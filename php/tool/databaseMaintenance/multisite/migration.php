@@ -101,6 +101,7 @@ DeprecatedTables::removeDoctorSchedule($dbh);
 DeprecatedTables::removeVenue($dbh);
 DeprecatedTables::removeCheckoutEvent($dbh);
 DeprecatedTables::removeScheduler($dbh);
+DeprecatedTables::removeSmsLogs($dbh);
 DeprecatedTables::removeKioskLog($dbhLog);
 DeprecatedTables::removeAppointmentLogs($dbhLog);
 

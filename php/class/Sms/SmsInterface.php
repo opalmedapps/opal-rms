@@ -63,7 +63,7 @@ class SmsInterface
             $messageId,
             ucfirst(self::$configs->provider),
             "SENT",
-            $message,
+            Encoding::utf8_decode_recursive($message),
             new DateTime(),
             $result
         );
@@ -89,7 +89,7 @@ class SmsInterface
                 $x->messageId,
                 $x->provider,
                 "RECEIVED",
-                $x->body,
+                Encoding::utf8_decode_recursive($x->body),
                 $x->timeReceived,
                 "SUCCESS"
             );

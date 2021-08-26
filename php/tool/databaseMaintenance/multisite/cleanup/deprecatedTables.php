@@ -45,6 +45,13 @@ class DeprecatedTables
     public static function removeSmsLogs(PDO $dbh): void
     {
         $dbh->query("DROP TABLE IF EXISTS TEMP_IncomingSmsLog");
+        $dbh->query("DROP TABLE IF EXISTS TEMP_SmsReminderLog");
+
+        //add the sms reminder sent flag to the appointment table
+        $dbh->query("
+            ALTER TABLE MediVisitAppointmentList
+            ADD COLUMN AppointmentReminderSent TINYINT(1) NOT NULL DEFAULT 0 AFTER ScheduledTime
+        ");
     }
 
 }

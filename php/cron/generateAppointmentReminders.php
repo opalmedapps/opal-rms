@@ -30,8 +30,10 @@ $patients = array_map(function($x) use ($messageList) {
             $appointmentString .= $messageList[$speciality][$type]["REMINDER"][$arr[0]["language"]]["Message"];
 
             $appListString = array_reduce($arr, function($acc, $y) {
-                if($y["language"] === "French") return $acc . "$y[name] le $y[date] à $y[time]\n";
-                else return $acc . "$y[name] on $y[date] at $y[time]\n";
+                return match($y["language"]) {
+                    "French" => $acc ."$y[name] le $y[date] à $y[time]\n",
+                    default  => $acc ."$y[name] on $y[date] at $y[time]\n"
+                };
             }, "");
 
             $appointmentString = preg_replace("/<app>/", $appListString, $appointmentString);
@@ -40,11 +42,13 @@ $patients = array_map(function($x) use ($messageList) {
     }
     $appointmentString = preg_replace("/\n\n----------------\n\n$/", "", $appointmentString); //remove last newline
 
-    $appointmentSerString = array_reduce($x, fn($acc, $y) => $acc . "$y[appSer],", "");
+    $appointmentSerString = array_reduce($x, fn($acc, $y) => [...$acc,$y["appSer"]], []);
 
     $appointmentNameString = array_reduce($x, fn($acc, $y) => $acc . "$y[fullname],", "");
 
-    if(ArrayUtil::checkIfArrayIsAssoc($x) === false) $x = array_merge(...$x);
+    if(ArrayUtil::checkIfArrayIsAssoc($x) === false) {
+        $x = array_merge(...$x);
+    }
 
     unset($x["date"]);
     unset($x["time"]);
@@ -57,12 +61,16 @@ $patients = array_map(function($x) use ($messageList) {
 }, $patients);
 
 //send sms to patient
+//also mark each appointment as having a reminder sent already
 foreach($patients as $pat)
 {
     if($pat["appString"] !== "") {
         SmsInterface::sendSms($pat["phoneNumber"], $pat["appString"]);
     }
-    logReminderData($pat["mrnSite"], $pat["phoneNumber"], $pat["appString"], $pat["appSer"], $pat["appName"]);
+
+    foreach($pat["appSer"] as $x) {
+        setAppointmentReminderFlag((int) $x);
+    }
 }
 
 
@@ -116,6 +124,7 @@ function getAppointments(): array
                 AND SG.SpecialityGroupId = SA.SpecialityGroupId
         WHERE
             MV.Status = 'Open'
+            AND MV.AppointmentReminderSent = 0
             AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY
         ORDER BY
             mrnSite,
@@ -123,33 +132,16 @@ function getAppointments(): array
     ");
     $query->execute();
 
-    //filter if a reminder was already sent for this appointment
-    $appointments = array_filter($query->fetchAll(), fn($x) => checkIfReminderAlreadySent($x["appSer"]));
-
-    return Encoding::utf8_encode_recursive($appointments);
+    return Encoding::utf8_encode_recursive($query->fetchAll());
 }
 
-//checks to see if a reminder was already sent for a specific appointment
-function checkIfReminderAlreadySent(string $appSer): bool
+function setAppointmentReminderFlag(int $appointmentId): void
 {
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        SELECT SmsReminderLogSer
-        FROM TEMP_SmsReminderLog
-        WHERE AppointmentSer LIKE :appSer
-        LIMIT 1
-    ");
-    $query->execute([":appSer" => "%$appSer%"]);
-
-     return ($query->fetchAll()[0]["SmsReminderLogSer"] ?? false) ? false : true;
-}
-
-function logReminderData(string $mrnSite, string $phoneNumber, string $message, string $appSer, string $appName): void
-{
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        INSERT INTO TEMP_SmsReminderLog(Mrn,PhoneNumber,MessageSent,AppointmentSer,AppointmentName)
-        VALUES(?,?,?,?,?)
-    ");
-    $query->execute([$mrnSite,$phoneNumber,$message,$appSer,$appName]);
+    Database::getOrmsConnection()->prepare("
+        UPDATE MediVisitAppointmentList
+        SET
+            AppointmentReminderSent = 1
+        WHERE
+            AppointmentSerNum = ?
+    ")->execute([$appointmentId]);
 }

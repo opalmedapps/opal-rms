@@ -128,7 +128,12 @@ class SmsInterface
         ");
         $query->execute();
 
-        $messages = $query->fetchAll();
+        //convert all <nl> tags to newlines
+        $messages = array_map(function($x) {
+            $x["Message"] = str_replace("<nl>","\n",$x["Message"]);
+            return $x;
+        },$query->fetchAll());
+
         $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages, "SpecialityGroupId", "Type", "Event", "Language");
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 

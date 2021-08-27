@@ -8,13 +8,13 @@ use Exception;
 
 class ApplicationException extends Exception
 {
-    public const UNKNOWN_INSURANCE_TYPE = "UNKNOWN_INSURANCE_TYPE";
-    public const INVALID_INSURANCE_FORMAT = "INVALID_INSURANCE_FORMAT";
-    public const UNKNOWN_MRN_TYPE = "UNKNOWN_MRN_TYPE";
-    public const INVALID_MRN_FORMAT = "INVALID_MRN_FORMAT";
-    public const NO_ACTIVE_MRNS = "NO_ACTIVE_MRNS";
-    public const INVALID_SMS_APPOINTMENT_STATE = "INVALID_SMS_APPOINTMENT_STATE";
-    public const INVALID_SMS_APPOINTMENT_TYPE ="INVALID_SMS_APPOINTMENT_TYPE";
+    public const INVALID_INSURANCE_FORMAT       = "INVALID_INSURANCE_FORMAT";
+    public const INVALID_MRN_FORMAT             = "INVALID_MRN_FORMAT";
+    public const INVALID_SMS_APPOINTMENT_STATE  = "INVALID_SMS_APPOINTMENT_STATE";
+    public const INVALID_SMS_APPOINTMENT_TYPE   = "INVALID_SMS_APPOINTMENT_TYPE";
+    public const NO_ACTIVE_MRNS                 = "NO_ACTIVE_MRNS";
+    public const UNKNOWN_INSURANCE_TYPE         = "UNKNOWN_INSURANCE_TYPE";
+    public const UNKNOWN_MRN_TYPE               = "UNKNOWN_MRN_TYPE";
 
     public function __construct(string $errorCode, string $errorMessage)
     {

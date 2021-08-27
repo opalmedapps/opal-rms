@@ -15,7 +15,7 @@ class Export
     public static function exportPatientLocation(string $sourceId, string $sourceSystem, string $room): void
     {
         try {
-            Connection::getHttpClient()?->request("POST", "Patient/Location", [
+            Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_LOCATION, [
                 "json" => [
                     "room"          => $room,
                     "sourceId"      => $sourceId,
@@ -31,7 +31,7 @@ class Export
     public static function exportAppointmentCompletion(string $sourceId, string $sourceSystem): void
     {
         try {
-            Connection::getHttpClient()?->request("POST", "Appointment/Status", [
+            Connection::getHttpClient()?->request("POST", Connection::API_APPOINTMENT_COMPLETION, [
                 "json" => [
                     "sourceId"      => $sourceId,
                     "sourceSystem"  => $sourceSystem,
@@ -49,7 +49,7 @@ class Export
         if($patient->opalStatus !== 1) return;
 
         try {
-            Connection::getHttpClient()?->request("POST", "Patient/RoomNotification", [
+            Connection::getHttpClient()?->request("POST", Connection::API_ROOM_NOTIFICATION, [
                 "json" => [
                     "mrn"                   => $patient->getActiveMrns()[0]->mrn,
                     "site"                  => $patient->getActiveMrns()[0]->site,
@@ -73,7 +73,7 @@ class Export
         $mrn = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new \Exception("No RVH mrn");
         $site = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->site ?? throw new \Exception("No RVH mrn");
 
-        Connection::getHttpClient()?->request("POST", "report/post", [
+        Connection::getHttpClient()?->request("POST", Connection::API_MEASUREMENT_PDF, [
             "json" => [
                 "mrn"             => $mrn,
                 "site"            => $site,
@@ -87,7 +87,7 @@ class Export
 
     public static function exportPatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status): void
     {
-        Connection::getHttpClient()?->request("POST", "/Patient/Diagnosis", [
+        Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_DIAGNOSIS, [
             "json" => [
                 "mrn"           => $patient->getActiveMrns()[0]->mrn,
                 "site"          => $patient->getActiveMrns()[0]->site,

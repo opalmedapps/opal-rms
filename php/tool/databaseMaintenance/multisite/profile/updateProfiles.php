@@ -40,6 +40,6 @@ class Profile
         $dbh->query("DROP PROCEDURE IF EXISTS SetupProfile");
         $dbh->query("DROP PROCEDURE IF EXISTS UpdateProfileColumns");
         $dbh->query("DROP PROCEDURE IF EXISTS UpdateProfileOptions");
-        $dbh->query("DROP PROCEDURE IF EXISTS VerifyProfileOptions");
+        $dbh->query("DROP PROCEDURE IF EXISTS VerifyProfileColumns");
     }
 }

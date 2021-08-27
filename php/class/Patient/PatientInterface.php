@@ -178,6 +178,41 @@ class PatientInterface
     }
 
     /**
+     * Separates a patient entry into two separate entries
+     * @param Mrn[] $mrns
+     * @param Insurance[] $insurances
+     */
+    public static function unmergePatientEntries(
+        Patient $originalEntry,
+        string $firstName,
+        string $lastName,
+        DateTime $dateOfBirth,
+        string $sex,
+        array $mrns,
+        array $insurances
+    ): Patient
+    {
+        $newPatient = new Patient(
+            id:                  -1, //id is negative to indicate that the patient doesn't exist in the system
+            firstName:           $firstName,
+            lastName:            $lastName,
+            dateOfBirth:         $dateOfBirth,
+            sex:                 $sex,
+            phoneNumber:         null,
+            opalStatus:          0,
+            languagePreference:  null,
+            mrns:                $mrns,
+            insurances:          $insurances
+        );
+
+        if($newPatient->getActiveMrns() === []) {
+            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to create patient with no active mrns");
+        }
+
+        return PatientAccess::unmergePatientEntries($originalEntry,$newPatient);
+    }
+
+    /**
      *
      * @return PatientMeasurement[]
      */

@@ -75,6 +75,34 @@ class Fetch
     }
 
     /**
+     * Returns an array where the first element is the mrn and the second is the site.
+     *
+     * @return array{
+     *  0: ?string,
+     *  1: ?string,
+     * }
+     */
+    public static function getMrnSiteOfAppointment(string $sourceId,string $sourceSystem): array
+    {
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_APPOINTMENT_MRN, [
+            "query" => [
+                "sourceId"     => $sourceId,
+                "sourceSystem" => $sourceSystem
+            ]
+        ])?->getBody()?->getContents() ?? "[]";
+
+        $response = json_decode($response,true);
+
+        $mrn = $response["mrn"] ?? null;
+        $site = $response["site"] ?? null;
+
+        return [
+            ($mrn === null) ? null : (string) $mrn,
+            ($site === null) ? null : (string) $site
+        ];
+    }
+
+    /**
      *
      * @return list<array{
      *  isExternalSystem: 1,

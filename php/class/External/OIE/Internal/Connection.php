@@ -12,6 +12,7 @@ use Orms\Config;
 class Connection
 {
     public const API_APPOINTMENT_COMPLETION             = "Appointment/Status";
+    public const API_APPOINTMENT_MRN                    = "Appointment/Query";
     public const API_MEASUREMENT_PDF                    = "report/post";
     public const API_PATIENT_QUESTIONNAIRE_COMPLETED    = "questionnaire/get/questionnaires-list-orms";
     public const API_PATIENT_QUESTIONNAIRE_LAST         = "questionnaire/get/last-completed-quesitonnaire";

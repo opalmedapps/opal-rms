@@ -8,6 +8,7 @@ use Exception;
 
 class ApplicationException extends Exception
 {
+    public const ABERRANT_PATIENT_CHART         = "ABERRANT_PATIENT_CHART";
     public const INVALID_INSURANCE_FORMAT       = "INVALID_INSURANCE_FORMAT";
     public const INSURANCE_UNIQUENESS_VIOLATION = "INSURANCE_UNIQUENESS_VIOLATION";
     public const INVALID_MRN_FORMAT             = "INVALID_MRN_FORMAT";

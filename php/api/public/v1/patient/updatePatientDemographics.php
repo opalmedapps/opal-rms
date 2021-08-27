@@ -62,7 +62,7 @@ try
     //create the patient
     if($patients === [])
     {
-        $patient = PatientInterface::insertNewPatient(
+        PatientInterface::insertNewPatient(
             firstName:   $demographics->firstName,
             lastName:    $demographics->lastName,
             dateOfBirth: $demographics->dateOfBirth,
@@ -76,7 +76,7 @@ try
     elseif(count($patients) === 1)
     {
         //all patients in the array are the same, so just use the first one
-        $patient = PatientInterface::updatePatientInformation(
+        PatientInterface::updatePatientInformation(
             patient:     $patients[0],
             firstName:   $demographics->firstName,
             lastName:    $demographics->lastName,

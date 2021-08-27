@@ -8,6 +8,7 @@ use Exception;
 use Orms\ApplicationException;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
+use Orms\External\OIE\Fetch;
 use Orms\Patient\Model\Insurance;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Patient;
@@ -21,7 +22,9 @@ class PatientAccess
     public static function serializePatient(Patient $patient): void
     {
         $dbh = Database::getOrmsConnection();
-        $dbh->beginTransaction();
+
+        $inNestedTransation = $dbh->inTransaction();
+        $inNestedTransation ?: $dbh->beginTransaction();
 
         try
         {
@@ -82,11 +85,11 @@ class PatientAccess
 
         }
         catch(Exception $e) {
-            $dbh->rollBack();
+            $inNestedTransation ?: $dbh->rollBack();
             throw $e;
         }
 
-        $dbh->commit();
+        $inNestedTransation ?: $dbh->commit();
     }
 
     public static function deserializePatient(int $patientId): ?Patient
@@ -444,7 +447,7 @@ class PatientAccess
 
     /**
      *
-     * @return array<Patient|null>
+     * @return array<?Patient>
      */
     public static function getPatientsWithPhoneNumber(string $phoneNumber): array
     {
@@ -519,6 +522,149 @@ class PatientAccess
         $dbh->commit();
 
         return self::deserializePatient($acquirer->id) ?? throw new Exception("Failed to merge patients");
+    }
+
+    public static function unmergePatientEntries(Patient $originalPatient,Patient $newPatient): Patient
+    {
+        $dbh = Database::getOrmsConnection();
+        $dbh->beginTransaction();
+
+        try
+        {
+            //remove the mrns of the new patient from the old one
+            $deleteMrn = $dbh->prepare("
+                DELETE FROM
+                    PatientHospitalIdentifier
+                WHERE
+                    PatientId = :pid
+                    AND MedicalRecordNumber = :mrn
+                    AND HospitalId = (SELECT HospitalId FROM Hospital WHERE HospitalCode = :site)
+            ");
+
+            foreach($newPatient->mrns as $mrn)
+            {
+                $deleteMrn->execute([
+                    ":pid"  => $originalPatient->id,
+                    ":mrn"  => $mrn->mrn,
+                    ":site" => $mrn->site
+                ]);
+            }
+
+            //original patient must have have at least one active mrn
+            if(array_filter(self::_deserializeMrnsForPatientId($originalPatient->id),fn($x) => $x->active === true) === []) {
+                throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
+            }
+
+            //remove the insurances of the new patient from the old one
+            $deleteInsurance = $dbh->prepare("
+                DELETE FROM
+                    PatientInsuranceIdentifier
+                WHERE
+                    PatientId = :pid
+                    AND InsuranceNumber = :number
+                    AND InsuranceId = (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :code)
+            ");
+
+            foreach($newPatient->insurances as $insurance)
+            {
+                $deleteInsurance->execute([
+                    ":pid"     => $originalPatient->id,
+                    ":number"  => $insurance->number,
+                    ":code"    => $insurance->type
+                ]);
+            }
+
+            //insert the new patient into the database
+            self::serializePatient($newPatient);
+            $unlinkedPatient = self::deserializePatient(self::getPatientIdForMrn($newPatient->mrns[0]->mrn,$newPatient->mrns[0]->site)) ?? throw new Exception("Failed to create unlinked patient");
+
+            //split appointments
+            $queryAppointments = $dbh->prepare("
+                SELECT
+                    AppointmentSerNum,
+                    AppointId,
+                    AppointSys
+                FROM
+                    MediVisitAppointmentList
+                WHERE
+                    PatientSerNum = ?
+            ");
+            $queryAppointments->execute([$originalPatient->id]);
+
+            $appointments = array_map(function($x) use ($originalPatient,$unlinkedPatient) {
+                [$mrn,$site] = Fetch::getMrnSiteOfAppointment($x["AppointId"],$x["AppointSys"]);
+
+                if($mrn === null || $site === null) {
+                    throw new Exception("Unknown appointment");
+                }
+
+                $mrnBelongsToUnlinkedPatient = (bool) array_values(array_filter($unlinkedPatient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site));
+
+                return [
+                    "appointmentId" => (int) $x["AppointmentSerNum"],
+                    "sourceId"      => $x["AppointId"],
+                    "sourceSystem"  => $x["AppointSys"],
+                    "patientId"     => ($mrnBelongsToUnlinkedPatient === true) ? $unlinkedPatient->id : $originalPatient->id,
+                    "mrn"           => $mrn,
+                    "site"          => $site
+                ];
+            },$queryAppointments->fetchAll());
+
+            $updateAppointment = $dbh->prepare("
+                UPDATE MediVisitAppointmentList
+                SET
+                    PatientSerNum = :pid
+                WHERE
+                    AppointmentSerNum = :aid
+            ");
+
+            //split measurements
+            $updateMeasurement = $dbh->prepare("
+                UPDATE PatientMeasurement
+                SET
+                    PatientSer = :pid
+                WHERE
+                    AppointmentId = :sourceId
+            ");
+
+            foreach($appointments as $app)
+            {
+                $updateAppointment->execute([
+                    ":pid" => $app["patientId"],
+                    ":aid" => $app["appointmentId"]
+                ]);
+
+                $updateMeasurement->execute([
+                    ":pid"      => $app["patientId"],
+                    ":sourceId" => $app["sourceSystem"] ."-". $app["sourceId"]
+                ]);
+            }
+
+            //split diagnoses
+            $updateDiagnosis = $dbh->prepare("
+                UPDATE PatientDiagnosis
+                SET
+                    PatientSerNum = :pid
+                WHERE
+                    RecordedMrn = :mrn
+            ");
+
+            foreach($newPatient->mrns as $mrn)
+            {
+                $updateDiagnosis->execute([
+                    ":pid" => $unlinkedPatient->id,
+                    ":mrn" => $mrn->site ."-". $mrn->mrn
+                ]);
+            }
+        }
+        catch(Exception $e) {
+            $dbh->rollBack();
+            throw $e;
+        }
+
+        $dbh->commit();
+
+        return $unlinkedPatient;
     }
 
     /**

@@ -378,7 +378,7 @@ class ReportAccess
      *   SpecialityGroupId: int,
      *   Status: string,
      *   TimeRemaining: int,
-     *   VenueId: string,
+     *   VenueId: ?string,
      *   WaitTime: int,
      *   Weight: ?float,
      *   WeightDate: ?string
@@ -484,7 +484,7 @@ class ReportAccess
             "SpecialityGroupId"       => (int) $x["SpecialityGroupId"],
             "Status"                  => $x["Status"],
             "TimeRemaining"           => (int) $x["TimeRemaining"],
-            "VenueId"                 => $x["VenueId"],
+            "VenueId"                 => $x["VenueId"] ?? null,
             "WaitTime"                => (int) $x["WaitTime"],
             "Weight"                  => ($x["Weight"] ?? null) ? (float) $x["Weight"] : null,
             "WeightDate"              => $x["WeightDate"] ?? null,

@@ -275,7 +275,7 @@ class Fetch
         $response = utf8_encode($response);
         $response = json_decode($response, true);
 
-        if($response === []) {
+        if($response === [] || $response === false) {
             return null;
         }
 

@@ -27,11 +27,14 @@ $appointments = array_map(function($x) {
     //if the weight was entered today, indicate it
     $x["WeightDate"] = ($x["WeightDate"] !== null && time() - (60*60*24) < strtotime($x["WeightDate"])) ? "Today" : "Old";
 
-    $x["RowType"] = match($x["Status"]) {
-        ""           => "NotCheckedIn",
-        "Completed"  => "Completed",
-        default      => "CheckedIn"
-    };
+    //determine what the checked in status is
+    $x["RowType"] = "CheckedIn";
+    if($x["Status"] === "Completed") {
+        $x["RowType"] = "Completed";
+    }
+    elseif($x["ArrivalDateTime"] === null)  {
+        $x["RowType"] = "NotCheckedIn";
+    }
 
     //cross query OpalDB for questionnaire information
     $x["QStatus"] = null;

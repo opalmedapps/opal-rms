@@ -26,6 +26,16 @@ class SmsAppointmentInterface
         return SmsAccess::getAppointmentsForSms();
     }
 
+    public static function getSmsAppointmentId(int $clinicResourceId, int $appointmentCodeId): ?int
+    {
+        return SmsAccess::getSmsAppointmentId($clinicResourceId,$appointmentCodeId);
+    }
+
+    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): int
+    {
+        return SmsAccess::insertSmsAppointment($clinicResourceId,$appointmentCodeId,$specialityGroupId,$system);
+    }
+
     /**
      * Updates an sms appointment's type and status.
      */

@@ -50,6 +50,42 @@ class SmsAccess
         ], $query->fetchAll());
     }
 
+    public static function getSmsAppointmentId(int $clinicResourceId, int $appointmentCodeId): ?int
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                SmsAppointmentId
+            FROM
+                SmsAppointment
+            WHERE
+                ClinicResourcesSerNum = :clin
+                AND AppointmentCodeId = :app
+        ");
+        $query->execute([
+            ":clin" => $clinicResourceId,
+            ":app"  => $appointmentCodeId,
+        ]);
+
+        $id = (int) ($query->fetchAll()[0]["SmsAppointmentId"] ?? null);
+        return $id ?: null;
+    }
+
+    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): int
+    {
+        $dbh = Database::getOrmsConnection();
+        $dbh->prepare("
+            INSERT INTO SmsAppointment(ClinicResourcesSerNum,AppointmentCodeId,SpecialityGroupId,SourceSystem)
+            VALUES(:clin,:app,:spec,:sys)
+        ")->execute([
+            ":clin" => $clinicResourceId,
+            ":app"  => $appointmentCodeId,
+            ":spec" => $specialityGroupId,
+            ":sys"  => $system
+        ]);
+
+        return (int) $dbh->lastInsertId();
+    }
+
     /**
      * Updates an sms appointment's type and status.
      */

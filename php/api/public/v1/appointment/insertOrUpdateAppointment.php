@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Appointment\Appointment;
+use Orms\Appointment\AppointmentInterface;
 use Orms\DateTime;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
@@ -79,7 +79,7 @@ if($patient === null) {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-Appointment::createOrUpdateAppointment(
+AppointmentInterface::createOrUpdateAppointment(
     patient:                $patient,
     appointmentCode:        $appointment->appointmentCode,
     creationDate:           $appointment->creationDatetime,

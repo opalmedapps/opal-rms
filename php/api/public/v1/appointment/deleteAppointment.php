@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Appointment\Appointment;
+use Orms\Appointment\AppointmentInterface;
 use Orms\DateTime;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
@@ -59,7 +59,7 @@ if($patient === null) {
     Http::generateResponseJsonAndExit(400, error: "Unknown patient");
 }
 
-Appointment::deleteSimilarAppointments(
+AppointmentInterface::deleteSimilarAppointments(
     patient: $patient,
     scheduledDateTime:      $deletedAppointment->scheduledDatetime,
     clinicCode:             $deletedAppointment->clinicCode,

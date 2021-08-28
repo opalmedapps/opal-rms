@@ -7,7 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ ."/../../vendor/autoload.php";
 
 use GetOpt\GetOpt;
-use Orms\Appointment\Appointment;
+use Orms\Appointment\AppointmentInterface;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\PatientInterface;
@@ -57,7 +57,7 @@ $queryAppointmentCode->execute([$clinicCode["SpecialityGroupId"],$clinicCode["So
 
 $appointmentCode = $queryAppointmentCode->fetchAll()[0] ?? throw new Exception("No appointment code available");
 
-Appointment::createOrUpdateAppointment(
+AppointmentInterface::createOrUpdateAppointment(
     patient: $patient,
     appointmentCode: $appointmentCode["AppointmentCode"],
     creationDate: new DateTime(),

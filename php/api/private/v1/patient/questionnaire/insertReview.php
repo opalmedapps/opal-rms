@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
 use Orms\Http;
+use Orms\Patient\PatientInterface;
 
 $params = Http::getRequestContents();
 
 $patientId          = $params["patientId"] ?? null;
 $user               = $params["user"] ?? null;
 
-$dbh = Database::getOrmsConnection();
-$dbh->prepare("
-    INSERT INTO TEMP_PatientQuestionnaireReview(PatientSer,User)
-    VALUES(:pSer,:user)
-")->execute([
-    ":pSer"   => $patientId,
-    ":user"   => $user
-]);
+if($patientId === null || $user === null) {
+    Http::generateResponseJsonAndExit(400, error: "Incomplete fields");
+}
+
+$patient = PatientInterface::getPatientById($patientId);
+
+if($patient === null) {
+    Http::generateResponseJsonAndExit(400, error: "Unknown patient");
+}
+
+PatientInterface::insertQuestionnaireReview($patient,$user);
 
 Http::generateResponseJsonAndExit(200);

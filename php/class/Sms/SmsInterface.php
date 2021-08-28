@@ -7,7 +7,6 @@ namespace Orms\Sms;
 use DateTime;
 use Exception;
 use Orms\Config;
-use Orms\DataAccess\Database;
 use Orms\DataAccess\SmsAccess;
 use Orms\Sms\Internal\SmsCdyne;
 use Orms\Sms\Internal\SmsClassInterface;
@@ -162,18 +161,7 @@ class SmsInterface
 
     private static function _checkIfMessageAlreadyReceived(SmsReceivedMessage $message): bool
     {
-        $query = Database::getLogsConnection()->prepare("
-            SELECT
-                MessageId
-            FROM
-                SmsLog
-            WHERE
-                MessageId = :id
-
-        ");
-        $query->execute([":id" => $message->messageId]);
-
-        return count($query->fetchAll()) > 0;
+        return count(Logger::getLoggedSmsEvent($message->messageId)) > 0;
     }
 
 }

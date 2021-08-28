@@ -10,6 +10,18 @@ use Orms\DataAccess\LoggerAccess;
 class Logger
 {
     /**
+     *
+     * @return list<array{
+     *  messageId: string,
+     *  timestamp: string
+     * }>
+     */
+    public static function getLoggedSmsEvent(string $smsMessageId): array
+    {
+        return LoggerAccess::getLoggedSmsEvent($smsMessageId);
+    }
+
+    /**
      * Logs an sms event
      *
      */
@@ -34,5 +46,10 @@ class Logger
             timestamp:      $timestamp,
             result:         $result
         );
+    }
+
+    public static function logVwrEvent(string $filename,string $identifier, string $type, string $message): void
+    {
+        LoggerAccess::logVwrEvent($filename,$identifier,$type,$message);
     }
 }

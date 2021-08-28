@@ -10,7 +10,7 @@ require_once __DIR__."/../../../../../vendor/autoload.php";
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\Hospital\OIE\Fetch;
+use Orms\External\OIE\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;

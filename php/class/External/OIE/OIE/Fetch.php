@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Orms\Hospital\OIE;
+namespace Orms\External\OIE;
 
 use Exception;
 use Orms\DateTime;
-use Orms\Hospital\OIE\Internal\Connection;
-use Orms\Hospital\OIE\Internal\ExternalPatient;
+use Orms\External\OIE\Internal\Connection;
+use Orms\External\OIE\Internal\ExternalPatient;
 use Orms\Patient\Model\Insurance;
 use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Patient;

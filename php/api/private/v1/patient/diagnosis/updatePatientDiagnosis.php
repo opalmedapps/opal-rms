@@ -6,7 +6,7 @@ require_once __DIR__."/../../../../../../vendor/autoload.php";
 
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\Hospital\OIE\Export;
+use Orms\External\OIE\Export;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 

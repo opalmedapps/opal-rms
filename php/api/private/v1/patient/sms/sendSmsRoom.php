@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../../vendor/autoload.php";
 
-use Orms\Hospital\OIE\Export;
+use Orms\External\OIE\Export;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;

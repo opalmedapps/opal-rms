@@ -10,7 +10,7 @@ use Orms\Appointment\Internal\SmsAppointment;
 use Orms\Appointment\SpecialityGroup;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
-use Orms\Hospital\OIE\Export;
+use Orms\External\OIE\Export;
 use Orms\Patient\Model\Patient;
 use Orms\System\Mail;
 

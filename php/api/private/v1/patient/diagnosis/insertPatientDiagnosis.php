@@ -13,11 +13,13 @@ use Orms\Patient\PatientInterface;
 $params = Http::getRequestContents();
 
 $patientId      = (int) $params["patientId"];
+$mrn            = $params["mrn"];
+$site           = $params["site"];
 $diagnosisId    = (int) $params["diagnosisId"];
 $diagnosisDate  = new DateTime($params["diagnosisDate"]);
 $user           = $params["user"];
 
-$newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId, $diagnosisId, $diagnosisDate, $user);
+$newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId, $mrn, $site, $diagnosisId, $diagnosisDate, $user);
 
 Http::generateResponseJsonAndContinue(200);
 

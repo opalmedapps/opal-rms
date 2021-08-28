@@ -4,55 +4,52 @@ declare(strict_types=1);
 
 namespace Orms\Diagnosis;
 
+use Orms\DataAccess\DiagnosisAccess;
 use Orms\DateTime;
-use Orms\Diagnosis\Internal\Diagnosis;
-use Orms\Diagnosis\Internal\PatientDiagnosis;
-use PDOException;
+use Orms\Diagnosis\Model\Diagnosis;
+use Orms\Diagnosis\Model\PatientDiagnosis;
 
 class DiagnosisInterface
 {
-    public static function insertPatientDiagnosis(int $patientId, int $diagnosisSubcodeId, DateTime $diagnosisDate, string $user): PatientDiagnosis
+    public static function insertPatientDiagnosis(int $patientId, string $mrn, string $site, int $diagnosisSubcodeId, DateTime $diagnosisDate, string $user): PatientDiagnosis
     {
-       $insertedId = PatientDiagnosis::insertPatientDiagnosis($patientId, $diagnosisSubcodeId, $diagnosisDate, $user);
+       $insertedId = DiagnosisAccess::insertPatientDiagnosis($patientId, $mrn, $site, $diagnosisSubcodeId, $diagnosisDate, $user);
 
-       return PatientDiagnosis::getDiagnosisById($insertedId);
+       return DiagnosisAccess::getDiagnosisById($insertedId);
     }
 
     public static function updatePatientDiagnosis(int $patientDiagnosisId, int $diagnosisId, DateTime $diagnosisDate, string $status, string $user): PatientDiagnosis
     {
-        $updatedId = PatientDiagnosis::updatePatientDiagnosis($patientDiagnosisId, $diagnosisId, $diagnosisDate, $status, $user);
+        $updatedId = DiagnosisAccess::updatePatientDiagnosis($patientDiagnosisId, $diagnosisId, $diagnosisDate, $status, $user);
 
-        return PatientDiagnosis::getDiagnosisById($updatedId);
+        return DiagnosisAccess::getDiagnosisById($updatedId);
     }
 
     /**
      *
      * @return Diagnosis[]
-     * @throws PDOException
      */
     public static function getDiagnosisCodeList(?string $filter = null): array
     {
-        return Diagnosis::getSubcodeList($filter);
+        return DiagnosisAccess::getSubcodeList($filter);
     }
 
     /**
      *
      * @return Diagnosis[]
-     * @throws PDOException
      */
     public static function getUsedDiagnosisCodeList(): array
     {
-        return Diagnosis::getUsedSubCodeList();
+        return DiagnosisAccess::getUsedSubCodeList();
     }
 
     /**
      *
      * @return PatientDiagnosis[]
-     * @throws PDOException
      */
     public static function getDiagnosisListForPatient(int $patientId): array
     {
-        return PatientDiagnosis::getDiagnosisListForPatient($patientId);
+        return DiagnosisAccess::getDiagnosisListForPatient($patientId);
     }
 
 }

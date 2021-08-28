@@ -31,6 +31,8 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
                 method: "POST",
                 data: {
                     patientId: patient.PatientId,
+                    mrn: patient.Mrn,
+                    site: patient.Site,
                     diagnosisId: diag.id,
                     diagnosisDate: (new Date($scope.userSelectedDate)).toLocaleDateString(),
                     user: username

@@ -92,6 +92,7 @@ function createPatientDiagnosisTable(PDO $dbh): void
         CREATE TABLE `PatientDiagnosis` (
             `PatientDiagnosisId` INT(11) NOT NULL AUTO_INCREMENT,
             `PatientSerNum` INT(11) NOT NULL,
+            `RecordedMrn` VARCHAR(50) NOT NULL,
             `DiagnosisSubcodeId` INT(11) NOT NULL,
             `Status` ENUM('Active','Deleted') NOT NULL DEFAULT 'Active' COLLATE 'latin1_swedish_ci',
             `DiagnosisDate` DATETIME NOT NULL DEFAULT current_timestamp(),

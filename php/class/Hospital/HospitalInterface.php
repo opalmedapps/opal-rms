@@ -74,4 +74,19 @@ class HospitalInterface
         return HospitalAccess::getRooms($clinicHubId);
     }
 
+    /**
+     *
+     * @param string[] $rooms
+     * @return list<array{
+     *  name: string,
+     *  arrival: string,
+     *  patientId: string,
+     *  patientName: string,
+     * }>
+     */
+    public static function getOccupantsForExamRooms(array $rooms): array
+    {
+        return HospitalAccess::getOccupantsForExamRooms($rooms);
+    }
+
 }

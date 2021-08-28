@@ -4,9 +4,9 @@
 </div>
 <div class="modal-body">
     <ul style="padding-left:0;">
-        <li ng-repeat="destination in callDestinations | orderBy: '+LocationId'" ng-class="destination.PatientId === 'Nobody' ? 'btn btn-info btn-block' : 'btn btn-danger btn-block'" ng-click="checkRoomConditions(destination)">
-            <a ng-if="destination.PatientId === 'Nobody'" style="color: #FFFFFF;"><b>{{destination.LocationId}}</b></a>
-            <a ng-if="destination.PatientId !== 'Nobody'" style="color: #FFFFFF;"><b>{{destination.LocationId}}</b> <br />({{destination.Name}})</a>
+        <li ng-repeat="destination in callDestinations | orderBy: '+Name'" ng-class="destination.PatientId === 'Nobody' ? 'btn btn-info btn-block' : 'btn btn-danger btn-block'" ng-click="checkRoomConditions(destination)">
+            <a ng-if="destination.PatientId === 'Nobody'" style="color: #FFFFFF;"><b>{{destination.Name}}</b></a>
+            <a ng-if="destination.PatientId !== 'Nobody'" style="color: #FFFFFF;"><b>{{destination.Name}}</b> <br />({{destination.PatientName}})</a>
         </li>
     </ul>
 </div>

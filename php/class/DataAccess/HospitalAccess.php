@@ -92,7 +92,10 @@ class HospitalAccess
      *
      * @return list<array{
      *  name: string,
-     *  type: string
+     *  type: string,
+     *  screenDisplayName: string,
+     *  venueEN: string,
+     *  venueFR: string
      * }>
      */
     public static function getRooms(int $clinicHubId): array
@@ -100,7 +103,10 @@ class HospitalAccess
         $query = Database::getOrmsConnection()->prepare("
             SELECT
                 LTRIM(RTRIM(AriaVenueId)) AS Name,
-                'ExamRoom' AS Type
+                'ExamRoom' AS Type,
+                ScreenDisplayName,
+                VenueEN,
+                VenueFR
             FROM
                 ExamRoom
             WHERE
@@ -108,7 +114,10 @@ class HospitalAccess
             UNION
             SELECT
                 LTRIM(RTRIM(AriaVenueId)) AS Name,
-                'IntermediateVenue' AS Type
+                'IntermediateVenue' AS Type,
+                ScreenDisplayName,
+                VenueEN,
+                VenueFR
             FROM
                 IntermediateVenue
             WHERE
@@ -120,8 +129,11 @@ class HospitalAccess
         usort($rooms,fn($a,$b) => [$a["Type"],$a["Name"]] <=> [$b["Type"],$b["Name"]]);
 
         return array_map(fn($x) => [
-            "name" => $x["Name"],
-            "type" => $x["Type"],
+            "name"              => $x["Name"],
+            "type"              => $x["Type"],
+            "screenDisplayName" => $x["ScreenDisplayName"],
+            "venueEN"           => $x["VenueEN"],
+            "venueFR"           => $x["VenueFR"],
         ],$rooms);
     }
 

@@ -7,15 +7,15 @@ angular.module('vwr').component('callModal',
         controller: callModalController
 });
 
-function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLocations)
+function callModalController($scope,$http,$uibModalInstance,$filter,selectedLocations)
 {
     $scope.selected = {Name: ''}; //stores the selected call location
 
     $scope.occupyingIds = []; //contains a list of patient ids for patients who must be checked out of the exam room they're in
 
     //seperate exam rooms and other rooms since only exam rooms have an occupation limit
-    var examRooms = $filter('filter')(selectedLocations,{Type: "ExamRoom"});
-    var venueRooms = $filter('filter')(selectedLocations,{Type: "!ExamRoom"});
+    let examRooms = $filter('filter')(selectedLocations,{Type: "ExamRoom"});
+    let venueRooms = $filter('filter')(selectedLocations,{Type: "!ExamRoom"});
 
     //see which rooms are occupied
     //however, venues cannot be occupied by definition (since they have space for many people) so we have to exclude them from the check and then add them back
@@ -28,7 +28,7 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
         $scope.callDestinations = response.data.data;
 
         //add the types back for exam rooms
-        angular.forEach($scope.callDestinations,function (destination)
+        angular.forEach($scope.callDestinations,function(destination)
         {
             destination.Type = "ExamRoom";
         });
@@ -38,7 +38,7 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
         {
             $scope.callDestinations.push(
             {
-                LocationId: venue.Name,
+                Name: venue.Name,
                 ArrivalDateTime: '',
                 PatientId: 'Nobody',
                 Type: venue.Type
@@ -48,7 +48,7 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
 
     $scope.accept = function()
     {
-        $uibModalInstance.close({'selectedLocation': $scope.selected.Name, 'occupyingIds': $scope.occupyingIds});
+        $uibModalInstance.close({'selectedLocation': selectedLocations.find(x => x.Name === $scope.selected.Name), 'occupyingIds': $scope.occupyingIds});
     };
 
     $scope.cancel = function()
@@ -59,11 +59,12 @@ function callModalController ($scope,$http,$uibModalInstance,$filter,selectedLoc
     //================================================================
     //see which action to take depending on the occupancy of the room
     //================================================================
-    $scope.checkRoomConditions = function (destination)
+    $scope.checkRoomConditions = function(destination)
     {
-        if(destination.PatientId === "Nobody") {$scope.selected.Name = destination.LocationId;}
-        else
-        {
+        if(destination.PatientId === "Nobody") {
+            $scope.selected.Name = destination.Name;
+        }
+        else {
             //if the user decides to free the room, we need to return the occupying patient so that he can be removed from firebase and have his location updated
 
             $scope.occupyingIds.push({PatientId: destination.PatientId});

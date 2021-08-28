@@ -63,7 +63,10 @@ class HospitalInterface
      *
      * @return list<array{
      *  name: string,
-     *  type: string
+     *  type: string,
+     *  screenDisplayName: string,
+     *  venueEN: string,
+     *  venueFR: string
      * }>
      */
     public static function getRooms(int $clinicHubId): array

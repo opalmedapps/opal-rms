@@ -54,7 +54,7 @@
         <div class="patient-list" ng-repeat="patient in firebaseCopy | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
             <div class="patient-list-inner-block">
                 <div class="patient-arrow">
-                    <img ng-if="leftArrowLocations.indexOf(patient.Destination.LocationId) !== -1" class="left-arrow" src="images/left-arrow.png"></img>
+                    <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="images/left-arrow.png"></img>
                 </div>
 
                 <div class="patient-location">
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="patient-arrow">
-                    <img ng-if="rightArrowLocations.indexOf(patient.Destination.LocationId) !== -1"  class="right-arrow" src="images/right-arrow.png"></img>
+                    <img ng-if="rightArrowLocations.indexOf(patient.Destination.Name) !== -1"  class="right-arrow" src="images/right-arrow.png"></img>
                 </div>
             </div>
         </div>

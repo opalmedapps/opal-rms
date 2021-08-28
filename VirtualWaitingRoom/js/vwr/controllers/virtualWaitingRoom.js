@@ -139,6 +139,10 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 }).then(function(response) {
                     $scope.allLocations = response.data.data;
 
+                    //since the room object coming from the profile is incomplete, fill out the object by finding it in the list of rooms
+                    $scope.selectedLocations = $scope.selectedLocations.map(x => $scope.allLocations.find(y => x.Name === y.Name));
+                    $scope.selectedLocations = $scope.selectedLocations.filter(x => x); //filter out undefined
+
                     $scope.resourceLoadingEnabled = 1;
                 });
             });
@@ -207,7 +211,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Function to call the patient - message to screen and SMS
     //=========================================================================
-    $scope.callPatient = function (patient,destination,sendSMS,updateDB)
+    $scope.callPatient = function(patient,destination,sendSMS,updateDB)
     {
         //-----------------------------------------------------------------------
         // First, check that there are no other patients with similar names
@@ -231,12 +235,10 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
             let pseudoLastName;
 
-            if($scope.numNames === 0)
-            {
+            if($scope.numNames === 0) {
                 pseudoLastName = patient.LastName.substring(0,3) + "*****"; // first three digits of last name
             }
-            else
-            {
+            else {
                 pseudoLastName = patient.LastName.substring(0,3) + "***** (Naissance/Birthday: " + patient.Birthday + ")";
             }
 
@@ -246,15 +248,15 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             //-----------------------------------------------------------------------
 
             //if the destination is in a waiting room, don't put the appointment in firebase
-            if(!/WAITING ROOM/.test(destination.LocationId))
+            if(!/WAITING ROOM/.test(destination.Name))
             {
                 firebaseScreenRef.child(patient.AppointmentId).set(
                 {
                     FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
                     PseudoLastName: pseudoLastName,
                     PatientId: patient.PatientId,
-                    Destination: destination,
-                    PatientStatus: 'Called',
+                    Destination: JSON.parse(angular.toJson(destination)), //remove the $$hashkey property
+                    PatientStatus: "Called",
                     Appointment: patient.AppointmentName,
                     Resource: patient.ResourceName,
                     AppointmentId: patient.AppointmentId,
@@ -293,10 +295,10 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //-----------------------------------------------------------------------
         if(updateDB)
         {
-            $scope.sendToLocation(patient,destination.LocationId,false)
-            $scope.logMessage("call_DB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location "+ destination.LocationId);
+            $scope.sendToLocation(patient,destination.Name,false)
+            $scope.logMessage("call_DB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location "+ destination.Name);
         }
-    } // end callPatient() function
+    }
 
     //calls the patient (displays their name on the screen) again
     $scope.callPatientAgain = function (patient,sendSMS)
@@ -426,43 +428,25 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         firebaseScreenRef.child("ToBeWeighed").update(tempObj);
 
         $scope.logMessage("add_weight_arr","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" added to weight array in firebase "+ $scope.pageSettings.ClinicHubId);
-
-        // Update the metadata timestamp
-        //firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
     }
 
-    //define a useful function that will be used to check in patients to rooms later
-    $scope.callPatientToSelectedLocation = function (patient,selectedLocation,sendSMS)
+    //call a patient to the selected location
+    $scope.callPatientToSelectedLocation = function(patient,selectedLocation,sendSMS)
     {
-        //====================================================================
-        // Call the patient to the selected location
-        //====================================================================
-        $http({
-            url: "/php/api/private/v1/vwr/location/getLocationInfo",
-            method: "GET",
-            params: {
-                location: selectedLocation
-            }
-        }).then(function(response)
-        {
-            var patientDestination = response.data.data;
-            patientDestination.LocationId = selectedLocation;
+        //check if the patient is already checked in where they are
+        //if they are, then just update the firebase metadata
+        let currentDestination = null;
 
-            //check if the patient is already checked in where they are
-            //if they are, then just update the firebase metadata
+        if($scope.screenRows.hasOwnProperty(patient.AppointmentId)) {
+            currentDestination = $scope.screenRows[patient.AppointmentId].Destination;
+        }
 
-            var currentDestination = null;
-            if($scope.screenRows.hasOwnProperty(patient.AppointmentId)) {
-                currentDestination = $scope.screenRows[patient.AppointmentId].Destination;
-            }
-
-            if(angular.equals(currentDestination,patientDestination)) {
-                $scope.callPatientAgain(patient,sendSMS);
-            }
-            else {
-                $scope.callPatient(patient,patientDestination,sendSMS,true);
-            }
-        });
+        if(currentDestination !== null && currentDestination.Name === selectedLocation.Name) {
+            $scope.callPatientAgain(patient,sendSMS);
+        }
+        else {
+            $scope.callPatient(patient,selectedLocation,sendSMS,true);
+        }
     }
 
     $scope.checkIfPatientInExamRoom = function (patient)
@@ -484,12 +468,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.openCallModal = function (patient,callCondition)
     {
         //first check which selected locations we are considering
-        var selectedLocations = $scope.selectedLocations;
-        var alertMessage = "Please select a Call Location."
+        let selectedLocations = $scope.selectedLocations;
+        let alertMessage = "Please select a Call Location."
 
         if(callCondition == "ASSIGN EXAM ROOM")
         {
-            selectedLocations = $filter('filter')($scope.selectedLocations,{Type: "ExamRoom"});
+            selectedLocations = $filter('filter')(selectedLocations,{Type: "ExamRoom"});
             alertMessage = "Please select an Exam Room";
         }
 
@@ -535,7 +519,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             {
                 $scope.logMessage("call_venue_only","General","Function call on Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" and location "+ selectedLocations[0].Name);
 
-                $scope.callPatientToSelectedLocation(patient,selectedLocations[0].Name,true);
+                $scope.callPatientToSelectedLocation(patient,selectedLocations[0],true);
             }
             else if(situation === "EXAM ONLY")
             {
@@ -568,11 +552,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                         });
                     }
 
-                    if(callCondition == "ASSIGN EXAM ROOM")
-                    {
+                    if(callCondition == "ASSIGN EXAM ROOM") {
                         $scope.sendToLocation(patient,selectedLocations[0].Name,false);
                     }
-                    else {$scope.callPatientToSelectedLocation(patient,selectedLocations[0].Name,true);}
+                    else {
+                        $scope.callPatientToSelectedLocation(patient,selectedLocations[0],true);
+                    }
                 });
 
             }
@@ -594,13 +579,13 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 }
             }).result.then(function(result)
             {
-                var selectedLocation = result.selectedLocation;
-                var occupyingIds = result.occupyingIds;
+                let selectedLocation = result.selectedLocation;
+                let occupyingIds = result.occupyingIds;
 
                 //loop through the list of patients that were chosen to be checkout out
                 angular.forEach(occupyingIds,function (id)
                 {
-                    if(id.PatientId != patient.PatientId)
+                    if(id.PatientId !== patient.PatientId)
                     {
                         $scope.logMessage("force_remove","General","Function call on Patient "+ id.PatientId +" and location BACK TO WAITING ROOM");
 
@@ -619,11 +604,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     }
                 });
 
-                if(callCondition == "ASSIGN EXAM ROOM")
-                {
-                    $scope.sendToLocation(patient,selectedLocation,false);
+                if(callCondition == "ASSIGN EXAM ROOM") {
+                    $scope.sendToLocation(patient,selectedLocation.Name,false);
                 }
-                else {$scope.callPatientToSelectedLocation(patient,selectedLocation,true);}
+                else {
+                    $scope.callPatientToSelectedLocation(patient,selectedLocation,true);
+                }
             });
         }
     };

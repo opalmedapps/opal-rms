@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require __DIR__ ."/../../vendor/autoload.php";
 
+use Orms\Appointment\AppointmentInterface;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Http;
@@ -49,7 +50,7 @@ if($appType === "specific" && $specificType !== null) {
     $codeFilter = [$specificType];
 }
 
-$clinics = ReportAccess::getClinicCodes((int) $speciality);
+$clinics = AppointmentInterface::getClinicCodes((int) $speciality);
 
 //filter appointments depending on input parameters
 $appointments = ReportAccess::getListOfAppointmentsInDateRange($sDate, $eDate, (int) $speciality, $statusFilter, $codeFilter);

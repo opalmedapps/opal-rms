@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\DataAccess\ReportAccess;
+use Orms\Appointment\AppointmentInterface;
 use Orms\Http;
 use Orms\Util\Encoding;
 
@@ -15,6 +15,6 @@ $params = Http::getRequestContents();
 
 $speciality = (int) ($params["speciality"] ?? null);
 
-$codes = ReportAccess::getClinicCodes($speciality);
+$codes = AppointmentInterface::getClinicCodes($speciality);
 
 Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($codes));

@@ -10,9 +10,10 @@ use GetOpt\GetOpt;
 use Orms\Appointment\AppointmentInterface;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
+// use Orms\Hospital\HospitalInterface;
 use Orms\Patient\PatientInterface;
 
-//get csv file name from command line arguments and load it
+//load command line arguments
 $opts = new GetOpt([
     ["mrn"],
     ["site"]
@@ -23,6 +24,10 @@ $mrn = $opts->getOption("mrn") ?? "";
 $site = $opts->getOption("site") ?? "";
 
 $patient = PatientInterface::getPatientByMrn($mrn, $site) ?? throw new Exception("Unknown patient");
+
+// $speciality = HospitalInterface::getSpecialityGroups()[0];
+// $clinic = AppointmentInterface::getClinicCodes($speciality["specialityGroupId"])[0] ?? throw new Exception("No clinic code available");
+// $appointmentCode = AppointmentInterface::getAppointmentCodes($speciality["specialityGroupId"])[0] ?? throw new Exception("No appointment code available");
 
 $dbh = Database::getOrmsConnection();
 

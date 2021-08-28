@@ -59,6 +59,36 @@ class AppointmentAccess
         ]);
     }
 
+    /**
+     *
+     * @return list<array{
+     *      description: string,
+     *      code: string
+     * }>
+     */
+    public static function getClinicCodes(int $specialityId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                ResourceName,
+                ResourceCode
+            FROM
+                ClinicResources
+            WHERE
+                Active = 1
+                AND SpecialityGroupId = ?
+            ORDER BY
+                ResourceName,
+                ResourceCode
+        ");
+        $query->execute([$specialityId]);
+
+        return array_map(fn($x) => [
+            "description" => $x["ResourceName"],
+            "code"        => $x["ResourceCode"]
+        ], $query->fetchAll());
+    }
+
     public static function getAppointmentCodeId(string $code, int $specialityGroupId): ?int
     {
         $query = Database::getOrmsConnection()->prepare("

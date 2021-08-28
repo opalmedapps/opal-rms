@@ -4,8 +4,32 @@ declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-class SpecialityAccess
+class HospitalAccess
 {
+    /**
+     *
+     * @return list<array{
+     *  hospitalCode: string,
+     *  hospitalName: string
+     * }>
+     */
+    public static function getHospitalSites(): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                HospitalCode,
+                HospitalName
+            FROM
+                Hospital
+        ");
+        $query->execute();
+
+        return array_map(fn($x) => [
+            "hospitalCode" => $x["HospitalCode"],
+            "hospitalName" => $x["HospitalName"],
+        ],$query->fetchAll());
+    }
+
     /**
      * Returns all speciality groups in the system.
      * @return list<array{

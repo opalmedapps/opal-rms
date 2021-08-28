@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
+use Orms\Hospital\HospitalInterface;
 use Orms\Http;
 
-$dbh = Database::getOrmsConnection();
+$sites = array_map(fn($x) => [
+    "HospitalCode" => $x["hospitalCode"],
+    "HospitalName" => $x["hospitalName"],
+],HospitalInterface::getHospitalSites());
 
-$query = $dbh->prepare("
-    SELECT
-        HospitalCode,
-        HospitalName
-    FROM
-        Hospital
-");
-$query->execute();
-
-Http::generateResponseJsonAndExit(200, data: $query->fetchAll());
+Http::generateResponseJsonAndExit(200, data: $sites);

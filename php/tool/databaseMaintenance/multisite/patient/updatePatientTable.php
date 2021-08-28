@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Orms\Hospital\OIE\Fetch;
+use Orms\External\OIE\Fetch;
 use Orms\Patient\PatientInterface;
 
 require_once __DIR__ ."/../../../../../vendor/autoload.php";

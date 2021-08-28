@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Orms\Appointment;
 
 use Orms\DataAccess\Database;
-use Orms\Hospital\OIE\Export;
+use Orms\External\OIE\Export;
 use Orms\Patient\Model\Patient;
 use PDOException;
 

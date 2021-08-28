@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Orms\Hospital\OIE;
+namespace Orms\External\OIE;
 
 use DateTime;
 use Orms\Config;
 use Orms\Document\Measurement\Generator;
-use Orms\Hospital\OIE\Internal\Connection;
+use Orms\External\OIE\Internal\Connection;
 use Orms\Patient\Model\Patient;
 
 class Export

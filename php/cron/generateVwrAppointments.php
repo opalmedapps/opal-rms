@@ -9,7 +9,7 @@ require_once __DIR__."/../../vendor/autoload.php";
 use Orms\Config;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
-use Orms\Hospital\OIE\Fetch;
+use Orms\External\OIE\Fetch;
 use Orms\Patient\PatientInterface;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;

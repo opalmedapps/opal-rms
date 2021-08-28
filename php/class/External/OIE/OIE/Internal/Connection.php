@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Orms\Hospital\OIE\Internal;
+namespace Orms\External\OIE\Internal;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;

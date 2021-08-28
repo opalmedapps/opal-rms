@@ -59,4 +59,16 @@ class HospitalInterface
         return $specialityGroups;
     }
 
+    /**
+     *
+     * @return list<array{
+     *  name: string,
+     *  type: string
+     * }>
+     */
+    public static function getRooms(int $clinicHubId): array
+    {
+        return HospitalAccess::getRooms($clinicHubId);
+    }
+
 }

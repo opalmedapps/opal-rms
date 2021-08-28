@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
+use Orms\Hospital\HospitalInterface;
 use Orms\Http;
 use Orms\Util\Encoding;
 
@@ -20,28 +20,12 @@ if($examRooms === []) {
     Http::generateResponseJsonAndExit(200, data: []);
 }
 
-$sql = "
-    SELECT DISTINCT
-        ER.AriaVenueId AS Name,
-        PL.ArrivalDateTime,
-        COALESCE(P.PatientSerNum,'Nobody') AS PatientId,
-        CONCAT(P.LastName,', ',P.FirstName) AS PatientName
-    FROM
-        ExamRoom ER
-        LEFT JOIN PatientLocation PL ON PL.CheckinVenueName = ER.AriaVenueId
-            AND (
-                DATE(PL.ArrivalDateTime) = CURDATE()
-                OR PL.ArrivalDateTime IS NULL
-            )
-        LEFT JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PL.AppointmentSerNum
-        LEFT JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
-    WHERE
-        :roomList:
-";
+$occupants = HospitalInterface::getOccupantsForExamRooms($examRooms);
+$occupants = array_map(fn($x) => [
+    "Name"              => $x["name"],
+    "ArrivalDateTime"   => $x["arrival"],
+    "PatientId"         => $x["patientId"],
+    "PatientName"       => $x["patientName"],
+],$occupants);
 
-$sqlStringExam = Database::generateBoundedSqlString($sql, ":roomList:", "ER.AriaVenueId", $examRooms);
-
-$query = Database::getOrmsConnection()->prepare($sqlStringExam["sqlString"]);
-$query->execute($sqlStringExam["boundValues"]);
-
-Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($query->fetchAll()));
+Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($occupants));

@@ -137,4 +137,48 @@ class HospitalAccess
         ],$rooms);
     }
 
+    /**
+     *
+     * @param string[] $rooms
+     * @return list<array{
+     *  name: string,
+     *  arrival: string,
+     *  patientId: string,
+     *  patientName: string,
+     * }>
+     */
+    public static function getOccupantsForExamRooms(array $rooms): array
+    {
+        $sql = "
+            SELECT DISTINCT
+                ER.AriaVenueId AS Name,
+                PL.ArrivalDateTime,
+                COALESCE(P.PatientSerNum,'Nobody') AS PatientId,
+                CONCAT(P.LastName,', ',P.FirstName) AS PatientName
+            FROM
+                ExamRoom ER
+                LEFT JOIN PatientLocation PL ON PL.CheckinVenueName = ER.AriaVenueId
+                    AND (
+                        DATE(PL.ArrivalDateTime) = CURDATE()
+                        OR PL.ArrivalDateTime IS NULL
+                    )
+                LEFT JOIN MediVisitAppointmentList MV ON MV.AppointmentSerNum = PL.AppointmentSerNum
+                LEFT JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
+            WHERE
+                :roomList:
+        ";
+
+        $sqlStringExam = Database::generateBoundedSqlString($sql, ":roomList:", "ER.AriaVenueId", $rooms);
+
+        $query = Database::getOrmsConnection()->prepare($sqlStringExam["sqlString"]);
+        $query->execute($sqlStringExam["boundValues"]);
+
+        return array_map(fn($x) => [
+            "name"          => $x["Name"],
+            "arrival"       => $x["ArrivalDateTime"],
+            "patientId"     => $x["PatientId"],
+            "patientName"   => $x["PatientName"],
+        ],$query->fetchAll());
+    }
+
 }

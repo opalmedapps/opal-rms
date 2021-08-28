@@ -22,10 +22,10 @@ if($examRooms === []) {
 
 $sql = "
     SELECT DISTINCT
-        ER.AriaVenueId AS LocationId,
+        ER.AriaVenueId AS Name,
         PL.ArrivalDateTime,
         COALESCE(P.PatientSerNum,'Nobody') AS PatientId,
-        CONCAT(P.LastName,', ',P.FirstName) AS Name
+        CONCAT(P.LastName,', ',P.FirstName) AS PatientName
     FROM
         ExamRoom ER
         LEFT JOIN PatientLocation PL ON PL.CheckinVenueName = ER.AriaVenueId

@@ -17,8 +17,11 @@ $params = Http::getRequestContents();
 $clinicHub  = (int) $params["clinicHub"];
 
 $rooms = array_map(fn($x) => [
-    "Name" => $x["name"],
-    "Type" => $x["type"],
+    "Name"               => $x["name"],
+    "Type"               => $x["type"],
+    "ScreenDisplayName"  => $x["screenDisplayName"],
+    "VenueEN"            => $x["venueEN"],
+    "VenueFR"            => $x["venueFR"],
 ],HospitalInterface::getRooms($clinicHub));
 
 Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($rooms));

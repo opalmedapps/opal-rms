@@ -93,6 +93,18 @@ class AppointmentInterface
     /**
      *
      * @return list<array{
+     *   description: string,
+     *   code: string
+     * }>
+     */
+    public static function getClinicCodes(int $specialityId): array
+    {
+        return AppointmentAccess::getClinicCodes($specialityId);
+    }
+
+    /**
+     *
+     * @return list<array{
      *  AppointmentCode: string
      * }>
      */

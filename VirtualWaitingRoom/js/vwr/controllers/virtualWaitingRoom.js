@@ -213,88 +213,71 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     $scope.callPatient = function(patient,destination,sendSMS,updateDB)
     {
-        //-----------------------------------------------------------------------
-        // First, check that there are no other patients with similar names
-        // checked in. If there are, we will need to display extra identifier information
-        // to ensure that the correct patient is called
-        // Since we need the answwho have a mod planer of how many other patients there are before
-        // sending the data to the screens we need to put the update to Firebase
-        // inside the $http function
-        //-----------------------------------------------------------------------
-        //first we check in there are any other patients with the same name as the one we are checking in
+        //first we check in there are any other patients with a similar name as the one we are calling
         //if there are, we add the patient's date of birth to the screen display
-        $http({
-            url: "/php/api/private/v1/vwr/location/getSimilarCheckins",
-            method: "POST",
-            data:{
-                patientId: patient.PatientId
-            }
-        }).then(function (response)
+        let similarPatients = $scope.checkins.filter(x =>
+            x.RowType === "CheckedIn"
+            && x.FirstName === patient.FirstName
+            && new RegExp("^"+x.LastName.substring(0,3)).test(x.LastName)
+            && x.PatientId !== patient.PatientId
+        );
+
+        let pseudoLastName = patient.LastName.substring(0,3) + "*****"; // first three characters of last name;
+
+        if(similarPatients.length !== 0) {
+            pseudoLastName = patient.LastName.substring(0,3) + "***** (Naissance/Birthday: " + patient.Birthday + ")";
+        }
+
+        //-----------------------------------------------------------------------
+        // Message to screens - add this patient's details to our firebase
+        // First create a child object for this patient and then fill the data
+        //-----------------------------------------------------------------------
+
+        //if the destination is in a waiting room, don't put the appointment in firebase
+        if(!/WAITING ROOM/.test(destination.Name))
         {
-            $scope.numNames = response.data.data;
-
-            let pseudoLastName;
-
-            if($scope.numNames === 0) {
-                pseudoLastName = patient.LastName.substring(0,3) + "*****"; // first three digits of last name
-            }
-            else {
-                pseudoLastName = patient.LastName.substring(0,3) + "***** (Naissance/Birthday: " + patient.Birthday + ")";
-            }
-
-            //-----------------------------------------------------------------------
-            // Message to screens - add this patient's details to our firebase
-            // First create a child object for this patient and then fill the data
-            //-----------------------------------------------------------------------
-
-            //if the destination is in a waiting room, don't put the appointment in firebase
-            if(!/WAITING ROOM/.test(destination.Name))
+            firebaseScreenRef.child(patient.AppointmentId).set(
             {
-                firebaseScreenRef.child(patient.AppointmentId).set(
+                FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
+                PseudoLastName: pseudoLastName,
+                PatientId: patient.PatientId,
+                Destination: JSON.parse(angular.toJson(destination)), //remove the $$hashkey property
+                PatientStatus: "Called",
+                Appointment: patient.AppointmentName,
+                Resource: patient.ResourceName,
+                AppointmentId: patient.AppointmentId,
+                ScheduledActivitySystem: patient.CheckinSystem,
+                Timestamp: Firebase.ServerValue.TIMESTAMP
+            });
+
+            $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicHubId +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
+
+            // Update the timestamp in the firebase array
+            firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+        }
+
+        if(sendSMS) {
+            //-----------------------------------------------------------------------
+            // Send the patient an SMS message
+            //-----------------------------------------------------------------------
+            $http({
+                url: "/php/api/private/v1/patient/sms/sendSmsRoom",
+                method: "POST",
+                data:
                 {
-                    FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
-                    PseudoLastName: pseudoLastName,
-                    PatientId: patient.PatientId,
-                    Destination: JSON.parse(angular.toJson(destination)), //remove the $$hashkey property
-                    PatientStatus: "Called",
-                    Appointment: patient.AppointmentName,
-                    Resource: patient.ResourceName,
-                    AppointmentId: patient.AppointmentId,
-                    ScheduledActivitySystem: patient.CheckinSystem,
-                    Timestamp: Firebase.ServerValue.TIMESTAMP
-                });
-
-                $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicHubId +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
-
-                // Update the timestamp in the firebase array
-                firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
-            }
-
-            if(sendSMS)
-            {
-                //-----------------------------------------------------------------------
-                // Send the patient an SMS message
-                //-----------------------------------------------------------------------
-                $http({
-                    url: "/php/api/private/v1/patient/sms/sendSmsRoom",
-                    method: "POST",
-                    data:
-                    {
-                        patientId: patient.PatientId,
-                        sourceId: patient.SourceId,
-                        sourceSystem: patient.CheckinSystem,
-                        roomFr: destination.VenueFR,
-                        roomEn: destination.VenueEN
-                    }
-                });
-            }
-        });
+                    patientId: patient.PatientId,
+                    sourceId: patient.SourceId,
+                    sourceSystem: patient.CheckinSystem,
+                    roomFr: destination.VenueFR,
+                    roomEn: destination.VenueEN
+                }
+            });
+        }
 
         //-----------------------------------------------------------------------
         // Check the patient into the calling location - all subsequent appointments will see this location
         //-----------------------------------------------------------------------
-        if(updateDB)
-        {
+        if(updateDB) {
             $scope.sendToLocation(patient,destination.Name,false)
             $scope.logMessage("call_DB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location "+ destination.Name);
         }
@@ -524,7 +507,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             else if(situation === "EXAM ONLY")
             {
                 $http({
-                    url: "/php/api/private/v1/vwr/location/getOccupants",
+                    url: "/php/api/private/v1/hospital/getOccupants",
                     method: "GET",
                     params: {"examRooms[]": [selectedLocations[0].Name]}
                 }).then(function (response)

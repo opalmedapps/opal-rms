@@ -6,7 +6,7 @@ declare(strict_types=1);
 // who are currently checked in for open appointments today, using a selected list of destination rooms/areas
 //====================================================================================
 
-require_once __DIR__."/../../../../../../vendor/autoload.php";
+require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Hospital\HospitalInterface;
 use Orms\Http;

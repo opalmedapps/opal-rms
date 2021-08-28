@@ -590,4 +590,15 @@ class PatientAccess
         ]);
     }
 
+    public static function insertQuestionnaireReview(Patient $patient, string $user): void
+    {
+        Database::getOrmsConnection()->prepare("
+            INSERT INTO TEMP_PatientQuestionnaireReview(PatientSer,User)
+            VALUES(:pid,:user)
+        ")->execute([
+            ":pid"   => $patient->id,
+            ":user"  => $user
+        ]);
+    }
+
 }

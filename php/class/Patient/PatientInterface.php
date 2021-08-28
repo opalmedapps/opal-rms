@@ -195,4 +195,9 @@ class PatientInterface
     {
         return PatientAccess::isInsuranceValid($insuranceNumber, $insuranceType);
     }
+
+    public static function insertQuestionnaireReview(Patient $patient, string $user): void
+    {
+        PatientAccess::insertQuestionnaireReview($patient,$user);
+    }
 }

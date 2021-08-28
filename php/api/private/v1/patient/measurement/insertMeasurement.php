@@ -20,8 +20,7 @@ $sourceSystem  = $params["sourceSystem"] ?? null;
 $patient = PatientInterface::getPatientById($patientId);
 
 if($patient === null) {
-    http_response_code(400);
-    exit("Unknown patient");
+    Http::generateResponseJsonAndExit(400, error: "Unknown patient");
 }
 
 if($height === null
@@ -30,8 +29,7 @@ if($height === null
     || $sourceId === null
     || $sourceSystem === null
 ) {
-    http_response_code(400);
-    exit("Incomplete measurements");
+    Http::generateResponseJsonAndExit(400, error: "Incomplete measurements");
 }
 
 PatientInterface::insertPatientMeasurement($patient, (float) $height, (float) $weight, (float) $bsa, $sourceId, $sourceSystem);

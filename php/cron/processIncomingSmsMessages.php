@@ -138,34 +138,9 @@ function getAppointmentList(int $patientId): array
     return Encoding::utf8_encode_recursive($query->fetchAll());
 }
 
-/**
- *
- * @return null|array<string,string>
- * @throws Exception
- * @throws PDOException
- */
-function getPatientInfo(string $phoneNumber): ?array
-{
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        SELECT
-            PatientSerNum,
-            LanguagePreference
-        FROM
-            Patient
-        WHERE
-            SMSAlertNum = :num
-        LIMIT 1
-    ");
-    $query->execute([":num" => $phoneNumber]);
-
-    return $query->fetchAll()[0] ?? null;
-}
-
 function getLastRun(): DateTime
 {
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
+    $query = Database::getOrmsConnection()->prepare("
         SELECT
             LastReceivedSmsFetch
         FROM
@@ -188,8 +163,7 @@ function getLastRun(): DateTime
 
 function setLastRun(DateTime $timestamp): void
 {
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
+    $query = Database::getOrmsConnection()->prepare("
         UPDATE Cron
         SET
            LastReceivedSmsFetch = ?

@@ -8,6 +8,7 @@ use DateTime;
 use Exception;
 use Orms\Config;
 use Orms\DataAccess\Database;
+use Orms\DataAccess\SmsAccess;
 use Orms\Sms\Internal\SmsCdyne;
 use Orms\Sms\Internal\SmsClassInterface;
 use Orms\Sms\Internal\SmsReceivedMessage;
@@ -111,30 +112,15 @@ class SmsInterface
             return [];
         }
 
-        $query = Database::getOrmsConnection()->prepare("
-            SELECT
-                SpecialityGroupId,
-                Type,
-                Event,
-                Language,
-                Message
-            FROM
-                SmsMessage
-            ORDER BY
-                SpecialityGroupId,
-                Type,
-                Event,
-                Language
-        ");
-        $query->execute();
+        $messages = SmsAccess::getSmsAppointmentMessages();
 
         //convert all <nl> tags to newlines
         $messages = array_map(function($x) {
-            $x["Message"] = str_replace("<nl>","\n",$x["Message"]);
+            $x["message"] = str_replace("<nl>","\n",$x["message"]);
             return $x;
-        },$query->fetchAll());
+        },$messages);
 
-        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages, "SpecialityGroupId", "Type", "Event", "Language");
+        $messages = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($messages, "specialityGroupId", "type", "event", "language");
         $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
 
         return Encoding::utf8_encode_recursive($messages);

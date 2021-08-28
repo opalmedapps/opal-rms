@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Orms\Sms;
 
 use Orms\ApplicationException;
-use Orms\DataAccess\SmsAppointmentAccess;
+use Orms\DataAccess\SmsAccess;
 
 class SmsAppointmentInterface
 {
@@ -23,7 +23,7 @@ class SmsAppointmentInterface
      */
     public static function getAppointmentsForSms(): array
     {
-        return SmsAppointmentAccess::getAppointmentsForSms();
+        return SmsAccess::getAppointmentsForSms();
     }
 
     /**
@@ -39,7 +39,7 @@ class SmsAppointmentInterface
             throw new ApplicationException(ApplicationException::INVALID_SMS_APPOINTMENT_TYPE, "Type $type doesn't exist for sms appointments");
         }
 
-        SmsAppointmentAccess::updateSmsAppointment($id, $active, $type);
+        SmsAccess::updateSmsAppointment($id, $active, $type);
     }
 
     /**
@@ -48,7 +48,7 @@ class SmsAppointmentInterface
      */
     public static function getSmsAppointmentTypes(?string $specialityCode = null): array
     {
-        return SmsAppointmentAccess::getSmsAppointmentTypes($specialityCode);
+        return SmsAccess::getSmsAppointmentTypes($specialityCode);
     }
 
     /**
@@ -60,9 +60,17 @@ class SmsAppointmentInterface
      *      smsMessage: string
      * }>
      */
-    public static function getSmsAppointmentMessages(string $specialityCode, string $type): ?array
+    public static function getSmsAppointmentMessages(string $specialityCode, string $type): array
     {
-        return SmsAppointmentAccess::getSmsAppointmentMessages($specialityCode, $type);
+        $messages = SmsAccess::getSmsAppointmentMessages();
+        $messages = array_values(array_filter($messages,fn($x) => $x["specialityGroupCode"] === $specialityCode && $x["type"] === $type));
+
+        return array_map(fn($x) => [
+            "event"         => $x["event"],
+            "language"      => $x["language"],
+            "messageId"     => $x["smsMessageId"],
+            "smsMessage"    => $x["message"],
+        ],$messages);
     }
 
     /**
@@ -70,6 +78,6 @@ class SmsAppointmentInterface
      */
     public static function updateMessageForSms(int $messageId, string $smsMessage): void
     {
-        SmsAppointmentAccess::updateMessageForSms($messageId, $smsMessage);
+        SmsAccess::updateMessageForSms($messageId, $smsMessage);
     }
 }

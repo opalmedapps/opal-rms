@@ -88,4 +88,41 @@ class HospitalAccess
         ], $query->fetchAll());
     }
 
+    /**
+     *
+     * @return list<array{
+     *  name: string,
+     *  type: string
+     * }>
+     */
+    public static function getRooms(int $clinicHubId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                LTRIM(RTRIM(AriaVenueId)) AS Name,
+                'ExamRoom' AS Type
+            FROM
+                ExamRoom
+            WHERE
+                ClinicHubId = :id
+            UNION
+            SELECT
+                LTRIM(RTRIM(AriaVenueId)) AS Name,
+                'IntermediateVenue' AS Type
+            FROM
+                IntermediateVenue
+            WHERE
+                ClinicHubId = :id
+        ");
+        $query->execute([":id" => $clinicHubId]);
+
+        $rooms = $query->fetchAll();
+        usort($rooms,fn($a,$b) => [$a["Type"],$a["Name"]] <=> [$b["Type"],$b["Name"]]);
+
+        return array_map(fn($x) => [
+            "name" => $x["Name"],
+            "type" => $x["Type"],
+        ],$rooms);
+    }
+
 }

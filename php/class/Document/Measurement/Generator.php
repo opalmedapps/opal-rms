@@ -8,8 +8,8 @@ use Exception;
 
 use Orms\Config;
 use Orms\DateTime;
-use Orms\Document\Highcharts;
 use Orms\Document\Pdf;
+use Orms\External\Highcharts;
 use Orms\Patient\Model\Patient;
 use Orms\Patient\PatientInterface;
 

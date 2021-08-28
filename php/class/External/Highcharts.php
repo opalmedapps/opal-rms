@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Orms\Document;
+namespace Orms\External;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;

@@ -16,5 +16,9 @@ catch(\Exception $e) {
 }
 
 $specialityGroups = HospitalInterface::getSpecialityGroups();
+$specialityGroups = array_map(fn($x) => [
+    "specialityCode" => $x["specialityCode"],
+    "specialityName" => $x["specialityName"],
+],$specialityGroups);
 
 Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($specialityGroups));

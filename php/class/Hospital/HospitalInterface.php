@@ -23,13 +23,20 @@ class HospitalInterface
     /**
      * Returns all speciality groups in the system.
      * @return list<array{
-     *      specialityCode: string,
-     *      specialityName: string
+     *   specialityGroupId: int,
+     *   specialityCode: string,
+     *   specialityName: string
      * }>
      */
     public static function getSpecialityGroups(): array
     {
         return HospitalAccess::getSpecialityGroups();
+    }
+
+    public static function getSpecialityGroupId(string $specialityCode): ?int
+    {
+        $groups = HospitalAccess::getSpecialityGroups();
+        return array_values(array_filter($groups,fn($x) => $x["specialityCode"] === $specialityCode))[0]["specialityGroupId"] ?? null;
     }
 
     /**

@@ -32,7 +32,7 @@ $patient = PatientInterface::updatePatientInformation($patient, phoneNumber: $ph
 if($patient->phoneNumber !== null)
 {
     $messageList = SmsInterface::getPossibleSmsMessages();
-    $message = $messageList[$specialityGroupId]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"] ?? null;
+    $message = $messageList[$specialityGroupId]["GENERAL"]["REGISTRATION"][$languagePreference]["message"] ?? null;
 
     if($message === null) {
         Http::generateResponseJsonAndExit(400, error: "Registration message not defined");

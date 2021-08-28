@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-class SmsAppointmentAccess
+class SmsAccess
 {
     /**
      * Returns a list of all sms appointments in the system.
@@ -94,39 +94,45 @@ class SmsAppointmentAccess
     /**
      * Returns a list of sms messages.
      *  @return list<array{
-     *      event: string,
-     *      language: string,
-     *      messageId: int,
-     *      smsMessage: string
+     *   event: string,
+     *   language: string,
+     *   message: string,
+     *   specialityGroupCode: string,
+     *   specialityGroupId: int,
+     *   smsMessageId: int,
+     *   type: string,
      * }>
      */
-    public static function getSmsAppointmentMessages(string $specialityCode, string $type): ?array
+    public static function getSmsAppointmentMessages(): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT
+                SG.SpecialityGroupCode,
+                SM.SpecialityGroupId,
+                SM.SmsMessageId,
+                SM.Type,
                 SM.Event,
                 SM.Language,
-                SM.SmsMessageId,
                 SM.Message
             FROM
                 SmsMessage SM
                 INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = SM.SpecialityGroupId
-                    AND SG.SpecialityGroupCode = :specialityCode
-            WHERE
-                SM.Type = :type
             ORDER BY
-                SM.Event
+                SM.SpecialityGroupId,
+                SM.Type,
+                SM.Event,
+                SM.Language
         ");
-        $query->execute([
-            ":specialityCode"   => $specialityCode,
-            ":type"             => $type,
-        ]);
+        $query->execute();
 
         return array_map(fn($x) => [
             "event"                 => $x["Event"],
             "language"              => $x["Language"],
-            "messageId"             => (int) $x["SmsMessageId"] ,
-            "smsMessage"            => $x["Message"],
+            "message"               => $x["Message"],
+            "specialityGroupCode"   => $x["SpecialityGroupCode"],
+            "specialityGroupId"     => (int) $x["SpecialityGroupId"],
+            "smsMessageId"          => (int) $x["SmsMessageId"],
+            "type"                  => $x["Type"],
         ], $query->fetchAll());
     }
 

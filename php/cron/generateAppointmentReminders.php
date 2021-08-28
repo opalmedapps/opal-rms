@@ -27,7 +27,7 @@ $patients = array_map(function($x) use ($messageList) {
     {
         foreach($v as $type => $arr)
         {
-            $appointmentString .= $messageList[$speciality][$type]["REMINDER"][$arr[0]["language"]]["Message"];
+            $appointmentString .= $messageList[$speciality][$type]["REMINDER"][$arr[0]["language"]]["message"];
 
             $appListString = array_reduce($arr, function($acc, $y) {
                 return match($y["language"]) {

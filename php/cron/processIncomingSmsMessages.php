@@ -73,7 +73,7 @@ foreach($messages as $message)
     {
         foreach($v as $type => $apps)
         {
-            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$patient->languagePreference]["Message"] ?? "";
+            $appointmentString .= $messageList[$speciality][$type]["CHECK_IN"][$patient->languagePreference]["message"] ?? "";
 
             $appListString = array_reduce($apps, function($acc, $x) use ($patient) {
                 $preposition = ($patient->languagePreference === "French") ? "à" : "at";

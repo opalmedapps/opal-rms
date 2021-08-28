@@ -8,6 +8,31 @@ use Orms\DataAccess\Database;
 
 class AppointmentAccess
 {
+    /**
+     *
+     * @return list<array{
+     *  AppointmentCode: string
+     * }>
+     */
+    public static function getAppointmentCodes(int $specialityGroupId): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                COALESCE(DisplayName,AppointmentCode) AS AppointmentCode
+            FROM
+                AppointmentCode
+            WHERE
+                SpecialityGroupId = ?
+            ORDER BY
+                AppointmentCode
+        ");
+        $query->execute([$specialityGroupId]);
+
+        return array_map(fn($x) => [
+            "AppointmentCode" => $x["AppointmentCode"]
+        ],$query->fetchAll());
+    }
+
     public static function completeCheckedInAppointments(): void
     {
         $dbh = Database::getOrmsConnection();

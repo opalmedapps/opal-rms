@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Orms\Appointment;
 
 use Exception;
-use Orms\Appointment\Internal\AppointmentCode;
-use Orms\Appointment\Internal\ClinicResource;
-use Orms\Appointment\Internal\SmsAppointment;
-use Orms\DataAccess\Database;
+use Orms\DataAccess\AppointmentAccess;
 use Orms\DateTime;
 use Orms\External\OIE\Export;
 use Orms\Hospital\HospitalInterface;
 use Orms\Patient\Model\Patient;
+use Orms\Sms\SmsAppointmentInterface;
 use Orms\System\Mail;
 
 class Appointment
@@ -35,23 +33,25 @@ class Appointment
         //get the necessary ids that are attached to the appointment
         $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
 
-        $clinicId = ClinicResource::getClinicResourceId($clinicCode, $specialityGroupId);
+        $clinicId = AppointmentAccess::getClinicResourceId($clinicCode,$specialityGroupId);
         if($clinicId === null) {
-            $clinicId = ClinicResource::insertClinicResource($clinicCode, $clinicDescription, $specialityGroupId, $system);
+            $clinicId = AppointmentAccess::insertClinicResource($clinicCode, $clinicDescription, $specialityGroupId, $system);
         }
         else {
-            ClinicResource::updateClinicResource($clinicId, $clinicDescription);
+            AppointmentAccess::updateClinicResource($clinicId, $clinicDescription);
         }
 
-        $appCodeId = AppointmentCode::getAppointmentCodeId($appointmentCode, $specialityGroupId);
-        if($appCodeId === null) $appCodeId = AppointmentCode::insertAppointmentCode($appointmentCode, $specialityGroupId, $system);
+        $appCodeId = AppointmentAccess::getAppointmentCodeId($appointmentCode, $specialityGroupId);
+        if($appCodeId === null) {
+            $appCodeId = AppointmentAccess::insertAppointmentCode($appointmentCode, $specialityGroupId, $system);
+        }
 
         //check if an sms entry for the resource combinations exists and create if it doesn't
-        $smsAppointmentId = SmsAppointment::getSmsAppointmentId($clinicId, $appCodeId);
+        $smsAppointmentId = SmsAppointmentInterface::getSmsAppointmentId($clinicId, $appCodeId);
 
         if($smsAppointmentId === null)
         {
-            SmsAppointment::insertSmsAppointment($clinicId, $appCodeId, $specialityGroupId, $system);
+            SmsAppointmentInterface::insertSmsAppointment($clinicId, $appCodeId, $specialityGroupId, $system);
 
             Mail::sendEmail(
                 "ORMS - New appointment type detected",
@@ -59,51 +59,18 @@ class Appointment
             );
         }
 
-        Database::getOrmsConnection()->prepare("
-            INSERT INTO MediVisitAppointmentList
-            SET
-                PatientSerNum          = :patSer,
-                ClinicResourcesSerNum  = :clinSer,
-                ScheduledDateTime      = :schDateTime,
-                ScheduledDate          = :schDate,
-                ScheduledTime          = :schTime,
-                AppointmentCodeId      = :appCodeId,
-                AppointId              = :appId,
-                AppointSys             = :appSys,
-                Status                 = :status,
-                MedivisitStatus        = :mvStatus,
-                CreationDate           = :creDate,
-                ReferringPhysician     = :refPhys,
-                LastUpdatedUserIP      = :callIP
-            ON DUPLICATE KEY UPDATE
-                PatientSerNum           = VALUES(PatientSerNum),
-                ClinicResourcesSerNum   = VALUES(ClinicResourcesSerNum),
-                ScheduledDateTime       = VALUES(ScheduledDateTime),
-                ScheduledDate           = VALUES(ScheduledDate),
-                ScheduledTime           = VALUES(ScheduledTime),
-                AppointmentCodeId       = VALUES(AppointmentCodeId),
-                AppointId               = VALUES(AppointId),
-                AppointSys              = VALUES(AppointSys),
-                Status                  = CASE WHEN Status = 'Completed' THEN 'Completed' ELSE VALUES(Status) END,
-                MedivisitStatus         = VALUES(MedivisitStatus),
-                CreationDate            = VALUES(CreationDate),
-                ReferringPhysician      = VALUES(ReferringPhysician),
-                LastUpdatedUserIP       = VALUES(LastUpdatedUserIP)
-        ")->execute([
-            ":patSer"       => $patient->id,
-            ":clinSer"      => $clinicId,
-            ":schDateTime"  => $scheduledDateTime->format("Y-m-d H:i:s"),
-            ":schDate"      => $scheduledDateTime->format("Y-m-d"),
-            ":schTime"      => $scheduledDateTime->format("H:i:s"),
-            ":appCodeId"    => $appCodeId,
-            ":appId"        => $sourceId,
-            ":appSys"       => $system,
-            ":status"       => $status,
-            ":mvStatus"     => $sourceStatus,
-            ":creDate"      => $creationDate->format(("Y-m-d H:i:s")),
-            ":refPhys"      => $referringMd,
-            ":callIP"       => empty($_SERVER["REMOTE_ADDR"]) ? gethostname() : $_SERVER["REMOTE_ADDR"]
-        ]);
+        AppointmentAccess::createOrUpdateAppointment(
+            appointmentCodeId:      $appCodeId,
+            clinicId:               $clinicId,
+            creationDate:           $creationDate,
+            patientId:              $patient->id,
+            referringMd:            $referringMd,
+            scheduledDateTime:      $scheduledDateTime,
+            sourceId:               $sourceId,
+            sourceStatus:           $sourceStatus,
+            status:                 $status,
+            system:                 $system
+        );
     }
 
     //deletes all similar appointments in the database
@@ -111,53 +78,16 @@ class Appointment
     public static function deleteSimilarAppointments(Patient $patient, DateTime $scheduledDateTime, string $clinicCode, string $clinicDescription, string $specialityGroupCode): void
     {
         $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
-
-        Database::getOrmsConnection()->prepare("
-            UPDATE MediVisitAppointmentList MV
-            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-                AND CR.ResourceCode = :res
-                AND CR.SpecialityGroupId = :spec
-            INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-                AND AC.AppointmentCode = :appCode
-                AND AC.SpecialityGroupId = :spec
-            SET
-                Status = 'Deleted'
-            WHERE
-                PatientSerNum = :patSer
-                AND ScheduledDateTime = :schDateTime
-        ")->execute([
-            ":patSer"       => $patient->id,
-            ":schDateTime"  => $scheduledDateTime->format("Y-m-d H:i:s"),
-            ":res"          => $clinicCode,
-            ":appCode"      => $clinicDescription,
-            ":spec"         => $specialityGroupId
-        ]);
+        AppointmentAccess::deleteSimilarAppointments($patient->id,$scheduledDateTime,$clinicCode,$clinicDescription,$specialityGroupId);
     }
 
     public static function completeAppointment(int $appointmentId): void
     {
-        Database::getOrmsConnection()->prepare("
-            UPDATE MediVisitAppointmentList
-            SET
-                Status = 'Completed'
-            WHERE
-                AppointmentSerNum = ?
-        ")->execute([$appointmentId]);
+        AppointmentAccess::completeAppointment($appointmentId);
 
         //retrieve necessary fields to export the appointment completion to the OIE
-        $query = Database::getOrmsConnection()->prepare("
-            SELECT
-                AppointId
-                ,AppointSys
-            FROM
-                MediVisitAppointmentList
-            WHERE
-                AppointmentSerNum = ?
-        ");
-        $query->execute([$appointmentId]);
-        $app = $query->fetchAll()[0];
-
-        Export::exportAppointmentCompletion($app["AppointId"], $app["AppointSys"]);
+        $app = AppointmentAccess::getAppointmentDetails($appointmentId) ?? throw new Exception("Unable to complete appointment $appointmentId");
+        Export::exportAppointmentCompletion($app["sourceId"], $app["sourceSystem"]);
     }
 
 }

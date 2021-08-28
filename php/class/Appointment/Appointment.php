@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Orms\Appointment;
 
+use Exception;
 use Orms\Appointment\Internal\AppointmentCode;
 use Orms\Appointment\Internal\ClinicResource;
 use Orms\Appointment\Internal\SmsAppointment;
-use Orms\Appointment\SpecialityGroup;
 use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\External\OIE\Export;
+use Orms\Hospital\HospitalInterface;
 use Orms\Patient\Model\Patient;
 use Orms\System\Mail;
 
@@ -32,8 +33,7 @@ class Appointment
     ): void
     {
         //get the necessary ids that are attached to the appointment
-
-        $specialityGroupId = SpecialityGroup::getSpecialityGroupId($specialityGroupCode);
+        $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
 
         $clinicId = ClinicResource::getClinicResourceId($clinicCode, $specialityGroupId);
         if($clinicId === null) {
@@ -110,7 +110,7 @@ class Appointment
     //similar is defined as having the same appointment resources, and being scheduled at the same time (for the same patient)
     public static function deleteSimilarAppointments(Patient $patient, DateTime $scheduledDateTime, string $clinicCode, string $clinicDescription, string $specialityGroupCode): void
     {
-        $specialityGroupId = SpecialityGroup::getSpecialityGroupId($specialityGroupCode);
+        $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
 
         Database::getOrmsConnection()->prepare("
             UPDATE MediVisitAppointmentList MV

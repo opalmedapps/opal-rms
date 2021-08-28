@@ -33,14 +33,16 @@ class HospitalAccess
     /**
      * Returns all speciality groups in the system.
      * @return list<array{
-     *      specialityCode: string,
-     *      specialityName: string
+     *   specialityGroupId: int,
+     *   specialityCode: string,
+     *   specialityName: string
      * }>
      */
     public static function getSpecialityGroups(): array
     {
         $query = Database::getOrmsConnection()->prepare("
-            SELECT DISTINCT
+            SELECT
+                SpecialityGroupId,
                 SpecialityGroupCode,
                 SpecialityGroupName
             FROM
@@ -49,6 +51,7 @@ class HospitalAccess
         $query->execute();
 
         return array_map(fn($x) => [
+            "specialityGroupId" => (int) $x["SpecialityGroupId"],
             "specialityCode"    => $x["SpecialityGroupCode"],
             "specialityName"    => $x["SpecialityGroupName"],
         ], $query->fetchAll());

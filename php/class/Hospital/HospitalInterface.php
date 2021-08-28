@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace Orms\Hospital;
 
-use Orms\DataAccess\SpecialityAccess;
+use Orms\DataAccess\HospitalAccess;
 
-class SpecialityInterface
+class HospitalInterface
 {
+    /**
+     *
+     * @return list<array{
+     *  hospitalCode: string,
+     *  hospitalName: string
+     * }>
+     */
+    public static function getHospitalSites(): array
+    {
+        return HospitalAccess::getHospitalSites();
+    }
+
     /**
      * Returns all speciality groups in the system.
      * @return list<array{
@@ -17,7 +29,7 @@ class SpecialityInterface
      */
     public static function getSpecialityGroups(): array
     {
-        return SpecialityAccess::getSpecialityGroups();
+        return HospitalAccess::getSpecialityGroups();
     }
 
     /**
@@ -31,7 +43,7 @@ class SpecialityInterface
      */
     public static function getHubs(): array
     {
-        $hubs = SpecialityAccess::getHubs();
+        $hubs = HospitalAccess::getHubs();
 
         $specialityGroups = array_reduce($hubs, function($x, $y) {
             $x[$y["specialityGroupName"]][] = [

@@ -314,4 +314,120 @@ class AppointmentAccess
         //clear the PatientLocation table
         $dbh->query("DELETE FROM PatientLocation WHERE 1");
     }
+
+    /**
+     *
+     * @return list<array{
+     *  appointmentId: int,
+     *  sourceId: string,
+     *  sourceSystem: string,
+     * }>
+     */
+    public static function getOpenAppointmentsForPatient(int $patientId,DateTime $startDate,Datetime $endDate): array
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT DISTINCT
+                AppointmentSerNum,
+                AppointId,
+                AppointSys
+            FROM
+                MediVisitAppointmentList
+            WHERE
+                PatientSerNum = :patId
+                AND ScheduledDateTime BETWEEN :startDate AND :endDate
+                AND Status = 'Open'
+            ORDER BY
+                ScheduledDateTime,
+                AppointmentSerNum
+        ");
+        $query->execute([
+            ":patId"       => $patientId,
+            ":startDate"   => $startDate->format("Y-m-d H:i:s"),
+            ":endDate"     => $endDate->format("Y-m-d H:i:s")
+        ]);
+
+        return array_map(fn($x) => [
+            "appointmentId"  => (int) $x["AppointmentSerNum"],
+            "sourceId"       => $x["AppointId"],
+            "sourceSystem"   => $x["AppointSys"],
+        ],$query->fetchAll());
+    }
+
+    /**
+     * Returns the revCount of the PatentLocation row that was removed, or 0 if there was none
+     */
+    public static function removeAppointmentLocation(int $appointmentId): int
+    {
+        $dbh = Database::getOrmsConnection();
+
+        //check if the patient is already checked in for this appointment
+        $queryExistingCheckIn = $dbh->prepare("
+            SELECT DISTINCT
+                PL.PatientLocationSerNum,
+                PL.PatientLocationRevCount,
+                PL.CheckinVenueName,
+                PL.ArrivalDateTime,
+                PL.IntendedAppointmentFlag
+            FROM
+                PatientLocation PL
+            WHERE
+                PL.AppointmentSerNum = ?
+        ");
+        $queryExistingCheckIn->execute([$appointmentId]);
+
+        $currentLocation = $queryExistingCheckIn->fetchAll()[0] ?? null;
+
+        if($currentLocation === null) {
+            return 0;
+        }
+
+        //move the old location to the MH table and then delete it
+        $dbh->prepare("
+            INSERT INTO PatientLocationMH
+            SET
+                PatientLocationSerNum    = :plId,
+                PatientLocationRevCount  = :revCount,
+                AppointmentSerNum        = :appId,
+                CheckinVenueName         = :room,
+                ArrivalDateTime          = :arrival,
+                IntendedAppointmentFlag  = :intended
+        ")->execute([
+            "plId"       => $currentLocation["PatientLocationSerNum"],
+            ":revCount"  => $currentLocation["PatientLocationRevCount"],
+            ":appId"     => $appointmentId,
+            ":room"      => $currentLocation["CheckinVenueName"],
+            ":arrival"   => $currentLocation["ArrivalDateTime"],
+            ":intended"  => $currentLocation["IntendedAppointmentFlag"]
+        ]);
+
+        $dbh->prepare("
+            DELETE FROM PatientLocation
+            WHERE
+                PatientLocationSerNum = ?
+        ")->execute([$currentLocation["PatientLocationSerNum"]]);
+
+        return (int) $currentLocation["PatientLocationRevCount"];
+    }
+
+    public static function moveAppointmentToLocation(int $appointmentId, string $room, bool $intendedAppointment): void
+    {
+        //remove any current PatientLocation rows for this appointment
+        $currentRevCount = self::removeAppointmentLocation($appointmentId) +1;
+
+        //insert the new location
+        Database::getOrmsConnection()->prepare("
+            INSERT INTO PatientLocation
+            SET
+                PatientLocationRevCount = :revCount,
+                AppointmentSerNum       = :appId,
+                CheckinVenueName        = :room,
+                ArrivalDateTime         = NOW(),
+                IntendedAppointmentFlag = :intended
+        ")->execute([
+            ":revCount"  => $currentRevCount,
+            ":appId"     => $appointmentId,
+            ":room"      => $room,
+            ":intended"  => (int) $intendedAppointment
+        ]);
+    }
 }

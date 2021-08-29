@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
-use Orms\Appointment\Location;
+use Orms\Appointment\LocationInterface;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
@@ -32,6 +32,6 @@ if($patient === null)  {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-Location::movePatientToLocation($patient, $checkIn->room);
+LocationInterface::movePatientToLocation($patient, $checkIn->room);
 
 Http::generateResponseJsonAndExit(200);

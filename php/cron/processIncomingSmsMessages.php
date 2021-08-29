@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\Appointment\Location;
+use Orms\Appointment\LocationInterface;
 use Orms\DataAccess\Database;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
@@ -89,7 +89,7 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/", "", $appointmentString) ?? ""; //remove last separator newline
 
     //check the patient into all of his appointments
-    Location::movePatientToLocation($patient, $checkInLocation);
+    LocationInterface::movePatientToLocation($patient, $checkInLocation);
     SmsInterface::sendSms($message->clientNumber, $appointmentString, $message->serviceNumber);
 }
 

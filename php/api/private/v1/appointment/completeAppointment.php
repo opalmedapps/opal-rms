@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Appointment\AppointmentInterface;
-use Orms\Appointment\Location;
+use Orms\Appointment\LocationInterface;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
@@ -29,9 +29,9 @@ if($patient === null)  {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-//after completing the appointment, un-check out the patient for that appointment
+//after completing the appointment, check out the patient for that appointment
 //also update the patient's location for their other appointments
 AppointmentInterface::completeAppointment($appointmentId);
 
-Location::removePatientLocationForAppointment($appointmentId);
-Location::movePatientToLocation($patient, $room, $appointmentId);
+LocationInterface::removePatientLocationForAppointment($appointmentId);
+LocationInterface::movePatientToLocation($patient, $room);

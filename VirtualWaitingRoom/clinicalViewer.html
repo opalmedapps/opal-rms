@@ -436,14 +436,14 @@
                 <td><div ng-if="confid == 'Confidential Mode'">{{appoint.fname}} {{appoint.lname}}, {{appoint.mrn +"-"+ appoint.site}}</div>
                 <div ng-if="confid != 'Confidential Mode'"> ***************, ***************</div></td>
 
-                <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
-                    <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
+                <td><span ng-if="appoint.PhoneNumber !== null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
+                    <img ng-if="appoint.opalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td ng-class="(codeUsed) ? 'textStyleRed': ''">{{appoint.appType}}</td>
                 <td>{{appoint.appDay}}
                     {{appoint.appTime}}</td>
-                <td>{{appoint.checkin}}</td>
+                <td>{{appoint.checkInTime}}</td>
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
                 <td>
@@ -465,9 +465,9 @@
                         </span>
                     </div>
                 </td>
-                <!-- <td><button ng-show="appoint.SMSAlertNum && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td> -->
+                <!-- <td><button ng-show="appoint.PhoneNumber && !appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
+                    <button ng-show="appoint.PhoneNumber && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
+                    <button ng-show="appoint.PhoneNumber && zoomLink && appoint.zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td> -->
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{appoint.QStatus}}"></span></button></center></td>
 
             </tr>

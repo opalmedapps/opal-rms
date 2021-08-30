@@ -11,32 +11,41 @@ class ReportAccess
 {
     /**
      * @param string[] $statusFilter
-     * @param string[] $codeFilter
+     * @param string[] $clinicFilter
+     * @param string[] $appointmentCodeFilter
      * @return list<array{
-     *      fname: string,
-     *      lname: string,
-     *      mrn: string,
-     *      site: string,
-     *      ramq: ?string,
-     *      appName: string,
-     *      appClinic: string,
-     *      appType: string,
-     *      appStatus: string,
-     *      appDay: string,
-     *      appTime: string,
-     *      checkin: ?string,
-     *      createdToday: bool,
-     *      referringPhysician: ?string,
-     *      mediStatus: ?string
+     *   appClinic: string,
+     *   appDay: string,
+     *   appName: string,
+     *   appStatus: string,
+     *   appTime: string,
+     *   appType: string,
+     *   checkInTime: ?string,
+     *   createdToday: bool,
+     *   dateOfBirth: DateTime,
+     *   fname: string,
+     *   lname: string,
+     *   mediStatus: ?string,
+     *   mrn: string,
+     *   opalEnabled: bool,
+     *   patientId: int,
+     *   phoneNumber: ?string,
+     *   referringPhysician: ?string,
+     *   ramq: ?string,
+     *   site: string,
      * }>
      */
-    public static function getListOfAppointmentsInDateRange(DateTime $startDate, DateTime $endDate, int $specialiyGroupId, array $statusFilter, array $codeFilter): array
+    public static function getListOfAppointmentsInDateRange(DateTime $startDate, DateTime $endDate, int $specialiyGroupId, array $statusFilter, array $clinicFilter, array $appointmentCodeFilter): array
     {
         $sql = "
             SELECT
                 MV.AppointmentSerNum,
+                MV.PatientSerNum,
                 P.FirstName,
                 P.LastName,
+                P.DateOfBirth,
+                P.SMSAlertNum,
+                P.OpalPatient,
                 PH.MedicalRecordNumber,
                 H.HospitalCode,
                 PI.InsuranceNumber,
@@ -58,10 +67,11 @@ class ReportAccess
                     AND MV.ScheduledDateTime BETWEEN :sDate AND :eDate
                     AND :statusFilter:
                 INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-                    AND :codeFilter:
+                    AND :clinicFilter:
                 INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CR.SpecialityGroupId
                     AND SG.SpecialityGroupId = :spec
                 INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                    AND :appCodeFilter:
                 INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
                     AND PH.HospitalId = SG.HospitalId
                     AND PH.Active = 1
@@ -69,15 +79,16 @@ class ReportAccess
                 LEFT JOIN Insurance I ON I.InsuranceCode = 'RAMQ'
                 LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
                     AND PI.PatientId = P.PatientSerNum
-            WHERE
-                PH.MedicalRecordNumber NOT LIKE '999999%'
-            ORDER BY ScheduledDate,ScheduledTime
+            ORDER BY
+                MV.ScheduledDate,
+                MV.ScheduledTime
         ";
 
         $sqlStringWithStatus = Database::generateBoundedSqlString($sql, ":statusFilter:", "MV.Status", $statusFilter);
-        $sqlStringWithCode = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"], ":codeFilter:", "CR.ResourceName", $codeFilter);
+        $sqlStringWithClinic = Database::generateBoundedSqlString($sqlStringWithStatus["sqlString"], ":clinicFilter:", "CR.ResourceName", $clinicFilter);
+        $sqlStringWithAppCode = Database::generateBoundedSqlString($sqlStringWithClinic["sqlString"], ":appCodeFilter:", "COALESCE(AC.DisplayName,AC.AppointmentCode)", $appointmentCodeFilter);
 
-        $query = Database::getOrmsConnection()->prepare($sqlStringWithCode["sqlString"]);
+        $query = Database::getOrmsConnection()->prepare($sqlStringWithAppCode["sqlString"]);
         $query->execute(array_merge(
             [
                 ":sDate" => $startDate->format("Y-m-d H:i:s"),
@@ -85,26 +96,31 @@ class ReportAccess
                 ":spec"  => $specialiyGroupId
             ],
             $sqlStringWithStatus["boundValues"],
-            $sqlStringWithCode["boundValues"]
+            $sqlStringWithClinic["boundValues"],
+            $sqlStringWithAppCode["boundValues"]
         ));
 
         return array_map(function($x) {
             return [
+                "appClinic"             => $x["ResourceCode"],
+                "appDay"                => $x["ScheduledDate"],
+                "appName"               => $x["ResourceName"],
+                "appStatus"             => $x["Status"],
+                "appTime"               => mb_substr($x["ScheduledTime"], 0, -3),
+                "appType"               => $x["AppointmentCode"],
+                "checkInTime"           => $x["ArrivalDateTimePL"] ?? $x["ArrivalDateTimePLM"] ?? null,
+                "createdToday"          => (new DateTime($x["CreationDate"]))->format("Y-m-d") === (new DateTime($x["ScheduledDate"]))->format("Y-m-d"), //"today" refers to the date of the appointment
+                "dateOfBirth"           => new DateTime($x["DateOfBirth"]),
                 "fname"                 => $x["FirstName"],
                 "lname"                 => $x["LastName"],
-                "mrn"                   => $x["MedicalRecordNumber"],
-                "site"                  => $x["HospitalCode"],
-                "ramq"                  => $x["InsuranceNumber"] ?? null,
-                "appName"               => $x["ResourceName"],
-                "appClinic"             => $x["ResourceCode"],
-                "appType"               => $x["AppointmentCode"],
-                "appStatus"             => $x["Status"],
-                "appDay"                => $x["ScheduledDate"],
-                "appTime"               => mb_substr($x["ScheduledTime"], 0, -3),
-                "checkin"               => $x["ArrivalDateTimePL"] ?? $x["ArrivalDateTimePLM"],
-                "createdToday"          => (new DateTime($x["CreationDate"]))->format("Y-m-d") === (new DateTime($x["ScheduledDate"]))->format("Y-m-d"), //"today" refers to the date of the appointment
-                "referringPhysician"    => $x["ReferringPhysician"],
                 "mediStatus"            => $x["MedivisitStatus"],
+                "mrn"                   => $x["MedicalRecordNumber"],
+                "opalEnabled"           => (bool) $x["OpalPatient"],
+                "patientId"             => (int) $x["PatientSerNum"],
+                "phoneNumber"           => $x["SMSAlertNum"] ?? null,
+                "referringPhysician"    => $x["ReferringPhysician"],
+                "ramq"                  => $x["InsuranceNumber"] ?? null,
+                "site"                  => $x["HospitalCode"],
             ];
         }, $query->fetchAll());
     }
@@ -343,7 +359,7 @@ class ReportAccess
      *   ScheduledStartTime_mm: int,
      *   Sex: string,
      *   Site: string,
-     *   SMSAlertNum: ?string,
+     *   PhoneNumber: ?string,
      *   SourceId: string,
      *   SpecialityGroupId: int,
      *   Status: string,
@@ -449,7 +465,7 @@ class ReportAccess
             "ScheduledStartTime_mm"   => (int) $x["ScheduledStartTime_mm"],
             "Sex"                     => $x["Sex"],
             "Site"                    => $x["Site"],
-            "SMSAlertNum"             => $x["SMSAlertNum"] ?? null,
+            "PhoneNumber"             => $x["SMSAlertNum"] ?? null,
             "SourceId"                => $x["SourceId"],
             "SpecialityGroupId"       => (int) $x["SpecialityGroupId"],
             "Status"                  => $x["Status"],

@@ -53,7 +53,7 @@ if($appType === "specific" && $specificType !== null) {
 $clinics = AppointmentInterface::getClinicCodes((int) $speciality);
 
 //filter appointments depending on input parameters
-$appointments = ReportAccess::getListOfAppointmentsInDateRange($sDate, $eDate, (int) $speciality, $statusFilter, $codeFilter);
+$appointments = ReportAccess::getListOfAppointmentsInDateRange($sDate, $eDate, (int) $speciality, $statusFilter, $codeFilter, []);
 
 $appointments = array_filter($appointments, function($x) use ($arrived, $notArrived, $mediAbsent, $mediAddOn, $mediCancelled, $mediPresent) {
     /** @psalm-suppress RedundantCondition */
@@ -65,6 +65,10 @@ $appointments = array_filter($appointments, function($x) use ($arrived, $notArri
         $valid = true;
     }
     else {
+        $valid = false;
+    }
+
+    if(preg_match("/^999999/",$x["mrn"]) === 1) {
         $valid = false;
     }
 

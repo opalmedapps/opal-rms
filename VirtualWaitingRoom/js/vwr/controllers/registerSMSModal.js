@@ -8,8 +8,8 @@ function registerSMSModalController ($scope,$http,$uibModalInstance,patient)
 {
     $scope.patient = patient;
 
-    if(patient.SMSAlertNum) {
-        $scope.patient.enteredNumber = patient.SMSAlertNum.replace(/-/g,"");
+    if(patient.PhoneNumber) {
+        $scope.patient.enteredNumber = patient.PhoneNumber.replace(/-/g,"");
     }
     else {
         $scope.patient.enteredNumber = null;

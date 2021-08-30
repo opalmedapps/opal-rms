@@ -103,7 +103,7 @@
                             <button ng-show="screenRows[patient.AppointmentId].PatientStatus == 'Called'" ng-click="callPatientAgain(patient,true)" class="btn btn-danger">Call Again</button>
                         </span>
                         <span ng-switch-when="NotCheckedIn">
-                            <span ng-show="patient.SMSAlertNum && pageSettings.zoomLink && isZoomAppointment(patient.AppointmentName)">
+                            <span ng-show="patient.PhoneNumber && pageSettings.zoomLink && isZoomAppointment(patient.AppointmentName)">
                                 <button ng-show="!screenRows['zoomLinkSent'].hasOwnProperty(patient.AppointmentId)" class="btn btn-zoom" ng-click="sendZoomLink(patient)">Send Zoom</button>
                                 <button ng-show="screenRows['zoomLinkSent'].hasOwnProperty(patient.AppointmentId)" ng-click="sendZoomLink(patient)" class="btn btn-zoom">Resend Zoom</button>
                             </span>
@@ -111,8 +111,8 @@
                     </span>
 
                     <span ng-switch-when="CellPhoneNumber" ng-switch="patient.RowType">
-                        <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button">{{patient.SMSAlertNum}}</button>
-                        <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                        <button ng-if="patient.PhoneNumber" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button">{{patient.PhoneNumber}}</button>
+                        <button ng-if="!patient.PhoneNumber" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
                     </span>
 
                     <span ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
@@ -122,7 +122,7 @@
                             {{patient.VenueId}}<br>
                         </span>
                         <div style="display:inline-flex;height:34px;">
-                            <span ng-if="patient.SMSAlertNum" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
+                            <span ng-if="patient.PhoneNumber" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
                             <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img>
                         </div>
                     </span>
@@ -176,7 +176,7 @@
                             <button ng-show="screenRows[patient.AppointmentId].PatientStatus == 'Called'" ng-click="sendToLocation(patient,pageSettings.WaitingRoom,true)" class="btn btn-info">Undo Call</button>
                         </span>
                         <span ng-switch-when="NotCheckedIn">
-                            <button ng-show="patient.SMSAlertNum && pageSettings.zoomLink && wasZoomLinkSent(patient) && isZoomAppointment(patient.AppointmentName)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
+                            <button ng-show="patient.PhoneNumber && pageSettings.zoomLink && wasZoomLinkSent(patient) && isZoomAppointment(patient.AppointmentName)" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button>
                         </span>
                     </span>
 

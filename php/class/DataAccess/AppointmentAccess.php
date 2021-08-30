@@ -253,6 +253,17 @@ class AppointmentAccess
         ")->execute([$appointmentId]);
     }
 
+    public static function updateAppointmentReminderFlag(int $appointmentId): void
+    {
+        Database::getOrmsConnection()->prepare("
+            UPDATE MediVisitAppointmentList
+            SET
+                AppointmentReminderSent = 1
+            WHERE
+                AppointmentSerNum = ?
+        ")->execute([$appointmentId]);
+    }
+
     public static function deleteSimilarAppointments(int $patientId, DateTime $scheduledDateTime, string $clinicCode, string $clinicDescription, int $specialityGroupId): void
     {
         Database::getOrmsConnection()->prepare("
@@ -323,22 +334,29 @@ class AppointmentAccess
      *  appointmentId: int,
      *  clinicCode: string,
      *  clinicDescription: string,
+     *  patientId: int,
      *  scheduledDatetime: DateTime,
-     *  smsType: ?string,
      *  smsActive: bool,
+     *  smsReminderSent: bool,
+     *  smsType: ?string,
      *  sourceId: string,
      *  sourceSystem: string,
      *  specialityGroupId: int,
      * }>
      */
-    public static function getOpenAppointmentsForPatient(int $patientId,DateTime $startDatetime,Datetime $endDatetime): array
+    public static function getOpenAppointments(DateTime $startDatetime,Datetime $endDatetime, int $patientId = null): array
     {
+        $patientFilter = ($patientId === null) ? "" : "AND MV.PatientSerNum = :patId";
+        $patientBind   = ($patientId === null) ? [] : [":patId" => $patientId];
+
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
                 MV.AppointmentSerNum,
+                MV.PatientSerNum,
                 MV.ScheduledDateTime,
                 MV.AppointId,
                 MV.AppointSys,
+                MV.AppointmentReminderSent,
                 CR.SpecialityGroupId,
                 CR.ResourceCode,
                 CR.ResourceName,
@@ -352,27 +370,31 @@ class AppointmentAccess
                 INNER JOIN SmsAppointment SA ON SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                     AND SA.AppointmentCodeId = MV.AppointmentCodeId
             WHERE
-                MV.PatientSerNum = :patId
-                AND MV.ScheduledDateTime BETWEEN :startDate AND :endDate
+                MV.ScheduledDateTime BETWEEN :startDate AND :endDate
                 AND MV.Status = 'Open'
+                $patientFilter
             ORDER BY
                 MV.ScheduledDateTime,
                 MV.AppointmentSerNum
         ");
-        $query->execute([
-            ":patId"       => $patientId,
-            ":startDate"   => $startDatetime->format("Y-m-d H:i:s"),
-            ":endDate"     => $endDatetime->format("Y-m-d H:i:s")
-        ]);
+        $query->execute(array_merge(
+            [
+                ":startDate"   => $startDatetime->format("Y-m-d H:i:s"),
+                ":endDate"     => $endDatetime->format("Y-m-d H:i:s")
+            ],
+            $patientBind
+        ));
 
         return array_map(fn($x) => [
             "appointmentCode"       => $x["AppointmentCode"],
             "appointmentId"         => (int) $x["AppointmentSerNum"],
             "clinicCode"            => $x["ResourceCode"],
             "clinicDescription"     => $x["ResourceName"],
+            "patientId"             => (int) $x["PatientSerNum"],
             "scheduledDatetime"     => DateTime::createFromFormatN("Y-m-d H:i:s", $x["ScheduledDateTime"]) ?? throw new Exception("Invalid appointment datetime"),
-            "smsType"               => $x["Type"] ?? null,
             "smsActive"             => (bool) $x["Active"],
+            "smsReminderSent"       => (bool) $x["AppointmentReminderSent"],
+            "smsType"               => $x["Type"] ?? null,
             "sourceId"              => $x["AppointId"],
             "sourceSystem"          => $x["AppointSys"],
             "specialityGroupId"     => (int) $x["SpecialityGroupId"],

@@ -90,6 +90,11 @@ class AppointmentInterface
         Export::exportAppointmentCompletion($app["sourceId"], $app["sourceSystem"]);
     }
 
+    public static function updateAppointmentReminderFlag(int $appointmentId): void
+    {
+        AppointmentAccess::updateAppointmentReminderFlag($appointmentId);
+    }
+
     /**
      *
      * @return list<array{
@@ -120,17 +125,19 @@ class AppointmentInterface
      *  appointmentId: int,
      *  clinicCode: string,
      *  clinicDescription: string,
+     *  patientId: int,
      *  scheduledDatetime: DateTime,
-     *  smsType: ?string,
      *  smsActive: bool,
+     *  smsReminderSent: bool,
+     *  smsType: ?string,
      *  sourceId: string,
      *  sourceSystem: string,
      *  specialityGroupId: int,
      * }>
      */
-    public static function getOpenAppointmentsForPatient(Patient $patient,DateTime $startDatetime,Datetime $endDatetime): array
+    public static function getOpenAppointments(DateTime $startDatetime,Datetime $endDatetime,Patient $patient = null): array
     {
-        return AppointmentAccess::getOpenAppointmentsForPatient($patient->id,$startDatetime,$endDatetime);
+        return AppointmentAccess::getOpenAppointments($startDatetime,$endDatetime,$patient?->id);
     }
 
 }

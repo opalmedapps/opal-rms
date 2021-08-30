@@ -90,7 +90,11 @@ class ArrayUtil
         return $arr;
     }
 
-    /** @phpstan-ignore-next-line */
+
+    /**
+     *
+     * @param mixed[] $arr
+     */
     public static function checkIfArrayIsAssoc(array $arr): bool
     {
         return array_keys($arr) !== range(0, count($arr)-1);

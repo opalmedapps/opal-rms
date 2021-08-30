@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Orms\DataAccess;
 
-use DateTime;
+use Exception;
 use Orms\DataAccess\Database;
+use Orms\DateTime;
 
 class AppointmentAccess
 {
@@ -318,38 +319,63 @@ class AppointmentAccess
     /**
      *
      * @return list<array{
+     *  appointmentCode: string,
      *  appointmentId: int,
+     *  clinicCode: string,
+     *  clinicDescription: string,
+     *  scheduledDatetime: DateTime,
+     *  smsType: ?string,
+     *  smsActive: bool,
      *  sourceId: string,
      *  sourceSystem: string,
+     *  specialityGroupId: int,
      * }>
      */
-    public static function getOpenAppointmentsForPatient(int $patientId,DateTime $startDate,Datetime $endDate): array
+    public static function getOpenAppointmentsForPatient(int $patientId,DateTime $startDatetime,Datetime $endDatetime): array
     {
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
-                AppointmentSerNum,
-                AppointId,
-                AppointSys
+                MV.AppointmentSerNum,
+                MV.ScheduledDateTime,
+                MV.AppointId,
+                MV.AppointSys,
+                CR.SpecialityGroupId,
+                CR.ResourceCode,
+                CR.ResourceName,
+                AC.AppointmentCode,
+                SA.Active,
+                SA.Type
             FROM
-                MediVisitAppointmentList
+                MediVisitAppointmentList MV
+                INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
+                INNER JOIN SmsAppointment SA ON SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
+                    AND SA.AppointmentCodeId = MV.AppointmentCodeId
             WHERE
-                PatientSerNum = :patId
-                AND ScheduledDateTime BETWEEN :startDate AND :endDate
-                AND Status = 'Open'
+                MV.PatientSerNum = :patId
+                AND MV.ScheduledDateTime BETWEEN :startDate AND :endDate
+                AND MV.Status = 'Open'
             ORDER BY
-                ScheduledDateTime,
-                AppointmentSerNum
+                MV.ScheduledDateTime,
+                MV.AppointmentSerNum
         ");
         $query->execute([
             ":patId"       => $patientId,
-            ":startDate"   => $startDate->format("Y-m-d H:i:s"),
-            ":endDate"     => $endDate->format("Y-m-d H:i:s")
+            ":startDate"   => $startDatetime->format("Y-m-d H:i:s"),
+            ":endDate"     => $endDatetime->format("Y-m-d H:i:s")
         ]);
 
         return array_map(fn($x) => [
-            "appointmentId"  => (int) $x["AppointmentSerNum"],
-            "sourceId"       => $x["AppointId"],
-            "sourceSystem"   => $x["AppointSys"],
+            "appointmentCode"       => $x["AppointmentCode"],
+            "appointmentId"         => (int) $x["AppointmentSerNum"],
+            "clinicCode"            => $x["ResourceCode"],
+            "clinicDescription"     => $x["ResourceName"],
+            "scheduledDatetime"     => DateTime::createFromFormatN("Y-m-d H:i:s", $x["ScheduledDateTime"]) ?? throw new Exception("Invalid appointment datetime"),
+            "smsType"               => $x["Type"] ?? null,
+            "smsActive"             => (bool) $x["Active"],
+            "sourceId"              => $x["AppointId"],
+            "sourceSystem"          => $x["AppointSys"],
+            "specialityGroupId"     => (int) $x["SpecialityGroupId"],
         ],$query->fetchAll());
     }
 

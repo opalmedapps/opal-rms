@@ -113,4 +113,24 @@ class AppointmentInterface
         return AppointmentAccess::getAppointmentCodes($specialityGroupId);
     }
 
+    /**
+     *
+     * @return list<array{
+     *  appointmentCode: string,
+     *  appointmentId: int,
+     *  clinicCode: string,
+     *  clinicDescription: string,
+     *  scheduledDatetime: DateTime,
+     *  smsType: ?string,
+     *  smsActive: bool,
+     *  sourceId: string,
+     *  sourceSystem: string,
+     *  specialityGroupId: int,
+     * }>
+     */
+    public static function getOpenAppointmentsForPatient(Patient $patient,DateTime $startDatetime,Datetime $endDatetime): array
+    {
+        return AppointmentAccess::getOpenAppointmentsForPatient($patient->id,$startDatetime,$endDatetime);
+    }
+
 }

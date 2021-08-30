@@ -4,144 +4,99 @@ declare(strict_types=1);
 
 require __DIR__."/../../vendor/autoload.php";
 
-use Orms\DataAccess\Database;
+use Orms\Appointment\AppointmentInterface;
+use Orms\DateTime;
+use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
 
+$messageList = SmsInterface::getPossibleSmsMessages();
+
 //get the list of appointments to process
 //group appointments by patient
-$appointments = getAppointments();
-$patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "mrnSite");
+$appointments = AppointmentInterface::getOpenAppointments((new DateTime())->modify("tomorrow"),(new DateTime())->modify("tomorrow")->modify("tomorrow"));
 
-$messageList = SmsInterface::getPossibleSmsMessages();
+//filter all appointments where sms is not enabled and the reminder has already been sent
+$appointments = array_values(array_filter($appointments,fn($x) =>
+    $x["smsActive"] === true
+    && $x["smsType"] !== null
+    && $x["smsReminderSent"] === false
+));
+
+$appointments = array_map(function($x) {
+    $x["patient"] = PatientInterface::getPatientById($x["patientId"]) ?? throw new Exception("Unknown patient");
+    return $x;
+},$appointments);
+
+//filter all appointments where the patient doesn't have a phone number
+$appointments = array_values(array_filter($appointments,fn($x) => $x["patient"]->phoneNumber !== null));
+$appointments = Encoding::utf8_encode_recursive($appointments);
+
+$patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "patientId");
 
 //merge appointment entries for the same patient
 //combine all appointments a patient has into a string with the appropriate messages(s)
-$patients = array_map(function($x) use ($messageList) {
+$patients = array_map(function(array $appts) use ($messageList) {
+    $groupedAppointments = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appts, "specialityGroupId", "smsType");
 
-    $appts = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($x, "speciality", "type");
-
-    $appointmentString = "";
-    foreach($appts as $speciality => $v)
+    $reminderString = "";
+    foreach($groupedAppointments as $speciality => $v)
     {
         foreach($v as $type => $arr)
         {
-            $appointmentString .= $messageList[$speciality][$type]["REMINDER"][$arr[0]["language"]]["message"];
+            $reminderString .= $messageList[$speciality][$type]["REMINDER"][$arr[0]["patient"]->languagePreference]["message"];
 
             $appListString = array_reduce($arr, function($acc, $y) {
-                return match($y["language"]) {
-                    "French" => $acc ."$y[name] le $y[date] à $y[time]\n",
-                    default  => $acc ."$y[name] on $y[date] at $y[time]\n"
+                $time = $y["scheduledDatetime"]->format("H:i");
+                $date = $y["scheduledDatetime"]->format("Y-m-d");
+
+                $name = $y["clinicDescription"];
+                //hardcoded aria appointment name conversion
+                if($y["sourceSystem"] === "Aria") {
+                    if(preg_match("/^.EB/",$y["appointmentCode"]) === 1) {
+                        $name = "Radiotherapy";
+                    }
+                    elseif(preg_match("/^(Consult|CONSULT)/",$y["appointmentCode"]) === 1) {
+                        $name = "Consult";
+                    }
+                    elseif(preg_match("/^FOLLOW UP /",$y["appointmentCode"]) === 1) {
+                        $name = "Follow Up";
+                    }
+                    else {
+                        $name = $y["appointmentCode"];
+                    }
+                }
+
+                return match($y["patient"]->languagePreference) {
+                    "French" => $acc ."$name le $date à $time\n",
+                    default  => $acc ."$name on $date at $time\n"
                 };
             }, "");
 
-            $appointmentString = preg_replace("/<app>/", $appListString, $appointmentString);
-            $appointmentString .= "\n\n----------------\n\n";
+            $reminderString = preg_replace("/<app>/", $appListString, $reminderString);
+            $reminderString .= "\n\n----------------\n\n";
         }
     }
-    $appointmentString = preg_replace("/\n\n----------------\n\n$/", "", $appointmentString); //remove last newline
+    $reminderString = preg_replace("/\n\n----------------\n\n$/", "", $reminderString); //remove last newline
 
-    $appointmentSerString = array_reduce($x, fn($acc, $y) => [...$acc,$y["appSer"]], []);
-
-    $appointmentNameString = array_reduce($x, fn($acc, $y) => $acc . "$y[fullname],", "");
-
-    if(ArrayUtil::checkIfArrayIsAssoc($x) === false) {
-        $x = array_merge(...$x);
-    }
-
-    unset($x["date"]);
-    unset($x["time"]);
-    unset($x["name"]);
-    $x["appString"] = $appointmentString;
-    $x["appSer"] = $appointmentSerString;
-    $x["appName"] = $appointmentNameString;
-
-    return $x;
+    return [
+        "patient"           => $appts[0]["patient"],
+        "reminderMessage"   => $reminderString,
+        "appointmentIds"    => array_column($appts,"appointmentId")
+    ];
 }, $patients);
 
 //send sms to patient
 //also mark each appointment as having a reminder sent already
 foreach($patients as $pat)
 {
-    if($pat["appString"] !== "") {
-        SmsInterface::sendSms($pat["phoneNumber"], $pat["appString"]);
+    if($pat["reminderMessage"] !== "" && $pat["patient"]->phoneNumber !== null) {
+        /** @phpstan-ignore-next-line */ //phpstan can't detect that phoneNumber can't be null...
+        SmsInterface::sendSms($pat["patient"]->phoneNumber, $pat["reminderMessage"]);
     }
 
-    foreach($pat["appSer"] as $x) {
-        setAppointmentReminderFlag((int) $x);
+    foreach($pat["appointmentIds"] as $x) {
+        AppointmentInterface::updateAppointmentReminderFlag((int) $x);
     }
-}
-
-
-//functions
-
-/**
- *
- * @return array<string,string>
- * @throws Exception
- * @throws PDOException
- */
-function getAppointments(): array
-{
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        SELECT
-            CONCAT(PH.MedicalRecordNumber,'-',H.HospitalCode) AS mrnSite,
-            P.SMSAlertNum AS phoneNumber,
-            P.LanguagePreference AS language,
-            MV.AppointmentSerNum AS appSer,
-            MV.ScheduledDate AS date,
-            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
-            CR.ResourceName AS fullname,
-            CASE
-                WHEN MV.AppointSys = 'Aria' THEN
-                    CASE
-                        WHEN AC.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
-                        WHEN (AC.AppointmentCode LIKE 'Consult%'
-                            OR AC.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
-                        WHEN AC.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
-                        ELSE AC.AppointmentCode
-                    END
-                ELSE CR.ResourceName
-            END AS name,
-            SA.SpecialityGroupId AS speciality,
-            SA.Type as type
-        FROM
-            MediVisitAppointmentList MV
-            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-            INNER JOIN SmsAppointment SA ON SA.AppointmentCodeId = MV.AppointmentCodeId
-                AND SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-                AND SA.Active = 1
-                AND SA.Type IS NOT NULL
-            INNER JOIN Patient P ON P.PatientSerNum = MV.PatientSerNum
-                AND P.SMSAlertNum != ''
-                AND P.SMSAlertNum IS NOT NULL
-            INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum
-            INNER JOIN Hospital H ON H.HospitalId = PH.HospitalId
-            INNER JOIN SpecialityGroup SG ON SG.HospitalId = H.HospitalId
-                AND SG.SpecialityGroupId = SA.SpecialityGroupId
-        WHERE
-            MV.Status = 'Open'
-            AND MV.AppointmentReminderSent = 0
-            AND MV.ScheduledDate = CURDATE() + INTERVAL 1 DAY
-        ORDER BY
-            mrnSite,
-            MV.ScheduledTime
-    ");
-    $query->execute();
-
-    return Encoding::utf8_encode_recursive($query->fetchAll());
-}
-
-function setAppointmentReminderFlag(int $appointmentId): void
-{
-    Database::getOrmsConnection()->prepare("
-        UPDATE MediVisitAppointmentList
-        SET
-            AppointmentReminderSent = 1
-        WHERE
-            AppointmentSerNum = ?
-    ")->execute([$appointmentId]);
 }

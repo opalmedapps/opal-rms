@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 require __DIR__."/../../vendor/autoload.php";
 
+use Orms\Appointment\AppointmentInterface;
 use Orms\Appointment\LocationInterface;
-use Orms\DataAccess\AppointmentAccess;
-use Orms\DataAccess\Database;
 use Orms\DateTime;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
@@ -57,7 +56,7 @@ foreach($messages as $message)
     }
 
     //get the patient's next appointments for the day
-    $appointments = AppointmentAccess::getOpenAppointmentsForPatient($patient->id,(new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow"));
+    $appointments = AppointmentInterface::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow"),$patient);
 
     //filter all appointments where sms is not enabled
     $appointments = array_values(array_filter($appointments,fn($x) => $x["smsActive"] === true && $x["smsType"] !== null));

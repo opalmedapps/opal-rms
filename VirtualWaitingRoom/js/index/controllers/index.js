@@ -11,7 +11,7 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
     {
         $scope.userOptions = //stores all options the user has picked up till now
         {
-            Page: '', //page that the user wants to go to
+            Page: 'vwr', //page that the user wants to go to
             Speciality: $scope.speciality, //speciality the user is in
             Group: '', //group category the user selected
             Profiles: [], //list of all profiles in a selected group
@@ -30,19 +30,19 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
     //sets a userOptions property to the given value and moves the selected page to the specified one
     $scope.moveToTab = function(property,value,tab)
     {
-        if(property != null)
-        {
+        if(property != null) {
             $scope.userOptions[property] = value;
         }
 
-        var mTab = '';
-
-        if(tab === 'ModeTab') {mTab = 0;}
-        else if(tab === 'GroupTab') {mTab = 1;}
-        else if(tab === 'ProfileTab') {mTab = 2;}
-        else if(tab === 'EditTab') {mTab = 3;}
-
-        $scope.selectedTab = mTab;
+        if(tab === 'GroupTab') {
+            $scope.selectedTab = 0;
+        }
+        else if(tab === 'ProfileTab') {
+            $scope.selectedTab = 1;
+        }
+        else if(tab === 'EditTab') {
+            $scope.selectedTab = 2;
+        }
     }
 
     $scope.getProfileList = function()
@@ -91,19 +91,11 @@ myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossC
 
     $scope.redirectURL = function(profileId)
     {
+        console.log($scope.userOptions);
         //if user is launching the VWR, then just open the page with the selected profile
         if($scope.userOptions.Page === 'vwr')
         {
             $window.location.href = "./virtualWaitingRoom?profile=" + profileId +"&clinicHub="+ $scope.clinicHub;
-        }
-        //if the user is opening the screen display, make sure a location was selected
-        else if($scope.userOptions.Page)
-        {
-            var url = "";
-
-            url = url + "./screenDisplay?location=" + $scope.clinicHub;
-
-            $window.location.href = url;
         }
     }
 });

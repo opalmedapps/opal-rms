@@ -34,20 +34,7 @@
 
         <div class="tab-div">
             <md-tabs md-selected="selectedTab" layout-fill>
-                <md-tab label="Select Mode" ng-disabled="selectedTab !== 0"> <!-- ModeTab -->
-                    <md-grid-list md-cols="2" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
-
-                        <md-grid-tile md-rowspan="1" md-colspan="1">
-                            <md-button class="grid-button button-borderless-left-bottom" ng-click="moveToTab('Page','vwr','GroupTab')">Virtual Waiting Room</md-button>
-                            </md-grid-tile>
-
-                        <md-grid-tile md-rowspan="1" md-colspan="1">
-                            <md-button class="grid-button button-borderless-right-bottom" ng-click="moveToTab('Page','screens','LocationTab')">Screen</md-button>
-                            </md-grid-tile>
-                    </md-grid-list>
-                </md-tab>
-
-                <md-tab label="Select Group" ng-disabled="selectedTab !== 1"> <!-- GroupTab -->
+                <md-tab label="Select Group" ng-disabled="selectedTab !== 0"> <!-- GroupTab -->
                     <md-grid-list md-cols="6" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
 
                         <md-grid-tile md-rowspan="1" md-colspan="1">
@@ -76,7 +63,7 @@
                     </md-grid-list>
                 </md-tab>
 
-                <md-tab label="Select Profile" ng-disabled="selectedTab !== 2 && selectedTab !== 3" md-on-select="getProfileList()"> <!-- ProfileTab -->
+                <md-tab label="Select Profile" ng-disabled="selectedTab !== 1 && selectedTab !== 2" md-on-select="getProfileList()"> <!-- ProfileTab -->
                     <md-grid-list md-cols="3" md-row-height="fit" md-gutter="0px" class="mode-selector-grid">
                         <md-grid-tile ng-repeat="profile in userOptions.Profiles" md-rowspan="1" md-colspan="1">
                             <md-button class="grid-button {{checkBorderClass(profile)}}" ng-click="redirectURL(profile.ProfileId)">{{profile.ProfileId}}</md-button>

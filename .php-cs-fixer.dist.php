@@ -71,8 +71,6 @@ return $config->registerCustomFixers([
 ])
 ->setRules([
     "@PSR12:risky" => true,
-    "braces" => false,
-    "class_definition" => [], //currently, default @PSR12 doesn't work well with anonymous classes
     "declare_strict_types" => true,
     "dir_constant" => true,
     "function_declaration" => [

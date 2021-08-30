@@ -20,7 +20,7 @@ processExitCode $? "Something went wrong with redoc-cli"
 
 #run the linter
 echo "Running php-cs-fixer"
-./vendor/bin/php-cs-fixer fix --quiet
+./vendor/bin/php-cs-fixer fix --using-cache=no --quiet
 
 processExitCode $? "Something went wrong with php-cs-fixer"
 

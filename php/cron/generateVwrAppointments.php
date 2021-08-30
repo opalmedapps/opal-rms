@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 // script that loads all of the current day's appointments and saves them to a json file for use in the virtual waiting room
 
+//known bug: if a speciality has only one appoimtment for that day, and the patient checks in for it, and then the appointment date is changed to another date, the json file for that speciality won't be cleared until the next day
+
 require_once __DIR__."/../../vendor/autoload.php";
 
 use Orms\Config;
@@ -20,8 +22,8 @@ $appointments = array_map(function($x) {
     $x["Sex"] = mb_substr($x["Sex"], 0, 1);
 
     //format phone number
-    if($x["SMSAlertNum"] !== null) {
-        $x["SMSAlertNum"] = mb_substr($x["SMSAlertNum"], 0, 3) ."-". mb_substr($x["SMSAlertNum"], 3, 3) ."-". mb_substr($x["SMSAlertNum"], 6, 4);
+    if($x["PhoneNumber"] !== null) {
+        $x["PhoneNumber"] = mb_substr($x["PhoneNumber"], 0, 3) ."-". mb_substr($x["PhoneNumber"], 3, 3) ."-". mb_substr($x["PhoneNumber"], 6, 4);
     }
 
     //if the weight was entered today, indicate it

@@ -85,7 +85,7 @@ class Database
             $bindString = "$column IN (". implode(",", $boundIndexes) .")";
         }
 
-        $sqlString = str_replace($placeholder, $bindString ?? "1=1", $sqlString); //if the input array was empty, remove the placeholder
+        $sqlString = str_replace($placeholder, $bindString ?? "1=1", $sqlString); //if the input array was empty, neutralize the placeholder
 
         return [
             "sqlString"   => $sqlString,

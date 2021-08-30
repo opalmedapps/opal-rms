@@ -590,6 +590,23 @@ class PatientAccess
         ]);
     }
 
+    public static function getLastQuestionnaireReview(Patient $patient): ?DateTime
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                MAX(ReviewTimestamp) AS LastQuestionnaireReview
+            FROM
+                TEMP_PatientQuestionnaireReview
+            WHERE
+                PatientSer = ?
+        ");
+        $query->execute([$patient->id]);
+
+        $lastQuestionnaireReview = $query->fetchAll()[0]["LastQuestionnaireReview"] ?? null;
+
+        return ($lastQuestionnaireReview === null) ? null : new DateTime($lastQuestionnaireReview);
+    }
+
     public static function insertQuestionnaireReview(Patient $patient, string $user): void
     {
         Database::getOrmsConnection()->prepare("

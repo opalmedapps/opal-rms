@@ -90,7 +90,7 @@ if($afilter === false)
 
         if($app["opalEnabled"] === true)
         {
-            $patient = PatientInterface::getPatientById((int) $app["patientId"]) ?? throw new Exception("Unknown patient id $app[patientId]");
+            $patient = PatientInterface::getPatientById($app["patientId"]) ?? throw new Exception("Unknown patient id $app[patientId]");
 
             //check the patient's last completed questionnaire
             try {
@@ -131,7 +131,7 @@ if($afilter === false)
         }
 
         if(
-            ($appdType === "all" || checkDiagnosis((int) $app["patientId"], explode(",", $dspecificApp)) === true)
+            ($appdType === "all" || checkDiagnosis($app["patientId"], explode(",", $dspecificApp)) === true)
             && ($qfilter === true || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === true)
             && ($qType === "all" || $answeredQuestionnaire === true)
         ) {

@@ -52,4 +52,15 @@ class Logger
     {
         LoggerAccess::logVwrEvent($filename,$identifier,$type,$message);
     }
+
+    public static function getLastSmsProcessorRunTime(): ?DateTime
+    {
+        return LoggerAccess::getLastSmsProcessorRunTime();
+    }
+
+    public static function setLastSmsProcessorRunTime(DateTime $timestamp): void
+    {
+        LoggerAccess::setLastSmsProcessorRunTime($timestamp);
+    }
+
 }

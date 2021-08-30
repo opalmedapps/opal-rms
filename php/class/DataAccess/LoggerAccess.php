@@ -79,6 +79,45 @@ class LoggerAccess
         ]);
     }
 
+    public static function getLastSmsProcessorRunTime(): ?DateTime
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            SELECT
+                LastReceivedSmsFetch
+            FROM
+                Cron
+            WHERE
+                System = 'ORMS'
+        ");
+        $query->execute();
+
+        $lastRun = $query->fetchAll()[0]["LastReceivedSmsFetch"] ?? null;
+
+        if($lastRun === null) {
+            return null;
+        }
+
+        return new DateTime($lastRun);
+    }
+
+    public static function setLastSmsProcessorRunTime(DateTime $timestamp): void
+    {
+        $query = Database::getOrmsConnection()->prepare("
+            INSERT INTO Cron(
+                System,
+                LastReceivedSmsFetch
+            )
+            VALUES(
+                'ORMS',
+                ?
+            )
+            ON DUPLICATE KEY UPDATE
+                System               = VALUES(System),
+                LastReceivedSmsFetch = VALUES(LastReceivedSmsFetch)
+        ");
+        $query->execute([$timestamp->format("Y-m-d H:i:s")]);
+    }
+
     public static function logVwrEvent(string $filename,string $identifier, string $type, string $message): void
     {
         Database::getLogsConnection()->prepare("

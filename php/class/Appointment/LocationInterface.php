@@ -6,7 +6,6 @@ namespace Orms\Appointment;
 
 use DateTime;
 use Orms\DataAccess\AppointmentAccess;
-use Orms\DataAccess\Database;
 use Orms\External\OIE\Export;
 use Orms\Patient\Model\Patient;
 

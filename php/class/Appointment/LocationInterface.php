@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Orms\Appointment;
 
-use DateTime;
 use Orms\DataAccess\AppointmentAccess;
+use Orms\DateTime;
 use Orms\External\OIE\Export;
 use Orms\Patient\Model\Patient;
 

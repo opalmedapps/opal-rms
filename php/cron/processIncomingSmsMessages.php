@@ -5,7 +5,9 @@ declare(strict_types=1);
 require __DIR__."/../../vendor/autoload.php";
 
 use Orms\Appointment\LocationInterface;
+use Orms\DataAccess\AppointmentAccess;
 use Orms\DataAccess\Database;
+use Orms\DateTime;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
 use Orms\System\Logger;
@@ -54,8 +56,11 @@ foreach($messages as $message)
         continue;
     }
 
-    //get the patients next appointments for the day
-    $appointments = getAppointmentList($patient->id);
+    //get the patient's next appointments for the day
+    $appointments = AppointmentAccess::getOpenAppointmentsForPatient($patient->id,(new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow"));
+
+    //filter all appointments where sms is not enabled
+    $appointments = array_values(array_filter($appointments,fn($x) => $x["smsActive"] === true && $x["smsType"] !== null));
 
     //if there are no appointments, the check in was a failure
     if($appointments === [])
@@ -68,7 +73,8 @@ foreach($messages as $message)
 
     //sort the appointments by speciality and type into a string to insert in the sms message
     //also generate the combined message to send in case the patient has multiple types of appointments
-    $appointmentsSorted = ArrayUtil::groupArrayByKeyRecursive($appointments, "SpecialityGroupId", "Type");
+    $appointments = Encoding::utf8_encode_recursive($appointments);
+    $appointmentsSorted = ArrayUtil::groupArrayByKeyRecursive($appointments, "specialityGroupId", "smsType");
 
     $appointmentString = "";
     foreach($appointmentsSorted as $speciality => $v)
@@ -80,7 +86,26 @@ foreach($messages as $message)
             $appListString = array_reduce($apps, function($acc, $x) use ($patient) {
                 $preposition = ($patient->languagePreference === "French") ? "à" : "at";
 
-                return $acc ."$x[name] $preposition $x[time]\n";
+                $time = $x["scheduledDatetime"]->format("H:i");
+
+                $name = $x["clinicDescription"];
+                //hardcoded aria appointment name conversion
+                if($x["sourceSystem"] === "Aria") {
+                    if(preg_match("/^.EB/",$x["appointmentCode"]) === 1) {
+                        $name = "Radiotherapy";
+                    }
+                    elseif(preg_match("/^(Consult|CONSULT)/",$x["appointmentCode"]) === 1) {
+                        $name = "Consult";
+                    }
+                    elseif(preg_match("/^FOLLOW UP /",$x["appointmentCode"]) === 1) {
+                        $name = "Follow Up";
+                    }
+                    else {
+                        $name = $x["appointmentCode"];
+                    }
+                }
+
+                return $acc ."$name $preposition $time\n";
             }, "");
 
             $appointmentString = preg_replace("/<app>/", $appListString, $appointmentString);
@@ -93,49 +118,4 @@ foreach($messages as $message)
     //check the patient into all of his appointments
     LocationInterface::movePatientToLocation($patient, $checkInLocation);
     SmsInterface::sendSms($message->clientNumber, $appointmentString, $message->serviceNumber);
-}
-
-//functions
-/**
- *
- * @return array<string,string>
- */
-function getAppointmentList(int $patientId): array
-{
-    $dbh = Database::getOrmsConnection();
-    $query = $dbh->prepare("
-        SELECT
-            MV.AppointmentSerNum AS id,
-            CASE
-                WHEN MV.AppointSys = 'Aria' THEN
-                    CASE
-                        WHEN AC.AppointmentCode LIKE '.EB%' THEN 'Radiotherapy'
-                        WHEN (AC.AppointmentCode LIKE 'Consult%'
-                            OR AC.AppointmentCode LIKE 'CONSULT%') THEN 'Consult'
-                        WHEN AC.AppointmentCode LIKE 'FOLLOW UP %' THEN 'Follow Up'
-                        ELSE AC.AppointmentCode
-                    END
-                ELSE CR.ResourceName
-            END AS name,
-            MV.ScheduledDate AS date,
-            TIME_FORMAT(MV.ScheduledTime,'%H:%i') AS time,
-            SA.SpecialityGroupId,
-            SA.Type
-        FROM
-            MediVisitAppointmentList MV
-            INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-            INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
-            INNER JOIN SmsAppointment SA ON SA.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
-                AND SA.AppointmentCodeId = MV.AppointmentCodeId
-                AND SA.Active = 1
-                AND SA.Type IS NOT NULL
-        WHERE
-            MV.PatientSerNum = :pid
-            AND MV.ScheduledDate = CURDATE()
-            AND MV.Status = 'Open'
-        ORDER BY MV.ScheduledTime
-    ");
-    $query->execute([":pid" => $patientId]);
-
-    return Encoding::utf8_encode_recursive($query->fetchAll());
 }

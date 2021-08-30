@@ -8,16 +8,18 @@ use Orms\Appointment\LocationInterface;
 use Orms\DataAccess\Database;
 use Orms\Patient\PatientInterface;
 use Orms\Sms\SmsInterface;
+use Orms\System\Logger;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
 
 //get all the message that we received since the last time we checked
 //also check up to 5 minutes before the last run to get any messages that may have been missed
 
-$lastRun = getLastRun();
+//use start of today if there is no last run time
+$lastRun = Logger::getLastSmsProcessorRunTime() ?? (new DateTime())->modify("midnight");
 $currentRun = new DateTime();
 
-setLastRun($currentRun);
+Logger::setLastSmsProcessorRunTime($currentRun);
 
 $timeLimit = $currentRun->modify("-5 minutes");
 
@@ -136,39 +138,4 @@ function getAppointmentList(int $patientId): array
     $query->execute([":pid" => $patientId]);
 
     return Encoding::utf8_encode_recursive($query->fetchAll());
-}
-
-function getLastRun(): DateTime
-{
-    $query = Database::getOrmsConnection()->prepare("
-        SELECT
-            LastReceivedSmsFetch
-        FROM
-            Cron
-        WHERE
-            System = 'ORMS'
-    ");
-    $query->execute();
-
-    $lastRun = $query->fetchAll()[0]["LastReceivedSmsFetch"] ?? null;
-    if($lastRun === null) {
-        $lastRun = new DateTime((new DateTime())->format("Y-m-d")); //start of today
-    }
-    else {
-        $lastRun = new DateTime($lastRun);
-    }
-
-    return $lastRun;
-}
-
-function setLastRun(DateTime $timestamp): void
-{
-    $query = Database::getOrmsConnection()->prepare("
-        UPDATE Cron
-        SET
-           LastReceivedSmsFetch = ?
-        WHERE
-            System = 'ORMS'
-    ");
-    $query->execute([$timestamp->format("Y-m-d H:i:s")]);
 }

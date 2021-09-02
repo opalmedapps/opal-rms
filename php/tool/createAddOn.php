@@ -71,10 +71,10 @@ AppointmentInterface::createOrUpdateAppointment(
     clinicDescription: $clinicCode["ResourceName"],
     scheduledDateTime: new DateTime(),
     sourceId: "ORMS-$mrn-$site-". (new DateTime())->getTimestamp(),
-    sourceStatus: null,
     specialityGroupCode: $clinicCode["SpecialityGroupCode"],
     status: "Open",
     system: $clinicCode["SourceSystem"],
+    visitStatus: null,
 );
 
 echo "Created appointment: $clinicCode[ResourceName] | $appointmentCode[AppointmentCode]\n";

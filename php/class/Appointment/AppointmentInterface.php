@@ -24,10 +24,10 @@ class AppointmentInterface
         string $clinicDescription,
         DateTime $scheduledDateTime,
         string $sourceId,
-        ?string $sourceStatus,
         string $specialityGroupCode,
         string $status,
         string $system,
+        ?string $visitStatus,
     ): void
     {
         //get the necessary ids that are attached to the appointment
@@ -67,9 +67,9 @@ class AppointmentInterface
             referringMd:            $referringMd,
             scheduledDateTime:      $scheduledDateTime,
             sourceId:               $sourceId,
-            sourceStatus:           $sourceStatus,
             status:                 $status,
-            system:                 $system
+            system:                 $system,
+            visitStatus:            $visitStatus
         );
     }
 

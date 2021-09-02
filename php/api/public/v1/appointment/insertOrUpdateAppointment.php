@@ -30,10 +30,10 @@ $appointment = new class(
     scheduledDatetime:      $fields["scheduledDatetime"],
     site:                   $fields["site"],
     sourceId:               $fields["sourceId"],
-    sourceStatus:           $fields["sourceStatus"] ?? null,
     sourceSystem:           $fields["sourceSystem"],
     specialityGroupCode:    $fields["specialityGroupCode"],
     status:                 $fields["status"],
+    visitStatus:            $fields["visitStatus"] ?? null
 ) {
     public DateTime $scheduledDatetime;
     public DateTime $creationDatetime;
@@ -51,10 +51,10 @@ $appointment = new class(
         string $scheduledDatetime,
         public string $site,
         public string $sourceId,
-        public ?string $sourceStatus,
         public string $sourceSystem,
         public string $specialityGroupCode,
-        public string $status
+        public string $status,
+        public ?string $visitStatus,
     ) {
         $this->scheduledDatetime = DateTime::createFromFormatN("Y-m-d H:i:s", $scheduledDatetime) ?? throw new Exception("Incorrect datetime format");
         $this->creationDatetime = DateTime::createFromFormatN("Y-m-d H:i:s", $creationDatetime) ?? throw new Exception("Incorrect datetime format");
@@ -88,10 +88,10 @@ AppointmentInterface::createOrUpdateAppointment(
     clinicDescription:      $appointment->clinicDescription,
     scheduledDateTime:      $appointment->scheduledDatetime,
     sourceId:               $appointment->sourceId,
-    sourceStatus:           $appointment->sourceStatus,
     specialityGroupCode:    $appointment->specialityGroupCode,
     status:                 $appointment->status,
-    system:                 $appointment->sourceSystem
+    system:                 $appointment->sourceSystem,
+    visitStatus:            $appointment->visitStatus
 );
 
 Http::generateResponseJsonAndExit(200);

@@ -337,27 +337,27 @@ class PatientAccess
                 I.Format,
                 I.InsuranceId,
                 PI.ExpirationDate,
-                PI.Active
+                PI.Active,
+                PI.PatientId
             FROM
                 Insurance I
                 LEFT JOIN PatientInsuranceIdentifier PI ON PI.InsuranceId = I.InsuranceId
                     AND PI.InsuranceNumber = :number
-                    AND PI.PatientId = :pid
             WHERE
                 I.InsuranceCode = :type
         ");
         $queryExists->execute([
             ":type"    => $insuranceType,
-            ":number"  => $insuranceNumber,
-            ":pid"     => $patientId
+            ":number"  => $insuranceNumber
         ]);
 
         $insuranceInfo = $queryExists->fetchAll();
 
-        $insuranceId = $insuranceInfo[0]["InsuranceId"] ?? null;
-        $format = $insuranceInfo[0]["Format"] ?? null;
-        $insuranceActive = $insuranceInfo[0]["Active"] ?? null;
-        $insuranceActiveExpiration = $insuranceInfo[0]["ExpirationDate"] ?? null;
+        $insuranceId                = $insuranceInfo[0]["InsuranceId"] ?? null;
+        $format                     = $insuranceInfo[0]["Format"] ?? null;
+        $insuranceActive            = $insuranceInfo[0]["Active"] ?? null;
+        $insuranceActiveExpiration  = $insuranceInfo[0]["ExpirationDate"] ?? null;
+        $currentPatientId           = (int) ($insuranceInfo[0]["PatientId"] ?? null);
 
         //if the insurance type doesn't exist in the database, reject the insurance
         if($insuranceId === null) {
@@ -368,6 +368,11 @@ class PatientAccess
         //if the format is empty or null, the insurance supplied will always match
         if(preg_match("/$format/", $insuranceNumber) !== 1) {
             throw new ApplicationException(ApplicationException::INVALID_INSURANCE_FORMAT, "Invalid insurance format for $insuranceNumber | $insuranceType");
+        }
+
+        //if the insurance exists but is attached to another patient, reject it
+        if($currentPatientId !== 0 && $currentPatientId !== $patientId) {
+            throw new ApplicationException(ApplicationException::INSURANCE_UNIQUENESS_VIOLATION, "Insurance $insuranceNumber | $insuranceType already exists for another patient");
         }
 
         //if the insurance doesn't exist, insert the new insurance

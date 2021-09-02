@@ -14,6 +14,19 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     let params = $location.search();
     let kioskLocation = params.location ?? "DS1_1";
 
+    //room to check the patient into
+    let destination = "UNKNOWN";
+    if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
+        destination = "D RC WAITING ROOM";
+    }
+    else if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
+        destination = "D S1 WAITING ROOM";
+    }
+    else if(/Reception/.test(kioskLocation) === true) {
+        destination = kioskLocation.replace(" Reception","");
+        destination = `${destination} WAITING ROOM`.toUpperCase();
+    }
+
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
@@ -34,23 +47,15 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         }
     },5*60*1000);
 
+    //message to log
+    // $log_message = "default message, $location, $subMessage_en"; //default message
+    // $log_message = "$PatientId, $location, $subMessage_en"; //when finding patient and checking in
+    // $log_message         = "Problem detected - sending to reception - $PatientId, $location, $subMessage_en"; // on error
+
+    //all http errors should be be logged
+
     //log heartbeat message upon refresh
-    // $interval(_ => {
-
-    // },5*60*1000);
-
-    //room to check the patient into
-    let destination = "UNKNOWN";
-    if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
-        destination = "D RC WAITING ROOM";
-    }
-    else if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
-        destination = "D S1 WAITING ROOM";
-    }
-    else if(/Reception/.test(kioskLocation) === true) {
-        destination = kioskLocation.replace(" Reception","");
-        destination = `${destination} WAITING ROOM`.toUpperCase();
-    }
+    logEvent(null,kioskLocation,destination,getArrowDirection(null),null);
 
     $scope.scanPatient = async function(scannerInput)
     {
@@ -113,8 +118,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
                 // $waitingRoom = "TestCentre" if nextAppointment = "NS - prise de sang/blood tests pre/post tx"
                 // $waitingRoom = "DS1" if $hasAriaAppointment
 
-                // $middleMessage_image         = "<img src=\"$images/salle_DS1.png\">" if($DestinationWaitingRoom eq "DS1");
-                // $middleMessage_image         = "<img src=\"$images/$DestinationWaitingRoom.png\">" if($DestinationWaitingRoom eq "TestCentre");
+                // centerImage = `<img src="/images/salle_DS1.png">" if($DestinationWaitingRoom eq "DS1");
+                // centerImage = `<img src="/images/TestCentre.png">" if($DestinationWaitingRoom eq "TestCentre");
             }
             else {
                 sendSmsMessage(
@@ -191,7 +196,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     function generateSendToGetPhotoMessageComponents(location)
     {
         return {
-            arrowImage:                 getArrowDirection(null,null),
+            arrowImage:                 getArrowDirection(location,"Reception"), //overwrite if not on DS1
             centerImage:                $sce.trustAsHtml(`<img src="/images/Reception_generic.png">`),
             locationImage:              getLocationImage(location),
             mainMessage: {
@@ -276,38 +281,40 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     {
         let arrows = {
             DRC_1: {
-                DS1:        "/images/arrow_down.png",
-                Reception:  "/images/arrow_right.png",
-                TestCentre: "/images/arrow_hereRC.png",
+                DS1:        "down",
+                Reception:  "right",
+                TestCentre: "hereRC",
             },
             DRC_2: {
-                DS1:        "/images/arrow_down.png",
-                Reception:  "/images/arrow_left.png",
-                TestCentre: "/images/arrow_up_left.png",
+                DS1:        "down",
+                Reception:  "left",
+                TestCentre: "up_left",
             },
             DRC_3: {
-                DS1:        "/images/arrow_down.png",
-                Reception:  "/images/arrow_left.png",
-                TestCentre: "/images/arrow_right.png",
+                DS1:        "down",
+                Reception:  "left",
+                TestCentre: "right",
             },
             DS1_1: {
-                DS1:        "/images/arrow_here.png",
-                Reception:  "/images/arrow_right.png",
-                TestCentre: "/images/arrow_up.png",
+                DS1:        "here",
+                Reception:  "right",
+                TestCentre: "up",
             },
             DS1_2: {
-                DS1:        "/images/arrow_left.png",
-                Reception:  "/images/arrow_left.png",
-                TestCentre: "/images/arrow_up.png",
+                DS1:        "left",
+                Reception:  "left",
+                TestCentre: "up",
             },
             DS1_3: {
-                DS1:        "/images/arrow_left.png",
-                Reception:  "/images/arrow_left.png",
-                TestCentre: "/images/arrow_up.png",
+                DS1:        "left",
+                Reception:  "left",
+                TestCentre: "up",
             },
         };
 
-        return arrows?.[location]?.[destination] ?? "/images/arrow_hereDefault.png";
+        direction = arrows?.[location]?.[destination] ?? null;
+
+        return (direction === null) ? null : `/images/arrow_${direction}.png`;
     }
 
     async function checkIfServerIsOnline()
@@ -381,23 +388,17 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         });
     }
 
-    function logEvent()
+    function logEvent(input,location,destination,arrowDirection,message)
     {
-        //message to log
-        // $log_message = "default message, $location, $subMessage_en"; //default message
-        // $log_message = "$PatientId, $location, $subMessage_en"; //when finding patient and checking in
-        // $log_message         = "Problem detected - sending to reception - $PatientId, $location, $subMessage_en"; // on error
-
-        //no leading zeroes for month/day
-        // my $now = "$month_today/$day_today/$year_today $hour_today:$min_today:$sec_today";
-        // print CHECKINLOG "###$now, $log_message, $DestinationWaitingRoom, $direction, $subMessage_en\n\n";
-
         $http({
             url: "/php/api/private/v1/vwr/logMessageForKiosk",
             method: "POST",
             data: {
-                patientId:  patientId,
-                room:       destination,
+                input:              input,
+                location:           location,
+                destination:        destination,
+                arrowDirection:     arrowDirection,
+                message:            message
             }
         });
     }

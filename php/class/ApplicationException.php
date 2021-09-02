@@ -9,6 +9,7 @@ use Exception;
 class ApplicationException extends Exception
 {
     public const INVALID_INSURANCE_FORMAT       = "INVALID_INSURANCE_FORMAT";
+    public const INSURANCE_UNIQUENESS_VIOLATION = "INSURANCE_UNIQUENESS_VIOLATION";
     public const INVALID_MRN_FORMAT             = "INVALID_MRN_FORMAT";
     public const INVALID_SMS_APPOINTMENT_STATE  = "INVALID_SMS_APPOINTMENT_STATE";
     public const INVALID_SMS_APPOINTMENT_TYPE   = "INVALID_SMS_APPOINTMENT_TYPE";

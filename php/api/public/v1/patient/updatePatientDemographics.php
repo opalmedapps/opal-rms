@@ -98,9 +98,6 @@ try
             $patients = getPatientsFromMrns($demographics->mrns);
         }
     }
-
-    //case 4: incorrect information given about patients (delete insurances and the like)
-    //  make separate api?
 }
 catch(ApplicationException $e) {
     Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));

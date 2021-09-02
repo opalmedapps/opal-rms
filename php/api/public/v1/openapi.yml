@@ -102,6 +102,7 @@ paths:
                 referringDoctor:
                   description: Doctor who referred the appointment
                   type: string
+                  nullable: true
                 scheduledDatetime:
                   description: Scheduled date of the appointment
                   type: string
@@ -129,6 +130,7 @@ paths:
                 visitStatus:
                   description: Status of the visit in the source system
                   type: string
+                  nullable: true
               required:
                 - appointmentCode
                 - clinics

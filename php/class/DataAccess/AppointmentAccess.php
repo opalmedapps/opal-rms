@@ -190,9 +190,9 @@ class AppointmentAccess
         ?string $referringMd,
         DateTime $scheduledDateTime,
         string $sourceId,
-        ?string $sourceStatus,
         string $status,
         string $system,
+        ?string $visitStatus,
     ): void
     {
         Database::getOrmsConnection()->prepare("
@@ -235,7 +235,7 @@ class AppointmentAccess
             ":appId"        => $sourceId,
             ":appSys"       => $system,
             ":status"       => $status,
-            ":mvStatus"     => $sourceStatus,
+            ":mvStatus"     => $visitStatus,
             ":creDate"      => $creationDate->format(("Y-m-d H:i:s")),
             ":refPhys"      => $referringMd,
             ":callIP"       => empty($_SERVER["REMOTE_ADDR"]) ? gethostname() : $_SERVER["REMOTE_ADDR"]

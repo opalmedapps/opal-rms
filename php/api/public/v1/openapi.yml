@@ -112,9 +112,6 @@ paths:
                 sourceId:
                   description: Id of the appointment in the source system
                   type: string
-                sourceStatus:
-                  description: Status of the appointment in the source system
-                  type: string
                 sourceSystem:
                   description: External system from which the appointment originates
                   type: string
@@ -129,6 +126,9 @@ paths:
                     - Completed
                     - Cancelled
                     - Deleted
+                visitStatus:
+                  description: Status of the visit in the source system
+                  type: string
               required:
                 - appointmentCode
                 - clinics

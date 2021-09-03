@@ -99,10 +99,6 @@ paths:
                 mrn:
                   description: Medical record number
                   type: string
-                referringDoctor:
-                  description: Doctor who referred the appointment
-                  type: string
-                  nullable: true
                 scheduledDatetime:
                   description: Scheduled date of the appointment
                   type: string

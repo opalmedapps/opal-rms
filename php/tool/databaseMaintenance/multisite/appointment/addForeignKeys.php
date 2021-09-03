@@ -22,13 +22,14 @@ class AppointmentForeignKeys
             ADD CONSTRAINT `FK_MediVisitAppointmentList_AppointmentCode` FOREIGN KEY (`AppointmentCodeId`) REFERENCES `AppointmentCode` (`AppointmentCodeId`);
         ");
 
-        //delete redundant column in the table
+        //delete redundant columns in the table
         $dbh->query("
             ALTER TABLE `MediVisitAppointmentList`
             DROP COLUMN `Resource`,
             DROP COLUMN `ResourceDescription`,
             DROP COLUMN `AppointmentCode`,
-            DROP COLUMN `AppointIdIn`
+            DROP COLUMN `AppointIdIn`,
+            DROP COLUMN `ReferringPhysician`
         ");
     }
 }

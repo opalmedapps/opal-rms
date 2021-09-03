@@ -187,7 +187,6 @@ class AppointmentAccess
         int $clinicId,
         DateTime $creationDate,
         int $patientId,
-        ?string $referringMd,
         DateTime $scheduledDateTime,
         string $sourceId,
         string $status,
@@ -209,7 +208,6 @@ class AppointmentAccess
                 Status                 = :status,
                 MedivisitStatus        = :mvStatus,
                 CreationDate           = :creDate,
-                ReferringPhysician     = :refPhys,
                 LastUpdatedUserIP      = :callIP
             ON DUPLICATE KEY UPDATE
                 PatientSerNum           = VALUES(PatientSerNum),
@@ -223,7 +221,6 @@ class AppointmentAccess
                 Status                  = CASE WHEN Status = 'Completed' THEN 'Completed' ELSE VALUES(Status) END,
                 MedivisitStatus         = VALUES(MedivisitStatus),
                 CreationDate            = VALUES(CreationDate),
-                ReferringPhysician      = VALUES(ReferringPhysician),
                 LastUpdatedUserIP       = VALUES(LastUpdatedUserIP)
         ")->execute([
             ":patSer"       => $patientId,
@@ -237,7 +234,6 @@ class AppointmentAccess
             ":status"       => $status,
             ":mvStatus"     => $visitStatus,
             ":creDate"      => $creationDate->format(("Y-m-d H:i:s")),
-            ":refPhys"      => $referringMd,
             ":callIP"       => empty($_SERVER["REMOTE_ADDR"]) ? gethostname() : $_SERVER["REMOTE_ADDR"]
         ]);
     }

@@ -66,7 +66,6 @@ AppointmentInterface::createOrUpdateAppointment(
     patient: $patient,
     appointmentCode: $appointmentCode["AppointmentCode"],
     creationDate: new DateTime(),
-    referringMd: null,
     clinicCode: $clinicCode["ResourceCode"],
     clinicDescription: $clinicCode["ResourceName"],
     scheduledDateTime: new DateTime(),

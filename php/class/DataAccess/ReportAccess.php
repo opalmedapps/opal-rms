@@ -30,7 +30,6 @@ class ReportAccess
      *   opalEnabled: bool,
      *   patientId: int,
      *   phoneNumber: ?string,
-     *   referringPhysician: ?string,
      *   ramq: ?string,
      *   site: string,
      * }>
@@ -56,7 +55,6 @@ class ReportAccess
                 MV.ScheduledDate,
                 MV.ScheduledTime,
                 MV.CreationDate,
-                MV.ReferringPhysician,
                 (select PL.ArrivalDateTime from PatientLocation PL where PL.AppointmentSerNum = MV.AppointmentSerNum AND PL.PatientLocationRevCount = 1 limit 1) as ArrivalDateTimePL,
                 (select PLM.ArrivalDateTime from PatientLocationMH PLM where PLM.AppointmentSerNum = MV.AppointmentSerNum AND PLM.PatientLocationRevCount = 1 limit 1) as ArrivalDateTimePLM,
                 MV.MedivisitStatus
@@ -118,7 +116,6 @@ class ReportAccess
                 "opalEnabled"           => (bool) $x["OpalPatient"],
                 "patientId"             => (int) $x["PatientSerNum"],
                 "phoneNumber"           => $x["SMSAlertNum"] ?? null,
-                "referringPhysician"    => $x["ReferringPhysician"],
                 "ramq"                  => $x["InsuranceNumber"] ?? null,
                 "site"                  => $x["HospitalCode"],
             ];

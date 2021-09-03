@@ -23,10 +23,10 @@ class Fetch
             ]
         ])?->getBody()?->getContents();
 
-        return ($response === null) ? null : self::_generateExternalPatient($response);
+        return ($response === null) ? null : self::generateExternalPatient($response);
     }
 
-    private static function _generateExternalPatient(string $data): ExternalPatient
+    public static function generateExternalPatient(string $data): ExternalPatient
     {
         $data = json_decode($data, true)["data"];
 

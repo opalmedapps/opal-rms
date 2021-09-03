@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Response;
 use Orms\External\OIE\Fetch;
+use Orms\External\OIE\Internal\Connection;
 use Orms\Patient\PatientInterface;
 
 require_once __DIR__ ."/../../../../../vendor/autoload.php";
@@ -90,77 +94,99 @@ class PatientTable
         $queryPatients->execute();
         $patients = $queryPatients->fetchAll();
 
+        $client = Connection::getHttpClient() ?? throw new Exception("Failed to connect to OIE");
+
+        $requests = function($patients) use ($client) {
+            for($i = 0; $i < count($patients); $i++) {
+                $p = $patients[$i];
+                yield function() use ($client,$p) {
+                    return $client->requestAsync("POST",Connection::API_PATIENT_FETCH,[
+                        "json" => [
+                            "mrn"  => $p["PatientId"],
+                            "site" => "RVH"
+                        ]
+                    ]);
+                };
+            }
+        };
+
         //find each patient in the ADT and update the db with the latest data
-        foreach($patients as $p)
-        {
-            $mrn       = $p["PatientId"];
-            $id        = (int) $p["PatientSerNum"];
-            $ramq      = $p["SSN"] ?? null;
+        $pool = new Pool($client,$requests($patients),[
+            "concurrency" => 200,
+            "fulfilled" => function(Response $response, $index) use ($patients,$runWithChecks) {
+                $p = $patients[$index];
 
-            try {
-                $external = Fetch::getExternalPatientByMrnAndSite($mrn, "RVH") ?? null;
-            }
-            catch(Exception) {
-                print_r(["Unknown patient $mrn ($id)"]);
-                continue;
-            }
-            catch(TypeError) {
-                print_r(["ADT call failed for $mrn ($id)"]);
-                continue;
-            }
+                $mrn       = $p["PatientId"];
+                $id        = (int) $p["PatientSerNum"];
+                $ramq      = $p["SSN"] ?? null;
 
-            if($external === null) {
-                print_r(["Unknown patient $mrn ($id)"]);
-                continue;
-            }
+                try {
+                    $external = Fetch::generateExternalPatient($response->getBody()->getContents());
+                }
+                catch(Exception) {
+                    print_r(["Unknown patient $mrn ($id)"]);
+                    return;
+                }
+                catch(TypeError) {
+                    print_r(["ADT call failed for $mrn ($id)"]);
+                    return;
+                }
 
-            //find the patient in ORMS in order to update it
-            $patient = PatientInterface::getPatientById($id) ?? throw new Exception("Unknown patient $mrn");
+                //find the patient in ORMS in order to update it
+                $patient = PatientInterface::getPatientById($id) ?? throw new Exception("Unknown patient $mrn");
 
-            if($runWithChecks === true)
-            {
-                //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
-                //start with the ramq
-                $externalRamq = array_filter($external->insurances, fn($x) => $x->type === "RAMQ")[0]->number ?? null;
-
-                //if patient has no ramq, try using first name and last name instead
-                //if the last names match, and the first name from one object is contained in the other, then it's most likely the same patient
-                //if nothing matches, skip the patient
-                if($ramq === null || $externalRamq === null || $ramq !== $externalRamq)
+                if($runWithChecks === true)
                 {
-                    if($patient->lastName !== $external->lastName) {
-                        print_r([
-                            "$patient->firstName | $external->firstName",
-                            "$patient->lastName | $external->lastName",
-                            "$ramq <> $externalRamq",
-                            "$mrn ($id)"
-                        ]);
-                        continue;
-                    }
+                    //since there is a possibility of an mrn not being an rvh mrn (due to add-ons being entered manually), we need to match the patient retrieved from the ADT with an additional piece of data
+                    //start with the ramq
+                    $externalRamq = array_filter($external->insurances, fn($x) => $x->type === "RAMQ")[0]->number ?? null;
 
-                    if(str_contains($patient->firstName, $external->firstName) === false
-                        && str_contains($external->firstName, $patient->firstName) === false
-                    ) {
-                        print_r([
-                            "$patient->firstName | $patient->lastName ",
-                            "$external->firstName | $external->lastName",
-                            "$ramq <> $externalRamq",
-                            "$mrn ($id)"
-                        ]);
-                        continue;
+                    //if patient has no ramq, try using first name and last name instead
+                    //if the last names match, and the first name from one object is contained in the other, then it's most likely the same patient
+                    //if nothing matches, skip the patient
+                    if($ramq === null || $externalRamq === null || $ramq !== $externalRamq)
+                    {
+                        if($patient->lastName !== $external->lastName) {
+                            print_r([
+                                "$patient->firstName | $external->firstName",
+                                "$patient->lastName | $external->lastName",
+                                "$ramq <> $externalRamq",
+                                "$mrn ($id)"
+                            ]);
+                            return;
+                        }
+
+                        if(str_contains($patient->firstName, $external->firstName) === false
+                            && str_contains($external->firstName, $patient->firstName) === false
+                        ) {
+                            print_r([
+                                "$patient->firstName | $patient->lastName ",
+                                "$external->firstName | $external->lastName",
+                                "$ramq <> $externalRamq",
+                                "$mrn ($id)"
+                            ]);
+                            return;
+                        }
                     }
                 }
-            }
 
-            $patient = PatientInterface::updatePatientInformation(
-                patient:        $patient,
-                firstName:      $external->firstName,
-                lastName:       $external->lastName,
-                dateOfBirth:    $external->dateOfBirth,
-                mrns:           $external->mrns,
-                insurances:     $external->insurances
-            );
-        }
+                $patient = PatientInterface::updatePatientInformation(
+                    patient:        $patient,
+                    firstName:      $external->firstName,
+                    lastName:       $external->lastName,
+                    dateOfBirth:    $external->dateOfBirth,
+                    mrns:           $external->mrns,
+                    insurances:     $external->insurances
+                );
+            },
+            "rejected" => function(RequestException $reason, $index) use ($patients) {
+                $p = $patients[$index];
+                print_r(["ADT call failed for $p[PatientId] ($p[PatientSerNum])"]);
+            }
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
 
         //return the number of patients that we weren't able to match in the ADT
         $queryPatients->execute();

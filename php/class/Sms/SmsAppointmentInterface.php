@@ -31,9 +31,9 @@ class SmsAppointmentInterface
         return SmsAccess::getSmsAppointmentId($clinicResourceId,$appointmentCodeId);
     }
 
-    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): int
+    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): void
     {
-        return SmsAccess::insertSmsAppointment($clinicResourceId,$appointmentCodeId,$specialityGroupId,$system);
+        SmsAccess::insertSmsAppointment($clinicResourceId,$appointmentCodeId,$specialityGroupId,$system);
     }
 
     /**

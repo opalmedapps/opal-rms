@@ -58,7 +58,7 @@ class PatientInterface
         string $sex,
         array $mrns,
         array $insurances
-    ): Patient
+    ): void
     {
         $newPatient = new Patient(
             id:                  -1, //id is negative to indicate that the patient doesn't exist in the system
@@ -78,9 +78,6 @@ class PatientInterface
         }
 
         PatientAccess::serializePatient($newPatient);
-
-        //patient should exist now, so searching for them will work
-        return self::getPatientByMrn($mrns[0]->mrn, $mrns[0]->site) ?? throw new Exception("Failed to create patient");
     }
 
     /**
@@ -172,9 +169,9 @@ class PatientInterface
      * @param Patient $acquirer the patient entry that will remain after the merge
      * @param Patient $target the patient entry that will be merged (and then deleted)
      */
-    public static function mergePatientEntries(Patient $acquirer, Patient $target): Patient
+    public static function mergePatientEntries(Patient $acquirer, Patient $target): void
     {
-        return PatientAccess::mergePatientEntries($acquirer, $target);
+        PatientAccess::mergePatientEntries($acquirer, $target);
     }
 
     /**

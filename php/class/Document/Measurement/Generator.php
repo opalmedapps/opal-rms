@@ -24,15 +24,16 @@ class Generator
         //get the chart template
         $chart = json_decode(file_get_contents(__DIR__ ."/highchartsTemplate.json") ?: "{}", true);
 
-        $weightSeries = &$chart["series"][0];
-        $heightSeries = &$chart["series"][1];
-        $bsaSeries    = &$chart["series"][2];
+        //underscores are to get psalm to stop complaining about unused variables
+        $_weightSeries = &$chart["series"][0];
+        $_heightSeries = &$chart["series"][1];
+        $_bsaSeries    = &$chart["series"][2];
 
         $measurements = PatientInterface::getPatientMeasurements($patient);
 
         foreach($measurements as $measurement)
         {
-            foreach([&$weightSeries,&$heightSeries,&$bsaSeries] as $index => &$series)
+            foreach([&$_weightSeries,&$_heightSeries,&$_bsaSeries] as $index => &$series)
             {
                 $value = $measurement->weight;
                 if($index === 1) $value = $measurement->height;
@@ -48,7 +49,9 @@ class Generator
             }
         }
 
-        if(($weightsOnly === true)) $chart["series"] = [$chart["series"][0]];
+        if($weightsOnly === true) {
+            $chart["series"] = [$chart["series"][0]];
+        }
 
         return $chart;
     }

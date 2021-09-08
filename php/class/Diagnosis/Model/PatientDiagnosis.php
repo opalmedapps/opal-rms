@@ -8,6 +8,7 @@ use Orms\DateTime;
 use Orms\Diagnosis\Model\Diagnosis;
 
 /** @psalm-immutable */
+/** @psalm-suppress PossiblyUnusedProperty */
 class PatientDiagnosis
 {
     public function __construct(

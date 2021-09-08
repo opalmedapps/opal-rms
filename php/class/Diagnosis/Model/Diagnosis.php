@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Orms\Diagnosis\Model;
 
 /** @psalm-immutable */
+/** @psalm-suppress PossiblyUnusedProperty */
 class Diagnosis
 {
     public function __construct(

@@ -331,8 +331,6 @@ class PatientAccess
      */
     public static function _serializeInsurance(PDO $dbh, int $patientId, string $insuranceNumber, string $insuranceType, DateTime $expirationDate, bool $active): void
     {
-        $dbh = Database::getOrmsConnection();
-
         //check if the insurance current exists
         //also get the format that the insurance should have
         $queryExists = $dbh->prepare("
@@ -465,7 +463,7 @@ class PatientAccess
         return array_map(fn($x) => self::deserializePatient((int) $x["PatientSerNum"]), $query->fetchAll());
     }
 
-    public static function mergePatientEntries(Patient $acquirer, Patient $target): Patient
+    public static function mergePatientEntries(Patient $acquirer, Patient $target): void
     {
         //get the list of columns using the Patient id column
         $dbh = Database::getOrmsConnection();
@@ -520,8 +518,6 @@ class PatientAccess
         }
 
         $dbh->commit();
-
-        return self::deserializePatient($acquirer->id) ?? throw new Exception("Failed to merge patients");
     }
 
     public static function unmergePatientEntries(Patient $originalPatient,Patient $newPatient): Patient

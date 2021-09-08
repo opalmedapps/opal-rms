@@ -170,7 +170,7 @@ class PatientTable
                     }
                 }
 
-                $patient = PatientInterface::updatePatientInformation(
+                PatientInterface::updatePatientInformation(
                     patient:        $patient,
                     firstName:      $external->firstName,
                     lastName:       $external->lastName,
@@ -179,7 +179,7 @@ class PatientTable
                     insurances:     $external->insurances
                 );
             },
-            "rejected" => function(RequestException $reason, $index) use ($patients) {
+            "rejected" => function(RequestException $_reason, $index) use ($patients) {
                 $p = $patients[$index];
                 print_r(["ADT call failed for $p[PatientId] ($p[PatientSerNum])"]);
             }

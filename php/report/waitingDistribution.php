@@ -104,8 +104,9 @@ $resources = array_map(function($resource) {
         return $intervals;
     }, []);
     array_walk($graphData, function(&$val, $key) {
-        $val = [(float)$key,$val];
+        $val = [(float) $key,$val];
     });
+    /** @psalm-suppress PossiblyInvalidArgument */
     $graphData = array_values($graphData);
     sort($graphData);
 
@@ -140,6 +141,7 @@ foreach($summary["graphData"] ?? [] as $data) {
 array_walk($summedGraphData, function(&$val, $key) {
     $val = [(float)$key,$val];
 });
+/** @psalm-suppress PossiblyInvalidArgument */
 $summedGraphData = array_values($summedGraphData);
 sort($summedGraphData);
 

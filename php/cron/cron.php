@@ -16,7 +16,7 @@ $reloadConfigs = function(): Config
 $configs = Config::getApplicationSettings();
 $schedule = new Schedule();
 
-$currentAppointmentsTask = $schedule->run(function() use ($configs,$reloadConfigs) {
+$schedule->run(function() use ($configs,$reloadConfigs) {
     while($configs->system->vwrAppointmentCronEnabled === true)
     {
         $configs = $reloadConfigs();
@@ -31,7 +31,7 @@ $currentAppointmentsTask = $schedule->run(function() use ($configs,$reloadConfig
 ->timezone(date_default_timezone_get())
 ->description("Virtual waiting room appointment file generator");
 
-$incomingSmsTask = $schedule->run(function() use ($configs,$reloadConfigs) {
+$schedule->run(function() use ($configs,$reloadConfigs) {
     while($configs->system->processIncomingSmsCronEnabled === true)
     {
         $configs = $reloadConfigs();
@@ -46,7 +46,7 @@ $incomingSmsTask = $schedule->run(function() use ($configs,$reloadConfigs) {
 ->timezone(date_default_timezone_get())
 ->description("Incoming sms processor");
 
-$appointmentReminderTask = $schedule->run("php ../php/cron/generateAppointmentReminders.php")
+$schedule->run("php ../php/cron/generateAppointmentReminders.php")
 ->when(fn() => $configs->system->appointmentReminderCronEnabled === true)
 ->daily()
 ->hour(18)
@@ -54,7 +54,7 @@ $appointmentReminderTask = $schedule->run("php ../php/cron/generateAppointmentRe
 ->timezone(date_default_timezone_get())
 ->description("Appointment sms reminder");
 
-$checkoutTask = $schedule->run("php ../php/cron/endOfDayCheckout.php")
+$schedule->run("php ../php/cron/endOfDayCheckout.php")
 ->daily()
 ->hour(23)
 ->minute(30)

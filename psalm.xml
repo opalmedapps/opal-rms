@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
-<!-- findUnusedVariablesAndParams="true" -->
 <psalm
     errorLevel="3"
     resolveFromConfigFile="true"
+    findUnusedPsalmSuppress="true"
+    findUnusedCode="true"
 >
     <projectFiles>
         <directory name="php/" />

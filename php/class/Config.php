@@ -38,8 +38,6 @@ class Config
             basePath:       $parsedData["path"]["BASE_PATH"],
             baseUrl:        $parsedData["path"]["BASE_URL"],
             imagePath:      $parsedData["path"]["IMAGE_PATH"],
-            imageUrl:       $parsedData["path"]["IMAGE_URL"],
-            logPath:        $parsedData["path"]["LOG_PATH"],
             firebaseUrl:    $parsedData["path"]["FIREBASE_URL"],
             firebaseSecret: $parsedData["path"]["FIREBASE_SECRET"],
             highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? null
@@ -54,7 +52,6 @@ class Config
         );
 
         $ormsDb = new DatabaseConfig(
-            type:           $parsedData["database"]["ORMS_TYPE"],
             host:           $parsedData["database"]["ORMS_HOST"],
             port:           $parsedData["database"]["ORMS_PORT"],
             databaseName:   $parsedData["database"]["ORMS_DB"],
@@ -63,7 +60,6 @@ class Config
         );
 
         $logDb = new DatabaseConfig(
-            type:           $parsedData["database"]["LOG_TYPE"],
             host:           $parsedData["database"]["LOG_HOST"],
             port:           $parsedData["database"]["LOG_PORT"],
             databaseName:   $parsedData["database"]["LOG_DB"],
@@ -146,8 +142,6 @@ class EnvironmentConfig
         public string $basePath,
         public string $baseUrl,
         public string $imagePath,
-        public string $imageUrl,
-        public string $logPath,
         public string $firebaseUrl,
         public string $firebaseSecret,
         public ?string $highchartsUrl
@@ -168,7 +162,6 @@ class OpalInterfaceEngineConfig
 class DatabaseConfig
 {
     public function __construct(
-        public string $type,
         public string $host,
         public string $port,
         public string $databaseName,

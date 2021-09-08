@@ -17,6 +17,7 @@ class Mail
             "From" => "opal@muhc.mcgill.ca"
         ];
 
+        /** @psalm-suppress UnusedFunctionCall */
         mail($recepients, $subject, $message, $headers);
     }
 

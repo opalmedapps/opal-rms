@@ -70,7 +70,7 @@ class SmsAccess
         return $id ?: null;
     }
 
-    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): int
+    public static function insertSmsAppointment(int $clinicResourceId, int $appointmentCodeId, int $specialityGroupId, string $system): void
     {
         $dbh = Database::getOrmsConnection();
         $dbh->prepare("
@@ -82,8 +82,6 @@ class SmsAccess
             ":spec" => $specialityGroupId,
             ":sys"  => $system
         ]);
-
-        return (int) $dbh->lastInsertId();
     }
 
     /**

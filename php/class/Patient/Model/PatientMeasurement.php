@@ -7,6 +7,7 @@ namespace Orms\Patient\Model;
 use Orms\DateTime;
 
 /** @psalm-immutable */
+/** @psalm-suppress PossiblyUnusedProperty */
 class PatientMeasurement
 {
     public function __construct(

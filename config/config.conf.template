@@ -21,14 +21,12 @@ INCOMING_SMS_CRON_ENABLED       =
 EMAIL[]                         =
 
 [database]
-ORMS_TYPE                       =
 ORMS_HOST                       =
 ORMS_PORT                       =
 ORMS_DB                         =
 ORMS_USERNAME                   =
 ORMS_PASSWORD                   =
 
-LOG_TYPE                        =
 LOG_HOST                        =
 LOG_PORT                        =
 LOG_DB                          =

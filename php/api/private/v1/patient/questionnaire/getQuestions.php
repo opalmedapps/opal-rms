@@ -124,16 +124,12 @@ else
     // begin looping the questionnaires
     foreach($questions as $question)
     {
-        //change the format of the date depending on the language
-        //also set the date to empty if the previous question answered was part of the same patient questionnaire instance
+        //set the date to empty if the previous question answered was part of the same patient questionnaire instance
         $displayDate = "";
         if($lastAnsweredQuestionnaireId !== $question["questionnaireAnswerId"])
         {
             $lastAnsweredQuestionnaireId = $question["questionnaireAnswerId"];
-            $displayDate = (new DateTime($question["dateTimeAnswered"]));
-
-            $lastUsedDate = $displayDate->format("Y-m-d");
-            $displayDate = $displayDate->format("l jS F Y");
+            $displayDate = (new DateTime($question["dateTimeAnswered"]))->format("l jS F Y");
         }
 
         //sanitize question text

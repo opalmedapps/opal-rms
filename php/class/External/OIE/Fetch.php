@@ -14,18 +14,6 @@ use Orms\Patient\Model\Patient;
 
 class Fetch
 {
-    public static function getExternalPatientByMrnAndSite(string $mrn, string $site): ?ExternalPatient
-    {
-        $response = Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_FETCH, [
-            "json" => [
-                "mrn"  => $mrn,
-                "site" => $site
-            ]
-        ])?->getBody()?->getContents();
-
-        return ($response === null) ? null : self::generateExternalPatient($response);
-    }
-
     public static function generateExternalPatient(string $data): ExternalPatient
     {
         $data = json_decode($data, true)["data"];
@@ -41,15 +29,6 @@ class Fetch
                 $x["active"]
             );
         }, $data["mrns"]);
-
-        // $insurances = array_map(function($x) {
-        //     return new Insurance(
-        //         $x["insuranceNumber"],
-        //         DateTime::createFromFormatN("Y-m-d H:i:s", $x["expirationDate"]) ?? throw new Exception("Invalid insurance expiration date"),
-        //         $x["type"],
-        //         $x["active"]
-        //     );
-        // }, $data["insurances"]);
 
         if($data["ramq"] !== null && $data["ramqExpiration"] !== null) {
             $insurances = [

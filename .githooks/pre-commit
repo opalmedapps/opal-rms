@@ -39,6 +39,6 @@ processExitCode $? "Errors found with phpstan ...aborting commit"
 
 #run psalm
 echo "Analyzing code with psalm"
-./vendor/bin/psalm --no-cache --find-unused-psalm-suppress > /dev/null 2>&1
+./vendor/bin/psalm --no-cache > /dev/null 2>&1
 
 processExitCode $? "Errors found with psalm ...aborting commit"

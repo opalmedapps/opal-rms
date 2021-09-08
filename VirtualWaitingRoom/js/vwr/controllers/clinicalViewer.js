@@ -623,7 +623,7 @@ app.factory('callScript',function($http,$q)
 
             let questionnaireType = inputs.selectedQuestionnaire.map(x => x.QuestionnaireId).join(",");
 
-            url = "/php/api/private/v1/appointment/getAppointments?"
+            url = "/php/api/private/v1/vwr/generateClinicalViewerList?"
 
             comp = (inputs.comp) ? "&comp=1" : "";
             openn = (inputs.openn) ? "&openn=1" : "";

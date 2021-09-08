@@ -22,10 +22,10 @@ $eDateInit              = $params["eDate"] ?? null;
 $sTime                  = $params["sTime"] ?? null;
 $eTime                  = $params["eTime"] ?? null;
 $speciality             = $params["speciality"] ?? null;
-$checkForArrived        = isset($params["arrived"]);
-$checkForNotArrived     = isset($params["notArrived"]);
-// $opal                   = isset($params["opal"]);
-// $sms                    = isset($params["SMS"]);
+$checkForArrived        = (bool) ($params["arrived"] ?? null);
+$checkForNotArrived     = (bool) ($params["notArrived"] ?? null);
+$opalAllowed            = (bool) ($params["opal"] ?? null);
+$smsAllowed             = (bool) ($params["SMS"] ?? null);
 $appType                = $params["type"] ?? null;
 $specificApp            = $params["specificType"] ?? "";
 $appcType               = $params["ctype"] ?? null;
@@ -71,12 +71,14 @@ if($afilter === false)
 
     foreach($appointments as $app)
     {
-        //filter apppointments on whether the patient checked in for it
-        $checkInTime = $app["checkInTime"];
+        //filter patients based on their opal and sms status
+        if($app["opalEnabled"] === true && $opalAllowed === false) continue;
+        if($app["phoneNumber"] !== null && $smsAllowed === false)  continue;
 
+        //filter apppointments on whether the patient checked in for it
         if($checkForArrived === true && $checkForNotArrived === true)   ;
-        elseif($checkForArrived === true && $checkInTime === null)      continue;
-        elseif($checkForNotArrived === true && $checkInTime !== null)   continue;
+        elseif($checkForArrived === true && $app["checkInTime"] === null)      continue;
+        elseif($checkForNotArrived === true && $app["checkInTime"] !== null)   continue;
 
         if($app["phoneNumber"] !== null) {
             $app["phoneNumber"] = mb_substr($app["phoneNumber"], 0, 3) ."-". mb_substr($app["phoneNumber"], 3, 3) ."-". mb_substr($app["phoneNumber"], 6, 4);
@@ -147,7 +149,7 @@ if($afilter === false)
                 "appStatus"     => $app["appStatus"],
                 "appDay"        => $app["appDay"],
                 "appTime"       => $app["appTime"],
-                "checkInTime"   => $checkInTime,
+                "checkInTime"   => $app["checkInTime"],
                 "mediStatus"    => $app["mediStatus"],
                 "QStatus"       => $app["questionnaireStatus"],
                 "opalPatient"   => (int) $app["opalEnabled"],
@@ -187,6 +189,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
         if(
             $ormsInfo === null
             || ($appdType === "all" || checkDiagnosis($ormsInfo->id, explode(",", $dspecificApp)) === true)
+            || ($ormsInfo->phoneNumber !== null && $smsAllowed === false)
         ) continue;
 
         $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");

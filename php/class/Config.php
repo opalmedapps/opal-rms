@@ -19,8 +19,7 @@ class Config
         public DatabaseConfig $ormsDb,
         public DatabaseConfig $logDb,
         public ?OpalInterfaceEngineConfig $oie,
-        public ?SmsConfig $sms,
-        public ?OpalConfig $opal
+        public ?SmsConfig $sms
     ) {}
 
     public static function getApplicationSettings(): Config
@@ -96,25 +95,13 @@ class Config
             );
         }
 
-        if((bool) $parsedData["opal"]["ENABLED"] !== true) {
-            $opal = null;
-        }
-        else {
-            $opal = new OpalConfig(
-                opalAdminUrl:       $parsedData["opal"]["OPAL_ADMIN_URL"],
-                opalAdminUsername:  $parsedData["opal"]["OPAL_ADMIN_USERNAME"],
-                opalAdminPassword:  $parsedData["opal"]["OPAL_ADMIN_PASSWORD"]
-            );
-        }
-
         self::$self = new self(
             environment:        $environment,
             system:             $system,
             ormsDb:             $ormsDb,
             logDb:              $logDb,
             oie:                $oie,
-            sms:                $sms,
-            opal:               $opal
+            sms:                $sms
         );
     }
 
@@ -200,15 +187,5 @@ class SmsConfig
         public string $failedCheckInMessageFrench,
         public string $unknownCommandMessageEnglish,
         public string $unknownCommandMessageFrench
-    ) {}
-}
-
-/** @psalm-immutable */
-class OpalConfig
-{
-    public function __construct(
-        public string $opalAdminUrl,
-        public string $opalAdminUsername,
-        public string $opalAdminPassword
     ) {}
 }

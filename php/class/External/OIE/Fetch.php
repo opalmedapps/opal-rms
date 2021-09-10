@@ -64,13 +64,14 @@ class Fetch
     public static function getMrnSiteOfAppointment(string $sourceId,string $sourceSystem): array
     {
         $response = Connection::getHttpClient()?->request("GET", Connection::API_APPOINTMENT_MRN, [
-            "query" => [
+            "json" => [
                 "sourceId"     => $sourceId,
                 "sourceSystem" => $sourceSystem
             ]
         ])?->getBody()?->getContents() ?? "[]";
 
         $response = json_decode($response,true);
+        $response = $response[0] ?? []; //order is chronologically desc
 
         $mrn = $response["mrn"] ?? null;
         $site = $response["site"] ?? null;
@@ -129,8 +130,7 @@ class Fetch
      */
     public static function getListOfQuestionnaires(): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_PATIENT_QUESTIONNAIRE_PUBLISHED)?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PUBLISHED)?->getBody()?->getContents() ?? "[]";
 
         return array_map(fn($x) => [
             "questionnaireId"  => (int) $x["ID"],
@@ -156,13 +156,12 @@ class Fetch
      */
     public static function getListOfCompletedQuestionnairesForPatient(Patient $patient): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
-            "form_params" => [
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
+            "query" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "completionDate"        => (string) $x["completionDate"],
@@ -193,14 +192,14 @@ class Fetch
      */
     public static function getPatientAnswersForChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_QUESTIONNAIRE_ANSWERS_CHART, [
-            "form_params" => [
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS, [
+            "query" => [
                 "mrn"               => $patient->getActiveMrns()[0]->mrn,
                 "site"              => $patient->getActiveMrns()[0]->site,
-                "questionnaireId"   => $questionnaireId
+                "questionnaireId"   => $questionnaireId,
+                "visualization"     => 1
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
 
         return array_map(function($x) {
 
@@ -238,14 +237,14 @@ class Fetch
      */
     public static function getPatientAnswersForNonChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_QUESTIONNAIRE_ANSWERS_NON_CHART, [
-            "form_params" => [
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS, [
+            "query" => [
                 "mrn"               => $patient->getActiveMrns()[0]->mrn,
                 "site"              => $patient->getActiveMrns()[0]->site,
-                "questionnaireId"   => $questionnaireId
+                "questionnaireId"   => $questionnaireId,
+                "visualization"     => 0
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "questionnaireAnswerId" => (int) $x["answerQuestionnaireId"],
@@ -273,15 +272,17 @@ class Fetch
      */
     public static function getLastCompletedPatientQuestionnaire(Patient $patient): ?array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_PATIENT_QUESTIONNAIRE_LAST, [
-            "form_params" => [
-                "mrn"               => $patient->getActiveMrns()[0]->mrn,
-                "site"              => $patient->getActiveMrns()[0]->site
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
+            "query" => [
+                "mrn"   => $patient->getActiveMrns()[0]->mrn,
+                "site"  => $patient->getActiveMrns()[0]->site,
+                "last"  => true //by putting this parameter, we get a different response from the api
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
+
         $response = json_decode($response, true);
 
+        //api returns false if the patient exists but has no completed questionnaires
         if($response === [] || $response === false) {
             return null;
         }
@@ -305,12 +306,11 @@ class Fetch
      */
     public static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_QUESTIONNAIRE_PATIENT_COMPLETED, [
-            "form_params" => [
-                "questionnaireList" => $questionnaireIds
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PATIENT_COMPLETED, [
+            "query" => [
+                "questionnaires" => $questionnaireIds
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "mrn"             => (string) $x["mrn"],
@@ -318,7 +318,6 @@ class Fetch
             "completionDate"  => DateTime::createFromFormatN("Y-m-d H:i:s", $x["completionDate"]) ?? throw new Exception("Invalid datetime"),
             "lastUpdated"     => DateTime::createFromFormatN("Y-m-d H:i:s", $x["lastUpdated"]) ?? throw new Exception("Invalid datetime")
         ], json_decode($response, true));
-
     }
 
     /**
@@ -330,8 +329,7 @@ class Fetch
      */
     public static function getQuestionnairePurposes(): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_QUESTIONNAIRE_PURPOSE)?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PURPOSE)?->getBody()?->getContents() ?? "[]";
 
         $response = array_filter(json_decode($response, true), fn($x) => in_array($x["title_EN"], ["Clinical","Research"]));
         return array_map(fn($x) => [
@@ -349,13 +347,12 @@ class Fetch
      */
     public static function getStudiesForPatient(Patient $patient): array
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_QUESTIONNAIRE_STUDY, [
-            "form_params" => [
+        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_STUDY, [
+            "query" => [
                 "mrn"       => $patient->getActiveMrns()[0]->mrn,
                 "site"      => $patient->getActiveMrns()[0]->site
             ]
         ])?->getBody()?->getContents() ?? "[]";
-        $response = utf8_encode($response);
 
         return array_map(fn($x) => [
             "studyId"         => (int) $x["studyId"],

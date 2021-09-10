@@ -39,12 +39,6 @@ OIE_URL                         =
 OIE_USERNAME                    =
 OIE_PASSWORD                    =
 
-[opal]
-ENABLED                         =
-OPAL_ADMIN_URL                  =
-OPAL_ADMIN_USERNAME             =
-OPAL_ADMIN_PASSWORD             =
-
 [sms]
 ENABLED                         =
 PROVIDER                        =

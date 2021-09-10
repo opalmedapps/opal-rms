@@ -5,5 +5,6 @@ declare(strict_types=1);
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\External\OIE\Fetch;
+use Orms\Http;
 
-echo json_encode(Fetch::getListOfQuestionnaires());
+Http::generateResponseJsonAndExit(200, data: Fetch::getListOfQuestionnaires());

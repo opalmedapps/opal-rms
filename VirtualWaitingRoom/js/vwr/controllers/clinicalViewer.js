@@ -254,7 +254,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         url: "/php/api/private/v1/questionnaire/getList",
         method: "GET"
     }).then(function(response) {
-        $scope.questionnaireType = response.data.map(x => ({
+        $scope.questionnaireType = response.data.data.map(x => ({
             Name:            x["name"],
             QuestionnaireId: x["questionnaireId"]
         }));

@@ -46,7 +46,7 @@ class Http
     {
         foreach($params as &$param)
         {
-            if(gettype($param) === "string")
+            if(is_string($param) === true)
             {
                 $param = str_replace("\\", "", $param); //remove backslashes
                 $param = str_replace('"', "", $param); //remove double quotes
@@ -56,6 +56,9 @@ class Http
                 $param = preg_replace("/\s$/", "", $param ?? ""); //remove space at the end
 
                 if(is_string($param) === true && ctype_space($param) || $param === "") $param = null;
+            }
+            elseif(is_array($param) === true) {
+                $param = self::sanitizeRequestParams($param);
             }
         }
 

@@ -372,7 +372,7 @@ class Fetch
      */
     public static function checkAriaPhotoForPatient(Patient $patient): ?bool
     {
-        $response = Connection::getOpalHttpClient()?->request("POST", Connection::API_ARIA_PHOTO, [
+        $response = Connection::getHttpClient()?->request("POST", Connection::API_ARIA_PHOTO, [
             "json" => [
                 "mrn"       => array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->mrn ?? null,
                 "site"      => array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->site ?? null

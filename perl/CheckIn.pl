@@ -56,6 +56,7 @@ my $site = "RVH";
 
 #user agent for http calls
 my $ua = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
+$ua->timeout(10);
 
 #------------------------------------------------------------------------
 # Start the webpage here so it can be used in verbose mode

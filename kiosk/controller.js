@@ -30,10 +30,12 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     (kioskLocation.includes("Reception")) ? "blue" : "rgb(51,153,51)"
+        messageBackgroundColor:     (kioskLocation.includes("Reception")) ? "blue" : "rgb(51,153,51)",
+        locationDisplay:            kioskLocation.replace("_","-"),
+        kioskWidth:                 (kioskLocation.includes("Reception")) ? "50%" : null,
     };
 
-    $scope.messageComponents = generateDefaultMessageComponents(kioskLocation);
+    $scope.messageComponents = generateDefaultMessageComponents();
 
     //reload the page every once in a while to ensure that the kiosk is always running the latest version of the code
     //also check if the server is up before doing the refresh
@@ -55,7 +57,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     //all http errors should be be logged
 
     //log heartbeat message upon refresh
-    logEvent(null,kioskLocation,destination,getArrowDirection(null),null);
+    logEvent(null,kioskLocation,destination,getArrowImage(null),null);
 
     $scope.scanPatient = async function(scannerInput)
     {
@@ -79,17 +81,17 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         if(patient === null) {
             $scope.messageComponents = generateSendToReceptionMessageComponents(kioskLocation);
             $scope.$apply();
-            $scope.messageComponents = await $timeout(_ => generateDefaultMessageComponents(kioskLocation),20*1000);
+            $scope.messageComponents = await $timeout(_ => generateDefaultMessageComponents(),20*1000);
         }
         //if the patient has a ramq and it's expired, send them to admissions
         else if(dayjs().isAfter(patient.ramqExpiration)) {
-            $scope.messageComponents = generateSendToAdmissionMessageComponents(kioskLocation);
+            $scope.messageComponents = generateSendToAdmissionMessageComponents();
             $scope.$apply();
-            $scope.messageComponents = await $timeout(_ => generateDefaultMessageComponents(kioskLocation),20*1000);
+            $scope.messageComponents = await $timeout(_ => generateDefaultMessageComponents(),20*1000);
         }
         //check in the patient if there's no issues
         else {
-            $scope.messageComponents = generatePatientDisplayMessageComponents(kioskLocation,patient);
+            $scope.messageComponents = generatePatientDisplayMessageComponents(patient);
             $scope.$apply();
 
             //give the patient time to see their name on the screen
@@ -110,7 +112,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
                     $scope.messageComponents = generateSendToGetPhotoMessageComponents(kioskLocation);
                 }
                 else {
-                    $scope.messageComponents = generateCheckedInMessageComponents(kioskLocation);
+                    $scope.messageComponents = generateCheckedInMessageComponents();
                 }
 
                 //for NEXT appointment
@@ -156,15 +158,12 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
 
     }
 
-    function generateDefaultMessageComponents(location)
+    function generateDefaultMessageComponents()
     {
-        // let centerImageWidth = (location.includes("Reception")) ? "214" : "614";
-        // let centerImage = $sce.trustAsHtml(`<img border="1" width="${centerImageWidth}" src="/images/animation.gif">`);
-
         return {
-            arrowImage:                 getArrowDirection(null,null),
-            centerImage:                $sce.trustAsHtml(`<img border="1" style="width: 100%" src="/images/animation.gif">`),
-            locationImage:              getLocationImage(location),
+            // arrowImage:                 null,
+            arrowImage:                 getArrowImage(kioskLocation,"Reception"),
+            centerImage:                "/images/animation.gif",
             mainMessage:                {
                 english: "Check in",
                 french: "Enregistrement",
@@ -179,9 +178,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     function generateSendToReceptionMessageComponents(location)
     {
         return {
-            arrowImage:                 getArrowDirection(location,"Reception"),
-            centerImage:                $sce.trustAsHtml(`<img src="/images/Reception_generic.png">`),
-            locationImage:              getLocationImage(location),
+            arrowImage:                 getArrowImage(location,"Reception"),
+            centerImage:                "/images/Reception_generic.png",
             mainMessage: {
                 english: "Please go to the reception",
                 french: "Vérifier à la réception",
@@ -196,9 +194,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     function generateSendToGetPhotoMessageComponents(location)
     {
         return {
-            arrowImage:                 getArrowDirection(location,"Reception"), //overwrite if not on DS1
-            centerImage:                $sce.trustAsHtml(`<img src="/images/Reception_generic.png">`),
-            locationImage:              getLocationImage(location),
+            arrowImage:                 getArrowImage(location,"Reception"), //overwrite if not on DS1
+            centerImage:                "/images/Reception_generic.png",
             mainMessage: {
                 english: "Please go to the reception",
                 french: "Vérifier à la réception",
@@ -210,12 +207,11 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         };
     }
 
-    function generateSendToAdmissionMessageComponents(location)
+    function generateSendToAdmissionMessageComponents()
     {
         return {
-            arrowImage:                 getArrowDirection(null,null),
-            centerImage:                $sce.trustAsHtml(`<img style="width: 100%" src="/images/RV_Admissions.png">`),
-            locationImage:              getLocationImage(location),
+            arrowImage:                 null,
+            centerImage:                "/images/RV_Admissions.png",
             mainMessage: {
                 english: "Hospital Card Expired",
                 french: "Carte d'hôpital expirée",
@@ -227,15 +223,14 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         };
     }
 
-    function generateCheckedInMessageComponents(location,destination)
+    function generateCheckedInMessageComponents()
     {
         return {
-            arrowImage:                 getArrowDirection(null,null),
+            arrowImage:                 null,
             centerImage:                null,
-            locationImage:              getLocationImage(location),
             mainMessage: {
                 english: "You are Checked In",
-                french: "Vous êtes enregistré",
+                french: "Vous êtes Enregistré",
             },
             subMessage: {
                 english: $sce.trustAsHtml(`<span style="background-color: yellow">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span>`),
@@ -244,14 +239,13 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         };
     }
 
-    function generatePatientDisplayMessageComponents(location,patient)
+    function generatePatientDisplayMessageComponents(patient)
     {
         let displayName = patient.firstName +" "+ patient.lastName.substring(0,3) +"****";
 
         return {
-            arrowImage:                 getArrowDirection(null,null),
-            centerImage:                $sce.trustAsHtml(`<img src="/images/Measles.png"><p>`),
-            locationImage:              getLocationImage(location),
+            arrowImage:                 null,
+            centerImage:                "/images/Measles.png",
             mainMessage: {
                 english: "Please wait...",
                 french: "Veuillez patienter...",
@@ -263,21 +257,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         };
     }
 
-    function getLocationImage(location)
-    {
-        let locationImages = {
-            DRC_1: "/images/DRC_1_Alone.gif",
-            DRC_2: "/images/DRC_2_Alone.gif",
-            DRC_3: "/images/DRC_3_Alone.gif",
-            DS1_1: "/images/DS1_1_Alone.gif",
-            DS1_2: "/images/DS1_2_Alone.gif",
-            DS1_3: "/images/DS1_1_Alone.gif",
-        };
-
-        return locationImages[location] ?? null;
-    }
-
-    function getArrowDirection(location,destination)
+    function getArrowImage(location,destination)
     {
         let arrows = {
             DRC_1: {

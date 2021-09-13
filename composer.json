@@ -7,6 +7,9 @@
     },
     "require": {
         "php": "8.0.9",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "lib-memcached-libmemcached": "^1.0",
         "twilio/sdk": "^6.28",
         "guzzlehttp/guzzle": "^7.2",
         "ulrichsg/getopt-php": "^3.4",

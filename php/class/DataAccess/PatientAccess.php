@@ -270,6 +270,38 @@ class PatientAccess
         }, $query->fetchAll());
     }
 
+    public static function deleteMrn(Patient $patient,Mrn $mrn): void
+    {
+        $dbh = Database::getOrmsConnection();
+        $dbh->beginTransaction();
+
+        try
+        {
+            $dbh->prepare("
+                DELETE FROM
+                    PatientHospitalIdentifier
+                WHERE
+                    PatientId = :pid
+                    AND MedicalRecordNumber = :mrn
+                    AND HospitalId = (SELECT HospitalId FROM Hospital WHERE HospitalCode = :site)
+            ")->execute([
+                ":pid"  => $patient->id,
+                ":mrn"  => $mrn->mrn,
+                ":site" => $mrn->site
+            ]);
+
+            if(array_filter(self::_deserializeMrnsForPatientId($patient->id),fn($x) => $x->active === true) === []) {
+                throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
+            }
+        }
+        catch(Exception $e) {
+            $dbh->rollBack();
+            throw $e;
+        }
+
+        $dbh->commit();
+    }
+
     /**
      * Returns a patient id if the insurance is found in the system, otherwise returns 0
      *
@@ -527,53 +559,6 @@ class PatientAccess
 
         try
         {
-            //remove the mrns of the new patient from the old one
-            $deleteMrn = $dbh->prepare("
-                DELETE FROM
-                    PatientHospitalIdentifier
-                WHERE
-                    PatientId = :pid
-                    AND MedicalRecordNumber = :mrn
-                    AND HospitalId = (SELECT HospitalId FROM Hospital WHERE HospitalCode = :site)
-            ");
-
-            foreach($newPatient->mrns as $mrn)
-            {
-                $deleteMrn->execute([
-                    ":pid"  => $originalPatient->id,
-                    ":mrn"  => $mrn->mrn,
-                    ":site" => $mrn->site
-                ]);
-            }
-
-            //original patient must have have at least one active mrn
-            if(array_filter(self::_deserializeMrnsForPatientId($originalPatient->id),fn($x) => $x->active === true) === []) {
-                throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to update patient with no active mrns");
-            }
-
-            //remove the insurances of the new patient from the old one
-            $deleteInsurance = $dbh->prepare("
-                DELETE FROM
-                    PatientInsuranceIdentifier
-                WHERE
-                    PatientId = :pid
-                    AND InsuranceNumber = :number
-                    AND InsuranceId = (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :code)
-            ");
-
-            foreach($newPatient->insurances as $insurance)
-            {
-                $deleteInsurance->execute([
-                    ":pid"     => $originalPatient->id,
-                    ":number"  => $insurance->number,
-                    ":code"    => $insurance->type
-                ]);
-            }
-
-            //insert the new patient into the database
-            self::serializePatient($newPatient);
-            $unlinkedPatient = self::deserializePatient(self::getPatientIdForMrn($newPatient->mrns[0]->mrn,$newPatient->mrns[0]->site)) ?? throw new Exception("Failed to create unlinked patient");
-
             //split appointments
             $queryAppointments = $dbh->prepare("
                 SELECT
@@ -587,20 +572,20 @@ class PatientAccess
             ");
             $queryAppointments->execute([$originalPatient->id]);
 
-            $appointments = array_map(function($x) use ($originalPatient,$unlinkedPatient) {
+            $appointments = array_map(function($x) use ($originalPatient,$newPatient) {
                 [$mrn,$site] = Fetch::getMrnSiteOfAppointment($x["AppointId"],$x["AppointSys"]);
 
                 if($mrn === null || $site === null) {
                     throw new Exception("Unknown appointment");
                 }
 
-                $mrnBelongsToUnlinkedPatient = (bool) array_values(array_filter($unlinkedPatient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site));
+                $mrnBelongsToNewPatient = (bool) array_values(array_filter($newPatient->mrns,fn($x) => $x->mrn === $mrn && $x->site === $site));
 
                 return [
                     "appointmentId" => (int) $x["AppointmentSerNum"],
                     "sourceId"      => $x["AppointId"],
                     "sourceSystem"  => $x["AppointSys"],
-                    "patientId"     => ($mrnBelongsToUnlinkedPatient === true) ? $unlinkedPatient->id : $originalPatient->id,
+                    "patientId"     => ($mrnBelongsToNewPatient === true) ? $newPatient->id : $originalPatient->id,
                     "mrn"           => $mrn,
                     "site"          => $site
                 ];
@@ -648,7 +633,7 @@ class PatientAccess
             foreach($newPatient->mrns as $mrn)
             {
                 $updateDiagnosis->execute([
-                    ":pid" => $unlinkedPatient->id,
+                    ":pid" => $newPatient->id,
                     ":mrn" => $mrn->site ."-". $mrn->mrn
                 ]);
             }

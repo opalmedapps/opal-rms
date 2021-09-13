@@ -180,6 +180,9 @@ class PatientInterface
      */
     public static function unlinkPatientEntries(Patient $originalEntry,Mrn $unlinkedMrn): void
     {
+        //delete the unlinked mrn from the original patient so it's available to the unlinked patient
+        PatientAccess::deleteMrn($originalEntry,$unlinkedMrn);
+
         //create a new entry for the unlinked patient using the original patient demographics
         PatientInterface::insertNewPatient(
             firstName:   $originalEntry->firstName,

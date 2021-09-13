@@ -16,6 +16,7 @@
     <issueHandlers>
         <MissingClosureParamType errorLevel="suppress" />
         <MissingClosureReturnType errorLevel="suppress" />
+        <PossiblyUnusedMethod errorLevel="suppress" />
     </issueHandlers>
 
     <stubs>

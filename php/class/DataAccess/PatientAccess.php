@@ -520,7 +520,7 @@ class PatientAccess
         $dbh->commit();
     }
 
-    public static function unmergePatientEntries(Patient $originalPatient,Patient $newPatient): Patient
+    public static function unlinkPatientEntries(Patient $originalPatient,Patient $newPatient): void
     {
         $dbh = Database::getOrmsConnection();
         $dbh->beginTransaction();
@@ -659,8 +659,6 @@ class PatientAccess
         }
 
         $dbh->commit();
-
-        return $unlinkedPatient;
     }
 
     /**

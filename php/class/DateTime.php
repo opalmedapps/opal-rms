@@ -18,7 +18,6 @@ class DateTime extends \DateTime implements JsonSerializable
         return $this->modify($modify) ?: null; /** @phpstan-ignore-line */ //for some reason, phpstan thinks that modify always returns a datetime
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */ //needed to extend JsonSerializable
     public function jsonSerialize()
     {
         return $this->format(static::ISO8601);

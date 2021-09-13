@@ -176,37 +176,24 @@ class PatientInterface
 
     /**
      * Separates a patient entry into two separate entries
-     * @param Mrn[] $mrns
-     * @param Insurance[] $insurances
+     * @param Mrn $unlinkedMrn
      */
-    public static function unmergePatientEntries(
-        Patient $originalEntry,
-        string $firstName,
-        string $lastName,
-        DateTime $dateOfBirth,
-        string $sex,
-        array $mrns,
-        array $insurances
-    ): Patient
+    public static function unlinkPatientEntries(Patient $originalEntry,Mrn $unlinkedMrn): void
     {
-        $newPatient = new Patient(
-            id:                  -1, //id is negative to indicate that the patient doesn't exist in the system
-            firstName:           $firstName,
-            lastName:            $lastName,
-            dateOfBirth:         $dateOfBirth,
-            sex:                 $sex,
-            phoneNumber:         null,
-            opalStatus:          0,
-            languagePreference:  null,
-            mrns:                $mrns,
-            insurances:          $insurances
+        //create a new entry for the unlinked patient using the original patient demographics
+        PatientInterface::insertNewPatient(
+            firstName:   $originalEntry->firstName,
+            lastName:    $originalEntry->lastName,
+            dateOfBirth: $originalEntry->dateOfBirth,
+            sex:         $originalEntry->sex,
+            mrns:        [$unlinkedMrn],
+            insurances:  [] //don't re-use the insurances as an insurance number can only belong to one patient
         );
 
-        if($newPatient->getActiveMrns() === []) {
-            throw new ApplicationException(ApplicationException::NO_ACTIVE_MRNS,"Failed to create patient with no active mrns");
-        }
+        //patient should exist now, so searching for them will work
+        $unlinkedPatient = self::getPatientByMrn($unlinkedMrn->mrn, $unlinkedMrn->site) ?? throw new Exception("Failed to create patient");
 
-        return PatientAccess::unmergePatientEntries($originalEntry,$newPatient);
+        PatientAccess::unlinkPatientEntries($originalEntry,$unlinkedPatient);
     }
 
     /**
@@ -216,7 +203,7 @@ class PatientInterface
      */
     public static function getPatientsFromMrns(array $mrns): array
     {
-        $patients = array_map(fn($x) => PatientInterface::getPatientByMrn($x->mrn, $x->site), $mrns);
+        $patients = array_map(fn($x) => self::getPatientByMrn($x->mrn, $x->site), $mrns);
 
         $patients = array_values(array_filter($patients)); //filter nulls
         $patients = array_unique($patients, SORT_REGULAR); //filter duplicates

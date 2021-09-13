@@ -56,8 +56,8 @@ $demographics = array_map(fn($p) => new class(
 },$fields);
 
 //for each of the mrns, check to see if the patients exists in the system
-$originalPatients = getPatientsFromMrns($demographics[0]->mrns);
-$unlinkedPatients = getPatientsFromMrns($demographics[1]->mrns);
+$originalPatients = PatientInterface::getPatientsFromMrns($demographics[0]->mrns);
+$unlinkedPatients = PatientInterface::getPatientsFromMrns($demographics[1]->mrns);
 
 //many cases are possible here, each has to be treated individually
 
@@ -130,20 +130,3 @@ catch(ApplicationException $e) {
 }
 
 Http::generateResponseJsonAndExit(200);
-
-/**
- *
- * @param Mrn[] $mrns
- * @return Patient[]
- * @phpstan-ignore-next-line
- */
-function getPatientsFromMrns(array $mrns): array
-{
-    $patients = array_map(fn($x) => PatientInterface::getPatientByMrn($x->mrn, $x->site), $mrns);
-
-    $patients = array_filter($patients); //filter nulls
-    $patients = array_unique($patients, SORT_REGULAR); //filter duplicates
-    usort($patients, fn($a, $b) => $a->id <=> $b->id); //sort by oldest record first in case of merge
-
-    return $patients;
-}

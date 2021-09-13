@@ -54,7 +54,7 @@ $demographics = new class(
 };
 
 //for each of the mrns, check to see if the patient exists in the system
-$patients = getPatientsFromMrns($demographics->mrns);
+$patients = PatientInterface::getPatientsFromMrns($demographics->mrns);
 
 try
 {
@@ -95,7 +95,7 @@ try
         while(count($patients) > 1)
         {
             PatientInterface::mergePatientEntries($patients[0], $patients[1]);
-            $patients = getPatientsFromMrns($demographics->mrns);
+            $patients = PatientInterface::getPatientsFromMrns($demographics->mrns);
         }
     }
 }
@@ -104,20 +104,3 @@ catch(ApplicationException $e) {
 }
 
 Http::generateResponseJsonAndExit(200);
-
-/**
- *
- * @param Mrn[] $mrns
- * @return Patient[]
- * @phpstan-ignore-next-line
- */
-function getPatientsFromMrns(array $mrns): array
-{
-    $patients = array_map(fn($x) => PatientInterface::getPatientByMrn($x->mrn, $x->site), $mrns);
-
-    $patients = array_filter($patients); //filter nulls
-    $patients = array_unique($patients, SORT_REGULAR); //filter duplicates
-    usort($patients, fn($a, $b) => $a->id <=> $b->id); //sort by oldest record first in case of merge
-
-    return $patients;
-}

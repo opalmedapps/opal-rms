@@ -211,6 +211,22 @@ class PatientInterface
 
     /**
      *
+     * @param Mrn[] $mrns
+     * @return Patient[]
+     */
+    public static function getPatientsFromMrns(array $mrns): array
+    {
+        $patients = array_map(fn($x) => PatientInterface::getPatientByMrn($x->mrn, $x->site), $mrns);
+
+        $patients = array_values(array_filter($patients)); //filter nulls
+        $patients = array_unique($patients, SORT_REGULAR); //filter duplicates
+        usort($patients, fn($a, $b) => $a->id <=> $b->id); //sort by oldest record first in case of merge
+
+        return $patients;
+    }
+
+    /**
+     *
      * @return PatientMeasurement[]
      */
     public static function getPatientMeasurements(Patient $patient): array

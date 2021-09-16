@@ -12,7 +12,6 @@ use Orms\DateTime;
 use Orms\Http;
 use Orms\Patient\Model\Insurance;
 use Orms\Patient\Model\Mrn;
-use Orms\Patient\Model\Patient;
 use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
 

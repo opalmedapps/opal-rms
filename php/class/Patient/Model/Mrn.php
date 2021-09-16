@@ -7,9 +7,9 @@ namespace Orms\Patient\Model;
 /** @psalm-immutable */
 class Mrn
 {
-     public function __construct(
-         public string $mrn,
-         public string $site,
-         public bool $active
-     ) {}
+    public function __construct(
+        public string $mrn,
+        public string $site,
+        public bool $active
+    ) {}
 }

@@ -55,8 +55,6 @@ if((int) $visualization === 1)
         return $x;
     }, $questions);
 
-    $lastAnswer = $questions[0]["answers"][count($questions[0]["answers"])-1]["answer"];
-
     //for each question in the questionnaire, generate a highcharts object and add it to the JSON return array
     $data["questions"] = array_map(fn($x) => [
         "credits" => ["enabled" => false],
@@ -95,7 +93,7 @@ if((int) $visualization === 1)
                     "value" => 3,
                     "width" => 2,
                     "label" => [
-                        "text"  => "Final Value: ". $lastAnswer,
+                        "text"  => "Final Value: ". $x["answers"][count($questions[0]["answers"])-1]["answer"],
                         "align" => "right",
                         "style" => ["fontSize" => "15px"]
                     ]

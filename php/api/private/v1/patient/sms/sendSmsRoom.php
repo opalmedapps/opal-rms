@@ -25,10 +25,10 @@ if($patient === null) {
     Http::generateResponseJsonAndExit(400, error: "Unknown patient");
 }
 
+Http::generateResponseJsonAndContinue(200);
+
 //send a notification to Opal if the patient is an Opal patient
 Export::exportRoomNotification($patient, $sourceId, $sourceSystem, $roomEn, $roomFr);
-
-Http::generateResponseJsonAndContinue(200);
 
 if($patient->phoneNumber !== null) {
     if($patient->languagePreference === "English") {

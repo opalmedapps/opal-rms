@@ -24,6 +24,6 @@ if($patient === null)  {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-LocationInterface::movePatientToLocation($patient, $room, $appointmentId);
+Http::generateResponseJsonAndContinue(200);
 
-Http::generateResponseJsonAndExit(200);
+LocationInterface::movePatientToLocation($patient, $room, $appointmentId);

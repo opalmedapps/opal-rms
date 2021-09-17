@@ -2,6 +2,7 @@
 .align-center {
     align-items: center;
     justify-content: center;
+
 }
 
 .image-container {
@@ -25,7 +26,6 @@
 /* main div */
 .kiosk-div {
     width: 78%;
-    /* width: 50%; */
     height: 98%;
     background-color: white;
 }
@@ -57,16 +57,18 @@
     width: 80%;
     font-weight: bold;
     color: white;
-    font-size: 7vh;
+    font-size: 6.5vh;
 }
 
 .sub-message-bar-div {
-    height: 10%;
+    height: 7%;
+    align-items: normal;
     display: flex;
 }
 .sub-message-bar-span {
     width: 80%;
-    font-size: 3.5vh;
+    text-align: center;
+    font-size: 3.2vh;
 }
 
 /* arrows and center image */
@@ -90,6 +92,6 @@
 
 /* scanner bar */
 .scanner-bar {
-    height: 12%;
+    height: 8%;
     text-align: center;
 }

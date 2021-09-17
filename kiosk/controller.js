@@ -32,7 +32,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         displayNetworkWarning:      false,
         messageBackgroundColor:     (kioskLocation.includes("Reception")) ? "blue" : "rgb(51,153,51)",
         locationDisplay:            kioskLocation.replace("_","-"),
-        kioskWidth:                 (kioskLocation.includes("Reception")) ? "50%" : null,
+        kioskWidth:                 (kioskLocation.includes("Reception")) ? "55%" : null,
     };
 
     $scope.messageComponents = generateDefaultMessageComponents();
@@ -59,7 +59,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     //log heartbeat message upon refresh
     logEvent(null,kioskLocation,destination,getArrowImage(null),null);
 
-    $scope.scanPatient = async function(scannerInput)
+    $scope.processScannerInput = async function(scannerInput)
     {
         //disable the page refresh
         $scope.pageProperties.refreshAllowed = false;
@@ -161,16 +161,15 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     function generateDefaultMessageComponents()
     {
         return {
-            // arrowImage:                 null,
-            arrowImage:                 getArrowImage(kioskLocation,"Reception"),
+            arrowImage:                 null,
             centerImage:                "/images/animation.gif",
             mainMessage:                {
                 english: "Check in",
                 french: "Enregistrement",
             },
             subMessage: {
-                english: $sce.trustAsHtml("<center>Please enter the patient MRN to check in <br></center>"),
-                french: $sce.trustAsHtml("<center>Veuillez entrer le numero de dossier medical du patient pour l'enregistrer <br></center>"),
+                english: $sce.trustAsHtml("Please enter the patient MRN to check in."),
+                french: $sce.trustAsHtml("Veuillez entrer le numero de dossier medical du patient pour l'enregistrer."),
             }
         };
     }
@@ -201,8 +200,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
                 french: "Vérifier à la réception",
             },
             subMessage: {
-                english: $sce.trustAsHtml(`Please go to the reception <span style="background-color: rgb(255,255,224)"><b><font color='red'>to have your photo taken.</font></b></span><b></b>`),
-                french: $sce.trustAsHtml(`Veuillez vous présenter à la réception <span style="background-color: rgb(255,255,224)"><b><font color='red'><b>pour que l'on vous prenne en photo.</font></b></span>`),
+                english: $sce.trustAsHtml(`Please go to the reception <span style="background-color: rgb(255,255,224); color: "red"; font-weight: "bold";>to have your photo taken.</span>`),
+                french: $sce.trustAsHtml(`Veuillez vous présenter à la réception <span style="background-color: rgb(255,255,224); color: "red"; font-weight: "bold";">pour que l'on vous prenne en photo.`),
             }
         };
     }
@@ -217,8 +216,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
                 french: "Carte d'hôpital expirée",
             },
             subMessage: {
-                english: $sce.trustAsHtml(`<span style="background-color: red">Unable to check you in at this time.</span> <span style="background-color: yellow">Please go to Admitting at <b>C RC.0046</b> to renew your hospital card.</span><br>`),
-                french: $sce.trustAsHtml(`<span style="background-color: red">Impossible de vous enregistrer en ce moment.</span> <span style="background-color: yellow">Veuillez vous rendre au bureau des admissions à <b>C RC.0046</b> pour renouveler votre carte d'hôpital.</span><br>`),
+                english: $sce.trustAsHtml(`<span style="background-color: red">Unable to check you in at this time.</span> <span style="background-color: yellow">Please go to Admitting at <b>C RC.0046</b> to renew your hospital card.</span>`),
+                french: $sce.trustAsHtml(`<span style="background-color: red">Impossible de vous enregistrer en ce moment.</span> <span style="background-color: yellow">Veuillez vous rendre au bureau des admissions à <b>C RC.0046</b> pour renouveler votre carte d'hôpital.</span>`),
             }
         };
     }

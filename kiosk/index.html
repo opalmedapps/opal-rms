@@ -23,7 +23,7 @@
             <div class="header-div">
                 <span class="header-section-div align-center" style="width: 25%;"><img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png"></span>
                 <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="/images/logo.png"></span>
-                <span class="header-section-div align-center" style="width: 25%;">{{pageProperties.locationDisplay}}</span>
+                <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>
             </div>
 
             <!-- top part - in french -->
@@ -34,6 +34,8 @@
             <div class="sub-message-bar-div align-center">
                 <span class="sub-message-bar-span" ng-bind-html="messageComponents.subMessage.french"></span>
             </div>
+
+            <br>
 
             <!-- mid part - with animation or image -->
             <div class="middle-display-div">
@@ -51,9 +53,11 @@
                 <span class="sub-message-bar-span" ng-bind-html="messageComponents.subMessage.english"></span>
             </div>
 
+            <br>
+
             <!-- input box for scanner -->
             <div class="scanner-bar">
-                <form ng-submit="scanPatient(scannerInput); scannerInput = null">
+                <form ng-submit="processScannerInput(scannerInput); scannerInput = null">
                     <input type="text" ng-model="scannerInput" autofocus>
                 </form>
             </div>

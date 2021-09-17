@@ -38,7 +38,7 @@ my $systemPaths = LoadConfigs::GetConfigs("path");
 
 my $checkin_script = "$systemPaths->{'BASE_URL'}/perl/CheckIn.pl";
 my $images = $systemPaths->{'IMAGE_URL'};
-my $SMS_url = "$systemPaths->{'BASE_PATH'}/php/api/private/v1/patient/sms/sendSms.php";
+my $SMS_url = "$systemPaths->{'BASE_PATH'}/php/api/private/v1/patient/sms/sendSmsOldKiosk.php";
 my $logfile_location = "$systemPaths->{'LOG_PATH'}/kiosk";
 my $logging = 1; # Log data to a text file
 my $adtConnected = 0;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
+require_once __DIR__."/appointment/updateAppointmentStatus.php";
 require_once __DIR__."/appointment/addForeignKeys.php";
 require_once __DIR__."/appointment/updateAppointmentSourceSystem.php";
 require_once __DIR__."/appointment/updateCodes.php";
@@ -22,6 +23,8 @@ $dbh = Database::getOrmsConnection();
 $dbhLog = Database::getLogsConnection();
 
 echo "appointment changes\n";
+AppointmentStatus::removeInProgressStatus($dbh);
+AppointmentStatus::removeDeprecatedSourceStatuses($dbh);
 AppointmentSourceSystem::removeSourceSystemConstraint($dbh);
 AppointmentSourceSystem::createSourceSystemKey($dbh);
 AppointmentCodes::extendCodeLength($dbh);

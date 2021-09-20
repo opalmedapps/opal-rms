@@ -24,7 +24,6 @@ $sTime          = $params["sTime"];
 $eTime          = $params["eTime"];
 $comp           = $params["comp"];
 $open           = $params["openn"];
-$prog           = $params["prog"];
 $canc           = $params["canc"];
 $arrived        = $params["arrived"];
 $notArrived     = $params["notArrived"];
@@ -43,7 +42,6 @@ $statusFilter = [];
 if($comp) $statusFilter[] = "Completed";
 if($open) $statusFilter[] = "Open";
 if($canc) $statusFilter[] = "Cancelled";
-if($prog) $statusFilter[] = "In Progress";
 
 $codeFilter = [];
 if($appType === "specific" && $specificType !== null) {

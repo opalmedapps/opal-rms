@@ -1297,7 +1297,7 @@ sub CheckinPatient
             AND MV.PatientSerNum = $PatientSerNum
             AND MV.ScheduledDateTime >= \'$startOfToday_mysql\'
             AND MV.ScheduledDateTime < \'$endOfToday_mysql\'
-            AND ( MV.Status = 'Open' OR MV.Status = 'In Progress')
+            AND MV.Status = 'Open'
         INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
         INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = MV.AppointmentCodeId
         INNER JOIN PatientHospitalIdentifier PH ON PH.PatientId = P.PatientSerNum

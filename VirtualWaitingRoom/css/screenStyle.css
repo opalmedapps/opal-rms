@@ -49,7 +49,8 @@
 /* ticker css*/
 .ticker1 {
  height: 70px;
- width: 6000px;
+ /* width: 6000px; */
+ width: 10000px;
  position: relative;
  background: black;
 }
@@ -72,6 +73,7 @@
 /* Move it (define the animation) */
 @keyframes ticker1
 {
- 0%   {  transform: translateX(50%);  }
+ /* 0%   {  transform: translateX(50%);  } */
+ 0%   {  transform: translateX(50%); visibility: visible; }
  100% {  transform: translateX(-100%); }
 }

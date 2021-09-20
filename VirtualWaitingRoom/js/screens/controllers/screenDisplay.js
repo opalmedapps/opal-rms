@@ -52,7 +52,9 @@ myApp.controller('screenDisplayController',async function($scope,$http,$firebase
 
     $interval($scope.checkTime(),1000*60*10);
 
-    $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
+    // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
+
+    $scope.tickerText = "Patients and caregivers are welcome to join our (ONLINE) group workshops. Contact us by phone (514) 934-1934 ext. 35297 or email us at cedarscansupport@muhc.mcgill.ca. / Patients et proches aidants sont les bienvenus dans nos ateliers (En LIGNE) de groupe. Communiquez avec nous par téléphone, au 514-934-1934 (poste 35297) ou par courriel à l’adresse suivante : cedarscansupport@muhc.mcgill.ca.";
 
     //define specific rooms that should display with a left arrow on the screen
     //this is to guide the patient to the right area

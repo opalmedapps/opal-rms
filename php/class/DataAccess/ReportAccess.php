@@ -430,7 +430,7 @@ class ReportAccess
                     )
             WHERE
                 MV.ScheduledDate = CURDATE()
-                AND MV.Status IN ('Open','Completed','In Progress')
+                AND MV.Status IN ('Open','Completed')
             ORDER BY
                 P.LastName,
                 MV.ScheduledDateTime,

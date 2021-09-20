@@ -126,11 +126,9 @@
                 <div class="btn-group">
                     <label ng-model="inputs.comp" class="btn btn-primary" ng-change="keepAppChecked('comp')" uib-btn-checkbox>Completed</label>
                     <label ng-model="inputs.openn" class="btn btn-primary" ng-change="keepAppChecked('openn')" uib-btn-checkbox>Open</label>
-                    <label ng-model="inputs.prog" class="btn btn-primary" ng-change="keepAppChecked('prog')" uib-btn-checkbox>In Progress</label>
-                </div>
-                <div class="btn-group">
                     <label ng-model="inputs.canc" class="btn btn-primary" ng-change="keepAppChecked('canc')" uib-btn-checkbox>Cancelled</label>
-                </div></td>
+                </div>
+            </td>
             <td><b>Checkin Status: </b></td>
             <td>
                 <div class="btn-group">
@@ -297,7 +295,7 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
     }
 
     //these functions will ensure that a button always stays checked so that a query doesn't return an empty list
-    $scope.keepAppChecked = function (check) {if($scope.inputs.comp == false && $scope.inputs.openn == false && $scope.inputs.prog == false && $scope.inputs.canc == false) {$scope.inputs[check] = true;}}
+    $scope.keepAppChecked = function (check) {if($scope.inputs.comp == false && $scope.inputs.openn == false && $scope.inputs.canc == false) {$scope.inputs[check] = true;}}
 
     $scope.keepPatChecked = function (check) {if($scope.inputs.arrived == false && $scope.inputs.notArrived == false) {$scope.inputs[check] = true;}}
 
@@ -314,7 +312,6 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
             comp: true,
             openn: true, //the variable is named openn instead of openn so it doesn't interfere with jQuery's open function
             canc: false,
-            prog: true,
             arrived: true,
             notArrived: true,
             mediAbsent: true,
@@ -396,7 +393,6 @@ app.factory('callScript',function($http,$q)
                     comp:           inputs.comp ? 1 : 0,
                     openn:          inputs.openn ? 1 : 0,
                     canc:           inputs.canc ? 1 : 0,
-                    prog:           inputs.prog ? 1 : 0,
                     arrived:        inputs.arrived ? 1 : 0,
                     notArrived:     inputs.notArrived ? 1 : 0,
                     type:           inputs.type,

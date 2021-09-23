@@ -17,7 +17,31 @@ use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
 
 $appointments = ReportAccess::getCurrentDaysAppointments();
-$appointments = array_map(function($x) {
+
+//fetch questionnaire data for opal patients
+$opalAppointments = array_map(function($x) {
+    $patient = null;
+    if($x["OpalPatient"] === 1) {
+        $patient = PatientInterface::getPatientById($x["PatientId"]);
+
+        if($patient === null) {
+            error_log((string) new Exception("Unknown patient id $x[PatientId]"));
+        }
+    }
+
+    return $patient;
+},$appointments);
+$opalAppointments = array_values(array_filter(array_unique($opalAppointments,SORT_REGULAR)));
+
+try {
+    $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($opalAppointments);
+}
+catch(Exception $e) {
+    $lastCompletedQuestionnaires = [];
+    error_log((string) $e);
+}
+
+$appointments = array_map(function($x) use ($lastCompletedQuestionnaires) {
     //sex is represented with the first letter only
     $x["Sex"] = mb_substr($x["Sex"], 0, 1);
 
@@ -38,19 +62,11 @@ $appointments = array_map(function($x) {
         $x["RowType"] = "NotCheckedIn";
     }
 
-    //cross query OpalDB for questionnaire information
+    //compare questionnaire information
     $x["QStatus"] = null;
     if($x["OpalPatient"] === 1)
     {
-        try {
-            $patient = PatientInterface::getPatientById($x["PatientId"]) ?? throw new Exception("Unknown patient id $x[PatientId]");
-            $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
-        }
-        catch(Exception $e) {
-            $questionnaire = null;
-            error_log((string) $e);
-        }
-
+        $questionnaire = $lastCompletedQuestionnaires[$x["PatientId"]] ?? null;
         if($questionnaire !== null)
         {
             $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");

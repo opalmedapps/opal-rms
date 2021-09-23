@@ -263,35 +263,42 @@ class Fetch
     }
 
     /**
-     *
-     * @return null|array{
+     * @param Patient[] $patients
+     * @return array<int,null|array{
      *  questionnaireControlId: int,
      *  completionDate: DateTime,
      *  lastUpdated: DateTime
-     * }
+     * }>
      */
-    public static function getLastCompletedPatientQuestionnaire(Patient $patient): ?array
+    public static function getLastCompletedQuestionnaireForPatients(array $patients): ?array
     {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
-            "query" => [
-                "mrn"   => $patient->getActiveMrns()[0]->mrn,
-                "site"  => $patient->getActiveMrns()[0]->site,
-                "last"  => true //by putting this parameter, we get a different response from the api
+        $lastCompletedQuestionnaires = []; //hash of last completed questionnaires with patient ids as the keys
+
+        $response = Connection::getHttpClient()?->request("GET",Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
+            "json" => [
+                "last"      => true, //by putting this parameter, we get a different response from the api
+                "patient"   => array_map(fn($p) => [
+                                    "mrn"   => $p->getActiveMrns()[0]->mrn,
+                                    "site"  => $p->getActiveMrns()[0]->site,
+                                ], $patients)
             ]
         ])?->getBody()?->getContents() ?? "[]";
-
         $response = json_decode($response, true);
 
-        //api returns false if the patient exists but has no completed questionnaires
-        if($response === [] || $response === false) {
-            return null;
+        foreach($patients as $index => $p) {
+            $r = $response[$index] ?: null; //response for an individual patient may be false if the patient has no questionnaires
+            if($r !== null) {
+                $r = [
+                    "questionnaireControlId" => (int) $r["questionnaireControlId"],
+                    "completionDate"         => DateTime::createFromFormatN("Y-m-d H:i:s", $r["completionDate"]) ?? throw new Exception("Invalid datetime"),
+                    "lastUpdated"            => DateTime::createFromFormatN("Y-m-d H:i:s", $r["lastUpdated"]) ?? throw new Exception("Invalid datetime")
+                ];
+            }
+
+            $lastCompletedQuestionnaires[$p->id] = $r;
         }
 
-        return [
-            "questionnaireControlId" => (int) $response["questionnaireControlId"],
-            "completionDate"         => DateTime::createFromFormatN("Y-m-d H:i:s", $response["completionDate"]) ?? throw new Exception("Invalid datetime"),
-            "lastUpdated"            => DateTime::createFromFormatN("Y-m-d H:i:s", $response["lastUpdated"]) ?? throw new Exception("Invalid datetime")
-        ];
+        return $lastCompletedQuestionnaires;
     }
 
     /**

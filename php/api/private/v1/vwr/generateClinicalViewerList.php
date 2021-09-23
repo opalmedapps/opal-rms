@@ -69,6 +69,29 @@ if($afilter === false)
 {
     $appointments = ReportAccess::getListOfAppointmentsInDateRange(new DateTime($sDate),new DateTime($eDate),(int) $speciality,$activeStatusConditions,$clinicCodes,$appointmentCodes);
 
+    //fetch questionnaire data for opal patients
+    $opalAppointments = array_map(function($x) {
+        $patient = null;
+        if($x["opalEnabled"] === true) {
+            $patient = PatientInterface::getPatientById($x["patientId"]);
+
+            if($patient === null) {
+                error_log((string) new Exception("Unknown patient id $x[patientId]"));
+            }
+        }
+
+        return $patient;
+    },$appointments);
+    $opalAppointments = array_values(array_filter(array_unique($opalAppointments,SORT_REGULAR)));
+
+    try {
+        $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($opalAppointments);
+    }
+    catch(Exception $e) {
+        $lastCompletedQuestionnaires = [];
+        error_log((string) $e);
+    }
+
     foreach($appointments as $app)
     {
         //filter patients based on their opal and sms status
@@ -95,14 +118,7 @@ if($afilter === false)
             $patient = PatientInterface::getPatientById($app["patientId"]) ?? throw new Exception("Unknown patient id $app[patientId]");
 
             //check the patient's last completed questionnaire
-            try {
-                $questionnaire = Fetch::getLastCompletedPatientQuestionnaire($patient);
-            }
-            catch(Exception $e) {
-                $questionnaire = null;
-                error_log((string) $e);
-            }
-
+            $questionnaire = $lastCompletedQuestionnaires[$patient->id] ?? null;
             if($questionnaire !== null)
             {
                 $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i", $qDate);

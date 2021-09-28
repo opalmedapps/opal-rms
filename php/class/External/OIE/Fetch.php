@@ -286,7 +286,7 @@ class Fetch
         $response = json_decode($response, true);
 
         foreach($patients as $index => $p) {
-            $r = $response[$index] ?: null; //response for an individual patient may be false if the patient has no questionnaires
+            $r = ($response[$index] ?? null) ?: null; //response for an individual patient may be false if the patient has no questionnaires
             if($r !== null) {
                 $r = [
                     "questionnaireControlId" => (int) $r["questionnaireControlId"],

@@ -20,6 +20,7 @@
         "lavary/crunz": "^3.0"
     },
     "require-dev": {
+        "ext-xml": "*",
         "phpstan/phpstan": "^0.12",
         "vimeo/psalm": "^4.10",
         "friendsofphp/php-cs-fixer": "^3.1"

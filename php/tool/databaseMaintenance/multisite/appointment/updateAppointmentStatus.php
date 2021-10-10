@@ -18,7 +18,7 @@ class AppointmentStatus
 
         $dbh->query("
             ALTER TABLE MediVisitAppointmentList
-            CHANGE COLUMN Status ENUM('Open','Cancelled','Completed','Deleted') NOT NULL AFTER AppointSys;
+            CHANGE COLUMN Status Status ENUM('Open','Cancelled','Completed','Deleted') NOT NULL AFTER AppointSys;
         ");
     }
 

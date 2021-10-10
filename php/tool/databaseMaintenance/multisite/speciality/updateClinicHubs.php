@@ -34,7 +34,8 @@ class ClinicHubs
                 ('CVIS - ID Clinics',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'MedClin')),
                 ('Medical Clinics',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'MedClin')),
                 ('Surgical Clinics - North',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'SurgClin')),
-                ('Surgical Clinics - South',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'SurgClin'))
+                ('Surgical Clinics - South',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'SurgClin')),
+                ('IBD clinic',(SELECT SpecialityGroupId FROM SpecialityGroup WHERE SpecialityGroupCode = 'GI'))
         ");
     }
 

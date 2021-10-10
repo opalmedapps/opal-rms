@@ -27,7 +27,8 @@ class SpecialityGroup
             VALUES
             ('CCC','Cedars Cancer Centre',(SELECT HospitalId FROM Hospital WHERE HospitalCode = 'RVH')),
             ('MedClin','Medicine Clinics - RVH',(SELECT HospitalId FROM Hospital WHERE HospitalCode = 'RVH')),
-            ('SurgClin','Surgical Clinics - RVH',(SELECT HospitalId FROM Hospital WHERE HospitalCode = 'RVH'))
+            ('SurgClin','Surgical Clinics - RVH',(SELECT HospitalId FROM Hospital WHERE HospitalCode = 'RVH')),
+            ('GI','Medicine Clinics - MGH',(SELECT HospitalId FROM Hospital WHERE HospitalCode = 'MGH'))
         ");
     }
 

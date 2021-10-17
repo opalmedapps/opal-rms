@@ -667,7 +667,7 @@ class PatientAccess
                 PatientMeasurement PM
                 INNER JOIN (
                     SELECT
-                        MM.PatientMeasurementSer
+                        MAX(MM.PatientMeasurementSer) AS PatientMeasurementSer
                     FROM
                         PatientMeasurement MM
                         INNER JOIN Patient P ON P.PatientSerNum = MM.PatientSer

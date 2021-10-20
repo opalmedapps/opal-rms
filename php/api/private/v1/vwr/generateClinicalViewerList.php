@@ -195,16 +195,16 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
         $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i", $qDate);
         $recentlyAnswered = $questionnaireDateLimit <= $pat["lastUpdated"];
 
-        if(! (
-            in_array($pat["PatientSerNum"] ?? null, $seenPatients) === false
-            && ($offbutton === "OFF" || $recentlyAnswered === true)
-        )) continue;
+        if($offbutton === "ON" && $recentlyAnswered === false) {
+            continue;
+        }
 
         $ormsInfo = PatientInterface::getPatientByMrn($pat["mrn"],$pat["site"]);
 
         if(
             $ormsInfo === null
-            || ($appdType === "all" || checkDiagnosis($ormsInfo->id, explode(",", $dspecificApp)) === true)
+            || in_array($ormsInfo->id,$seenPatients) === true
+            || ($appdType !== "all" && checkDiagnosis($ormsInfo->id, explode(",", $dspecificApp)) === false)
             || ($ormsInfo->phoneNumber !== null && $smsAllowed === false)
         ) continue;
 

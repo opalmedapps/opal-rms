@@ -122,7 +122,7 @@ if($afilter === false)
             if($questionnaire !== null)
             {
                 $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i", $qDate);
-                $recentlyAnswered = $questionnaireDateLimit <= $questionnaire["lastUpdated"];
+                $recentlyAnswered = $questionnaireDateLimit <= $questionnaire["completionDate"];
 
                 $oneWeekAgo = (new DateTime())->modifyN("midnight")?->modifyN("-1 week") ?? throw new Exception("Invalid datetime");
                 $completedWithinWeek = ($oneWeekAgo <= $questionnaire["completionDate"]);
@@ -193,7 +193,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
         //filter as many patients as possible before doing any processing
 
         $questionnaireDateLimit = DateTime::createFromFormatN("Y-m-d H:i", $qDate);
-        $recentlyAnswered = $questionnaireDateLimit <= $pat["lastUpdated"];
+        $recentlyAnswered = $questionnaireDateLimit <= $pat["completionDate"];
 
         if($offbutton === "ON" && $recentlyAnswered === false) {
             continue;

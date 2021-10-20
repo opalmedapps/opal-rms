@@ -60,7 +60,7 @@ if($patient === null) {
 }
 
 AppointmentInterface::deleteSimilarAppointments(
-    patient: $patient,
+    patient:                $patient,
     scheduledDateTime:      $deletedAppointment->scheduledDatetime,
     clinicCode:             $deletedAppointment->clinicCode,
     clinicDescription:      $deletedAppointment->appointmentCode,

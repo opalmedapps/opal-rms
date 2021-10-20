@@ -1570,7 +1570,7 @@ sub CheckinPatient
         local($SIG{__DIE__});
         my $request = HTTP::Request->new("POST",$ariaCheckinUrl);
         $request->header("Content-Type" => "application/json");
-        $request->content("{\"room\":\"$CheckinVenueName\",\"sourceId\":$appId,\"sourceSystem\":\"Aria\"}");
+        $request->content("{\"room\":\"$CheckinVenueName\",\"sourceId\":\"$appId\",\"sourceSystem\":\"Aria\"}");
 
         $ua->request($request);
 

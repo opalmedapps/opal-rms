@@ -1,75 +1,72 @@
 <!DOCTYPE html>
 <html ng-app="screen">
-<META HTTP-EQUIV="refresh" CONTENT="300">
 
 <head>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/checklist-model/checklist-model.js"></script>
+    <script src="/node_modules/angular-audio/app/angular.audio.js"></script>
+    <script src="/node_modules/firebase/lib/firebase-web.js"></script>
+    <script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
+    <script src="/node_modules/crypto-js/crypto-js.js"></script>
+    <script src="/node_modules/dayjs/dayjs.min.js"></script>
 
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/checklist-model/checklist-model.js"></script>
-<script src="/node_modules/angular-audio/app/angular.audio.js"></script>
-<script src="/node_modules/firebase/lib/firebase-web.js"></script>
-<script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
-<script src="/node_modules/crypto-js/crypto-js.js"></script>
-<script src="/node_modules/dayjs/dayjs.min.js"></script>
+    <!--CSS -->
+    <!-- <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
+    <!-- use bootstrap v3 css; the css styling can be done later -->
+    <link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
+    <link rel="stylesheet" href="./css/screenStyle.css">
 
-<!--CSS -->
-<!-- <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
-<!-- use bootstrap v3 css; the css styling can be done later -->
-<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
-<link rel="stylesheet" href="./css/screenStyle.css">
+    <!--Custom controllers -->
+    <script src="js/screens/module.js"></script>
+    <script src="js/screens/controllers/screenDisplay.js"></script>
 
-<!--Custom controllers -->
-<script src="js/screens/module.js"></script>
-<script src="js/screens/controllers/screenDisplay.js"></script>
-
-<style>
-    body {
-        background-image: url('images/background.jpg');
-        background-repeat: no-repeat;
-        background-size: 100%;
-    }
-</style>
-
+    <style>
+        body {
+            background-image: url('images/background.jpg');
+            background-repeat: no-repeat;
+            background-size: 100%;
+        }
+    </style>
 </head>
 
 <body>
-<div ng-controller="screenDisplayController">
-    <table border=0 style="width: 100%">
-        <tr>
-            <td align="right" valign="center"></td>
-            <td rowspan="1" align="center" valign="bottom">
-                <center><img id="logo" ng-src={{currentLogo}}></img></center>
+    <div ng-controller="screenDisplayController">
+        <table border=0 style="width: 100%">
+            <tr>
+                <td align="right" valign="center"></td>
+                <td rowspan="1" align="center" valign="bottom">
+                    <center><img id="logo" ng-src={{currentLogo}}></img></center>
+                </td>
+                <td align="left" valign="center">
             </td>
-            <td align="left" valign="center">
-        </td>
-        </tr>
-    </table>
+            </tr>
+        </table>
 
-    <center style="padding-top:8px;">
-        <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
-            <div class="patient-list-inner-block">
-                <div class="patient-arrow">
-                    <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="images/left-arrow.png"></img>
-                </div>
+        <center style="padding-top:8px;">
+            <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
+                <div class="patient-list-inner-block">
+                    <div class="patient-arrow">
+                        <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="images/left-arrow.png"></img>
+                    </div>
 
-                <div class="patient-location">
-                    <div class="location-name">{{patient.FirstName}} {{patient.PseudoLastName}}</div>
-                    <div class="location-room">{{patient.Destination.ScreenDisplayName}}</div>
-                </div>
+                    <div class="patient-location">
+                        <div class="location-name">{{patient.FirstName}} {{patient.PseudoLastName}}</div>
+                        <div class="location-room">{{patient.Destination.ScreenDisplayName}}</div>
+                    </div>
 
-                <div class="patient-arrow">
-                    <img ng-if="rightArrowLocations.indexOf(patient.Destination.Name) !== -1"  class="right-arrow" src="images/right-arrow.png"></img>
+                    <div class="patient-arrow">
+                        <img ng-if="rightArrowLocations.indexOf(patient.Destination.Name) !== -1"  class="right-arrow" src="images/right-arrow.png"></img>
+                    </div>
                 </div>
             </div>
-        </div>
-    </center>
+        </center>
 
-    <nav class="navbar-xs navbar-inverse navbar-fixed-bottom">
-        <div class="ticker1">
-            <h3 style="font-size:53px">{{tickerText}}</h3>
-        </div>
-    </nav>
+        <nav class="navbar-xs navbar-inverse navbar-fixed-bottom">
+            <div class="ticker1">
+                <h3 style="font-size:53px">{{tickerText}}</h3>
+            </div>
+        </nav>
 
-</div>
+    </div>
 </body>
 </html>

@@ -299,7 +299,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
     async function checkIfServerIsOnline()
     {
         return $http({
-            url: "/kiosk",
+            url: window.location.href,
             method: "GET",
         })
         .then(_ => true)

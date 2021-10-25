@@ -227,4 +227,12 @@ class AppointmentCodes
                 AND AppointmentId NOT LIKE '%Aria%';
         ");
     }
+
+    public static function updateCreationDate(PDO $dbh): void
+    {
+        $dbh->query("
+            ALTER TABLE MediVisitAppointmentList
+            CHANGE COLUMN `CreationDate` `CreationDate` DATETIME NOT NULL AFTER `MedivisitStatus`;
+        ");
+    }
 }

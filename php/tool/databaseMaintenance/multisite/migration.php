@@ -30,6 +30,7 @@ AppointmentSourceSystem::createSourceSystemKey($dbh);
 AppointmentCodes::extendCodeLength($dbh);
 AppointmentCodes::addDisplayColumn($dbh);
 AppointmentCodes::correctSourceSystem($dbh);
+AppointmentCodes::updateCreationDate($dbh);
 
 try {
     $dbh->beginTransaction();

@@ -4,18 +4,13 @@
 
 <head>
 
-<!--Angular libraries -->
 <script src="/node_modules/angular/angular.min.js"></script>
 <script src="/node_modules/checklist-model/checklist-model.js"></script>
 <script src="/node_modules/angular-audio/app/angular.audio.js"></script>
-
-
-<!--Firebase libraries -->
 <script src="/node_modules/firebase/lib/firebase-web.js"></script>
 <script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
-
-<!--Crytojs -->
-<script type="text/javascript" src="/node_modules/crypto-js/crypto-js.js"></script>
+<script src="/node_modules/crypto-js/crypto-js.js"></script>
+<script src="/node_modules/dayjs/dayjs.min.js"></script>
 
 <!--CSS -->
 <!-- <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
@@ -51,7 +46,7 @@
     </table>
 
     <center style="padding-top:8px;">
-        <div class="patient-list" ng-repeat="patient in firebaseCopy | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
+        <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
             <div class="patient-list-inner-block">
                 <div class="patient-arrow">
                     <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="images/left-arrow.png"></img>

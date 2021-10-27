@@ -143,7 +143,7 @@ class LoggerAccess
         ]);
     }
 
-    public static function logKioskEvent(?string $kioskInput, string $location, string $destination, ?string $direction, ?string $message): void
+    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $direction, ?string $message): void
     {
         Database::getLogsConnection()->prepare("
             INSERT INTO KioskLog(

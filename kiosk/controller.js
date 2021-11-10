@@ -9,30 +9,37 @@ app.config(['$locationProvider',function ($locationProvider)
     });
 }]);
 
-app.controller('main', async function($scope,$http,$sce,$location,$timeout,$interval,$window)
+app.controller('main', async function($scope,$http,$sce,$location,$interval,$window)
 {
     let params = $location.search();
     let kioskLocation = params.location ?? "DS1_1";
 
+    let locationIsReception = /Reception/.test(kioskLocation);
+
     //room to check the patient into
-    let defaultDestination = "UNKNOWN";
+    let checkInRoom = "UNKNOWN";
     if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
-        defaultDestination = "D RC WAITING ROOM";
+        checkInRoom = "D RC WAITING ROOM";
     }
     else if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
-        defaultDestination = "D S1 WAITING ROOM";
+        checkInRoom = "D S1 WAITING ROOM";
     }
-    else if(/Reception/.test(kioskLocation) === true) {
-        defaultDestination = kioskLocation.replace(" Reception","");
-        defaultDestination = `${defaultDestination} WAITING ROOM`.toUpperCase();
+    else if(locationIsReception === true) {
+        checkInRoom = kioskLocation.replace(" Reception","");
+        checkInRoom = `${checkInRoom} WAITING ROOM`.toUpperCase();
     }
 
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     (kioskLocation.includes("Reception")) ? "blue" : "rgb(51,153,51)",
+        messageBackgroundColor:     locationIsReception ? "blue" : "rgb(51,153,51)",
         locationDisplay:            kioskLocation.replace("_","-"),
-        kioskWidth:                 (kioskLocation.includes("Reception")) ? "55%" : null,
+        kioskWidth:                 locationIsReception ? "55%" : null,
+    };
+
+    $scope.receptionMessage = {
+        showMessage: false,
+        message:     null
     };
 
     $scope.messageComponents = generateDefaultMessageComponents();
@@ -49,15 +56,21 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         }
     },5*60*1000);
 
-    //message to log
-    // $log_message = "default message, $location, $subMessage_en"; //default message
-    // $log_message = "$PatientId, $location, $subMessage_en"; //when finding patient and checking in
-    // $log_message = "Problem detected - sending to reception - $PatientId, $location, $subMessage_en"; // on error
+    //always keep the input box focused when it's available
+    $scope.$watch("pageProperties.refreshAllowed",async (newValue) => {
+        if(newValue === true) {
+            await sleep(0.2);
+            document.getElementById("scannerBar").focus();
+        }
+    })
 
-    //all http errors should be be logged
+    //also refocus periodically in case someone clicked outside the input box
+    $interval(_ => {
+        document.getElementById("scannerBar").focus();
+    },10*1000);
 
     //log heartbeat message upon refresh
-    logEvent(null,kioskLocation,null,getArrowImage(null),$sce.getTrustedHtml($scope.messageComponents.subMessage.english));
+    logEvent(null,null,$scope.messageComponents);
 
     $scope.processScannerInput = async function(scannerInput)
     {
@@ -82,8 +95,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         if(patient === null) {
             $scope.messageComponents = generateSendToReceptionMessageComponents(kioskLocation);
             $scope.$apply();
-            // await sleep(20);
-            await sleep(1);
+            await sleep(20);
         }
         //if the patient has a ramq and it's expired, send them to admissions
         else if(dayjs().isAfter(patient.ramqExpiration)) {
@@ -93,42 +105,28 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         }
         //check in the patient if there's no issues
         else {
-            destination = defaultDestination;
             $scope.messageComponents = generatePatientDisplayMessageComponents(patient);
             $scope.$apply();
 
             //give the patient time to see their name on the screen
             await sleep(4);
 
-            let appointment = await getNextAppointment(patient,destination);
+            let appointment = await getNextAppointment(patient,checkInRoom);
 
             if(appointment.nextAppointment !== null) {
+                destination = checkInRoom;
+
                 sendSmsMessage(
                     patient,
                     "MUHC - Cedars Cancer Centre: You are checked in for your appointment(s).",
                     "CUSM - Centre du cancer des Cèdres: Votre(vos) rendez-vous est(sont) enregistré(s)"
                 );
 
-                let centerImage = "";
-
                 if(appointment.ariaPhotoOk === false) {
                     $scope.messageComponents = generateSendToGetPhotoMessageComponents(kioskLocation);
                 }
                 else {
-
-                    let direction = null;
-
-                    if(appointment.nextAppointment.name === "NS - prise de sang/blood tests pre/post tx") {
-                        direction = "TestCentre";
-                        centerImage = `<img src="/images/TestCentre.png">`;
-                    }
-
-                    if(appointment.nextAppointment.sourceSystem === "Aria") {
-                        direction = "DS1";
-                        centerImage = `<img src="/images/salle_DS1.png">`;
-                    }
-
-                    $scope.messageComponents = generateCheckedInMessageComponents();
+                    $scope.messageComponents = generateCheckedInMessageComponents(kioskLocation,appointment.nextAppointment);
                 }
             }
             else {
@@ -141,41 +139,29 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
                 $scope.messageComponents = generateSendToReceptionMessageComponents(kioskLocation);
             }
 
+            if(locationIsReception === true) {
+                $scope.receptionMessage.showMessage = true;
+                $scope.receptionMessage.message = $sce.trustAsHtml(`Patient has been checked into appointment <i>${appointment.nextAppointment.name}</i> at <b>${appointment.nextAppointment.datetime}</b>... status: OK`);
+            }
+
             $scope.$apply();
             await sleep(11);
-
-            //on top of reception page?
-            //   return (
-            //       $MV_CheckinStatus[0],
-            //       $MV_ScheduledStartTime[0],
-            //       $WaitingRoomWherePatientShouldWait,
-            //       $PhotoOk
-            //     );
-
-            // }
         }
 
         //log the event
-        logEvent(scannerInput,
-            kioskLocation,
-            destination,
-            getArrowImage(kioskLocation,destination),
-            $sce.getTrustedHtml($scope.messageComponents.subMessage.english)
-        );
+        logEvent(scannerInput,destination,$scope.messageComponents);
 
         //re-enable the page reload
         $scope.pageProperties.refreshAllowed = true;
 
-        //force a DOM update
+        //return to the default view
+        if(locationIsReception === true) {
+            $scope.receptionMessage.showMessage = false;
+            $scope.receptionMessage.message = null;
+        }
+
         $scope.messageComponents = generateDefaultMessageComponents();
         $scope.$apply();
-
-        //multiple scans can stack and get resolved in random order
-
-        //no arrows if patient was found...?
-
-        //scanner is always on and it's always possible to enter input to trigger refresh
-
     }
 
     function generateDefaultMessageComponents()
@@ -183,7 +169,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         return {
             arrowImage:                 null,
             centerImage:                "/images/animation.gif",
-            mainMessage:                {
+            mainMessage: {
                 english: "Check in",
                 french: "Enregistrement",
             },
@@ -242,11 +228,24 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         };
     }
 
-    function generateCheckedInMessageComponents()
+    function generateCheckedInMessageComponents(location,appointment)
     {
+        let destination = null;
+        let centerImage = null
+
+        if(appointment.name === "NS - prise de sang/blood tests pre/post tx") {
+            destination = "TestCentre";
+            centerImage = "/images/TestCentre.png";
+        }
+
+        if(appointment.sourceSystem === "Aria") {
+            destination = "DS1";
+            centerImage = "/images/salle_DS1.png";
+        }
+
         return {
-            arrowImage:                 null,
-            centerImage:                null,
+            arrowImage:                 getArrowImage(location,destination),
+            centerImage:                centerImage,
             mainMessage: {
                 english: "You are Checked In",
                 french: "Vous êtes Enregistré",
@@ -316,7 +315,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         return (direction === null) ? null : `/images/arrow_${direction}.png`;
     }
 
-    async function checkIfServerIsOnline()
+    function checkIfServerIsOnline()
     {
         return $http({
             url: window.location.href,
@@ -326,7 +325,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         .catch(_ => false);
     }
 
-    async function getPatientInfo(ramq,mrn,site)
+    function getPatientInfo(ramq,mrn,site)
     {
         return $http({
             url: "/php/api/private/v1/patient/findPatient",
@@ -354,7 +353,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         .catch(_ => null);
     }
 
-    async function getNextAppointment(patient,destination)
+    function getNextAppointment(patient,destination)
     {
         return $http({
             url: "/php/api/private/v1/patient/checkInViaKiosk.php",
@@ -391,17 +390,17 @@ app.controller('main', async function($scope,$http,$sce,$location,$timeout,$inte
         });
     }
 
-    function logEvent(input,location,destination,arrowDirection,message)
+    function logEvent(input,destination,messageComponents)
     {
         $http({
             url: "/php/api/private/v1/vwr/logMessageForKiosk",
             method: "POST",
             data: {
                 input:              input,
-                location:           location,
+                location:           kioskLocation,
                 destination:        destination,
-                arrowDirection:     arrowDirection,
-                message:            message
+                arrowDirection:     messageComponents.arrowImage,
+                message:            $sce.getTrustedHtml(messageComponents.subMessage.english)
             }
         });
     }

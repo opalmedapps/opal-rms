@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html class="fullscreen">
     <head>
-        <link rel="stylesheet" href="./kiosk.css">
+        <link rel="stylesheet" href="/kiosk/kiosk.css">
         <script src="/node_modules/dayjs/dayjs.min.js"></script>
+        <script src="/node_modules/jquery/dist/jquery.min.js"></script>
         <script src="/node_modules/angular/angular.min.js"></script>
         <script src="/kiosk/controller.js"></script>
 
         <title>Patient Check In</title>
-
-        <!-- check in -->
-        <!-- send to reception -->
-        <!-- <META HTTP-EQUIV="refresh" CONTENT="11\; URL=$checkin_script?location=$location"> -->
     </head>
 
-
     <body ng-app="myApp" ng-controller="main" class="fullscreen align-center main-body">
-        <!-- if $location =~ m/Reception/i; -->
-        <!-- <center>Patient has been checked into appointment <i>$MV_Resource[$appointment]</i> at <b>$MV_ScheduledStartTime[$appointment]</b>... status: $MV_CheckinStatus[$appointment]<br></center> -->
+        <span ng-hide="receptionMessage.showMessage === false" ng-bind-html="receptionMessage.message"></span>
+
+        <span style="flex-basis: 100%"></span>
 
         <div class="kiosk-div" ng-style="{'width': pageProperties.kioskWidth}">
 
@@ -39,9 +36,9 @@
 
             <!-- mid part - with animation or image -->
             <div class="middle-display-div">
-                <span class="middle-display-span" style="width: 25%;"><img class="image-container" ng-src="{{messageComponents.arrowImage}}"></span>
-                <span class="middle-display-span" style="width: 50%;"><img class="middle-display-image image-container" ng-src="{{messageComponents.centerImage}}" ng-if="messageComponents.centerImage"></span>
-                <span class="middle-display-span" style="width: 25%;"><img class="image-container" ng-src="{{messageComponents.arrowImage}}"></span>
+                <span class="middle-display-span" style="width: 25%;"><img class="image-container" style="max-width: 95%" ng-src="{{messageComponents.arrowImage}}" ng-show="messageComponents.arrowImage"></span>
+                <span class="middle-display-span" style="width: 50%;"><img class="middle-display-image image-container" ng-src="{{messageComponents.centerImage}}" ng-show="messageComponents.centerImage"></span>
+                <span class="middle-display-span" style="width: 25%;"><img class="image-container" style="max-width: 95%" ng-src="{{messageComponents.arrowImage}}" ng-show="messageComponents.arrowImage"></span>
             </div>
 
             <!-- bottom part - in english -->
@@ -58,7 +55,7 @@
             <!-- input box for scanner -->
             <div class="scanner-bar">
                 <form ng-submit="processScannerInput(scannerInput); scannerInput = null">
-                    <input type="text" ng-model="scannerInput" autofocus>
+                    <input id="scannerBar" type="text" ng-model="scannerInput" ng-disabled="pageProperties.refreshAllowed === false" autofocus>
                 </form>
             </div>
 

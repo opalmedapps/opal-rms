@@ -19,6 +19,7 @@
 .main-body {
     background-color: grey;
     display: flex;
+    flex-wrap: wrap;
     font-family: Helvetica, Arial, sans-serif;
 }
 

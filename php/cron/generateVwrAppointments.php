@@ -11,35 +11,14 @@ require_once __DIR__."/../../vendor/autoload.php";
 use Orms\Config;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
-use Orms\External\OIE\Fetch;
-use Orms\Patient\PatientInterface;
 use Orms\Util\ArrayUtil;
 use Orms\Util\Encoding;
 
+//get questionnaire data for opal patients
+$lastCompletedQuestionnaires = json_decode(Config::getApplicationSettings()->environment->completedQuestionnairePath,true) ?? [];
+
+//generate a list of today's appointments
 $appointments = ReportAccess::getCurrentDaysAppointments();
-
-//fetch questionnaire data for opal patients
-$opalAppointments = array_map(function($x) {
-    $patient = null;
-    if($x["OpalPatient"] === 1) {
-        $patient = PatientInterface::getPatientById($x["PatientId"]);
-
-        if($patient === null) {
-            error_log((string) new Exception("Unknown patient id $x[PatientId]"));
-        }
-    }
-
-    return $patient;
-},$appointments);
-$opalAppointments = array_values(array_filter(array_unique($opalAppointments,SORT_REGULAR)));
-
-try {
-    $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($opalAppointments);
-}
-catch(Exception $e) {
-    $lastCompletedQuestionnaires = [];
-    error_log((string) $e);
-}
 
 $appointments = array_map(function($x) use ($lastCompletedQuestionnaires) {
     //sex is represented with the first letter only

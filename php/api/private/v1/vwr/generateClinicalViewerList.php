@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
+use Orms\Config;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
@@ -67,30 +68,10 @@ $listOfAppointments = [];
 //get ORMS patients if the appointment filter is disabled
 if($afilter === false)
 {
+    //get questionnaire data for opal patients
+    $lastCompletedQuestionnaires = json_decode(Config::getApplicationSettings()->environment->completedQuestionnairePath,true) ?? [];
+
     $appointments = ReportAccess::getListOfAppointmentsInDateRange(new DateTime($sDate),new DateTime($eDate),(int) $speciality,$activeStatusConditions,$clinicCodes,$appointmentCodes);
-
-    //fetch questionnaire data for opal patients
-    $opalAppointments = array_map(function($x) {
-        $patient = null;
-        if($x["opalEnabled"] === true) {
-            $patient = PatientInterface::getPatientById($x["patientId"]);
-
-            if($patient === null) {
-                error_log((string) new Exception("Unknown patient id $x[patientId]"));
-            }
-        }
-
-        return $patient;
-    },$appointments);
-    $opalAppointments = array_values(array_filter(array_unique($opalAppointments,SORT_REGULAR)));
-
-    try {
-        $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($opalAppointments);
-    }
-    catch(Exception $e) {
-        $lastCompletedQuestionnaires = [];
-        error_log((string) $e);
-    }
 
     foreach($appointments as $app)
     {

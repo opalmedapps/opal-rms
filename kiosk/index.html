@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="fullscreen">
+    <head>
+        <link rel="stylesheet" href="/kiosk/kiosk.css">
+        <script src="/node_modules/dayjs/dayjs.min.js"></script>
+        <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="/node_modules/angular/angular.min.js"></script>
+        <script src="/kiosk/controller.js"></script>
+
+        <title>Patient Check In</title>
+    </head>
+
+    <body ng-app="myApp" ng-controller="main" class="fullscreen align-center main-body">
+        <span ng-hide="receptionMessage.showMessage === false" ng-bind-html="receptionMessage.message"></span>
+
+        <span style="flex-basis: 100%"></span>
+
+        <div class="kiosk-div" ng-style="{'width': pageProperties.kioskWidth}">
+
+            <div class="header-div">
+                <span class="header-section-div align-center" style="width: 25%;"><img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png"></span>
+                <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="/images/logo.png"></span>
+                <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>
+            </div>
+
+            <!-- top part - in french -->
+            <div class="message-bar-div align-center">
+                <span class="message-bar-span" ng-style="{'background-color': pageProperties.messageBackgroundColor}">{{messageComponents.mainMessage.french}}</span>
+            </div>
+
+            <div class="sub-message-bar-div align-center">
+                <span class="sub-message-bar-span" ng-bind-html="messageComponents.subMessage.french"></span>
+            </div>
+
+            <br>
+
+            <!-- mid part - with animation or image -->
+            <div class="middle-display-div">
+                <span class="middle-display-span" style="width: 25%;"><img class="image-container" style="max-width: 95%" ng-src="{{messageComponents.arrowImage}}" ng-show="messageComponents.arrowImage"></span>
+                <span class="middle-display-span" style="width: 50%;"><img class="middle-display-image image-container" ng-src="{{messageComponents.centerImage}}" ng-show="messageComponents.centerImage"></span>
+                <span class="middle-display-span" style="width: 25%;"><img class="image-container" style="max-width: 95%" ng-src="{{messageComponents.arrowImage}}" ng-show="messageComponents.arrowImage"></span>
+            </div>
+
+            <!-- bottom part - in english -->
+            <div class="message-bar-div align-center">
+                <span class="message-bar-span" ng-style="{'background-color': pageProperties.messageBackgroundColor}">{{messageComponents.mainMessage.english}}</span>
+            </div>
+
+            <div class="sub-message-bar-div align-center">
+                <span class="sub-message-bar-span" ng-bind-html="messageComponents.subMessage.english"></span>
+            </div>
+
+            <br>
+
+            <!-- input box for scanner -->
+            <div class="scanner-bar">
+                <form ng-submit="processScannerInput(scannerInput); scannerInput = null">
+                    <input id="scannerBar" type="text" ng-model="scannerInput" ng-disabled="pageProperties.refreshAllowed === false" autofocus>
+                </form>
+            </div>
+
+        </div>
+    </body>
+
+</html>

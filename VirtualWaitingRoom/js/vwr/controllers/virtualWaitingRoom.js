@@ -111,6 +111,12 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 firebaseScreenRef.child("Metadata").set({LastUpdated: Firebase.ServerValue.TIMESTAMP});
             }
 
+            //Prepare an object to hold patient objects
+            if(!$scope.screenRows.hasOwnProperty("patients"))
+            {
+                firebaseScreenRef.child("patients").set({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+            }
+
             //get the list of all resources/locations available from WRM
             //also set the selected resources that we got from the profile
             $scope.allResources = [];
@@ -236,7 +242,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //if the destination is in a waiting room, don't put the appointment in firebase
         if(!/WAITING ROOM/.test(destination.Name))
         {
-            firebaseScreenRef.child(patient.AppointmentId).set(
+            firebaseScreenRef.child("patients").child(patient.AppointmentId).set(
             {
                 FirstName: CryptoJS.AES.encrypt(patient.FirstName,'secret key 123').toString(), //encrypt the first name, will be decrypted by the screens later,
                 PseudoLastName: pseudoLastName,
@@ -292,7 +298,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //of course, its possible that someone spams the call button right after calling the patient the first time but it shouldn't be an issue since the first call is still in effect
 
         //retext and update timestamp; no need to re-put the patient in the same room in the DB
-        var destination = $scope.screenRows[patient.AppointmentId].Destination;
+        var destination = $scope.screenRows.patients[patient.AppointmentId].Destination;
 
         $scope.callPatient(patient,destination,sendSMS,false);
 
@@ -305,7 +311,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.removeFromFB = function (patient)
     {
         // Remove the patient from Firebase - will return to the "Call Patient" button
-        firebaseScreenRef.child(patient.AppointmentId).remove();
+        firebaseScreenRef.child("patients").child(patient.AppointmentId).remove();
 
         $scope.logMessage("remove_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from firebase "+ $scope.pageSettings.ClinicHubId);
 
@@ -357,7 +363,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         }).then(function (response)
         {
             // Mark patient as CheckedOut on Firebase
-            firebaseScreenRef.child(patient.AppointmentId).update(
+            firebaseScreenRef.child("patients").child(patient.AppointmentId).update(
             {
                 PatientStatus: "CheckedOut"
             });
@@ -420,8 +426,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //if they are, then just update the firebase metadata
         let currentDestination = null;
 
-        if($scope.screenRows.hasOwnProperty(patient.AppointmentId)) {
-            currentDestination = $scope.screenRows[patient.AppointmentId].Destination;
+        if($scope.screenRows.patients.hasOwnProperty(patient.AppointmentId)) {
+            currentDestination = $scope.screenRows.patients[patient.AppointmentId].Destination;
         }
 
         if(currentDestination !== null && currentDestination.Name === selectedLocation.Name) {

@@ -33,8 +33,8 @@ $resources = array_map(function($checkIn) use ($method) {
 
     $checkIn["room"] = preg_replace("/ WAITING ROOM| Waiting Room/", "", $checkIn["room"]);
 
-    $start = new DateTime($checkIn["arrival"] ?? "");
-    $end = new DateTime($checkIn["discharge"] ?? "");
+    $start = new DateTime($checkIn["arrival"]);
+    $end = new DateTime($checkIn["discharge"]);
 
     $checkIn["arrival"] = $start->format("H:i:s");
     $checkIn["discharge"] = $end->format("H:i:s");
@@ -106,7 +106,7 @@ $resources = array_map(function($resource) {
     array_walk($graphData, function(&$val, $key) {
         $val = [(float) $key,$val];
     });
-    /** @psalm-suppress PossiblyInvalidArgument */
+
     $graphData = array_values($graphData);
     sort($graphData);
 
@@ -141,7 +141,7 @@ foreach($summary["graphData"] ?? [] as $data) {
 array_walk($summedGraphData, function(&$val, $key) {
     $val = [(float)$key,$val];
 });
-/** @psalm-suppress PossiblyInvalidArgument */
+
 $summedGraphData = array_values($summedGraphData);
 sort($summedGraphData);
 

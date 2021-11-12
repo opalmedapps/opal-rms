@@ -151,7 +151,7 @@ if($afilter === false)
                 "QStatus"       => $app["questionnaireStatus"],
                 "opalPatient"   => (int) $app["opalEnabled"],
                 "age"           => date_diff($app["dateOfBirth"],new DateTime())->format("%y"),
-                "sex"           => mb_substr($app["Sex"] ?? "", 0, 1),
+                "sex"           => mb_substr($app["sex"], 0, 1),
                 "PhoneNumber"   => $app["phoneNumber"],
                 "LastReview"    => $lastQuestionnaireReview,
             ];

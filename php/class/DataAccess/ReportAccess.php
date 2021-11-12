@@ -31,6 +31,7 @@ class ReportAccess
      *   patientId: int,
      *   phoneNumber: ?string,
      *   ramq: ?string,
+     *   sex: string,
      *   site: string,
      * }>
      */
@@ -42,6 +43,7 @@ class ReportAccess
                 MV.PatientSerNum,
                 P.FirstName,
                 P.LastName,
+                P.Sex,
                 P.DateOfBirth,
                 P.SMSAlertNum,
                 P.OpalPatient,
@@ -117,6 +119,7 @@ class ReportAccess
                 "patientId"             => (int) $x["PatientSerNum"],
                 "phoneNumber"           => $x["SMSAlertNum"] ?? null,
                 "ramq"                  => $x["InsuranceNumber"] ?? null,
+                "sex"                   => $x["Sex"],
                 "site"                  => $x["HospitalCode"],
             ];
         }, $query->fetchAll());

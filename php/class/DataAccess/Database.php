@@ -62,7 +62,7 @@ class Database
      * @param mixed[] $elements
      * @return array{
      *      sqlString: string,
-     *      boundValues: array
+     *      boundValues: array<string,mixed>
      * }
      */
     public static function generateBoundedSqlString(string $sqlString, string $placeholder, string $column, array $elements): array

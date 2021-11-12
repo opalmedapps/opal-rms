@@ -1,6 +1,6 @@
 var myApp = angular.module('screen', ['firebase','ngAudio']);
 
-myApp.config(['$locationProvider','$qProvider',function($locationProvider,$qProvider) {
+myApp.config(["$locationProvider","$qProvider",function($locationProvider,$qProvider) {
     $locationProvider.html5Mode({
         enabled: true,
         requireBase: false
@@ -11,30 +11,15 @@ myApp.config(['$locationProvider','$qProvider',function($locationProvider,$qProv
 //checks how long the patient has been on the screen
 //new screen entries should be marked for 18 seconds
 //entries should stay up for 200 seconds
-myApp.filter('timeFilter',function()
+myApp.filter("timeFilter",function()
 {
-    return function (inputs)
+    return function(inputs)
     {
-        var time = new Date();
-        time = time.getTime();
-        var valids = [];
+        let time = new Date().getTime();
 
-        angular.forEach(inputs,function (input)
-        {
-            if(time <= input.Timestamp + 18000)
-            {
-                input.newEntry = true;
-            }
-            else {input.newEntry = false;}
-
-            if(time <= input.Timestamp + 200000)
-            {
-                valids.push(input);
-            }
-
-        });
-
-        return valids;
+        return inputs?.map(x => {
+            x.newEntry = (x.Timestamp + 18000) ? true : false;
+            return x;
+        }).filter(x => time <= x.Timestamp + 200000);
     }
-
 });

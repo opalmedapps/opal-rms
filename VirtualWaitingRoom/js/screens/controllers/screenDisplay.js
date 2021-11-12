@@ -1,159 +1,108 @@
 //screen controller
-myApp.controller('screenDisplayController',async function($scope,$http,$firebaseArray,$interval,ngAudio,$location)
+myApp.controller("screenDisplayController",async function($scope,$http,$firebaseArray,$interval,$location,$window,ngAudio)
 {
-    //=========================================================================
-    // General useful stuff
-    //=========================================================================
-
-    //=========================================================================
-    // Setup the audio using ngAudio
-    //=========================================================================
-    $scope.audio = ngAudio.load('sounds/magic.wav');
-
-    //=========================================================================
-    // Set the firebase connection
-    //=========================================================================
-    // Get today's date as we create a new firebase each day so as to log events
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth()+1; //January is 0!
-    var yyyy = today.getFullYear();
-
-    if(dd<10) {dd='0'+dd;}
-
-    if(mm<10) {mm='0'+mm;}
-
-    today = mm+'-'+dd+'-'+yyyy;
-
-    //get the screen's location from the url
-    var urlParams = $location.search();
-
-    $scope.clinicalArea = urlParams.location;
-
-    $scope.firebaseCopy; //copy of the firebase array; used to prevent encrypted names from showing up
-
     //every 10 minutes, check the time
     //if its late at night, turn the screen black
     $scope.currentLogo = "";
 
-    $scope.checkTime = function()
+    function checkTime()
     {
-        var currentDate = new Date();
-        var currentTime = currentDate.getHours();
+        let hour = dayjs().hour();
 
-        if(currentTime >= 20 || currentTime < 6) {
+        if(hour >= 20 || hour < 6) {
             $scope.currentLogo = "./images/black.jpg";
         }
         else {
             $scope.currentLogo = "./images/Banner_treatments.png";
         }
     }
-    $scope.checkTime();
+    checkTime();
 
-    $interval($scope.checkTime(),1000*60*10);
+    $interval(checkTime,1000*60*10);
+
+    //reload the page every once in a while to ensure that the kiosk is always running the latest version of the code
+    //also check if the server is up before doing the refresh
+    $interval(async _ => {
+        let isServerOnline = await checkIfServerIsOnline();
+
+        if(isServerOnline === true) {
+            $window.location.reload();
+        }
+    },5*60*1000);
 
     // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
-
     $scope.tickerText = "Patients and caregivers are welcome to join our (ONLINE) group workshops. Contact us by phone (514) 934-1934 ext. 35297 or email us at cedarscansupport@muhc.mcgill.ca. / Patients et proches aidants sont les bienvenus dans nos ateliers (En LIGNE) de groupe. Communiquez avec nous par téléphone, au 514-934-1934 (poste 35297) ou par courriel à l’adresse suivante : cedarscansupport@muhc.mcgill.ca.";
 
     //define specific rooms that should display with a left arrow on the screen
     //this is to guide the patient to the right area
     $scope.leftArrowLocations = ["RADIATION TREATMENT ROOM 1","RADIATION TREATMENT ROOM 2","RADIATION TREATMENT ROOM 3","RADIATION TREATMENT ROOM 4","RADIATION TREATMENT ROOM 5","RADIATION TREATMENT ROOM 6","CyberKnife"];
-
     $scope.rightArrowLocations = ["DS1-A EXAM ROOM","DS1-B EXAM ROOM","DS1-C EXAM ROOM","DS1-D EXAM ROOM","DS1-E EXAM ROOM","DS1-F EXAM ROOM","DS1-G EXAM ROOM","DS1-H EXAM ROOM","DS1-J EXAM ROOM","DS1-K EXAM ROOM","DS1-L EXAM ROOM","DS1-M EXAM ROOM","DS1-N EXAM ROOM"];
 
+    // Setup the audio using ngAudio
+    let audio = ngAudio.load("sounds/magic.wav");
+
+    // Set the firebase connection
+    //get the screen's location from the url
+    let urlParams = $location.search();
+
+    //connect to Firebase
     let firebaseSettings = await getFirebaseSettings();
+    let firebaseScreenRef = new Firebase(firebaseSettings.FirebaseUrl + urlParams.location + "/" + dayjs().format("MM-DD-YYYY"));
 
-    //connect to firebase
-    var FirebaseUrl = firebaseSettings.FirebaseUrl + $scope.clinicalArea + "/" + today;
-
-    var firebaseScreenRef = new Firebase(FirebaseUrl); // FB JK
-
-    firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, function(error,result)
-    {
-        if(error) {console.log("Authentication Failed!", error);}
-        else
-        {
-            //console.log("Authenticated successfully with payload:", result.auth);
-            //console.log("Auth expires at:", new Date(result.expires * 1000));
+    firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, error => {
+        if(error !== null) {
+            console.log("Authentication Failed!", error);
         }
     });
 
-    //=========================================================================
-    // Get the data from Firebase and load it into an array called screenRows
-    // When the data changes on Firebase this array will be automatically updated
-    //=========================================================================
-    $scope.screenRows = $firebaseArray(firebaseScreenRef);
+    //get the data from Firebase and load it into an object
+    //when the data changes on Firebase this array will be automatically updated
+    let firebasePatients = $firebaseArray(firebaseScreenRef);
 
-    $scope.decryptedPatientTimestamp = new Array(); //used to track if the patient object has changed
+    $scope.patientList = []; //copy of the firebase array; used to prevent encrypted names from showing up while decrypting
 
-    //=========================================================================
-    // Function to decrypt all data in the screen rows array
-    //=========================================================================
-    function decryptData (screenRows)
-    {
-        // decrypt each row one by one
-        angular.forEach(screenRows,function (patObj,index)
-        {
-            // Get the patient's current timestamp, if it is different than his/her
-            // previously-recorded timestamp, then we need to decrypt
-            // otherwise, the previous name is fine as it was already decrypted
-            var Timestamp = patObj.Timestamp;
-            var identifier = patObj.$id;
+    firebasePatients.$loaded().then(_ => { //wait until the array has been loaded from firebase
+        $scope.patientList = decryptData(firebasePatients) //if there are any patients in the array on load, we decrypt them
 
-            if($scope.decryptedPatientTimestamp[identifier] != Timestamp)
-            {
-                var bytes  = CryptoJS.AES.decrypt(screenRows[index].FirstName,'secret key 123');
-                var firstName_text = bytes.toString(CryptoJS.enc.Utf8);
-
-                // Set the name of this patient to be the decrypted name
-                patObj.FirstName = firstName_text;
-                $scope.decryptedPatientTimestamp[identifier] = Timestamp;
+        //watch the number of patients in the firebase list. When it changes, play a sound
+        $scope.$watch(_ => $scope.patientList.length, (newValue,oldValue) => {
+            //play sound if the number of patients is increased in the array
+            //oldValue is initially 0, so don't play a sound on page load
+            if(newValue > oldValue) {
+                audio.play();
             }
         });
-    } // end of decryptData function
 
-    $scope.screenRows.$loaded().then(function() //wait until the array has been loaded from firebase
-    {
-        decryptData($scope.screenRows) //if there are any patients in the array on load, we decrypt them
-        $scope.firebaseCopy = angular.copy($scope.screenRows);
-
-        //=========================================================================
-        // Watch the number of patients in the firebase list. When it changes,
-        // play a sound.
-        //=========================================================================
-        $scope.$watch(function() {return $scope.screenRows.length}, function (newValue,oldValue)
-        {
-            // Play sound if the number of patients is increased in the array
-            // oldValue is initially 0, so don't play a sound on page load
-            if(newValue > oldValue && oldValue >= 2) //we have to count the ToBeWeighed and Metadata rows
-            {
-                $scope.audio.play();
+        //every time the firebase object is updated on Firebase we need to send the data for decryption
+        //we know an update has occured when the timestamp in the Metadata changes
+        $scope.$watch(_ => firebasePatients.$getRecord("Metadata")?.LastUpdated ?? null, (newValue,oldValue) => {
+            if(newValue !== oldValue) {
+                $scope.patientList = decryptData(firebasePatients);
             }
-        }); // end of watch for number of patients increaing in list
-
-        //=========================================================================
-        // Every time the screenRows array is updated on Firebase we need to send the
-        // data for decryption
-        // We know an update has occured when the timestamp in the Metadata changes
-        //=========================================================================
-
-        $scope.screenRows.$loaded().then(function() //wait until the array has been loaded from firebase or we'll just get null when trying to get the Metadata
-        {
-            $scope.$watch(function()
-            {
-                if(!$scope.screenRows.$getRecord("Metadata")) {return null;}
-                else {return $scope.screenRows.$getRecord("Metadata").LastUpdated;}
-            }, function (newValue,oldValue)
-            {
-                if(newValue != oldValue)
-                {
-                    decryptData($scope.screenRows);
-                    $scope.firebaseCopy = angular.copy($scope.screenRows);
-                }
-            }); // end of watch
         });
     });
+
+    //decrypts all patient encrypted data in the firebase array
+    function decryptData(patients)
+    {
+        let patientsArr = patients.$getRecord("patients");
+        patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated","$id","$priority"].includes(x)).map(x => patientsArr[x]);
+
+        return angular.copy(Object.values(patientsArr)).map(x => {
+            x.FirstName = CryptoJS.AES.decrypt(x.FirstName,"secret key 123").toString(CryptoJS.enc.Utf8);
+            return x;
+        });
+    }
+
+    async function checkIfServerIsOnline()
+    {
+        return $http({
+            url: window.location.href,
+            method: "GET",
+        })
+        .then(_ => true)
+        .catch(_ => false);
+    }
 
     async function getFirebaseSettings()
     {

@@ -40,7 +40,7 @@ if($patient !== null)
             "first"     => $patient->firstName,
             "patientId" => $patient->id,
             "ramq"      => array_values(array_filter($patient->insurances, fn($x) => $x->type === "RAMQ"))[0]->number ?? null,
-            "ramqExp"   => (array_values(array_filter($patient->insurances, fn($x) => $x->type === "RAMQ"))[0]->expiration ?? null)?->modifyN("first day of")?->format("Y-m-d"),
+            "ramqExp"   => array_values(array_filter($patient->insurances, fn($x) => $x->type === "RAMQ"))[0]->expiration ?? null,
             "mrn"       => $mrn->mrn,
             "site"      => $mrn->site,
             "active"    => $mrn->active

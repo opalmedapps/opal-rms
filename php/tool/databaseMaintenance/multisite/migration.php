@@ -16,6 +16,7 @@ require_once __DIR__."/speciality/createSpecialityGroup.php";
 require_once __DIR__."/speciality/updateClinicHubs.php";
 require_once __DIR__."/room/updateRooms.php";
 require_once __DIR__."/cleanup/deprecatedTables.php";
+require_once __DIR__."/cleanup/kioskLog.php";
 
 use Orms\DataAccess\Database;
 
@@ -108,5 +109,8 @@ DeprecatedTables::removeScheduler($dbh);
 DeprecatedTables::removeSmsLogs($dbh);
 DeprecatedTables::removeKioskLog($dbhLog);
 DeprecatedTables::removeAppointmentLogs($dbhLog);
+
+echo "add kiosk table\n";
+KioskLog::createLogTable($dbhLog);
 
 echo "Migration done\n";

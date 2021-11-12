@@ -12,6 +12,7 @@ class Connection
 {
     public const API_APPOINTMENT_COMPLETION                     = "Appointment/Status";
     public const API_APPOINTMENT_MRN                            = "Appointment";
+    public const API_ARIA_PHOTO                                 = "Patient/Photo";
     public const API_MEASUREMENT_PDF                            = "report/post";
     public const API_PATIENT_DIAGNOSIS                          = "Patient/Diagnosis";
     public const API_PATIENT_FETCH                              = "Patient";

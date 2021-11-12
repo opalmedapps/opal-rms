@@ -102,7 +102,7 @@ class LoggerAccess
 
     public static function setLastSmsProcessorRunTime(DateTime $timestamp): void
     {
-        $query = Database::getOrmsConnection()->prepare("
+        Database::getOrmsConnection()->prepare("
             INSERT INTO Cron(
                 System,
                 LastReceivedSmsFetch
@@ -114,8 +114,7 @@ class LoggerAccess
             ON DUPLICATE KEY UPDATE
                 System               = VALUES(System),
                 LastReceivedSmsFetch = VALUES(LastReceivedSmsFetch)
-        ");
-        $query->execute([$timestamp->format("Y-m-d H:i:s")]);
+        ")->execute([$timestamp->format("Y-m-d H:i:s")]);
     }
 
     public static function logVwrEvent(string $filename,string $identifier, string $type, string $message): void
@@ -141,6 +140,32 @@ class LoggerAccess
             ":id"       => $identifier,
             ":type"     => $type,
             ":message"  => $message,
+        ]);
+    }
+
+    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $direction, ?string $message): void
+    {
+        Database::getLogsConnection()->prepare("
+            INSERT INTO KioskLog(
+                KioskInput,
+                KioskLocation,
+                PatientDestination,
+                ArrowDirection,
+                DisplayMessage
+            )
+            VALUES(
+                :input,
+                :location,
+                :destination,
+                :direction,
+                :message
+            )
+        ")->execute([
+            ":input"        => $kioskInput,
+            ":location"     => $location,
+            ":destination"  => $destination,
+            ":direction"    => $direction,
+            ":message"      => $message,
         ]);
     }
 }

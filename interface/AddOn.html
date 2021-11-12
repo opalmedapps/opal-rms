@@ -99,7 +99,7 @@ Click on any patient data to be brought to add-on page.
                     <td>{{x.site}}</td>
                     <td>{{x.active}}</td>
                     <td>{{x.ramq}}</td>
-                    <td>{{x.ramqExp}}</td>
+                    <td>{{x.ramqExp | date: "yyyy-MM-dd"}}</td>
                     <td class="selectable" style="background-color: aqua;border: 2px solid;" ng-click="sendToSms(x)">Register For SMS</td>
                 </tr>
             </tbody>

@@ -34,12 +34,13 @@ class Config
 
         //create required configs
         $environment = new EnvironmentConfig(
-            basePath:       $parsedData["path"]["BASE_PATH"],
-            baseUrl:        $parsedData["path"]["BASE_URL"],
-            imagePath:      $parsedData["path"]["IMAGE_PATH"],
-            firebaseUrl:    $parsedData["path"]["FIREBASE_URL"],
-            firebaseSecret: $parsedData["path"]["FIREBASE_SECRET"],
-            highchartsUrl:  $parsedData["path"]["HIGHCHARTS_URL"] ?? null
+            basePath:                       $parsedData["path"]["BASE_PATH"],
+            baseUrl:                        $parsedData["path"]["BASE_URL"],
+            imagePath:                      $parsedData["path"]["IMAGE_PATH"],
+            firebaseUrl:                    $parsedData["path"]["FIREBASE_URL"],
+            firebaseSecret:                 $parsedData["path"]["FIREBASE_SECRET"],
+            completedQuestionnairePath:     $parsedData["path"]["BASE_PATH"]."/tmp/completedQuestionnaires.json",
+            highchartsUrl:                  $parsedData["path"]["HIGHCHARTS_URL"] ?? null
         );
 
         $system = new SystemConfig(
@@ -131,6 +132,7 @@ class EnvironmentConfig
         public string $imagePath,
         public string $firebaseUrl,
         public string $firebaseSecret,
+        public string $completedQuestionnairePath,
         public ?string $highchartsUrl
     ) {}
 }

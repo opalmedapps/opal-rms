@@ -15,7 +15,7 @@
 
         <span style="flex-basis: 100%"></span>
 
-        <div class="kiosk-div" ng-style="{'width': pageProperties.kioskWidth}">
+        <div class="kiosk-div" ng-style="{'height': pageProperties.kioskHeight}">
 
             <div class="header-div">
                 <span class="header-section-div align-center" style="width: 25%;"><img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png"></span>
@@ -55,7 +55,7 @@
             <!-- input box for scanner -->
             <div class="scanner-bar">
                 <form ng-submit="processScannerInput(scannerInput); scannerInput = null">
-                    <input id="scannerBar" type="text" ng-model="scannerInput" ng-disabled="pageProperties.refreshAllowed === false" autofocus>
+                    <input id="scannerBar" type="text" ng-model="scannerInput" ng-hide="pageProperties.refreshAllowed === false" ng-disabled="pageProperties.refreshAllowed === false" autofocus>
                 </form>
             </div>
 

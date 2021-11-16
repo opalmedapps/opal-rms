@@ -21,7 +21,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
         checkInRoom = "D RC WAITING ROOM";
     }
-    else if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
+    else if(/^(DS1_1|DS1_2|DS1_3)$/.test(kioskLocation) === true) {
         checkInRoom = "D S1 WAITING ROOM";
     }
     else if(locationIsReception === true) {
@@ -34,7 +34,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
         displayNetworkWarning:      false,
         messageBackgroundColor:     locationIsReception ? "blue" : "rgb(51,153,51)",
         locationDisplay:            kioskLocation.replace("_","-"),
-        kioskWidth:                 locationIsReception ? "55%" : null,
+        kioskHeight:                locationIsReception ? "98%" : null
     };
 
     $scope.receptionMessage = {
@@ -128,6 +128,11 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 else {
                     $scope.messageComponents = generateCheckedInMessageComponents(kioskLocation,appointment.nextAppointment);
                 }
+
+                if(locationIsReception === true) {
+                    $scope.receptionMessage.showMessage = true;
+                    $scope.receptionMessage.message = $sce.trustAsHtml(`Patient has been checked into appointment <i>${appointment.nextAppointment.name}</i> at <b>${appointment.nextAppointment.datetime}</b>... status: OK`);
+                }
             }
             else {
                 sendSmsMessage(
@@ -137,11 +142,6 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 );
 
                 $scope.messageComponents = generateSendToReceptionMessageComponents(kioskLocation);
-            }
-
-            if(locationIsReception === true) {
-                $scope.receptionMessage.showMessage = true;
-                $scope.receptionMessage.message = $sce.trustAsHtml(`Patient has been checked into appointment <i>${appointment.nextAppointment.name}</i> at <b>${appointment.nextAppointment.datetime}</b>... status: OK`);
             }
 
             $scope.$apply();

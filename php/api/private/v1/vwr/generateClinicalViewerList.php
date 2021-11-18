@@ -70,6 +70,12 @@ if($afilter === false)
 {
     //get questionnaire data for opal patients
     $lastCompletedQuestionnaires = json_decode(Config::getApplicationSettings()->environment->completedQuestionnairePath,true) ?? [];
+    $lastCompletedQuestionnaires = array_map(function($x) {
+        $x["completionDate"] = new DateTime($x["completionDate"]);
+        $x["lastUpdated"]    = new DateTime($x["lastUpdated"]);
+
+        return $x;
+    },$lastCompletedQuestionnaires);
 
     $appointments = ReportAccess::getListOfAppointmentsInDateRange(new DateTime($sDate),new DateTime($eDate),(int) $speciality,$activeStatusConditions,$clinicCodes,$appointmentCodes);
 

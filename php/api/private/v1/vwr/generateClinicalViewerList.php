@@ -69,9 +69,11 @@ $listOfAppointments = [];
 if($afilter === false)
 {
     //get questionnaire data for opal patients
-    $lastCompletedQuestionnaires = json_decode(Config::getApplicationSettings()->environment->completedQuestionnairePath,true) ?? [];
+    $lastCompletedQuestionnaires = json_decode(@file_get_contents(Config::getApplicationSettings()->environment->completedQuestionnairePath) ?: "{}",true) ?? [];
+    $lastCompletedQuestionnaires = array_filter($lastCompletedQuestionnaires);
     $lastCompletedQuestionnaires = array_map(function($x) {
         $x["completionDate"] = new DateTime($x["completionDate"]);
+        /** @psalm-suppress InvalidArrayOffset */
         $x["lastUpdated"]    = new DateTime($x["lastUpdated"]);
 
         return $x;

@@ -143,13 +143,14 @@ class LoggerAccess
         ]);
     }
 
-    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $direction, ?string $message): void
+    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $centerImage, ?string $direction, ?string $message): void
     {
         Database::getLogsConnection()->prepare("
             INSERT INTO KioskLog(
                 KioskInput,
                 KioskLocation,
                 PatientDestination,
+                CenterImage,
                 ArrowDirection,
                 DisplayMessage
             )
@@ -157,6 +158,7 @@ class LoggerAccess
                 :input,
                 :location,
                 :destination,
+                :centerImage,
                 :direction,
                 :message
             )
@@ -164,6 +166,7 @@ class LoggerAccess
             ":input"        => $kioskInput,
             ":location"     => $location,
             ":destination"  => $destination,
+            ":centerImage"  => $centerImage,
             ":direction"    => $direction,
             ":message"      => $message,
         ]);

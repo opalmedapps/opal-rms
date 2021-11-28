@@ -63,8 +63,8 @@ class Logger
         LoggerAccess::setLastSmsProcessorRunTime($timestamp);
     }
 
-    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $direction, ?string $message): void
+    public static function logKioskEvent(?string $kioskInput, string $location, ?string $destination, ?string $centerImage, ?string $direction, ?string $message): void
     {
-        LoggerAccess::logKioskEvent($kioskInput,$location,$destination,$direction,$message);
+        LoggerAccess::logKioskEvent($kioskInput,$location,$destination,$centerImage,$direction,$message);
     }
 }

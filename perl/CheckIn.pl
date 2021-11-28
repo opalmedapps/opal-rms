@@ -23,6 +23,8 @@ use Time::Piece;
 use HTTP::Request;
 use LWP::UserAgent;
 use JSON;
+use File::Basename;
+use Parse::CSV;
 
 use LoadConfigs;
 
@@ -529,8 +531,8 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     # destination is upstairs but checkin location is downstairs
     if($PilotStatus == 1 && $PhotoStatus == 1 && $DestinationWaitingRoom  eq "DRC" && ($location eq "DS1_1" || $location eq "DS1_2" || $location eq "DS1_3"))
     {
-      $MainMessage_fr         = "V&eacute;rifier &agrave la r&eacute;ception";
-      $MainMessage_en         = "Please go to the reception";
+        $MainMessage_fr         = "Vous &ecirc;tes enregistr&eacute;";
+        $MainMessage_en         = "You are Checked In";
     #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
         $subMessage_fr         = "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
     #   $subMessage_en         = "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
@@ -1290,7 +1292,8 @@ sub CheckinPatient
         MV.AppointmentSerNum,
         HOUR(MV.ScheduledDateTime),
         MV.AppointSys,
-        MV.AppointId
+        MV.AppointId,
+        CR.ResourceCode
     FROM
         Patient P
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = P.PatientSerNum
@@ -1323,6 +1326,7 @@ sub CheckinPatient
   my @MV_ScheduledStartTime;
   my @MV_ApptDescription;
   my @MV_Resource;
+  my @MV_ResourceCode;
   my @MV_AptTimeSinceMidnight;
   my @MV_AppointmentSerNum;
   my @MV_Appt_type_en;
@@ -1348,6 +1352,7 @@ sub CheckinPatient
     $MV_ScheduledStartTime[$numAppts]    = $data[3];
     $MV_ApptDescription[$numAppts]    = $data[4]; ###
     $MV_Resource[$numAppts]        = $data[5];
+    $MV_ResourceCode[$numAppts]    = $data[11];
     $MV_AptTimeSinceMidnight[$numAppts]= $data[6];
     $MV_AppointmentSerNum[$numAppts]    = $data[7];
     $MV_AptTimeHour[$numAppts]        = $data[8];
@@ -1404,10 +1409,12 @@ sub CheckinPatient
   my $nextApptDescription;
   my $nextApptAMorPM;
   my $CheckInResource;
+  my $checkInResourceCode;
 
   $nextApptAMorPM= $MV_AMorPM[0];
   $nextApptDescription = $MV_ApptDescription[0];
   $CheckInResource = $MV_Resource[0];
+  $checkInResourceCode = $MV_ResourceCode[0];
   print "MV CheckInResource: $CheckInResource<br>" if $verbose;
 
   #------------------------------------------------------------------------
@@ -1580,6 +1587,24 @@ sub CheckinPatient
     }
 
   } # end of checkin
+
+  #load the clinic schedules and see which floor the clinics are on today
+  my $schedule = {};
+  my $weekday = Time::Piece->new->fullday;
+
+  if(-e dirname(__FILE__)."/../tmp/schedule.csv")
+  {
+      my $csv = Parse::CSV->new(
+          file => dirname(__FILE__)."/../tmp/schedule.csv",
+          sep_char => ",",
+          names => 1 #fields are weekday, clinic Code, level
+      );
+
+      while(my $line = $csv->fetch) {
+          my $clinicCode = $line->{"clinic code"};
+          $WaitingRoomWherePatientShouldWait = $line->{"level"} if($line->{"weekday"} eq $weekday && $checkInResourceCode =~ /$clinicCode/);
+      }
+  }
 
   #check if the patient has an Aria photo
   if($hasAriaAppointment)

@@ -41,6 +41,7 @@ if($nextAppointment !== null) {
 
     $nextAppointment = [
         "name"          => $nextAppointment["clinicDescription"],
+        "code"          => $nextAppointment["clinicCode"],
         "datetime"      => $nextAppointment["scheduledDatetime"],
         "sourceSystem"  => $nextAppointment["sourceSystem"],
     ];

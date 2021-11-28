@@ -16,6 +16,7 @@ class KioskLog
                 KioskInput VARCHAR(50) NULL DEFAULT NULL,
                 KioskLocation VARCHAR(50) NOT NULL,
                 PatientDestination VARCHAR(100) NULL DEFAULT NULL,
+                CenterImage VARCHAR(100) NULL DEFAULT NULL,
                 ArrowDirection VARCHAR(50) NULL DEFAULT NULL,
                 DisplayMessage TEXT NULL DEFAULT NULL,
                 PRIMARY KEY (`KioskLogId`) USING BTREE

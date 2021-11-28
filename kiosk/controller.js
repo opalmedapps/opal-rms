@@ -72,6 +72,19 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     //log heartbeat message upon refresh
     logEvent(null,null,$scope.messageComponents);
 
+    // load the scheduler
+    let schedule = [];
+    $http({
+        url: "/tmp/schedule.csv",
+        method: "GET",
+    }).then(function(response) {
+        schedule = $.csv.toObjects(response.data).map(x => ({
+            weekday: x.Weekday,
+            code:    x["Clinic Code"],
+            level:   x.Level
+        })).filter(x => x.weekday === dayjs().format("dddd"));
+    });
+
     $scope.processScannerInput = async function(scannerInput)
     {
         //disable the page refresh
@@ -243,6 +256,15 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             centerImage = "/images/salle_DS1.png";
         }
 
+        let scheduledMatch = schedule.filter(x => appointment.code.includes(x.code)).at(-1);
+        if(scheduledMatch !== undefined) {
+            destination = scheduledMatch.level;
+
+            if(destination === "DRC") {
+                centerImage = "/images/salle_DRC.png";
+            }
+        }
+
         return {
             arrowImage:                 getArrowImage(location,destination),
             centerImage:                centerImage,
@@ -295,16 +317,19 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             },
             DS1_1: {
                 DS1:        "here",
+                DRC:        "up",
                 Reception:  "right",
                 TestCentre: "up",
             },
             DS1_2: {
-                DS1:        "left",
+                DS1:        "here",
+                DRC:        "up",
                 Reception:  "left",
                 TestCentre: "up",
             },
             DS1_3: {
-                DS1:        "left",
+                DS1:        "here",
+                DRC:        "up",
                 Reception:  "left",
                 TestCentre: "up",
             },
@@ -367,6 +392,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             ariaPhotoOk:     r.data.data.ariaPhotoOk,
             nextAppointment: {
                 name:           r.data.data.nextAppointment.name,
+                code:           r.data.data.nextAppointment.code,
                 datetime:       r.data.data.nextAppointment.datetime,
                 sourceSystem:   r.data.data.nextAppointment.sourceSystem
             }
@@ -399,6 +425,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 input:              input,
                 location:           kioskLocation,
                 destination:        destination,
+                centerImage:        messageComponents.centerImage,
                 arrowDirection:     messageComponents.arrowImage,
                 message:            $sce.getTrustedHtml(messageComponents.subMessage.english)
             }

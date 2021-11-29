@@ -81,8 +81,9 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
         schedule = $.csv.toObjects(response.data).map(x => ({
             weekday: x.Weekday,
             code:    x["Clinic Code"],
+            ampm:    x["AM"],
             level:   x.Level
-        })).filter(x => x.weekday === dayjs().format("dddd"));
+        })).filter(x => x.weekday === dayjs().format("dddd") && x.ampm === dayjs().format("a"));
     });
 
     $scope.processScannerInput = async function(scannerInput)

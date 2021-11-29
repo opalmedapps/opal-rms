@@ -536,7 +536,7 @@ elsif( $PatientId && ($PatientSer || $PatientSerNum) ) # Patient already found, 
     #   $subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez enregistrer &agrave la r&eacute;ception <b>en haut au rez de chauss&eacute;e</b>.</span> ";
         $subMessage_fr         = "<span style=\"background-color: yellow\">Vous &ecirc;tes enregistr&eacute;. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span> $Aptinfo_fr";
     #   $subMessage_en         = "<span style=\"background-color: #ff0000\">Please check in at the reception <b>upstairs on the ground floor</b>.</span>";
-        $subMessage_en      = "<span style=\"background-color: #ff0000\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
+        $subMessage_en      = "<span style=\"background-color: yellow\">Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span> $Aptinfo_en";
       #$subMessage_fr         = "<span style=\"background-color: #ff0000\">Veuillez prendre place dans la salle d'attente <b>en haut au rez de chauss&eacute;e</b>.</span> $Aptinfo_fr";
       #$subMessage_en         = "<span style=\"background-color: #ff0000\">Please have a seat in the waiting room <b>upstairs on the ground floor</b>.</span> $Aptinfo_en";
       $log_message         = "$PatientId, $location, $subMessage_en";
@@ -1591,18 +1591,23 @@ sub CheckinPatient
   #load the clinic schedules and see which floor the clinics are on today
   my $schedule = {};
   my $weekday = Time::Piece->new->fullday;
+  my $amPM = Time::Piece->new->strftime("%P");
 
   if(-e dirname(__FILE__)."/../tmp/schedule.csv")
   {
       my $csv = Parse::CSV->new(
           file => dirname(__FILE__)."/../tmp/schedule.csv",
           sep_char => ",",
-          names => 1 #fields are weekday, clinic Code, level
+          names => 1 #fields are weekday, clinic Code, am, level
       );
 
       while(my $line = $csv->fetch) {
           my $clinicCode = $line->{"clinic code"};
-          $WaitingRoomWherePatientShouldWait = $line->{"level"} if($line->{"weekday"} eq $weekday && $checkInResourceCode =~ /$clinicCode/);
+          $WaitingRoomWherePatientShouldWait = $line->{"level"} if(
+              $line->{"weekday"} eq $weekday
+              && $checkInResourceCode =~ /$clinicCode/
+              && $line->{"am"} eq $amPM
+          );
       }
   }
 

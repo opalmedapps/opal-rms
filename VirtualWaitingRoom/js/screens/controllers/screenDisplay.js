@@ -1,24 +1,15 @@
 //screen controller
 myApp.controller("screenDisplayController",async function($scope,$http,$firebaseArray,$interval,$location,$window,ngAudio)
 {
-    //every 10 minutes, check the time
+    let today = dayjs();
+    let hour = today.hour();
+
     //if its late at night, turn the screen black
-    $scope.currentLogo = "";
+    $scope.currentLogo = "./images/Banner_treatments.png";
 
-    function checkTime()
-    {
-        let hour = dayjs().hour();
-
-        if(hour >= 20 || hour < 6) {
-            $scope.currentLogo = "./images/black.jpg";
-        }
-        else {
-            $scope.currentLogo = "./images/Banner_treatments.png";
-        }
+    if(hour >= 20 || hour < 6) {
+        $scope.currentLogo = "./images/black.jpg";
     }
-    checkTime();
-
-    $interval(checkTime,1000*60*10);
 
     //reload the page every once in a while to ensure that the kiosk is always running the latest version of the code
     //also check if the server is up before doing the refresh
@@ -32,6 +23,10 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
 
     // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
     $scope.tickerText = "Patients and caregivers are welcome to join our (ONLINE) group workshops. Contact us by phone (514) 934-1934 ext. 35297 or email us at cedarscansupport@muhc.mcgill.ca. / Patients et proches aidants sont les bienvenus dans nos ateliers (En LIGNE) de groupe. Communiquez avec nous par téléphone, au 514-934-1934 (poste 35297) ou par courriel à l’adresse suivante : cedarscansupport@muhc.mcgill.ca.";
+
+    if(today.format("dddd") === "Tuesday" && hour >= 12 && hour < 13) {
+        $scope.tickerText = "Are you enjoying the music today? Please donate to the HEALING NOTES Fund at cedars.ca. Thank you! / Aimez-vous la musique aujourd’hui? Faites un don: Fonds NOTES DE RÉCONFORT au cedars.ca. Merci!";
+    }
 
     //define specific rooms that should display with a left arrow on the screen
     //this is to guide the patient to the right area
@@ -47,7 +42,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
 
     //connect to Firebase
     let firebaseSettings = await getFirebaseSettings();
-    let firebaseScreenRef = new Firebase(firebaseSettings.FirebaseUrl + urlParams.location + "/" + dayjs().format("MM-DD-YYYY"));
+    let firebaseScreenRef = new Firebase(firebaseSettings.FirebaseUrl + urlParams.location + "/" + today.format("MM-DD-YYYY"));
 
     firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, error => {
         if(error !== null) {

@@ -9,7 +9,7 @@ certs/
 tmp/
 
 #ignore dependencies
-node_modules/*
+node_modules/
 vendor/
 
 #ignore log files

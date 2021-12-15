@@ -1,0 +1,47 @@
+<md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+    <h2 class="md-title ng-binding">Button and Symbol Legend</h2>
+    <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+        <span style="display:flex;justify-content:center;">
+            <table class="legend-table">
+                <tr>
+                    <th>Button/Symbol</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><center style="margin:6px 0 6px 0;"><span style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span></center></td>
+                    <td>Indicates that the patient has text message alerts turned on.</td>
+                </tr>
+                <tr>
+                    <td><center style="margin:6px 0 6px 0;"><img style="height:25px;top:18%;position:relative" src="images/opal_logo.png"></img></center></td>
+                    <td>Indicates that the patient is on the Opal phone app.</td>
+                </tr>
+                <tr>
+                    <td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#59d45d;border-color:#299e29;">Add</md-button></td>
+                    <td>Click to view or update the patient’s diagnosis.</td>
+                </tr>
+                <tr>
+                    <td><md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button></td>
+                    <td>Click to view the patient's questionnaires.</td>
+                </tr>
+                <tr>
+                    <td>
+                    <span style="width:100%;display:inline-block;position:relative;">
+                        <md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button>
+                        <span class="alert-circle-legend green-circle"></span>
+                    </span>
+                    </td>
+                    <td>Indicates that the questionnaire has been reviewed within the week that the patient has completed it. Click to view the patient's questionnaires.</td>
+                </tr>
+                <tr>
+                    <td>
+                    <span style="width:100%;display:inline-block;position:relative;">
+                        <md-button md-no-ink="" class="md-raised md-primary legend-button" style="background-color:#5bc0de;border-color:#46b8da;">View Questionnaires</md-button>
+                        <span class="alert-circle-legend red-circle"></span>
+                    </span>
+                    </td>
+                    <td>Indicates that the patient completed a questionnaire that has not been reviewed. Click to view the patient's questionnaires.</td>
+                </tr>
+            </table>
+        </span>
+    </div>
+</md-dialog-content>

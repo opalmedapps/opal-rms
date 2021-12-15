@@ -491,6 +491,21 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     }
 
     //=========================================================================
+    // Open the Legend
+    //=========================================================================
+    $scope.openLegendDialog = function()
+    {
+        var legend = $mdDialog.confirm(
+            {
+                templateUrl: './js/vwr/templates/legendDialogClinicalViewer.htm'
+            })
+            .ariaLabel('Legend Dialog')
+            .clickOutsideToClose(true);
+
+        $mdDialog.show(legend);
+    }
+
+    //=========================================================================
     // Open the Selector modal
     //=========================================================================
     $scope.openSelectorModal = function (options,selectedOptions,title)

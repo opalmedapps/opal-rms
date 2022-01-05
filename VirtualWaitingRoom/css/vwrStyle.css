@@ -130,7 +130,6 @@ table.patient-list {
 }
 
 table.table-measurement {
-    width: 0;
     margin-left: auto;
     margin-right: auto;
 }

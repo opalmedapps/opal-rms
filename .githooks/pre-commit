@@ -26,7 +26,7 @@ processExitCode $? "Something went wrong with php-cs-fixer"
 
 #add the linter changes to the commit
 #only add files that are already staged and the index.html for the api
-git update-index --again && git add php/api/public/v1/index.html
+git update-index --again && git add php/api/public/v1/index_redoc.html
 
 processExitCode $? "Something went wrong with git"
 

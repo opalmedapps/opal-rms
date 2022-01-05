@@ -42,7 +42,7 @@
         <tr><td valign="top"> Enter patient MRN or RAMQ to find a patient. You will then have the option to register the patient for sms. </td></tr>
     </table>
 <div ng-controller="main">
-    <form ng-submit="fetchPatients()">
+    <form>
         <table border="0" width="50%" padding="2">
             <!--  User enters MRN or RAMQ to retrieve info  -->
             <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF> Patient Information</font></th></tr>
@@ -50,7 +50,7 @@
                 <td><b>MRN</b></td>
                 <td colspan="3"><input maxlength="40" size="20" ng-model="mrn"></td>
 
-                <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
+                <td colspan="5" align="right"><input type="submit" ng-click="fetchPatients()"> <button ng-click="resetPage()">Reset</button></td>
             </tr>
             <tr>
                 <td><b>Site</b></td>
@@ -67,7 +67,7 @@
                 <td><b>RAMQ</b></td>
                 <td colspan="3"><input maxlength="40" size="20" ng-model="ramq"></td>
 
-                <td colspan=5 align="center"><input type="submit" value="Submit"><button ng-click="resetPage()">Reset</button></td>
+                <td colspan="4" align="right"><input type="submit" ng-click="fetchPatients()"> <button ng-click="resetPage()">Reset</button></td>
             </tr>
 
         </table>

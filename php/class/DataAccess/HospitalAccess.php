@@ -62,6 +62,7 @@ class HospitalAccess
      * @return list<array{
      *      clinicHubId: int,
      *      clinicHubName: string,
+     *      hospitalCode: string,
      *      specialityGroupId: int,
      *      specialityGroupName: string
      * }>
@@ -73,10 +74,12 @@ class HospitalAccess
                 CH.ClinicHubId,
                 CH.ClinicHubName,
                 SG.SpecialityGroupId,
-                SG.SpecialityGroupName
+                SG.SpecialityGroupName,
+                H.HospitalCode
             FROM
                 ClinicHub CH
                 INNER JOIN SpecialityGroup SG ON SG.SpecialityGroupId = CH.SpecialityGroupId
+                INNER JOIN Hospital H ON H.HospitalId = SG.HospitalId
             ORDER BY
                 SG.SpecialityGroupName,
                 CH.ClinicHubName
@@ -86,6 +89,7 @@ class HospitalAccess
         return array_map(fn($x) => [
             "clinicHubId"           => (int) $x["ClinicHubId"],
             "clinicHubName"         => $x["ClinicHubName"],
+            "hospitalCode"          => $x["HospitalCode"],
             "specialityGroupId"     => (int) $x["SpecialityGroupId"],
             "specialityGroupName"   => $x["SpecialityGroupName"],
         ], $query->fetchAll());

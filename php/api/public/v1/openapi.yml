@@ -172,6 +172,9 @@ paths:
                             clinicHubName:
                               description: Hub name
                               type: string
+                            hospitalCode:
+                              description: Hospital code
+                              type: string
                             specialityGroupId:
                               description: Speciality group id
                               type: integer

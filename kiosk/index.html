@@ -19,7 +19,10 @@
         <div class="kiosk-div" ng-style="{'height': pageProperties.kioskHeight}">
 
             <div class="header-div">
-                <span class="header-section-div align-center" style="width: 25%;"><img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png"></span>
+                <span class="header-section-div align-center" style="width: 25%;">
+                    <span style="font-size: 2.5vh;" ng-if="!pageProperties.displayNetworkWarning">{{pageProperties.siteDisplay}}</span>
+                    <img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png">
+                </span>
                 <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="/images/logo.png"></span>
                 <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>
             </div>

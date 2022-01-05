@@ -47,7 +47,7 @@
                         <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Clinical Viewer</a></li>
                         <!-- <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li> -->
                         <li><a href="./interface/AddOn.html">Register Patient for SMS Messages<br></a></li>
-                        <li><a href="./kiosk/?location={{hubName+ ' Reception'}}">Patient check-in interface <br></a></li>
+                        <li><a href="./kiosk/?location={{hubName+ ' Reception'}}&site={{site}}">Patient check-in interface <br></a></li>
                         <li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
                     </ul>
                 </center>
@@ -73,8 +73,10 @@ var app = angular.module('myApp',['ngCookies']);
 app.controller('main', function($scope,$http,$cookies,$location,$window)
 {
     $scope.speciality = $cookies.get("specialityGroupName");
-    $scope.hub = $cookies.get("clinicHubId");
-    $scope.hubName = $cookies.get("clinicHubName");
+    $scope.hub        = $cookies.get("clinicHubId");
+    $scope.hubName    = $cookies.get("clinicHubName");
+    $scope.site       = $cookies.get("hospitalCode");
+
     $scope.logOut = function()
     {
         $cookies.remove("ormsAuth");
@@ -82,6 +84,7 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
         $cookies.remove("specialityGroupName");
         $cookies.remove("clinicHubId");
         $cookies.remove("clinicHubName");
+        $cookies.remove("hospitalCode");
         $window.location.href = $location.absUrl();
     }
 });

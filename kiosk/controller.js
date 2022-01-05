@@ -11,8 +11,9 @@ app.config(['$locationProvider',function ($locationProvider)
 
 app.controller('main', async function($scope,$http,$sce,$location,$interval,$window)
 {
-    let params = $location.search();
+    let params        = $location.search();
     let kioskLocation = params.location ?? "DS1_1";
+    let site          = params.site ?? "RVH"; //RVH site partially hardcoded for now
 
     let locationIsReception = /Reception/.test(kioskLocation);
 
@@ -34,7 +35,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
         displayNetworkWarning:      false,
         messageBackgroundColor:     locationIsReception ? "blue" : "rgb(51,153,51)",
         locationDisplay:            kioskLocation.replace("_","-"),
-        kioskHeight:                locationIsReception ? "98%" : null
+        kioskHeight:                locationIsReception ? "98%" : null,
+        siteDisplay:                site
     };
 
     $scope.receptionMessage = {
@@ -103,7 +105,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             ramq = null;
         }
 
-        let patient = await getPatientInfo(ramq,mrn,"RVH"); //RVH hardcoded for now
+        let patient = await getPatientInfo(ramq,mrn,site);
 
         //send to reception if the patient is unknown
         if(patient === null) {

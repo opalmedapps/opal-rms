@@ -44,6 +44,7 @@ class HospitalInterface
      * @return array<string,list<array{
      *      clinicHubId: int,
      *      clinicHubName: string,
+     *      hospitalCode: string,
      *      specialityGroupId: int,
      *      specialityGroupName: string
      * }>>
@@ -56,6 +57,7 @@ class HospitalInterface
             $x[$y["specialityGroupName"]][] = [
                 "clinicHubId"           => (int) $y["clinicHubId"],
                 "clinicHubName"         => (string) $y["clinicHubName"],
+                "hospitalCode"          => (string) $y["hospitalCode"],
                 "specialityGroupId"     => (int) $y["specialityGroupId"],
                 "specialityGroupName"   => (string) $y["specialityGroupName"],
             ];

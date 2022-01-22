@@ -83,6 +83,9 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
         let patientsArr = patients.$getRecord("patients");
         patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated","$id","$priority"].includes(x)).map(x => patientsArr[x]);
 
+        //filter checked out patients due to appointment completions
+        patientsArr = patientsArr.filter(x => x.PatientStatus !== "CheckedOut");
+
         return angular.copy(Object.values(patientsArr)).map(x => {
             x.FirstName = CryptoJS.AES.decrypt(x.FirstName,"secret key 123").toString(CryptoJS.enc.Utf8);
             return x;

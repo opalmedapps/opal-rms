@@ -68,6 +68,20 @@ httpd settings:
                 </Files>
             </Directory>
 
+            <Directory "/var/www/OnlineRoomManagementSystem/kiosk">
+                #Include hardwareIpList.list
+            </Directory>
+
+            <Directory "/var/www/OnlineRoomManagementSystem/php/api/private/v1">
+                <FilesMatch "findPatient|checkInViaKiosk.php|sendSms|logMessageForKiosk">
+                    #Include hardwareIpList.list
+                </FilesMatch>
+            </Directory>
+
+            <Location "/tmp/schedule.csv">
+                #Include hardwareIpList.list
+            </Location>
+
             #allow tvs to access tv web page
 
             <DirectoryMatch "<<path>>/VirtualWaitingRoom/(css|images|sounds)">

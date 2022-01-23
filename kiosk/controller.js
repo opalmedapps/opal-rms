@@ -18,16 +18,12 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     let locationIsReception = /Reception/.test(kioskLocation);
 
     //room to check the patient into
-    let checkInRoom = "UNKNOWN";
-    if(/^(DRC_1|DRC_2|DRC_3)$/.test(kioskLocation) === true) {
+    let checkInRoom = "WAITING ROOM";
+    if(/^(DRC_1|DRC_2|DRC_3|D RC Reception)$/.test(kioskLocation) === true) {
         checkInRoom = "D RC WAITING ROOM";
     }
-    else if(/^(DS1_1|DS1_2|DS1_3)$/.test(kioskLocation) === true) {
+    else if(/^(DS1_1|DS1_2|DS1_3|D S1 Reception)$/.test(kioskLocation) === true) {
         checkInRoom = "D S1 WAITING ROOM";
-    }
-    else if(locationIsReception === true) {
-        checkInRoom = kioskLocation.replace(" Reception","");
-        checkInRoom = `${checkInRoom} WAITING ROOM`.toUpperCase();
     }
 
     $scope.pageProperties = {

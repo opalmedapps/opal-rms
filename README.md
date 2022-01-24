@@ -38,6 +38,7 @@ httpd settings:
         <VirtualHost _default_:443>
             DocumentRoot "<<path>>"
             ErrorLog logs/ssl_error_log
+            logformat "%a %l %u %t \"%r\" %>s %o \"%{referer}i\" \"%{user-agent}i\""
             TransferLog logs/ssl_access_log
             LogLevel warn
             SSLEngine on

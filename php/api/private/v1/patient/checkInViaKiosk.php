@@ -10,6 +10,7 @@ use Orms\DateTime;
 use Orms\External\OIE\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
+use Orms\Util\Encoding;
 
 $params = Http::getRequestContents();
 
@@ -51,5 +52,7 @@ $output = [
     "ariaPhotoOk"     => $photoOk,
     "nextAppointment" => $nextAppointment
 ];
+
+$output = Encoding::utf8_encode_recursive($output);
 
 Http::generateResponseJsonAndExit(200, data: $output);

@@ -251,7 +251,7 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
             'csvHtml5',
             {
                 extend: 'print',
-                title: $scope.inputs.type == 'specific' ? $scope.inputs.specificType.name : 'All Appointments',
+                title: $scope.inputs.type == 'specific' ? $scope.inputs.specificType.description : 'All Appointments',
                 exportOptions: {
                     stripHtml: false
                 },
@@ -339,7 +339,7 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
         $scope.sTimeDisplay = $scope.sTime;
         $scope.eTimeDisplay = $scope.eTime;
 
-        $scope.appName = $scope.inputs.specificType.name;
+        $scope.appName = $scope.inputs.specificType.description;
 
         $scope.sameDate = false;
         if($scope.sDateDisplay.getTime() == $scope.eDateDisplay.getTime()) {$scope.sameDate = true;}
@@ -357,7 +357,7 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
             $scope.tableData = response.tableData;
 
             if($scope.inputs.type == 'all') {$scope.titleLabel = 'All';}
-            else if($scope.inputs.type == 'specific') {$scope.titleLabel = $scope.inputs.specificType.name;}
+            else if($scope.inputs.type == 'specific') {$scope.titleLabel = $scope.inputs.specificType.description;}
 
             $scope.message = "";
             $scope.hideType = 0;
@@ -396,7 +396,7 @@ app.factory('callScript',function($http,$q)
                     arrived:        inputs.arrived ? 1 : 0,
                     notArrived:     inputs.notArrived ? 1 : 0,
                     type:           inputs.type,
-                    specificType:   inputs.specificType.name ?? null,
+                    specificType:   inputs.specificType.description ?? null,
                     mediAbsent:     inputs.mediAbsent ? 1 : 0,
                     mediAddOn:      inputs.mediAddOn ? 1 : 0,
                     mediCancelled:  inputs.mediCancelled ? 1 : 0,

@@ -13,8 +13,12 @@ use Orms\Util\Encoding;
 
 $params = Http::getRequestContents();
 
-$profileId   = $params["profileId"];
-$clinicHubId = (int) $params["clinicHubId"];
+$profileId   = $params["profileId"] ?? null;
+$clinicHubId = (int) ($params["clinicHubId"] ?? null);
+
+if($profileId === null) {
+    Http::generateResponseJsonAndExit(400, data: (object) []);
+}
 
 $clinicHubs = array_merge(...array_values(HospitalInterface::getHubs()));
 $clinicHub = array_values(array_filter($clinicHubs,fn($x) => $x["clinicHubId"] === $clinicHubId))[0] ?? null;

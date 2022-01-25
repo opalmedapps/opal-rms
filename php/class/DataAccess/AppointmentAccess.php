@@ -435,6 +435,13 @@ class AppointmentAccess
                 CheckinVenueName         = :room,
                 ArrivalDateTime          = :arrival,
                 IntendedAppointmentFlag  = :intended
+            ON DUPLICATE KEY UPDATE
+                PatientLocationSerNum      = VALUES(PatientLocationSerNum),
+                PatientLocationRevCount    = VALUES(PatientLocationRevCount),
+                AppointmentSerNum          = VALUES(AppointmentSerNum),
+                CheckinVenueName           = VALUES(CheckinVenueName),
+                ArrivalDateTime            = VALUES(ArrivalDateTime),
+                IntendedAppointmentFlag    = VALUES(IntendedAppointmentFlag)
         ")->execute([
             "plId"       => $currentLocation["PatientLocationSerNum"],
             ":revCount"  => $currentLocation["PatientLocationRevCount"],

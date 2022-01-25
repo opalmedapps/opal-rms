@@ -27,7 +27,7 @@ class LocationInterface
             AppointmentAccess::moveAppointmentToLocation($app["appointmentId"], $room, $intendedAppointment);
 
             //also export the appointment to other systems
-            Export::exportPatientLocation($app["sourceId"], $app["sourceSystem"], $room);
+            Export::exportPatientLocation($patient,$app["sourceId"], $app["sourceSystem"], $room);
         }
     }
 

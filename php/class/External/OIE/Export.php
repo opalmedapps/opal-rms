@@ -12,14 +12,16 @@ use Orms\Patient\Model\Patient;
 
 class Export
 {
-    public static function exportPatientLocation(string $sourceId, string $sourceSystem, string $room): void
+    public static function exportPatientLocation(Patient $patient,string $sourceId, string $sourceSystem, string $room): void
     {
         try {
             Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_LOCATION, [
                 "json" => [
                     "room"          => $room,
+                    "mrn"           => $patient->getActiveMrns()[0]->mrn,
+                    "site"          => $patient->getActiveMrns()[0]->site,
                     "sourceId"      => $sourceId,
-                    "sourceSystem"  => $sourceSystem
+                    "sourceSystem"  => $sourceSystem,
                 ]
             ]);
         }

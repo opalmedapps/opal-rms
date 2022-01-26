@@ -140,6 +140,15 @@ class PatientInterface
             $mrns
         );
 
+        //each mrn in the ADT may contain a different insurance number, or the same number but with a different expiration date
+        //for each insurance number, check if it's already in the system and use the newest expiration date
+        if($insurances !== null) {
+            $insurances = array_values(array_filter($insurances,function($insurance) use ($patient) {
+                $sameInsurance = array_values(array_filter($patient->insurances,fn($x) => [$x->number,$x->type] === [$insurance->number,$insurance->type]))[0] ?? null;
+                return $sameInsurance === null || $sameInsurance->expiration < $insurance->expiration;
+            }));
+        }
+
         $newPatient = new Patient(
             id:                  $patient->id,
             firstName:           $firstName ?? $patient->firstName,

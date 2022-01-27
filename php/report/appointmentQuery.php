@@ -47,6 +47,7 @@ $codeFilter = [];
 if($appType === "specific" && $specificType !== null) {
     $codeFilter = [$specificType];
 }
+$codeFilter = Encoding::utf8_decode_recursive($codeFilter);
 
 $clinics = AppointmentInterface::getClinicCodes((int) $speciality);
 

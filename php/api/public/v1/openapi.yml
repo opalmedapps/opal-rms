@@ -333,6 +333,80 @@ paths:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'
+  /patient/getDiagnoses:
+    post:
+      summary: Retrieve a patient's diagnoses
+      description: Gets all diagnoses in a patient's profile in a format usefult for the Opal Interface Engine
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                    description: Hospital site
+                    type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/SuccessProperty'
+                  data:
+                    description: A list of diagnoses
+                    type: array
+                    items:
+                      properties:
+                        mrn:
+                          description: Medical record number
+                          type: string
+                        site:
+                          description: Hospital site
+                          type: string
+                        source:
+                          description: Source system
+                          type: string
+                          enum: ["ORMS"]
+                        rowId:
+                          description: ORMS internal id
+                          type: integer
+                        externalId:
+                          description: ICD system
+                          type: string
+                          enum: ["ICD-10"]
+                        code:
+                          description: Diagnosis code
+                          type: string
+                        creationDate:
+                          description: Diagnosis date
+                          type: string
+                        descriptionEn:
+                          description: English code description
+                          type: string
+                        descriptionFr:
+                          description: French code description
+                          type: string
+                          enum: [""]
+                        status:
+                          description: Diagnosis status
+                          type: string
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
 
   /patient/mergeMrn:
     post:

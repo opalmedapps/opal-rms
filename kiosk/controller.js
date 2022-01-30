@@ -380,7 +380,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     function getNextAppointment(patient,destination)
     {
         return $http({
-            url: "/php/api/private/v1/patient/checkInViaKiosk.php",
+            url: "/php/api/private/v1/patient/checkInViaKiosk",
             method: "POST",
             data: {
                 patientId:  patient.patientId,

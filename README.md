@@ -76,7 +76,7 @@ httpd settings:
             </Directory>
 
             <Directory "/var/www/OnlineRoomManagementSystem/php/api/private/v1">
-                <FilesMatch "findPatient|checkInViaKiosk.php|sendSms|logMessageForKiosk">
+                <FilesMatch "findPatient|checkInViaKiosk|sendSms|logMessageForKiosk">
                     #Include hardwareIpList.list
                 </FilesMatch>
             </Directory>

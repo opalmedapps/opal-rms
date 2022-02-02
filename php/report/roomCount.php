@@ -55,7 +55,7 @@ else {
 $rooms = ReportAccess::getRoomUsage($sDate, $eDate, $sTime, $eTime, (int) $speciality);
 $flattenedArr = [];
 
-if($groupByDate === false) {
+if($groupByDate === true) {
     $dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($rooms), "CheckinVenueName", "ResourceName", "ScheduledDate");
 
     foreach($dataArr as $roomKey => $room) {

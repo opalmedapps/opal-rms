@@ -28,10 +28,11 @@ use Orms\Util\Encoding;
 
 $params = Http::getRequestContents();
 
-$sDate      = $params["sDate"] ?? throw new Exception("Invalid date");
-$eDate      = $params["eDate"] ?? throw new Exception("Invalid date");
-$period     = $params["period"] ?? null;
-$speciality = $params["speciality"] ?? null;
+$sDate          = $params["sDate"] ?? throw new Exception("Invalid date");
+$eDate          = $params["eDate"] ?? throw new Exception("Invalid date");
+$groupByDate    = (bool) ($params["groupByDate"] ?? null);
+$period         = $params["period"] ?? null;
+$speciality     = $params["speciality"] ?? null;
 
 //check what period of the day the user specified and filter appointments that are not within that timeframe
 $sDate = DateTime::createFromFormatN("Y-m-d", $sDate)?->modifyN("midnight") ?? throw new Exception("Invalid date");
@@ -52,18 +53,38 @@ else {
 
 //get a list of all rooms that patients were checked into and for which appointment
 $rooms = ReportAccess::getRoomUsage($sDate, $eDate, $sTime, $eTime, (int) $speciality);
-
-$dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($rooms), "CheckinVenueName", "ResourceName");
-
 $flattenedArr = [];
-foreach($dataArr as $roomKey => $room) {
-    foreach($room as $resourceKey => $resource) {
-        $counts = sizeof($resource);
-        $flattenedArr[] = [
-            "Room" => $roomKey,
-            "Appointment" => $resourceKey,
-            "Counts" => $counts
-        ];
+
+if($groupByDate === false) {
+    $dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($rooms), "CheckinVenueName", "ResourceName", "ScheduledDate");
+
+    foreach($dataArr as $roomKey => $room) {
+        foreach($room as $resourceKey => $resource) {
+            foreach($resource as $dateKey => $date) {
+                $counts = sizeof($date);
+                $flattenedArr[] = [
+                    "Room"        => $roomKey,
+                    "Appointment" => $resourceKey,
+                    "Date"        => $dateKey,
+                    "Counts"      => $counts
+                ];
+            }
+        }
+    }
+}
+else {
+    $dataArr = ArrayUtil::groupArrayByKeyRecursive(Encoding::utf8_encode_recursive($rooms), "CheckinVenueName", "ResourceName");
+
+    foreach($dataArr as $roomKey => $room) {
+        foreach($room as $resourceKey => $resource) {
+            $counts = sizeof($resource);
+            $flattenedArr[] = [
+                "Room"        => $roomKey,
+                "Appointment" => $resourceKey,
+                "Date"        => "",
+                "Counts"      => $counts
+            ];
+        }
     }
 }
 

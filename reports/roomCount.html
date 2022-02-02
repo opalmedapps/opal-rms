@@ -117,7 +117,23 @@
             <tr><td><br></td></tr>
 
             <tr>
-            <td colspan=2><b>Look for &nbsp;&nbsp;</b><select ng-model="period" name="AMPM"><option value="AM">AM</option><option value="PM">PM</option><option value="All">All</option></select><b> &nbsp;appointments</b></td>
+                <td colspan=2>
+                    <b>Group by date &nbsp;&nbsp;</b>
+                    <input type="checkbox" ng-model="groupByDate">
+                </td>
+            <tr>
+
+            <tr><td><br></td></tr>
+
+            <tr>
+            <td colspan=2>
+                <b>Look for &nbsp;&nbsp;</b>
+                <select ng-model="period" name="AMPM">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                    <option value="All">All</option>
+                </select><b> &nbsp;appointments</b>
+            </td>
             <tr>
 
             <tr><td><br></td></tr>
@@ -146,6 +162,7 @@
             <tr>
             <th>Room</th>
             <th>Clinic</th>
+            <th>Date</th>
             <th>Number of Patients Seen</th>
             </tr>
         </thead>
@@ -153,6 +170,7 @@
             <tr ng-repeat="row in tableData">
             <td>{{row.Room}}</td>
             <td>{{row.Appointment}}</td>
+            <td>{{row.Date}}</td>
             <td>{{row.Counts}}</td>
             </tr>
         </tbody>
@@ -227,10 +245,12 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
         $scope.eDateDisplay = $scope.eDate;
         if($scope.period != 'All') {$scope.periodDisplay = $scope.period;}
 
+        let groupByDate = $scope.groupByDate ? 1 : 0;
+
         $scope.showDiv = false;
         $scope.message = "Getting Data...";
 
-        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.period,speciality).then(function (response)
+        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),groupByDate,$scope.period,speciality).then(function (response)
         {
             $scope.tableData = response;
 
@@ -245,13 +265,13 @@ app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScr
 app.factory('callScript',function($http,$q)
 {
     return {
-        getData: function(sDate,eDate,period,speciality)
+        getData: function(sDate,eDate,groupByDate,period,speciality)
         {
             var defer = $q.defer();
 
             url = "/php/report/roomCount?"
 
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&period="+period+"&speciality="+speciality).then(function (response)
+            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&groupByDate="+groupByDate+"&period="+period+"&speciality="+speciality).then(function (response)
             {
                 var info = {};
                 info = response.data;

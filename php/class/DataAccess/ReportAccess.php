@@ -215,7 +215,8 @@ class ReportAccess
      * @return list<array{
      *  ResourceName: string,
      *  CheckinVenueName: string,
-     *  ScheduledDate: string
+     *  ScheduledDate: string,
+     *  PatientId: int,
      * }>
      */
     public static function getRoomUsage(DateTime $startDate, DateTime $endDate, DateTime $startTime, DateTime $endTime, int $specialityGroupId): array
@@ -225,7 +226,8 @@ class ReportAccess
             SELECT DISTINCT
                 CR.ResourceName,
                 PatientLocationMH.CheckinVenueName,
-                MV.ScheduledDate
+                MV.ScheduledDate,
+                MV.PatientSerNum
             FROM
                 MediVisitAppointmentList MV
                 INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
@@ -251,6 +253,7 @@ class ReportAccess
                 "ResourceName"     => $x["ResourceName"],
                 "CheckinVenueName" => $x["CheckinVenueName"],
                 "ScheduledDate"    => $x["ScheduledDate"],
+                "PatientId"        => (int) $x["PatientSerNum"],
             ];
         }, $query->fetchAll());
     }

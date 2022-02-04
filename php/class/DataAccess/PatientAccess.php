@@ -326,6 +326,26 @@ class PatientAccess
         return (int) ($query->fetchAll()[0]["PatientId"] ?? null);
     }
 
+    public static function deleteInsurance(Patient $patient,Insurance $insurance): void
+    {
+        $dbh = Database::getOrmsConnection();
+
+        $dbh->prepare("
+            UPDATE
+                PatientInsuranceIdentifier
+            SET
+                Active = 0
+            WHERE
+                PatientId = :pid
+                AND InsuranceNumber = :insurance
+                AND InsuranceId = (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :type)
+        ")->execute([
+            ":pid"        => $patient->id,
+            ":insurance"  => $insurance->number,
+            ":type"       => $insurance->type
+        ]);
+    }
+
     /**
      *
      * @return Insurance[]

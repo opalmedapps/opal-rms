@@ -145,7 +145,7 @@ class PatientInterface
         if($insurances !== null) {
             $insurances = array_values(array_filter($insurances,function($insurance) use ($patient) {
                 $sameInsurance = array_values(array_filter($patient->insurances,fn($x) => [$x->number,$x->type] === [$insurance->number,$insurance->type]))[0] ?? null;
-                return $sameInsurance === null || $sameInsurance->expiration < $insurance->expiration;
+                return $sameInsurance === null || $sameInsurance->expiration <= $insurance->expiration;
             }));
         }
 

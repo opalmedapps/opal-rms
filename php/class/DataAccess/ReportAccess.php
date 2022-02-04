@@ -225,17 +225,17 @@ class ReportAccess
         $query = Database::getOrmsConnection()->prepare("
             SELECT DISTINCT
                 CR.ResourceName,
-                PatientLocationMH.CheckinVenueName,
+                PL.CheckinVenueName,
                 MV.ScheduledDate,
                 MV.PatientSerNum
             FROM
                 MediVisitAppointmentList MV
                 INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = MV.ClinicResourcesSerNum
                     AND CR.SpecialityGroupId = :spec
-                INNER JOIN PatientLocationMH PatientLocationMH ON PatientLocationMH.AppointmentSerNum = MV.AppointmentSerNum
-                    AND PatientLocationMH.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
-                    AND PatientLocationMH.CheckinVenueName NOT LIKE '%WAITING ROOM%'
-                    AND CAST(PatientLocationMH.ArrivalDateTime AS TIME) BETWEEN :sTime AND :eTime
+                INNER JOIN PatientLocationMH PL ON PL.AppointmentSerNum = MV.AppointmentSerNum
+                    AND PL.CheckinVenueName NOT IN ('VISIT COMPLETE','ADDED ON BY RECEPTION','BACK FROM X-RAY/PHYSIO','SENT FOR X-RAY','SENT FOR PHYSIO','RC RECEPTION','OPAL PHONE APP')
+                    AND PL.CheckinVenueName NOT LIKE '%WAITING ROOM%'
+                    AND CAST(PL.ArrivalDateTime AS TIME) BETWEEN :sTime AND :eTime
             WHERE
                 MV.ScheduledDateTime BETWEEN :sDate AND :eDate
                 AND MV.Status = 'Completed'

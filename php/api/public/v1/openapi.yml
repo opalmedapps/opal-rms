@@ -333,6 +333,39 @@ paths:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'
+
+  /patient/deleteRamqs:
+    post:
+      summary: Deletes ramqs for a patient
+      description: Sets all ramq insurance numbers to inactive for a patient
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                insuranceType:
+                  description: Type of insurance
+                  type: string
+              required:
+                - mrn
+                - site
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
   /patient/getDiagnoses:
     post:
       summary: Retrieve a patient's diagnoses
@@ -406,7 +439,6 @@ paths:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'
-
 
   /patient/mergeMrn:
     post:

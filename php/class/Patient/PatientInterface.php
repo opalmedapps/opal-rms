@@ -224,6 +224,14 @@ class PatientInterface
         return $patients;
     }
 
+    public static function deactivateInsurance(Patient $patient,string $insuranceType): void
+    {
+        $insurances = array_values(array_filter($patient->insurances,fn($x) => $x->type === $insuranceType));
+        foreach($insurances as $insurance) {
+            PatientAccess::deleteInsurance($patient,$insurance);
+        }
+    }
+
     /**
      *
      * @return PatientMeasurement[]

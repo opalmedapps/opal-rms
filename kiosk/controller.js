@@ -110,7 +110,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             await sleep(20);
         }
         //if the patient has a ramq and it's expired, send them to admissions
-        else if(dayjs().isAfter(patient.ramqExpiration)) {
+        else if(locationIsReception === false && dayjs().isAfter(patient.ramqExpiration)) {
             $scope.messageComponents = generateSendToAdmissionMessageComponents();
             $scope.$apply();
             await sleep(20);

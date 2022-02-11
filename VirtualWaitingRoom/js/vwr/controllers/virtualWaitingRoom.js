@@ -224,7 +224,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         let similarPatients = $scope.checkins.filter(x =>
             x.RowType === "CheckedIn"
             && x.FirstName === patient.FirstName
-            && new RegExp("^"+x.LastName.substring(0,3)).test(x.LastName)
+            && new RegExp("^"+x.LastName.substring(0,3)).test(patient.LastName)
             && x.PatientId !== patient.PatientId
         );
 

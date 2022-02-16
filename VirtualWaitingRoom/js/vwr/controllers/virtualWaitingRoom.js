@@ -240,7 +240,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         //-----------------------------------------------------------------------
 
         //if the destination is in a waiting room, don't put the appointment in firebase
-        if(!/WAITING ROOM/.test(destination.Name))
+        if(!/WAITING ROOM/i.test(destination.Name))
         {
             firebaseScreenRef.child("patients").child(patient.AppointmentId).set(
             {

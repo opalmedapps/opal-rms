@@ -90,6 +90,55 @@ paths:
           $ref: '#/components/responses/400'
         500:
           $ref: '#/components/responses/500'
+  /appointment/insertClinicResource:
+    post:
+      summary: Create a new clinic resource, or update an existing one
+      description: Imports or updates clinic resources from (external) source systems into ORMS
+      tags:
+        - appointment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointmentCode:
+                  description: Appointment code
+                  type: string
+                clinics:
+                  description: List of clinics attached to be appointment
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      clinicCode:
+                        description: Clinic code
+                        type: string
+                      clinicDescription:
+                        description: Clinic code description
+                        type: string
+                    required:
+                      - clinicCode
+                      - clinicDescription
+                sourceSystem:
+                  description: External system from which the appointment originates
+                  type: string
+                specialityGroupCode:
+                  description: ORMS defined speciality group code
+                  type: string
+              required:
+                - appointmentCode
+                - clinics
+                - sourceSystem
+                - specialityGroupCode
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
 
   /auth/createSession:
     post:

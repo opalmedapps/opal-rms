@@ -29,6 +29,29 @@ class AppointmentInterface
         ?string $visitStatus,
     ): void
     {
+        $resourceIds = self::insertClinicResource($appointmentCode,$clinicCode,$clinicDescription,$specialityGroupCode,$system);
+
+        AppointmentAccess::createOrUpdateAppointment(
+            appointmentCodeId:      $resourceIds["appointmentCodeId"],
+            clinicId:               $resourceIds["clinicCodeId"],
+            creationDate:           $creationDate,
+            patientId:              $patient->id,
+            scheduledDateTime:      $scheduledDateTime,
+            sourceId:               $sourceId,
+            status:                 $status,
+            system:                 $system,
+            visitStatus:            $visitStatus
+        );
+    }
+
+    /**
+     * @return array{
+     *   clinicCodeId: int,
+     *   appointmentCodeId: int,
+     * }
+     */
+    public static function insertClinicResource(string $appointmentCode,string $clinicCode,string $clinicDescription,string $specialityGroupCode,string $system): array
+    {
         //get the necessary ids that are attached to the appointment
         $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
 
@@ -58,25 +81,10 @@ class AppointmentInterface
             );
         }
 
-        AppointmentAccess::createOrUpdateAppointment(
-            appointmentCodeId:      $appCodeId,
-            clinicId:               $clinicId,
-            creationDate:           $creationDate,
-            patientId:              $patient->id,
-            scheduledDateTime:      $scheduledDateTime,
-            sourceId:               $sourceId,
-            status:                 $status,
-            system:                 $system,
-            visitStatus:            $visitStatus
-        );
-    }
-
-    //deletes all similar appointments in the database
-    //similar is defined as having the same appointment resources, and being scheduled at the same time (for the same patient)
-    public static function deleteSimilarAppointments(Patient $patient, DateTime $scheduledDateTime, string $clinicCode, string $clinicDescription, string $specialityGroupCode): void
-    {
-        $specialityGroupId = HospitalInterface::getSpecialityGroupId($specialityGroupCode) ?? throw new Exception("Unknown speciality group code $specialityGroupCode");
-        AppointmentAccess::deleteSimilarAppointments($patient->id,$scheduledDateTime,$clinicCode,$clinicDescription,$specialityGroupId);
+        return [
+            "appointmentCodeId" => $appCodeId,
+            "clinicCodeId" => $clinicId,
+        ];
     }
 
     public static function completeAppointment(int $appointmentId): void

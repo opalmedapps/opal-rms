@@ -455,7 +455,7 @@ class PatientAccess
                 ":active"       => $active
             ]);
         }
-        elseif((bool) $insuranceActive !== $active || new DateTime($insuranceActiveExpiration) !== $expirationDate)
+        elseif((bool) $insuranceActive !== $active || (new DateTime($insuranceActiveExpiration))->getTimestamp() !== $expirationDate->getTimestamp())
         {
             $dbh->prepare("
                 UPDATE PatientInsuranceIdentifier
@@ -467,11 +467,11 @@ class PatientAccess
                     AND InsuranceNumber = :number
                     AND InsuranceId = (SELECT InsuranceId FROM Insurance WHERE InsuranceCode = :type)
             ")->execute([
-                ":pid"       => $patientId,
-                ":number"    => $insuranceNumber,
-                ":type"      => $insuranceType,
-                "expiration" => $expirationDate->format("Y-m-d H:i:s"),
-                ":active"    => $active
+                ":pid"        => $patientId,
+                ":number"     => $insuranceNumber,
+                ":type"       => $insuranceType,
+                ":expiration" => $expirationDate->format("Y-m-d H:i:s"),
+                ":active"     => (int) $active
             ]);
         }
     }

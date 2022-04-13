@@ -27,7 +27,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $scope.questionnaireList = response.data.data.map(x => {
             x.name = x.questionnaireName;
             x.selected = false;
-            x.reviewed = (x.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
+            x.reviewed = (!$scope.patient.LastQuestionnaireReview || x.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
 
             return x;
         });

@@ -27,7 +27,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $scope.questionnaireList = response.data.data.map(x => {
             x.name = x.questionnaireName;
             x.selected = false;
-            x.reviewed = (x.completionDate > $scope.patient.LastQuestionnaireReview) ? "red-circle" : ""
+            x.reviewed = (!$scope.patient.LastQuestionnaireReview || new Date(x.completionDate) > new Date($scope.patient.LastQuestionnaireReview)) ? "red-circle" : ""
 
             return x;
         });
@@ -98,15 +98,15 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     //Determining if an alert dot should be displayed for purpose buttons.
     $scope.alertDotForPurpose = function(purpose)
     {
-        if($scope.questionnaireList.some(x => x.purposeId === purpose.purposeId && x.reviewed === "red-circle")) {
-            return true;
+        if (purpose.title === 'Research') {
+            return $scope.studyList.some(x => $scope.alertDotForStudy(x));
         }
-
-        if(purpose.title !== 'Research') {
+        else {
+            if ($scope.questionnaireList.some(x => x.purposeId === purpose.purposeId && x.reviewed === "red-circle")) {
+                return true;
+            }
             return $scope.clinicianQuestionnaireList.some(x => x.purposeId === purpose.purposeId && x.completed === false);
         }
-
-        return $scope.studyList.some(x => $scope.alertDotForStudy(x));
     }
 
     //Determining if an alert dot should be displayed for study buttons.

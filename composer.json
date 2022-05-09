@@ -17,7 +17,8 @@
         "ulrichsg/getopt-php": "^3.4",
         "league/openapi-psr7-validator": "^0.15.2",
         "cebe/php-openapi": "^1.5",
-        "lavary/crunz": "^3.0"
+        "lavary/crunz": "^3.2",
+        "symfony/lock": "^6.0"
     },
     "require-dev": {
         "ext-xml": "*",

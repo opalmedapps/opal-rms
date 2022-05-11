@@ -47,6 +47,14 @@ services:
     image: "memcached:1.6.15-alpine3.15"
     user: ${HOST_USER_ID}
 
+  cron:
+    image: "willfarrell/crontab:1.0.0"
+    # user: ${HOST_USER_ID}
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # - "./env:/opt/env:ro"
+      - "./cron/config.json:/opt/crontab/config.json"
+
   app:
     build: ./app/
     environment:

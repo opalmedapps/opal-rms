@@ -3,12 +3,19 @@ FROM php:8.0-apache
 WORKDIR /var/www/orms
 
 #install php packages
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions
-RUN install-php-extensions pdo_mysql memcached @composer
+RUN curl -sSLf -o /usr/local/bin/install-php-extensions https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions pdo_mysql memcached @composer
+
+#install npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install --no-install-recommends -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 #install Authmemcookie module
-RUN apt update && apt install -y libmemcached-dev apache2-dev
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y libmemcached-dev apache2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN cd /opt \
     && mkdir Apache-Authmemcookie-Module \
@@ -25,13 +32,4 @@ RUN a2enmod rewrite ssl
 COPY ./ssl.conf /etc/apache2/sites-enabled
 COPY ./hardwareIpList.list /etc/apache2/
 
-#set up crons
-
 #install pdflatex and tex packages
-
-#install npm
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
-
-#clean up image
-RUN rm -rf /var/lib/apt/lists/*

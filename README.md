@@ -32,5 +32,3 @@ Setup application:
 Setup cronjobs:
 * cp config/crunz.yml.template config/crunz.yml
 * in config/crunz/yml, set the error file location, mailer settings, and timezone (important, else the cron won't work)
-* put in crontab:
-    * \* * * * * cd /path/to/config && ../vendor/bin/crunz schedule:run >/dev/null

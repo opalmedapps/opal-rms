@@ -15,8 +15,9 @@ To run docker containers:
 * docker compose up
 
 Docker issues:
-* A mailserver hasn't been set up / emailing hasn't been tested
+* A mailserver hasn't been set up / emailing hasn't been tested.
 * The cron service won't run if a previous run hasn't terminated. Unfortunately, the ORMS cron is designed to never terminate. The cron service has to be restarted when changing the config.conf settings in order for the changes to have an effect.
+* Pdflatex isn't set up on the application container so generating pdfs won't work.
 
 To enable git hooks:
 * sh .githooks/activateHooks.sh

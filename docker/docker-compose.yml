@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  db-orms:
+    image: mariadb:10.7.3
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_TCP_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: OrmsDatabase
+    command: --max_allowed_packet=16777216
+    user: ${HOST_USER_ID}
+    volumes:
+      - "../tmp/mysql_orms:/var/lib/mysql"
+      - "./db/orms:/docker-entrypoint-initdb.d"
+    ports:
+      - ${MYSQL_ORMS_PORT}:3306
+
+  db-log:
+    image: mariadb:10.7.3
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_TCP_PORT: 3307
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: OrmsLog
+    command: --max_allowed_packet=16777216
+    user: ${HOST_USER_ID}
+    volumes:
+      - "../tmp/mysql_log:/var/lib/mysql"
+      - "./db/log:/docker-entrypoint-initdb.d"
+    ports:
+      - ${MYSQL_LOG_PORT}:3307
+
+  highcharts:
+    image: "onsdigital/highcharts-export-node:latest"
+    init: true
+    user: ${HOST_USER_ID}
+    ports:
+      - ${HIGHCHARTS_PORT}:7801
+    volumes:
+      - ../certs:/etc/certs
+    entrypoint: ["highcharts-export-server","--enableServer","1","--sslOnly","1","--sslPort","7801","--sslPath","/etc/certs"]
+
+  memcached:
+    image: "memcached:1.6.15-alpine3.15"
+    user: ${HOST_USER_ID}
+
+  app:
+    build: ./app/
+    environment:
+      PHP_MEMORY_LIMIT: 512M
+    user: ${HOST_USER_ID}
+    volumes:
+      - "../:/var/www/orms"
+    ports:
+      - ${ORMS_PORT}:443

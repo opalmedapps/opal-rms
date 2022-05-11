@@ -1,6 +1,7 @@
 
 #ignore config files
 config/
+docker/.env
 
 #ignore cert files
 certs/

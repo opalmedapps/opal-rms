@@ -96,6 +96,17 @@ try
             PatientInterface::mergePatientEntries($patients[0], $patients[1]);
             $patients = PatientInterface::getPatientsFromMrns($demographics->mrns);
         }
+
+        //update the patient's demographics with the new data
+        PatientInterface::updatePatientInformation(
+            patient:     $patients[0],
+            firstName:   $demographics->firstName,
+            lastName:    $demographics->lastName,
+            dateOfBirth: $demographics->dateOfBirth,
+            sex:         $demographics->sex,
+            mrns:        $demographics->mrns,
+            insurances:  $demographics->insurances
+        );
     }
 }
 catch(ApplicationException $e) {

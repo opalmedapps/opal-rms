@@ -8,6 +8,7 @@ use DateTime;
 use Orms\Config;
 use Orms\Sms\Internal\SmsClassInterface;
 use Orms\Sms\Internal\SmsReceivedMessage;
+use Twilio\Exceptions\EnvironmentException;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Client;
 
@@ -46,10 +47,18 @@ class SmsTwilio implements SmsClassInterface
 
         foreach($availableNumbers as $number)
         {
-            $incomingMessages = $this->client->messages->read([
-                "to"        => $number,
-                "dateSent"  => $timestamp
-            ]);
+            try {
+                $incomingMessages = $this->client->messages->read([
+                    "to"        => $number,
+                    "dateSent"  => $timestamp
+                ]);
+            }
+            //Sometimes an "EnvironmentException: TCP connection reset by peer" exception gets thrown out, probably because of Twilio closing the connection
+            //in this case, returing an empty array and letting the code continue is fine because the cron (the only thing that calls this function), will simply run again in a few seconds
+            catch(EnvironmentException) {
+                $incomingMessages = [];
+            }
+
             $messages = array_merge($messages, $incomingMessages);
         }
 

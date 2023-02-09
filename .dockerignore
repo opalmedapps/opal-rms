@@ -1,0 +1,10 @@
+.*
+
+!.htaccess
+
+# node
+node_modules
+npm-debug.log
+
+# composer
+vendor

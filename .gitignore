@@ -1,7 +1,7 @@
 
 #ignore config files
 config/
-docker/.env
+.env
 
 #ignore cert files
 certs/
@@ -15,3 +15,6 @@ vendor/
 
 #ignore log files
 php-error.log
+
+# macOS
+.DS_Store

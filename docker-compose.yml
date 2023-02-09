@@ -1,42 +1,30 @@
-version: "3.8"
-
 services:
   db-orms:
-    image: mariadb:10.7.3
+    image: mariadb:10.6.12-focal
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_TCP_PORT: 3306
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: OrmsDatabase
+      MYSQL_DATABASE: ${MYSQL_DATABASE_ORMS}
     command: --max_allowed_packet=16777216
-    user: ${HOST_USER_ID}
     volumes:
-      - "../tmp/mysql_orms:/var/lib/mysql"
-      - "./db/orms:/docker-entrypoint-initdb.d"
-    ports:
-      - ${MYSQL_ORMS_PORT}:3306
+      - "./docker/db/orms:/docker-entrypoint-initdb.d"
 
   db-log:
-    image: mariadb:10.7.3
+    image: mariadb:10.6.12-focal
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_TCP_PORT: 3307
+      # MYSQL_TCP_PORT: 3307
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: OrmsLog
+      MYSQL_DATABASE: ${MYSQL_DATABASE_LOG}
     command: --max_allowed_packet=16777216
-    user: ${HOST_USER_ID}
     volumes:
-      - "../tmp/mysql_log:/var/lib/mysql"
-      - "./db/log:/docker-entrypoint-initdb.d"
-    ports:
-      - ${MYSQL_LOG_PORT}:3307
+      - "./docker/db/log:/docker-entrypoint-initdb.d"
 
   highcharts:
     image: "onsdigital/highcharts-export-node:latest"
     init: true
-    user: ${HOST_USER_ID}
     ports:
       - ${HIGHCHARTS_PORT}:7801
     volumes:
@@ -44,23 +32,29 @@ services:
     entrypoint: ["highcharts-export-server","--enableServer","1","--sslOnly","1","--sslPort","7801","--sslPath","/etc/certs"]
 
   memcached:
-    image: "memcached:1.6.15-alpine3.15"
-    user: ${HOST_USER_ID}
+    image: "memcached:1.6.18-alpine3.17"
 
   cron:
     image: "willfarrell/crontab:1.0.0"
-    # user: ${HOST_USER_ID}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       # - "./env:/opt/env:ro"
       - "./cron/config.json:/opt/crontab/config.json"
 
   app:
-    build: ./app/
+    build:
+      context: .
     environment:
       PHP_MEMORY_LIMIT: 512M
-    user: ${HOST_USER_ID}
+    depends_on:
+      - db-orms
+      - db-log
+      - memcached
     volumes:
-      - "../:/var/www/orms"
+      - ./:/var/www/orms
+      # don't overwrite existing content in these directories
+      # needed if you want to manage these through the Docker image build process only
+      - /var/www/orms/node_modules
+      - /var/www/orms/vendor
     ports:
-      - ${ORMS_PORT}:443
+      - ${ORMS_PORT}:8080

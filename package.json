@@ -1,4 +1,10 @@
 {
+  "name": "opal-orms",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/opalmedapps/ORMS.git"
+  },
   "private": true,
   "dependencies": {
     "angular": "1.8.2",

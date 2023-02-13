@@ -28,7 +28,6 @@
     "dayjs": "^1.10.6",
     "firebase": "2.2.1",
     "highcharts": "9.2.2",
-    "highcharts-export-server": "2.1.0",
     "highcharts-ng": "1.2.1",
     "jquery": "3.4.1",
     "jquery-csv": "^1.0.21",

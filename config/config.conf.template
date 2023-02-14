@@ -20,6 +20,7 @@ SMS_REMINDER_CRON_ENABLED       =
 INCOMING_SMS_CRON_ENABLED       =
 EMAIL[]                         =
 
+# for linux users ORMS_HOST should be the name of the container
 [database]
 ORMS_HOST                       =
 ORMS_PORT                       =

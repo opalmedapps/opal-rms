@@ -15,7 +15,7 @@ $password = $postParams["password"] ?? null;
 if(
     $username === null
     || $password === null
-    || Authentication::validateUserCredentials($username, $password) === false
+    || Authentication::login($username, $password)->getStatusCode() != 200
 )
 {
     http_response_code(406);

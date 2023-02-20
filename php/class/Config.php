@@ -171,7 +171,9 @@ class SystemConfig
         public bool $sendWeights,
         public bool $vwrAppointmentCronEnabled,
         public bool $appointmentReminderCronEnabled,
-        public bool $processIncomingSmsCronEnabled
+        public bool $processIncomingSmsCronEnabled,
+        public string $newOpalAdminUrl,
+        public string $newOpalAdminToken
     ) {}
 }
 

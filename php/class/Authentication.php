@@ -7,30 +7,28 @@ namespace Orms;
 use Exception;
 use GuzzleHttp\Client;
 use Memcached;
+use Orms\Config;
+use Psr\Http\Message\ResponseInterface;
 
 class Authentication
 {
-    private static string $authUrl = "https://fedauthfcp.rtss.qc.ca/fedauth/wsapi/login";
-    private static string $institution = "06-ciusss-cusm";
-
-    public static function validateUserCredentials(string $username, string $password): bool
+    public static function login(string $username, string $password): ResponseInterface
     {
+        $authUrl = Config::getApplicationSettings()->system->newOpalAdminUrl . '/api/auth/orms/login/';
         //check if the credentials are valid in the AD
         $client = new Client();
-        $request = $client->request("POST", self::$authUrl, [
-            "form_params" => [
-                "uid"           => $username,
-                "pwd"           => $password,
-                "institution"   => self::$institution
-            ]
-        ])->getBody()->getContents();
-
-        $requestResult = json_decode($request, true);
-
-        $roles = preg_grep("/GA-ORMS/", $requestResult["roles"] ?? []) ?: []; //filter all groups that aren't ORMS
-        $statusCode = (int) ($requestResult["statusCode"] ?? 1); //if the return status is 0, then the user's credentials are valid
-
-        return ($roles !== []) && ($statusCode === 0);
+        $response = $client->request(
+            "POST",
+            $authUrl,
+            [
+                "form_params" => [
+                    "username"           => $username,
+                    "password"           => $password,
+                ],
+                "http_errors" => false,
+            ],
+        );
+        return $response;
     }
 
     /**

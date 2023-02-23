@@ -49,3 +49,9 @@ FAILED_CHECK_IN_MESSAGE_EN      =
 FAILED_CHECK_IN_MESSAGE_FR      =
 UNKNOWN_COMMAND_MESSAGE_EN      =
 UNKNOWN_COMMAND_MESSAGE_FR      =
+
+[opal]
+NEW_OPAL_ADMIN_URL              = http://127.0.0.1:8000
+# Create NEW token that is generated only for the ORMS. E.g., do not use the existing ones
+# Please follow the steps described in the docs: https://gitlab.com/opalmedapps/backend/-/blob/main/docs/authentication.md
+NEW_OPAL_ADMIN_TOKEN            =

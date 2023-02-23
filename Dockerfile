@@ -23,7 +23,7 @@ RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-aut
 FROM php:8.0.27-apache-bullseye
 
 RUN apt-get update \
-    && apt-get upgrade \
+    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         libmemcached-dev \
         apache2-dev \

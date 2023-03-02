@@ -14,3 +14,6 @@ vendor/
 
 #ignore log files
 php-error.log
+
+# ignore IDE files
+.idea/

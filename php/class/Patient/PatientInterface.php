@@ -68,6 +68,7 @@ class PatientInterface
             sex:                 $sex,
             phoneNumber:         null,
             opalStatus:          0,
+            opalUUID:            '',
             languagePreference:  null,
             mrns:                $mrns,
             insurances:          $insurances
@@ -110,6 +111,7 @@ class PatientInterface
         string $sex = null,
         ?string $phoneNumber = self::NO_PHONE_NUMBER,
         int $opalStatus = null,
+        string $opalUUID = null,
         ?string $languagePreference = self::NO_LANGUAGE,
         array $mrns = [],
         array $insurances = null
@@ -157,6 +159,7 @@ class PatientInterface
             sex:                 $sex ?? $patient->sex,
             phoneNumber:         $phoneNumber,
             opalStatus:          $opalStatus ?? $patient->opalStatus,
+            opalUUID:            $opalUUID ?? $patient->opalUUID,
             languagePreference:  $languagePreference,
             mrns:                $newMrns,
             insurances:          $insurances ?? $patient->insurances

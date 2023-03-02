@@ -12,7 +12,7 @@ use Orms\Patient\Model\Mrn;
 class Patient
 {
     /**
-     * Only use in PatientInferface class and DataAccess layer.
+     * Only use in PatientInterface class and DataAccess layer.
      */
     public function __construct(
         public int $id,
@@ -22,6 +22,7 @@ class Patient
         public string $sex,
         public ?string $phoneNumber,
         public int $opalStatus,
+        public string $opalUUID,
         public ?string $languagePreference,
         /** @var Mrn[] $mrns */
         public array $mrns,

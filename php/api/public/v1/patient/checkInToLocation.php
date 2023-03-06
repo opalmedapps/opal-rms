@@ -9,7 +9,7 @@ use Orms\Http;
 use Orms\Patient\PatientInterface;
 
 try {
-    $fields = Http::parseApiInputs();
+    $fields = Http::parseApiInputs('v1');
     $checkIn = new class(
         mrn:   $fields["mrn"],
         site:  $fields["site"],

@@ -42,7 +42,7 @@ class Authentication
     {
         //store the user session in the memcache
         $memcache = new Memcached(); // connect to memcached on localhost port 11211
-        $memcache->addServer("localhost", 11211) ?: throw new Exception("Failed to connect to memcached server");
+        $memcache->addServer("memcached", 11211) ?: throw new Exception("Failed to connect to memcached server");
 
         //generate cookie uniq session id
         $key = md5(uniqid((string) rand(), true) .$_SERVER["REMOTE_ADDR"]. time());

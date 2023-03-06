@@ -1,6 +1,8 @@
 
 Options FollowSymLinks
-Options -Indexes +Multiviews +Includes +ExecCGI
+Options -Indexes +MultiViews +Includes +ExecCGI
+
+AddType application/x-httpd-php .php
 
 AddHandler server-parsed .html
 AddHandler cgi-script .pl .pm
@@ -15,7 +17,7 @@ ErrorDocument 401 "/auth/login.html"
 Require valid-user
 
 Auth_memCookie_CookieName ormsAuth
-Auth_memCookie_Memcached_Configuration --server=127.0.0.1:11211
+Auth_memCookie_Memcached_Configuration --server=memcached:11211
 Auth_memCookie_SilmulateAuthBasic on
 
 Auth_memCookie_Authoritative on

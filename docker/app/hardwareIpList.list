@@ -1,0 +1,6 @@
+<RequireAny>
+    Require ip x1 
+    Require ip x2
+
+    Require valid-user
+</RequireAny>

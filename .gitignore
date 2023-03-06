@@ -1,6 +1,8 @@
 
 #ignore config files
 config/
+!config/*.template
+.env
 
 #ignore cert files
 certs/
@@ -14,6 +16,9 @@ vendor/
 
 #ignore log files
 php-error.log
+
+# macOS
+.DS_Store
 
 # ignore IDE files
 .idea/

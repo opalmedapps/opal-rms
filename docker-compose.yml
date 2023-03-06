@@ -1,0 +1,64 @@
+services:
+  db-orms:
+    image: mariadb:10.6.12-focal
+    ports:
+      - ${MYSQL_ORMS_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_ORMS}
+    command: --max_allowed_packet=16777216
+    volumes:
+      - ./docker/db/orms:/docker-entrypoint-initdb.d
+
+  db-log:
+    image: mariadb:10.6.12-focal
+    ports:
+      - ${MYSQL_LOG_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_LOG}
+    command: --max_allowed_packet=16777216
+    volumes:
+      - ./docker/db/log:/docker-entrypoint-initdb.d
+
+  highcharts:
+    # TODO: replace with our own highcharts image
+    image: onsdigital/highcharts-export-node:latest
+    init: true
+    ports:
+      - ${HIGHCHARTS_PORT}:7801
+    volumes:
+      - ../certs:/etc/certs
+    entrypoint: ["highcharts-export-server", "--enableServer", "1", "--sslOnly", "1", "--sslPort", "7801", "--sslPath", "/etc/certs"]
+
+  memcached:
+    image: memcached:1.6.18-alpine3.17
+
+  cron:
+    image: "willfarrell/crontab:1.0.0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - ./env:/opt/env:ro
+      - ./cron/config.json:/opt/crontab/config.json
+
+  app:
+    build:
+      context: .
+    environment:
+      PHP_MEMORY_LIMIT: 512M
+    depends_on:
+      - db-orms
+      - db-log
+      - memcached
+    volumes:
+      - ./:/var/www/orms
+      # don't overwrite existing content in these directories
+      # needed if you want to manage these through the Docker image build process only
+      - /var/www/orms/node_modules
+      - /var/www/orms/vendor
+    ports:
+      - ${ORMS_PORT}:8080

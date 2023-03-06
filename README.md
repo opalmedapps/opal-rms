@@ -1,106 +1,78 @@
+# ORMS
 
-<<path>> is the absolute path to the root of the project
+The Online Room Management System (ORMS) provides a clinical viewer (aka. live clinician dashboard), a virtual waiting room and separate frontends for kiosks and TV screens.
 
-To enable git hooks:
-    sh .githooks/activateHooks.sh
+## Requirements
 
-Profile notes:
-    -When adding a new column type, run the php/tool/verifyProfileColumns script right after
+This project has the following requirements to be available on your system:
 
-Highcharts:
-    To start the highcharts export server (after running npm install):
-        pm2 start node_modules/highcharts-export-server/bin/cli.js --name hes -- --enableServer 1 --sslOnly 1 --sslPort 7801 --sslPath ./certs
+* [Docker Desktop](https://docs.docker.com/desktop/) (or Docker Engine on Linux)
+* Optional: node 16 (needed if you want to invoke `npm` commands locally)
 
-Cronjobs:
-    create of copy of config/crunz.yml.template called config/crunz.yml
-    set the error file location, mailer settings, and timezone (important, else the cron won't work)
-    put in crontab:
-        * * * * * cd <<path>>/config && ../vendor/bin/crunz schedule:run >/dev/null
-        0 0 * * 7 /usr/local/bin/pm2 restart hes >/dev/null
+## Getting Started
 
-httpd settings:
-    create the file /etc/httpd/hardwareIpList.list and add the following:
+After cloning this repo, follow the below steps to get started.
 
-        <RequireAny>
-            Require ip x1
-            Require ip x2
+### Configuration
 
-            Require valid-user
-        </RequireAny>
+All configuration is stored within the `.env` file and `config/config.conf`. The `.env` file consists mostly of the database settings for the respective containers whereas the config file contains the application-specific settings.
 
-    edit /etc/httpd/conf.d/ssl.conf and comment out the default VirtualHost directive. Then add the following:
+Copy the `.env.sample` to `.env` and adjust the values as necessary. You only need to make modifications if you don't want to use the default values or any of the ports is already allocated on your machine.
 
-        #redirect all http traffic to https
-        <VirtualHost _default_:80>
-            RewriteEngine On
-            RewriteCond %{HTTPS} off
-            RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
-        </VirtualHost>
+These configuration parameters are read by `docker compose`.
 
-        <VirtualHost _default_:443>
-            DocumentRoot "<<path>>"
-            ErrorLog logs/ssl_error_log
-            logformat "%a %l %u %t \"%r\" %>s %o \"%{referer}i\" \"%{user-agent}i\""
-            TransferLog logs/ssl_access_log
-            LogLevel warn
-            SSLEngine on
-            SSLHonorCipherOrder on
-            SSLCipherSuite PROFILE=SYSTEM
-            SSLProxyCipherSuite PROFILE=SYSTEM
-            SSLCertificateFile <<path>>/certs/server.crt
-            SSLCertificateKeyFile <<path>>/certs/server.key
+### Docker
 
-            <Directory "<<path>>">
-                AllowOverride All
-            </Directory>
+This project comes with a `docker-compose.yml` file providing you with a database and the app in their respective containers. In addition, the following services are required:
 
-            #allow users to see the login page
-            <DirectoryMatch "<<path>>/(auth|images|node_modules)">
-                Satisfy Any
-            </DirectoryMatch>
+* `memcached` for storing the sessions in-memory
+* `highcharts` for generating charts
+* `crunz` for running a cron daemon
 
-            #give access to the public api
-            <Directory "<<path>>/php/api/public">
-                Satisfy Any
-            </Directory>
+The ORMS app is built with a custom image (defined in `Dockerfile`).
 
-            #allow kiosks to access kiosk web page
-            <Directory "<<path>>/perl">
-                <Files "CheckIn.pl">
-                    #Include hardwareIpList.list
-                </Files>
-            </Directory>
+Execute the following command to start up the containers: `docker compose up app` (note that for the time being only start `app` and the services it depends on)
 
-            <Directory "/var/www/OnlineRoomManagementSystem/kiosk">
-                #Include hardwareIpList.list
-            </Directory>
+If you need to rebuild the app, you can either run `docker compose build app` before starting the container or `docker compose up app --build` to force a rebuild.
 
-            <Directory "/var/www/OnlineRoomManagementSystem/php/api/private/v1">
-                <FilesMatch "findPatient|checkInViaKiosk|sendSms|logMessageForKiosk">
-                    #Include hardwareIpList.list
-                </FilesMatch>
-            </Directory>
+To connect to the app container, run `docker compose exec app bash` (or any specific command instead of `bash`).
 
-            <Location "/tmp/schedule.csv">
-                #Include hardwareIpList.list
-            </Location>
+### Environment-specific configuration
 
-            #allow tvs to access tv web page
+* put ssl certs in certs/ as server.crt and server.key
 
-            <DirectoryMatch "<<path>>/VirtualWaitingRoom/(css|images|sounds)">
-                #Include hardwareIpList.list
-            </DirectoryMatch>
+Setup cronjobs:
 
-            <Directory "<<path>>/VirtualWaitingRoom">
-                <FilesMatch "screenDisplay.html|screenDisplay.js|module.js">
-                    #Include hardwareIpList.list
-                </FilesMatch>
-            </Directory>
+* cp config/crunz.yml.template config/crunz.yml
+* in config/crunz/yml, set the error file location, mailer settings, and timezone (important, else the cron won't work)
 
-            <Directory "<<path>>/php/api/private/v1/vwr/">
-                <FilesMatch "getFirebaseSettings">
-                    #Include hardwareIpList.list
-                </FilesMatch>
-            </Directory>
+## Updating dependencies
 
-        </VirtualHost>
+The current `Dockerfile` is using a [multi-stage build](https://docs.docker.com/build/building/multi-stage/) to avoid having unnecessary dependencies in the final image. For example, to run ORMS `node`, `npm` and `composer` are not needed.
+
+If you need to run `npm` commands you can either do it using your locally installed `node` or run a separate container:
+
+```shell
+docker run --rm -it -v $PWD:/app --workdir /app node:16 npm install markdownlint2-cli
+```
+
+The same concept applies to `composer.
+
+## Open Issues
+
+The following notes were added by Victor and have been slightly edited for readability.
+
+### Remaining Containerization Issues
+
+* A mailserver hasn't been set up/emailing hasn't been tested.
+* The cron service won't run if a previous run hasn't terminated. Unfortunately, the ORMS cron is designed to never terminate. The cron service has to be restarted when changing the config.conf settings in order for the changes to have an effect.
+* Pdflatex isn't set up on the application container so generating pdfs won't work.
+* git hooks currently do not work since everything is done in the container and a multi-stage Dockerfile is used
+
+### Git hooks
+
+To enable git hooks: `sh .githooks/activateHooks.sh`
+
+## Profile system notes
+
+* When adding a new column type, run the php/tool/verifyProfileColumns script right after

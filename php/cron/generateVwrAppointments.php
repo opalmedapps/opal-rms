@@ -70,6 +70,9 @@ $appointments = array_map(function($x) use ($lastCompletedQuestionnaires) {
         }
     }
 
+    // Create an URL to the patient's wearables data. Set to NULL if opalUUID is empty.
+    $x["wearablesURL"] = Config::getApplicationSettings()->system->getWearablesURL($x["OpalUUID"]);
+
     return $x;
 }, $appointments);
 

@@ -420,6 +420,7 @@
                 <th style="text-align: center;">Patient Information (Name, Mrn)</th>
 
                 <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">Opal/SMS</th>
+                <th style="text-align: center;">Wearables Data</th>
                 <th ng-class="(clinicsUsed)? 'textStyleRed': ''" style="text-align: center;">Clinic/Treatment</th>
                 <th>Code</th>
                 <th ng-class="(codeUsed) ? 'textStyleRed': ''" style="text-align: center;">App. Code</th>
@@ -441,6 +442,8 @@
 
                 <td><span ng-if="appoint.PhoneNumber !== null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
+                <td class="text-center">
+                    <div ng-if="appoint.wearablesURL"><a href="{{appoint.wearablesURL}}" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div></td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td ng-class="(codeUsed) ? 'textStyleRed': ''">{{appoint.appType}}</td>

@@ -2,12 +2,12 @@ services:
   db-orms:
     image: mariadb:10.6.12-focal
     ports:
-      - ${MYSQL_ORMS_PORT}:3306
+      - ${ORMS_DATABASE_PORT}:3306
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_ORMS}
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_USER=${ORMS_DATABASE_USER}
+      - MARIADB_PASSWORD=${ORMS_DATABASE_PASSWORD}
+      - MARIADB_DATABASE=${ORMS_DATABASE_NAME}
     command: --max_allowed_packet=16777216
     volumes:
       - ./docker/db/orms:/docker-entrypoint-initdb.d
@@ -15,12 +15,12 @@ services:
   db-log:
     image: mariadb:10.6.12-focal
     ports:
-      - ${MYSQL_LOG_PORT}:3306
+      - ${LOG_DATABASE_PORT}:3306
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_LOG}
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_USER=${LOG_DATABASE_USER}
+      - MARIADB_PASSWORD=${LOG_DATABASE_PASSWORD}
+      - MARIADB_DATABASE=${LOG_DATABASE_NAME}
     command: --max_allowed_packet=16777216
     volumes:
       - ./docker/db/log:/docker-entrypoint-initdb.d

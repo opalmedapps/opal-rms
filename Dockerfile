@@ -64,7 +64,8 @@ COPY ./docker/app/hardwareIpList.list /etc/apache2/
 WORKDIR /var/www/orms
 
 # Parent needs to be owned by www-data to satisfy npm
-RUN chown -R www-data:www-data /var/www/
+RUN chown -R www-data:www-data /var/www/ \
+    && chown -R www-data:www-data /var/log/
 
 USER www-data
 

@@ -47,7 +47,8 @@ class Config
         $dotenv->required('ORMS_DATABASE_PORT')->isInteger();
         $dotenv->required('FIREBASE_URL')->notEmpty();
         $dotenv->required('FIREBASE_SECRET')->notEmpty();
-        $dotenv->required('HIGHCHARTS_URL')->notEmpty();
+        $dotenv->required('HIGHCHARTS_HOST')->notEmpty();
+        $dotenv->required('HIGHCHARTS_PORT')->notEmpty();
         $dotenv->required('OIE_ENABLED')->notEmpty();
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('SMS_REMINDER_CRON_ENABLED')->notEmpty();
@@ -68,7 +69,7 @@ class Config
             firebaseUrl:                    $_ENV["FIREBASE_URL"],
             firebaseSecret:                 $_ENV["FIREBASE_SECRET"],
             completedQuestionnairePath:     $_ENV["BASE_PATH"]."/tmp/completedQuestionnaires.json",
-            highchartsUrl:                  $_ENV["HIGHCHARTS_URL"] ?? null,
+            highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
         );
 
         $system = new SystemConfig(

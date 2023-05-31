@@ -25,16 +25,6 @@ services:
     volumes:
       - ./docker/db/log:/docker-entrypoint-initdb.d
 
-  highcharts:
-    # TODO: replace with our own highcharts image
-    image: onsdigital/highcharts-export-node:latest
-    init: true
-    ports:
-      - ${HIGHCHARTS_PORT}:7801
-    volumes:
-      - ../certs:/etc/certs
-    entrypoint: ["highcharts-export-server", "--enableServer", "1", "--sslOnly", "1", "--sslPort", "7801", "--sslPath", "/etc/certs"]
-
   memcached:
     image: memcached:1.6.18-alpine3.17
 

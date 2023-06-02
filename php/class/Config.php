@@ -57,7 +57,7 @@ class Config
         $dotenv->required('NEW_OPAL_ADMIN_TOKEN')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
-        $dotenv->required('EMAIL')->notEmpty();
+        $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
 
         $_ENV = self::_parseData($_ENV);
 
@@ -73,13 +73,17 @@ class Config
         );
 
         $system = new SystemConfig(
-            emails:                             explode(',', $_ENV["EMAIL"]),
+            emails:                             explode(',', $_ENV["RECIPIENT_EMAILS"]),
             sendWeights:                        (bool) ($_ENV["SEND_WEIGHTS"] ?? false),
             vwrAppointmentCronEnabled:          (bool) ($_ENV["VWR_CRON_ENABLED"] ?? false),
             appointmentReminderCronEnabled:     (bool) ($_ENV["SMS_REMINDER_CRON_ENABLED"] ?? false),
             processIncomingSmsCronEnabled:      (bool) ($_ENV["SMS_INCOMING_SMS_CRON_ENABLED"] ?? false),
             newOpalAdminUrl:                    $_ENV["NEW_OPAL_ADMIN_URL"] ?? null,
             newOpalAdminToken:                  $_ENV["NEW_OPAL_ADMIN_TOKEN"] ?? null,
+            emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
+            emailHostUser:                      $_ENV["EMAIL_HOST_USER"] ?? null,
+            emailHostPassword:                  $_ENV["EMAIL_HOST_PASSWORD"] ?? null,
+            emailPort:                          $_ENV["EMAIL_PORT"] ?? null,
         );
 
         $ormsDb = new DatabaseConfig(
@@ -202,7 +206,11 @@ class SystemConfig
         public bool $appointmentReminderCronEnabled,
         public bool $processIncomingSmsCronEnabled,
         public string $newOpalAdminUrl,
-        public string $newOpalAdminToken
+        public string $newOpalAdminToken,
+        public string $emailHost,
+        public string $emailHostUser,
+        public string $emailHostPassword,
+        public string $emailPort,
     ) {}
 
     /**

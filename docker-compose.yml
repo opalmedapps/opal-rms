@@ -32,18 +32,9 @@ services:
     environment:
       - TZ=EST5EDT
 
-  cron:
-    image: "willfarrell/crontab:1.0.0"
-    environment:
-      - TZ=EST5EDT
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      # - ./env:/opt/env:ro
-      - ./cron/config.json:/opt/crontab/config.json
-
   app:
-    build:
-      context: .
+    build: .
+    image: opalmedapps/orms
     # TODO: set time zone
     # See: https://dev.to/kakisoft/dockerphp-what-is-the-most-prioritized-timezone-setting-4bk6
     # https://serverfault.com/a/683651
@@ -60,5 +51,28 @@ services:
       # needed if you want to manage these through the Docker image build process only
       - /var/www/orms/node_modules
       - /var/www/orms/vendor
+      # mount shared-data volume for sharing *.vwr.json files created by the cron
+      - shared-data:/var/www/orms/tmp
     ports:
       - ${ORMS_PORT}:8080
+  orms-cron:
+    #container_name: orms-cron
+    build: .
+    image: opalmedapps/orms-cron
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - TZ=EST5EDT
+    volumes:
+      - ./:/var/www/orms
+      # don't overwrite existing content in these directories
+      # needed if you want to manage these through the Docker image build process only
+      - /var/www/orms/node_modules
+      - /var/www/orms/vendor
+      # mount shared-data volume for sharing *.vwr.json files created by the cron
+      - shared-data:/var/www/orms/tmp
+    # cron needs to run as root
+    user: root
+    entrypoint: ['/docker-entrypoint.sh']
+
+volumes:
+  shared-data:

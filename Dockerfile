@@ -31,6 +31,8 @@ RUN apt-get update \
         latexmk \
         # Install texlive-latex-extra that contains missing xcolor and lastpage packages
         texlive-latex-extra \
+        # Install cron
+        cron \
     # cleaning up unused files
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
@@ -64,6 +66,15 @@ COPY ./docker/app/ssl.conf /etc/apache2/sites-enabled
 COPY ./docker/app/hardwareIpList.list /etc/apache2/
 
 WORKDIR /var/www/orms
+
+# Set up the cron jobs
+COPY ./scripts/cron/* /etc/cron.d/
+
+# Add new cron jobs to the cron tab
+RUN crontab /etc/cron.d/crontab
+
+# Copy the entry point bash script
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 
 # Parent needs to be owned by www-data to satisfy npm
 RUN chown -R www-data:www-data /var/www/ \

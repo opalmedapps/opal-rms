@@ -23,7 +23,7 @@ $schedule->run(function() use ($configs,$reloadConfigs) {
     {
         $configs = $reloadConfigs();
         /** @psalm-suppress ForbiddenCode */
-        `php ../php/cron/generateVwrAppointments.php`;
+        `/usr/local/bin/php ../php/cron/generateVwrAppointments.php`;
         sleep(3);
     }
 })
@@ -38,7 +38,7 @@ $schedule->run(function() use ($configs,$reloadConfigs) {
     {
         $configs = $reloadConfigs();
         /** @psalm-suppress ForbiddenCode */
-        `php ../php/cron/processIncomingSmsMessages.php`;
+        `/usr/local/bin/php ../php/cron/processIncomingSmsMessages.php`;
         sleep(5);
     }
 })
@@ -48,7 +48,7 @@ $schedule->run(function() use ($configs,$reloadConfigs) {
 ->timezone(date_default_timezone_get())
 ->description("Incoming sms processor");
 
-$schedule->run("php ../php/cron/generateAppointmentReminders.php")
+$schedule->run("/usr/local/bin/php ../php/cron/generateAppointmentReminders.php")
 ->when(fn() => $configs->system->appointmentReminderCronEnabled === true)
 ->daily()
 ->hour(18)
@@ -56,7 +56,7 @@ $schedule->run("php ../php/cron/generateAppointmentReminders.php")
 ->timezone(date_default_timezone_get())
 ->description("Appointment sms reminder");
 
-$schedule->run("php ../php/cron/endOfDayCheckout.php")
+$schedule->run("/usr/local/bin/php ../php/cron/endOfDayCheckout.php")
 ->daily()
 ->hour(23)
 ->minute(30)

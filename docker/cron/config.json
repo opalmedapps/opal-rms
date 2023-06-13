@@ -1,8 +1,0 @@
-[
-    {
-        "comment": "crunz cron",
-        "schedule": "* * * * *",
-        "command": "bash -c 'cd /var/www/orms/config && ../vendor/bin/crunz schedule:run'",
-        "container": "docker-app-1"
-      }
-]

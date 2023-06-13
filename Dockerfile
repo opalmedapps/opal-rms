@@ -23,8 +23,10 @@ RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-aut
 FROM php:8.0.28-apache-bullseye
 
 RUN apt-get update \
-    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
+        # For the cronjobs
+        busybox-static \
+        # For the web server
         libmemcached-dev \
         apache2-dev \
         # Install latexmk
@@ -33,7 +35,8 @@ RUN apt-get update \
         texlive-latex-extra \
     # cleaning up unused files
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /var/spool/cron/crontabs
 
 # Install and enable PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql \
@@ -76,5 +79,7 @@ COPY --from=js-dependencies --chown=www-data:www-data /app/node_modules ./node_m
 COPY --from=php-dependencies --chown=www-data:www-data /app/vendor ./vendor
 
 COPY --chown=www-data:www-data . .
+# Set up the cron jobs
+COPY ./docker/cron/crontab /var/spool/cron/crontabs/www-data
 
 EXPOSE 8080

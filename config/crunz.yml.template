@@ -14,7 +14,7 @@ suffix: cron.php
 # Timezone is used to calculate task run time
 # This option is very important and not setting it is deprecated
 # and will result in exception in 2.0 version.
-timezone: ~
+timezone: America/Montreal
 
 # This option define which timezone should be used for log files
 # If false, system default timezone will be used
@@ -51,7 +51,7 @@ log_ignore_empty_context: false
 email_output: false
 
 # This option determines whether the error messages should be emailed or not.
-email_errors: false
+email_errors: true
 
 # Global Swift Mailer settings
 mailer:

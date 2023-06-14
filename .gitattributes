@@ -1,0 +1,7 @@
+* text=auto
+# project-specific settings
+#
+# Shell scripts require LF
+*.sh    text eol=lf
+# crontab requires LF
+crontab text eol=lf

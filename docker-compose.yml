@@ -1,31 +1,31 @@
 services:
-  db-orms:
-    image: mariadb:10.6.13-focal
-    ports:
-      - ${ORMS_DATABASE_PORT}:3306
-    environment:
-      - MARIADB_RANDOM_ROOT_PASSWORD=yes
-      - MARIADB_USER=${ORMS_DATABASE_USER}
-      - MARIADB_PASSWORD=${ORMS_DATABASE_PASSWORD}
-      - MARIADB_DATABASE=${ORMS_DATABASE_NAME}
-      - TZ=EST5EDT
-    command: --max_allowed_packet=16777216
-    volumes:
-      - ./docker/db/orms:/docker-entrypoint-initdb.d
+  # db-orms:
+  #   image: mariadb:10.6.13-focal
+  #   ports:
+  #     - ${ORMS_DATABASE_PORT}:3306
+  #   environment:
+  #     - MARIADB_RANDOM_ROOT_PASSWORD=yes
+  #     - MARIADB_USER=${ORMS_DATABASE_USER}
+  #     - MARIADB_PASSWORD=${ORMS_DATABASE_PASSWORD}
+  #     - MARIADB_DATABASE=${ORMS_DATABASE_NAME}
+  #     - TZ=EST5EDT
+  #   command: --max_allowed_packet=16777216
+  #   volumes:
+  #     - ./docker/db/orms:/docker-entrypoint-initdb.d
 
-  db-log:
-    image: mariadb:10.6.13-focal
-    ports:
-      - ${LOG_DATABASE_PORT}:3306
-    environment:
-      - MARIADB_RANDOM_ROOT_PASSWORD=yes
-      - MARIADB_USER=${LOG_DATABASE_USER}
-      - MARIADB_PASSWORD=${LOG_DATABASE_PASSWORD}
-      - MARIADB_DATABASE=${LOG_DATABASE_NAME}
-      - TZ=EST5EDT
-    command: --max_allowed_packet=16777216
-    volumes:
-      - ./docker/db/log:/docker-entrypoint-initdb.d
+  # db-log:
+  #   image: mariadb:10.6.13-focal
+  #   ports:
+  #     - ${LOG_DATABASE_PORT}:3306
+  #   environment:
+  #     - MARIADB_RANDOM_ROOT_PASSWORD=yes
+  #     - MARIADB_USER=${LOG_DATABASE_USER}
+  #     - MARIADB_PASSWORD=${LOG_DATABASE_PASSWORD}
+  #     - MARIADB_DATABASE=${LOG_DATABASE_NAME}
+  #     - TZ=EST5EDT
+  #   command: --max_allowed_packet=16777216
+  #   volumes:
+  #     - ./docker/db/log:/docker-entrypoint-initdb.d
 
   memcached:
     image: memcached:1.6.18-alpine3.17
@@ -38,12 +38,14 @@ services:
     # TODO: set time zone
     # See: https://dev.to/kakisoft/dockerphp-what-is-the-most-prioritized-timezone-setting-4bk6
     # https://serverfault.com/a/683651
+    env_file:
+      - .env
     environment:
       - PHP_MEMORY_LIMIT=512M
       - TZ=EST5EDT
     depends_on:
-      - db-orms
-      - db-log
+      #- db-orms
+      #- db-log
       - memcached
     volumes:
       - ./:/var/www/orms
@@ -55,9 +57,12 @@ services:
       - shared-data:/var/www/orms/tmp
     ports:
       - ${ORMS_PORT}:8080
+    user: root
   orms-cron:
     #container_name: orms-cron
     image: opalmedapps/orms
+    env_file:
+      - .env
     environment:
       - PHP_MEMORY_LIMIT=512M
       - TZ=EST5EDT

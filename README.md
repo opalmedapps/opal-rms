@@ -23,6 +23,8 @@ Copy the `.env.sample` to `.env` and adjust the values as necessary. You need to
 
 These configuration parameters are read by `docker compose` and by `php/class/Config.php` (via [`phpdotenv`](https://github.com/vlucas/phpdotenv)).
 
+If your database is being run with secure transport required (SSL/TLS traffic encryption), also update the values for the SSL environment variables: `DATABASE_USE_SSL=1` and `SSL_CA=/var/www/orms/certs/ca.pem` after copying the `ca.pem` file into the certs directory of ORMs. Detailed instructions on how to generate SSL certificates can be found either in the [documentation repository](https://gitlab.com/opalmedapps/docs/-/blob/main/docs/guides/self_signed_certificates.md) or in the [db-docker README](https://gitlab.com/opalmedapps/db-docker).
+
 ### Docker
 
 This project comes with a `docker-compose.yml` file providing you with `db-orms` and `db-log` databases, as well as the `app` in their respective containers. In addition, the following services are required:
@@ -106,6 +108,18 @@ For testing `Clinical Viewer` and `Virtual Waiting Room` locally:
 ```
 
 > :warning: **Note:**  For the `ScheduledDateTime`, `ScheduledDate`, `ScheduledTime` fields, the date should be the same as the date when the `Clinical Viewer`/`Virtual Waiting Room` test is performed, and the time should be set to the later/future time of the day (e.g., an appointment cannot be in the past). For the `Status` and `MediVisitStatus` fields it should be set to `Open` and `Active` respectively.
+
+**Note:** Most of the data specified above can be inserted in the `orms` database when setting up your database container in db-docker, just by following the README and executing the test data insertion commands for `orms`:
+
+```bash
+docker compose run --rm alembic python -m db_management.run_sql_scripts orms db_management/ormsdb/data/initial/
+```
+
+```bash
+docker compose run --rm alembic python -m db_management.run_sql_scripts orms db_management/ormsdb/data/test/
+```
+
+However you will still have to edit the `ScheduledDateTime`, `ScheduledDate`, `ScheduledTime` fields to match the current day of testing.
 
 For the `Virtual Waiting Room` page, make sure that the provided Firebase settings are correct (e.g., in the browser's console, there are no Firebase errors when you  go to the `Default Profile - Virtual Waiting Room` page).
 

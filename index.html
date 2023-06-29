@@ -80,12 +80,13 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
 
     $scope.logOut = function()
     {
-        $cookies.remove("ormsAuth");
-        $cookies.remove("specialityGroupId");
-        $cookies.remove("specialityGroupName");
-        $cookies.remove("clinicHubId");
-        $cookies.remove("clinicHubName");
-        $cookies.remove("hospitalCode");
+        // need to set the path specifically to ensure removal: https://stackoverflow.com/a/25373087
+        $cookies.remove("ormsAuth", {path: "/"});
+        $cookies.remove("specialityGroupId", {path: "/"});
+        $cookies.remove("specialityGroupName", {path: "/"});
+        $cookies.remove("clinicHubId", {path: "/"});
+        $cookies.remove("clinicHubName", {path: "/"});
+        $cookies.remove("hospitalCode", {path: "/"});
         $window.location.href = $location.absUrl();
     }
 });

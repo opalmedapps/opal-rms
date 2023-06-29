@@ -224,7 +224,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     // Get clinic, appointment code and diagnosis list
     //=========================================================================
     $http({
-        url: "/php/api/private/v1/appointment/getClinics",
+        url: "php/api/private/v1/appointment/getClinics",
         method: "GET",
         params: {
             speciality: speciality
@@ -234,7 +234,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     });
 
     $http({
-        url: "/php/api/private/v1/appointment/getAppointmentCodes",
+        url: "php/api/private/v1/appointment/getAppointmentCodes",
         method: "GET",
         params: {
             speciality: speciality
@@ -244,14 +244,14 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     });
 
     $http({
-        url: "/php/api/private/v1/diagnosis/getCodesInUse",
+        url: "php/api/private/v1/diagnosis/getCodesInUse",
         method: "GET"
     }).then(function(response) {
         $scope.diagnosisList = response.data.data;
     });
 
     $http({
-        url: "/php/api/private/v1/questionnaire/getList",
+        url: "php/api/private/v1/questionnaire/getList",
         method: "GET"
     }).then(function(response) {
         $scope.questionnaireType = response.data.data.map(x => ({
@@ -479,7 +479,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     $scope.loadPatientDiagnosis = function(appointment)
     {
         $http({
-            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
+            url: "php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: appointment.patientId
@@ -497,7 +497,7 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     {
         var legend = $mdDialog.confirm(
             {
-                templateUrl: './js/vwr/templates/legendDialogClinicalViewer.htm'
+                templateUrl: 'VirtualWaitingRoom/js/vwr/templates/legendDialogClinicalViewer.htm'
             })
             .ariaLabel('Legend Dialog')
             .clickOutsideToClose(true);

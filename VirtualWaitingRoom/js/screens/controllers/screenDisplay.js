@@ -5,10 +5,10 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     let hour = today.hour();
 
     //if its late at night, turn the screen black
-    $scope.currentLogo = "./images/Banner_treatments.png";
+    $scope.currentLogo = "VirtualWaitingRoom/images/Banner_treatments.png";
 
     if(hour >= 20 || hour < 6) {
-        $scope.currentLogo = "./images/black.jpg";
+        $scope.currentLogo = "VirtualWaitingRoom/images/black.jpg";
     }
 
     //reload the page every once in a while to ensure that the kiosk is always running the latest version of the code
@@ -105,7 +105,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     async function getFirebaseSettings()
     {
         return $http({
-            url: "/php/api/private/v1/vwr/getFirebaseSettings",
+            url: "php/api/private/v1/vwr/getFirebaseSettings",
             method: "GET"
         }).then( result => result.data);
     }

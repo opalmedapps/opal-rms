@@ -64,7 +64,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         reader.onloadend = _ => {$scope.opalLogo = reader.result;}
         reader.readAsDataURL(xhr.response);
     };
-    xhr.open("GET","images/opal_logo.png");
+    xhr.open("GET","VirtualWaitingRoom/images/opal_logo.png");
     xhr.responseType = "blob";
     xhr.send();
 

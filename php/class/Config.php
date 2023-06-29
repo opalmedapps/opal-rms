@@ -40,7 +40,6 @@ class Config
         $dotenv->required('IMAGE_PATH')->notEmpty();
         $dotenv->required('IMAGE_URL')->notEmpty();
         $dotenv->required('LOG_PATH')->notEmpty();
-        $dotenv->required('ORMS_PORT')->isInteger();
         $dotenv->required('ORMS_DATABASE_USER')->notEmpty();
         $dotenv->required('ORMS_DATABASE_PASSWORD')->notEmpty();
         $dotenv->required('ORMS_DATABASE_HOST')->notEmpty();

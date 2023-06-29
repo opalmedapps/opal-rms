@@ -181,7 +181,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     {
         var legend = $mdDialog.confirm(
         {
-            templateUrl: './js/vwr/templates/legendDialog.htm'
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/legendDialog.htm'
         })
         .ariaLabel('Legend Dialog')
         .clickOutsideToClose(true);
@@ -193,7 +193,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     {
         var answer = $mdDialog.confirm(
             {
-                templateUrl: './js/vwr/templates/sortDialog.htm',
+                templateUrl: 'VirtualWaitingRoom/js/vwr/templates/sortDialog.htm',
                 controller: function($scope)
                 {
                     $scope.priority = "+";

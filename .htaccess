@@ -11,7 +11,7 @@ AddHandler cgi-script .pl .pm
 RedirectMatch 404 ^/config
 
 # to redirect unauthorized user to the login page
-ErrorDocument 401 "/auth/login.html"
+ErrorDocument 401 "/orms/auth/login.html"
 
 # use memcache for authentication
 Require valid-user

@@ -42,6 +42,8 @@ Execute the following command to start up the containers:
 docker compose up
 ```
 
+**Note:** The ORMS application is not available in the root path but rather under `/orms`. For example: http://localhost:8086/orms
+
 If you need to rebuild the containers, you can either run `docker compose build` before starting the container or `docker compose up --build` to force a rebuild. To rebuild containers without Docker’s build cache, run: `docker compose build --no-cache`.
 
 To connect to the app container, run `docker compose exec app bash` (or any specific command instead of `bash`).

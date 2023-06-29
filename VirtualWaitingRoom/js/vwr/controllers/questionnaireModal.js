@@ -19,7 +19,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all questionnaires answered by the input patient
     $http({
-        url: "/php/api/private/v1/patient/questionnaire/getQuestionnaires",
+        url: "php/api/private/v1/patient/questionnaire/getQuestionnaires",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response)
@@ -41,7 +41,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all the studies in the database
     $http({
-        url: "/php/api/private/v1/patient/questionnaire/getStudies",
+        url: "php/api/private/v1/patient/questionnaire/getStudies",
         method: "GET",
         params: {patientId: $scope.patient.PatientId}
     }).then(function(response) {
@@ -50,7 +50,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
     //Get all the possible purpose for a questionnaire
     $http({
-        url: "/php/api/private/v1/questionnaire/getPurposes",
+        url: "php/api/private/v1/questionnaire/getPurposes",
         method: "GET"
     }).then(function(response) {
         $scope.purposeList = response.data.data;
@@ -132,7 +132,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
     {
         let answer = $mdDialog.confirm(
         {
-            templateUrl: './js/vwr/templates/authDialog.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/authDialog.htm',
             controller: authDialogController
         })
         .clickOutsideToClose(true);
@@ -140,7 +140,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
         $mdDialog.show(answer).then( result => {
             $scope.patient.QStatus = "green-circle";
             $http({
-                url: "/php/api/private/v1/patient/questionnaire/insertReview",
+                url: "php/api/private/v1/patient/questionnaire/insertReview",
                 method: "POST",
                 data: {
                     user: result,
@@ -158,7 +158,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
 
         //get the answers to the selected questionnaire
         $http({
-            url: "/php/api/private/v1/patient/questionnaire/getQuestions",
+            url: "php/api/private/v1/patient/questionnaire/getQuestions",
             method: "GET",
             params: {
                 patientId:       $scope.patient.PatientId,

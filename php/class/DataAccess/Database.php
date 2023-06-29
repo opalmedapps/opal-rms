@@ -42,7 +42,7 @@ class Database
 
     private static function _getDatabaseConnection(DatabaseConfig $dbConf): PDO
     {
-        if($dbConf->usessl == 1){
+        if($dbConf->usessl) {
             self::$pdoOptions[PDO::MYSQL_ATTR_SSL_CA] = $dbConf->sslca;
             self::$pdoOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
         }

@@ -2,25 +2,25 @@
 <title>Room Occupancy Report</title>
 <img src='../../images/logo.png'>
 <body ng-app="myApp">
-<script src="/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-<script src="/node_modules/datatables.net/js/jquery.dataTables.js"></script>
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
-<script src="/node_modules/angular-datatables/dist/angular-datatables.min.js"></script>
-<script src="/node_modules/angular-datatables/dist/plugins/buttons/angular-datatables.buttons.min.js"></script>
-<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/node_modules/ui-bootstrap4/dist//ui-bootstrap-tpls.js"></script>
-<script src="/node_modules/angular-bowser/src/angular-bowser.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+<script src="node_modules/datatables.net/js/jquery.dataTables.js"></script>
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
+<script src="node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
+<script src="node_modules/angular-datatables/dist/angular-datatables.min.js"></script>
+<script src="node_modules/angular-datatables/dist/plugins/buttons/angular-datatables.buttons.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="node_modules/ui-bootstrap4/dist//ui-bootstrap-tpls.js"></script>
+<script src="node_modules/angular-bowser/src/angular-bowser.js"></script>
+<script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/angular-datatables/dist/css/angular-datatables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/jquery-ui-dist/jquery-ui.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="node_modules/angular-datatables/dist/css/angular-datatables.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="node_modules/jquery-ui-dist/jquery-ui.min.css">
 
 <style>
     .page {margin:10px;}
@@ -269,7 +269,7 @@ app.factory('callScript',function($http,$q)
         {
             var defer = $q.defer();
 
-            url = "/php/report/roomCount?"
+            url = "php/report/roomCount?"
 
             $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&groupByDate="+groupByDate+"&period="+period+"&speciality="+speciality).then(function (response)
             {

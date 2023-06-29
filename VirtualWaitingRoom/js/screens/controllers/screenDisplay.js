@@ -34,7 +34,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     $scope.rightArrowLocations = ["DS1-A EXAM ROOM","DS1-B EXAM ROOM","DS1-C EXAM ROOM","DS1-D EXAM ROOM","DS1-E EXAM ROOM","DS1-F EXAM ROOM","DS1-G EXAM ROOM","DS1-H EXAM ROOM","DS1-J EXAM ROOM","DS1-K EXAM ROOM","DS1-L EXAM ROOM","DS1-M EXAM ROOM","DS1-N EXAM ROOM"];
 
     // Setup the audio using ngAudio
-    let audio = ngAudio.load("sounds/magic.wav");
+    let audio = ngAudio.load("VirtualWaitingRoom/sounds/magic.wav");
 
     // Set the firebase connection
     //get the screen's location from the url

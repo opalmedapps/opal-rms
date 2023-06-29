@@ -108,7 +108,7 @@ Click on any patient data to be brought to add-on page.
 </div>
 <hr>
 <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
-<center> <a href="../">Main Page</a></center>
+<center> <a href="./">Main Page</a></center>
 </body>
 
 <script src="node_modules/angular/angular.min.js"></script>
@@ -181,7 +181,7 @@ app.controller('main',function($scope,$http,$window,$location)
     $scope.sendToSms = function(data)
     {
         //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./RegisterSMS.html?"
+        var landingurl = "interface/RegisterSMS.html?"
             +"first="+data.first
             +"&last="+data.last
             +"&mrn="+data.mrn

@@ -64,7 +64,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         reader.onloadend = _ => {$scope.opalLogo = reader.result;}
         reader.readAsDataURL(xhr.response);
     };
-    xhr.open("GET","./images/opal_logo.png");
+    xhr.open("GET","images/opal_logo.png");
     xhr.responseType = "blob";
     xhr.send();
 
@@ -126,7 +126,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             $scope.selectedLocations = $scope.pageSettings.Locations;
 
             $http({
-                url: "/php/api/private/v1/appointment/getClinics",
+                url: "php/api/private/v1/appointment/getClinics",
                 method: "GET",
                 params: {
                     speciality: $scope.pageSettings.Speciality,
@@ -137,7 +137,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 $scope.allResources = response.data.data.map(x => ({Name: x.description,Type: "Resource"}));
 
                 $http({
-                    url: "/php/api/private/v1/hospital/getRooms",
+                    url: "php/api/private/v1/hospital/getRooms",
                     method: "GET",
                     params: {
                         clinicHub: $scope.pageSettings.ClinicHubId
@@ -267,7 +267,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             // Send the patient an SMS message
             //-----------------------------------------------------------------------
             $http({
-                url: "/php/api/private/v1/patient/sms/sendSmsRoom",
+                url: "php/api/private/v1/patient/sms/sendSmsRoom",
                 method: "POST",
                 data:
                 {
@@ -325,7 +325,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendToLocation = function (patient,sendLocation,removeFromFB)
     {
         $http({
-            url: "/php/api/private/v1/patient/checkInToLocation",
+            url: "php/api/private/v1/patient/checkInToLocation",
             method: "POST",
             data:
             {
@@ -352,7 +352,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         // Check the patient in for his/her remaining appointments but for a venue
         // that indicates that the current appointment is complete
         $http({
-            url: "/php/api/private/v1/appointment/completeAppointment",
+            url: "php/api/private/v1/appointment/completeAppointment",
             method: "POST",
             data:
             {
@@ -513,7 +513,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
             else if(situation === "EXAM ONLY")
             {
                 $http({
-                    url: "/php/api/private/v1/hospital/getOccupants",
+                    url: "php/api/private/v1/hospital/getOccupants",
                     method: "GET",
                     params: {"examRooms[]": [selectedLocations[0].Name]}
                 }).then(function (response)
@@ -708,7 +708,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     {
         $uibModal.open({
             animation: true,
-            templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/diagnosisModal.htm',
             controller: diagnosisModalController,
             windowClass: 'diagnosisModal',
             size: 'lg',
@@ -723,7 +723,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.loadPatientDiagnosis = function(patient)
     {
         $http({
-            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
+            url: "php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
@@ -745,7 +745,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.logMessage = function(identifier,type,message)
     {
         $http({
-            url: "/php/api/private/v1/vwr/logMessage",
+            url: "php/api/private/v1/vwr/logMessage",
             method: "POST",
             data:
             {
@@ -771,7 +771,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     $scope.sendZoomLink = function(patient)
     {
         $http({
-            url: "/php/api/private/v1/patient/sms/sendSmsForZoom",
+            url: "php/api/private/v1/patient/sms/sendSmsForZoom",
             method: "POST",
             data:
             {

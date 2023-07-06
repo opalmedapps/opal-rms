@@ -9,7 +9,6 @@
         <directory name="php/" />
         <ignoreFiles>
             <directory name="vendor" />
-            <directory name="php/tool/pdfGenerator/" />
         </ignoreFiles>
     </projectFiles>
 

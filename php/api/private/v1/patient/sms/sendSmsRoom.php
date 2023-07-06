@@ -16,8 +16,14 @@ $params = Http::getRequestContents();
 $patientId      = (int) ($params["patientId"] ?? null);
 $sourceId       = $params["sourceId"];
 $sourceSystem   = $params["sourceSystem"];
-$roomFr         = $params["roomFr"];
-$roomEn         = $params["roomEn"];
+$roomFr         = $params["roomFr"] ?? null;
+$roomEn         = $params["roomEn"] ?? null;
+
+//temp fix for empty room strings
+//some function in the virtualWaitingRoom.js calls $scope.callPatient with sendSMS = true but the destination object has no VenueEN or VenueFR defined
+if($roomEn === null || $roomFr === null) {
+    Http::generateResponseJsonAndExit(400, error: "Room parameter missing");
+}
 
 $patient = PatientInterface::getPatientById($patientId);
 

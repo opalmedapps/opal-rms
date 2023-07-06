@@ -7,51 +7,10 @@ namespace Orms\External\OIE;
 use Exception;
 use Orms\DateTime;
 use Orms\External\OIE\Internal\Connection;
-use Orms\External\OIE\Internal\ExternalPatient;
-use Orms\Patient\Model\Insurance;
-use Orms\Patient\Model\Mrn;
 use Orms\Patient\Model\Patient;
 
 class Fetch
 {
-    public static function generateExternalPatient(string $data): ExternalPatient
-    {
-        $data = json_decode($data, true)["data"];
-
-        foreach($data as &$x) {
-            if(is_string($x) === true && ctype_space($x) || $x === "") $x = null;
-        }
-
-        $mrns = array_map(function($x) {
-            return new Mrn(
-                $x["mrn"],
-                $x["site"],
-                $x["active"]
-            );
-        }, $data["mrns"]);
-
-        if($data["ramq"] !== null && $data["ramqExpiration"] !== null) {
-            $insurances = [
-                new Insurance(
-                    $data["ramq"],
-                    DateTime::createFromFormatN("Y-m-d H:i:s",$data["ramqExpiration"]) ?? throw new Exception("Invalid date of birth"),
-                    "RAMQ",
-                    true
-                )
-            ];
-        }
-        else {
-            $insurances = [];
-        }
-
-        return new ExternalPatient(
-            firstName:          $data["firstName"],
-            lastName:           $data["lastName"],
-            dateOfBirth:        DateTime::createFromFormatN("Y-m-d H:i:s", $data["dateOfBirth"]) ?? throw new Exception("Invalid date of birth"),
-            mrns:               $mrns,
-            insurances:         $insurances
-        );
-    }
 
     /**
      * Returns an array where the first element is the mrn and the second is the site.

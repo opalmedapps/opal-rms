@@ -1,5 +1,5 @@
 angular.module('index').component('editor',{
-    templateUrl: 'js/index/templates/profileEditor.htm',
+    templateUrl: 'VirtualWaitingRoom/js/index/templates/profileEditor.htm',
     controller: profileEditorController
 });
 

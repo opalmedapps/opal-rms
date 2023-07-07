@@ -1,6 +1,6 @@
 let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies','ngTable']);
 
-app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
+app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser,WearableCharts)
 {
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
@@ -537,6 +537,14 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.isInputsChange = false;
         $scope.liveState = 'Paused'
 
+    }
+
+    //=========================================================================
+    // Open the wearable charts modal dialog
+    //=========================================================================
+    $scope.showWearableDataCharts = async function(wearablesURL)
+    {
+        WearableCharts.showWearableDataCharts(wearablesURL);
     }
 
     $scope.sendZoomLink = function(appoint)

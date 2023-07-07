@@ -1,6 +1,6 @@
 angular.module('vwr').component('registerSMSModal',
 {
-        templateUrl: 'js/vwr/templates/registerSMSModal.htm',
+        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/registerSMSModal.htm',
         controller: registerSMSModalController
 });
 

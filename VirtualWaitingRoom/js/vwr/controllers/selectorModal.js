@@ -1,6 +1,6 @@
 angular.module('vwr').component('selectorModal',
 {
-        templateUrl: 'js/vwr/templates/selectorModal.htm',
+        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/selectorModal.htm',
         controller: selectorModalController
 });
 

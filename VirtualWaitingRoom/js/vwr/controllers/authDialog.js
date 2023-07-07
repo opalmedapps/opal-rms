@@ -1,5 +1,5 @@
 angular.module('vwr').component('authDialog',{
-    templateUrl: 'js/vwr/templates/authDialog.htm',
+    templateUrl: 'VirtualWaitingRoom/js/vwr/templates/authDialog.htm',
     controller: authDialogController
 });
 

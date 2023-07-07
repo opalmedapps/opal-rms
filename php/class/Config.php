@@ -53,7 +53,8 @@ class Config
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('SMS_REMINDER_CRON_ENABLED')->notEmpty();
         $dotenv->required('SMS_INCOMING_SMS_CRON_ENABLED')->notEmpty();
-        $dotenv->required('NEW_OPAL_ADMIN_URL')->notEmpty();
+        $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
+        $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_TOKEN')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
@@ -80,7 +81,8 @@ class Config
             vwrAppointmentCronEnabled:          (bool) ($_ENV["VWR_CRON_ENABLED"] ?? false),
             appointmentReminderCronEnabled:     (bool) ($_ENV["SMS_REMINDER_CRON_ENABLED"] ?? false),
             processIncomingSmsCronEnabled:      (bool) ($_ENV["SMS_INCOMING_SMS_CRON_ENABLED"] ?? false),
-            newOpalAdminUrl:                    $_ENV["NEW_OPAL_ADMIN_URL"] ?? null,
+            newOpalAdminHostInternal:           $_ENV["NEW_OPAL_ADMIN_HOST_INTERNAL"] ?? null,
+            newOpalAdminHostExternal:           $_ENV["NEW_OPAL_ADMIN_HOST_EXTERNAL"] ?? null,
             newOpalAdminToken:                  $_ENV["NEW_OPAL_ADMIN_TOKEN"] ?? null,
             emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
             emailHostUser:                      $_ENV["EMAIL_USER"] ?? null,
@@ -214,7 +216,8 @@ class SystemConfig
         public bool $vwrAppointmentCronEnabled,
         public bool $appointmentReminderCronEnabled,
         public bool $processIncomingSmsCronEnabled,
-        public string $newOpalAdminUrl,
+        public string $newOpalAdminHostInternal,
+        public string $newOpalAdminHostExternal,
         public string $newOpalAdminToken,
         public string $emailHost,
         public string $emailHostUser,
@@ -232,7 +235,7 @@ class SystemConfig
     {
         if (empty($opalUUID)) return NULL;
 
-        return $this->newOpalAdminUrl
+        return $this->newOpalAdminHostExternal
         . '/health-data/'
         . $opalUUID
         . '/quantity-samples/';

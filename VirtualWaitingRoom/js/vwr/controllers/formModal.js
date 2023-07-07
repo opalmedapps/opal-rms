@@ -1,6 +1,6 @@
 angular.module('vwr').component('formModal',
 {
-        templateUrl: 'js/vwr/templates/formModal.htm',
+        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/formModal.htm',
         controller: formModalController
 });
 

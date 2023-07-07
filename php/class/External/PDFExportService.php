@@ -20,7 +20,7 @@ class PDFExportService
             $ch = curl_init();
 
             // url to generate a PDF report
-            $questionnairesReviewedURL = Config::getApplicationSettings()->system->newOpalAdminUrl . '/api/questionnaires/reviewed/';
+            $questionnairesReviewedURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/questionnaires/reviewed/';
 
             // set url
             curl_setopt($ch, CURLOPT_URL, $questionnairesReviewedURL);

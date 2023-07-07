@@ -1,5 +1,5 @@
 angular.module('vwr').component('diagnosisModal',{
-    templateUrl: 'js/vwr/templates/diagnosisModal.htm',
+    templateUrl: 'VirtualWaitingRoom/js/vwr/templates/diagnosisModal.htm',
     controller: diagnosisModalController
 });
 

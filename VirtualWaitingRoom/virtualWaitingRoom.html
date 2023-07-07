@@ -54,6 +54,7 @@
 <script src="VirtualWaitingRoom/js/vwr/controllers/questionnaireModal.js"></script>
 <script src="VirtualWaitingRoom/js/vwr/controllers/registerSMSModal.js"></script>
 <script src="VirtualWaitingRoom/js/vwr/controllers/weightModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/services/wearableChartsService.js"></script>
 
 </head>
 
@@ -251,7 +252,8 @@
                     </span>
 
                     <span ng-switch-when="WearablesData">
-                        <div ng-if="patient.wearablesURL"><a href="{{patient.wearablesURL}}" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div>
+                        <div ng-if="patient.wearablesURL"><a href="" ng-click="showWearableDataCharts(patient.wearablesURL)" 
+                            class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div>
                     </span>
                 </td>
             </tr>

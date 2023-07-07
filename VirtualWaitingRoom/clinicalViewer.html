@@ -65,6 +65,7 @@
     <script src="VirtualWaitingRoom/js/vwr//controllers/diagnosisModal.js"></script>
     <script src="VirtualWaitingRoom/js/vwr/controllers/questionnaireModal.js"></script>
     <script src="VirtualWaitingRoom/js/vwr/controllers/selectorModal.js"></script>
+    <script src="VirtualWaitingRoom/js/vwr/services/wearableChartsService.js"></script>
     <script src="node_modules/checklist-model/checklist-model.js"></script>
 
     <style>
@@ -549,7 +550,7 @@
                                 ng-src="VirtualWaitingRoom/images/opal_logo.png"></img>
                         </td>
                         <td class="text-center">
-                            <div ng-if="appoint.wearablesURL"><a href="{{appoint.wearablesURL}}"
+                            <div ng-if="appoint.wearablesURL"><a href="" ng-click="showWearableDataCharts(appoint.wearablesURL)"
                                     class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a>
                             </div>
                         </td>

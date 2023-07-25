@@ -1,0 +1,74 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    // https://docs.renovatebot.com/presets-default/#pinallexceptpeerdependencies
+    ":pinAllExceptPeerDependencies",
+    // https://docs.renovatebot.com/presets-default/#rebasestaleprs
+    ":rebaseStalePrs",
+    // https://docs.renovatebot.com/presets-default/#separatemultiplemajorreleases
+    ":separateMultipleMajorReleases",
+    // https://docs.renovatebot.com/presets-default/#separatepatchreleases
+    ":separatePatchReleases",
+  ],
+
+  "assignees": ["anton.gladyr", "yickmo"],
+  "labels": ["dependencies"],
+  "separateMinorPatch": true,
+  "packageRules": [
+    // Change commit type to build for Docker-related updates
+    {
+      "matchDatasources": ["docker", "docker-compose"],
+      "semanticCommitType": "build"
+    },
+    // Group angular-related updates
+    {
+      "matchPackagePatterns": ["^angular", "ng-table"],
+      "rangeStrategy": "replace",
+      "groupName": "angular packages"
+    },
+    // Group datatables-related updates
+    // TODO: remove "enabled": false
+    {
+        "matchPackagePatterns": ["^datatables"],
+        "rangeStrategy": "replace",
+        "groupName": "datatables packages",
+        "enabled": false
+    },
+    // Group highcharts-related updates
+    // TODO: remove "enabled": false
+    {
+        "matchPackagePatterns": ["^highcharts"],
+        "rangeStrategy": "replace",
+        "groupName": "highcharts packages",
+        "enabled": false
+    },
+    // Group bootstrap-related updates
+    // TODO: remove "enabled": false
+    {
+        "matchPackagePatterns": ["^bootstrap"],
+        "rangeStrategy": "replace",
+        "groupName": "bootstrap packages",
+        "enabled": false
+    },
+    // Group jquery-related updates
+    // TODO: remove "enabled": false
+    {
+        "matchPackagePatterns": ["^jquery"],
+        "rangeStrategy": "replace",
+        "groupName": "jquery packages",
+        "enabled": false
+    },
+    // Group ui-related updates
+    // TODO: remove "enabled": false
+    {
+        "matchPackagePatterns": ["^ui"],
+        "rangeStrategy": "replace",
+        "groupName": "ui packages",
+        "enabled": false
+    },
+    {
+        "ignoreDeps": ["checklist-model", "crypto-js", "dayjs", "firebase", "popper.js", "swagger-ui-dist"]
+    }
+  ],
+}

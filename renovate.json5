@@ -15,6 +15,7 @@
   "assignees": ["anton.gladyr", "yickmo"],
   "labels": ["dependencies"],
   "separateMinorPatch": true,
+  "ignoreDeps": ["checklist-model", "crypto-js", "dayjs", "firebase", "popper.js", "swagger-ui-dist"],
   "packageRules": [
     // Change commit type to build for Docker-related updates
     {
@@ -66,9 +67,6 @@
         "rangeStrategy": "replace",
         "groupName": "ui packages",
         "enabled": false
-    },
-    {
-        "ignoreDeps": ["checklist-model", "crypto-js", "dayjs", "firebase", "popper.js", "swagger-ui-dist"]
     }
   ],
 }

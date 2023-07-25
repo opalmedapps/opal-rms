@@ -6,12 +6,6 @@
         "files": ["php/settings.php"]
     },
     "require": {
-        "php": "8.0.*",
-        "ext-mbstring": "*",
-        "ext-simplexml": "*",
-        "ext-pdo": "*",
-        "ext-pdo_mysql": "*",
-        "lib-memcached-libmemcached": "^1.0",
         "twilio/sdk": "^6.28",
         "guzzlehttp/guzzle": "^7.2",
         "ulrichsg/getopt-php": "^3.4",

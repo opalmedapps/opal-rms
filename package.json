@@ -38,8 +38,7 @@
     "ui-bootstrap4": "3.0.6",
     "ui-select": "0.19.8"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "devDependencies": {
     "redoc-cli": "0.10.4"
   }

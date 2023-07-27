@@ -15,24 +15,48 @@
   "assignees": ["anton.gladyr", "yickmo"],
   "labels": ["dependencies"],
   "separateMinorPatch": true,
-  "ignoreDeps": ["checklist-model", "crypto-js", "dayjs", "firebase", "popper.js", "swagger-ui-dist"],
+  "ignoreDeps": [
+    "checklist-model",
+    "crypto-js",
+    "dayjs",
+    "firebase",
+    "popper.js",
+    "swagger-ui-dist",
+    "twilio/sdk",
+    "guzzlehttp/guzzle",
+    "ulrichsg/getopt-php",
+    "league/openapi-psr7-validator",
+    "cebe/php-openapi",
+    "lavary/crunz",
+    "symfony/lock",
+    "vlucas/phpdotenv",
+    "phpmailer/phpmailer",
+    "ext-xml",
+    "phpstan/phpstan",
+    "vimeo/psalm",
+    "friendsofphp/php-cs-fixer",
+  ],
   "packageRules": [
     // Change commit type to build for Docker-related updates
     {
       "matchDatasources": ["docker", "docker-compose"],
       "semanticCommitType": "build"
     },
-    // Group angular-related updates
+    // Group xlts angular-related updates
+    {
+      "matchPackagePrefixes": ["@xlts.dev/"],
+      "groupName": "xlts angular packages"
+    },
+    // Group auxiliary angular-related updates
     {
       "matchPackagePatterns": ["^angular", "ng-table"],
-      "rangeStrategy": "replace",
-      "groupName": "angular packages"
+      "excludePackagePrefixes": ["@xlts.dev/"],
+      "groupName": "auxiliary angular packages"
     },
     // Group datatables-related updates
     // TODO: remove "enabled": false
     {
         "matchPackagePatterns": ["^datatables"],
-        "rangeStrategy": "replace",
         "groupName": "datatables packages",
         "enabled": false
     },
@@ -40,7 +64,6 @@
     // TODO: remove "enabled": false
     {
         "matchPackagePatterns": ["^highcharts"],
-        "rangeStrategy": "replace",
         "groupName": "highcharts packages",
         "enabled": false
     },
@@ -48,7 +71,6 @@
     // TODO: remove "enabled": false
     {
         "matchPackagePatterns": ["^bootstrap"],
-        "rangeStrategy": "replace",
         "groupName": "bootstrap packages",
         "enabled": false
     },
@@ -56,7 +78,6 @@
     // TODO: remove "enabled": false
     {
         "matchPackagePatterns": ["^jquery"],
-        "rangeStrategy": "replace",
         "groupName": "jquery packages",
         "enabled": false
     },
@@ -64,7 +85,6 @@
     // TODO: remove "enabled": false
     {
         "matchPackagePatterns": ["^ui"],
-        "rangeStrategy": "replace",
         "groupName": "ui packages",
         "enabled": false
     }

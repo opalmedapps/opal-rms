@@ -4,8 +4,6 @@
     "config:base",
     // https://docs.renovatebot.com/presets-default/#pinallexceptpeerdependencies
     ":pinAllExceptPeerDependencies",
-    // https://docs.renovatebot.com/presets-default/#rebasestaleprs
-    ":rebaseStalePrs",
     // https://docs.renovatebot.com/presets-default/#separatemultiplemajorreleases
     ":separateMultipleMajorReleases",
     // https://docs.renovatebot.com/presets-default/#separatepatchreleases
@@ -44,13 +42,13 @@
     },
     // Group xlts angular-related updates
     {
-      "matchPackagePrefixes": ["@xlts.dev/"],
+      "matchRepositories": ["/.*xlts.*/"],
       "groupName": "xlts angular packages"
     },
     // Group auxiliary angular-related updates
     {
       "matchPackagePatterns": ["^angular", "ng-table"],
-      "excludePackagePrefixes": ["@xlts.dev/"],
+      "excludeRepositories": ["/.*xlts.*/"],
       "groupName": "auxiliary angular packages"
     },
     // Group datatables-related updates

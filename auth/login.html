@@ -2,7 +2,7 @@
 <html>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <head>
-        <title>ORMS Login Page</title>
+        <title>Opal RMS Login Page</title>
         <base href="/orms/">
 
         <script src="node_modules/angular/angular.min.js"></script>
@@ -27,15 +27,15 @@
         <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
 
         <div class="body-login">
-            <div class="pageHeader">
-                <img class="logo-animated" src="images/opal_logo_transparent_purple.png" />
-                <div class="logo-desc"><b>ORMS</b> &ndash; Online Room Management System</div>
+            <div class="pageHeader"></div>
+            <div class="logo-desc">
+                <img src="../VirtualWaitingRoom/images/Opal_RMS_logo.png" width="40%">
             </div>
 
             <form class="login-form" ng-submit="authenticateUser()">
-                <div><img src="images/logo.png" style="height:50px;" /></div>
+                <div style="width: 200%"><h1 style="font-size: 32px">Login to ORMS to manage your clinic</h1></div>
                 <fieldset class="field-holder">
-                    <input class="credentials" type="text" ng-model="username" name="username" placeholder="Hospital AD Username" autofocus required />
+                    <input class="credentials" type="text" ng-model="username" name="username" placeholder="MUHC AD Username" autofocus required />
                     <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
 
                     <div class="error-wrapper">

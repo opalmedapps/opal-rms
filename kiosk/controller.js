@@ -29,7 +29,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     locationIsReception ? "blue" : "rgb(51,153,51)",
+        messageBackgroundColor:     "rgb(186,218,85)",
         locationDisplay:            kioskLocation.replace("_","-"),
         kioskHeight:                locationIsReception ? "98%" : null,
         siteDisplay:                site
@@ -186,8 +186,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 french: "Enregistrement",
             },
             subMessage: {
-                english: $sce.trustAsHtml("Please enter the patient MRN to check in."),
-                french: $sce.trustAsHtml("Veuillez entrer le numero de dossier medical du patient pour l'enregistrer."),
+                english: $sce.trustAsHtml("Please scan the barcode at the back of your RAMQ card to check in."),
+                french: $sce.trustAsHtml("Veuillez scanner le code-barres au dos de votre carte RAMQ pour vous enregistrer."),
             }
         };
     }

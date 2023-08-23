@@ -22,7 +22,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     },5*60*1000);
 
     // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
-    $scope.tickerText = "Patients and caregivers are welcome to join our (ONLINE) group workshops. Contact us by phone (514) 934-1934 ext. 35297 or email us at cedarscansupport@muhc.mcgill.ca. / Patients et proches aidants sont les bienvenus dans nos ateliers (En LIGNE) de groupe. Communiquez avec nous par téléphone, au 514-934-1934 (poste 35297) ou par courriel à l’adresse suivante : cedarscansupport@muhc.mcgill.ca.";
+    $scope.tickerText = "Do you need a family doctor? Register online on gamf.gouv.qc.ca. If you need help, a volunteer can assist you at the Cedars CanSupport Resource Centre room, DRC-1329… / Besoin d’un médecin de famille ? Inscrivez-vous en ligne au gamf.gouv.qc.ca. Si vous avez besoin d’aide, un bénévole pourra vous aider au Centre de ressources CanSupport des Cèdres, salle DRC-1329…";
 
     if(today.format("dddd") === "Tuesday" && hour >= 12 && hour < 13) {
         $scope.tickerText = "Are you enjoying the music today? Please donate to the HEALING NOTES Fund at cedars.ca. Thank you! / Aimez-vous la musique aujourd’hui? Faites un don: Fonds NOTES DE RÉCONFORT au cedars.ca. Merci!";

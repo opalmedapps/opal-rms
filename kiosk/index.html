@@ -10,7 +10,7 @@
         <script src="node_modules/jquery-csv/src/jquery.csv.min.js"></script>
         <script src="kiosk/controller.js"></script>
 
-        <title>Patient Check In</title>
+        <title>Opal-Patient Check In</title>
     </head>
 
     <body ng-app="myApp" ng-controller="main" class="fullscreen align-center main-body">
@@ -25,7 +25,7 @@
                     <span style="font-size: 2.5vh;" ng-if="!pageProperties.displayNetworkWarning">{{pageProperties.siteDisplay}}</span>
                     <img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="images/networkWarning.png">
                 </span>
-                <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="images/logo.png"></span>
+                <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" style="max-height: 150%;" src="images/Opal_logo.png"></span>
                 <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>
             </div>
 

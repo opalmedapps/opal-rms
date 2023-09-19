@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Appointment List Report</title>
+    <title>Opal Appointment List Report</title>
     <base href="/orms/">
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
@@ -110,10 +110,19 @@
 
     <div class="page" ng-controller="main" ng-init="runScript(true)">
         <center>
-            <h1>{{department}}</h1>
-        </center>
-        <center>
-            <h2><u>Appointment List Report</u></h2>
+            <table border=0 class="table" style="width: 100%">
+                <tr>
+                    <td align="center" valign="center"></td>
+                    <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                    <td align="center" valign="center">
+                        <center>
+                            <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Opal Appointment List Report</b><br></h2>
+                        </center>
+                    </td>
+                    <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153); font-size: 40px"><b><u>About Opal</u></b></h2></td>
+                    <td align="center" valign="bottom"></td>
+                </tr>
+            </table>
         </center>
 
         <table border="0" width="50%" padding="5">

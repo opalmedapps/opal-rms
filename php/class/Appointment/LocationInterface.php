@@ -18,7 +18,7 @@ class LocationInterface
     {
         //get the list of appointments that the patient has today
         //only open appointments can be updated
-        $appointments = AppointmentAccess::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow"),$patient->id);
+        $appointments = AppointmentAccess::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow")->modify("-1 ms"),$patient->id);
 
         foreach($appointments as $app)
         {

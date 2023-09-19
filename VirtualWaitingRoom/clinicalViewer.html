@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Clinical Viewer</title>
+    <title>Opal Clinical Viewer</title>
     <base href="/orms/">
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
@@ -204,11 +204,20 @@
 <body ng-app="vwr">
     <div class="page" ng-controller="main" ng-init="runScript(true)">
         <center>
-            <h1>Opal</h1>
-        </center>
-        <center>
-            <h2><u>Clinical Dashboard</u></h2>
-        </center>
+            <table border=0 class="table" style="width: 100%">
+                <tr>
+                    <td align="center" valign="center"></td>
+                    <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                    <td align="center" valign="center">
+                        <center>
+                            <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153)"><b>Opal Clinical Dashboard</b><br></h2>
+                        </center>
+                    </td>
+                    <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153)"><b><u>About Opal</u></b></h2></td>
+                    <td align="center" valign="bottom"></td>
+                </tr>
+            </table>
+        </center>    
 
         <form ng-submit="runScript()">
 

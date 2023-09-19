@@ -7,6 +7,7 @@ namespace Orms;
 use Exception;
 use GuzzleHttp\Client;
 use Memcached;
+use Orms\System\Logger;
 use Orms\Config;
 use Psr\Http\Message\ResponseInterface;
 
@@ -15,7 +16,7 @@ class Authentication
     public static function login(string $username, string $password): ResponseInterface
     {
         $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
-        //check if the credentials are valid in the AD
+        //check if the credentials are valid in the opalAdmin backend
         $client = new Client();
         $response = $client->request(
             "POST",
@@ -28,6 +29,8 @@ class Authentication
                 "http_errors" => false,
             ],
         );
+        //TODO: log the result of the calling API via the logLoginEvent function in Logger.
+
         return $response;
     }
 

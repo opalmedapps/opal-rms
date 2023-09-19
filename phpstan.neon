@@ -2,7 +2,5 @@ parameters:
     level: 8
     paths:
         - php/
-    excludePaths:
-        - php/tool/pdfGenerator/
     stubFiles:
         - php/stub/PDOStatement.stub

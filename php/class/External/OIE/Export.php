@@ -22,7 +22,8 @@ class Export
                     "site"          => $patient->getActiveMrns()[0]->site,
                     "sourceId"      => $sourceId,
                     "sourceSystem"  => $sourceSystem,
-                ]
+                ],
+                "timeout" => 10
             ]);
         }
         catch(\Exception $e) {

@@ -28,7 +28,7 @@ if($patient === null) {
 }
 
 //get the patient's appointments for the day
-$appointments = AppointmentInterface::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow"),$patient);
+$appointments = AppointmentInterface::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow")->modify("-1 ms"),$patient);
 
 $photoOk = null;
 $nextAppointment = $appointments[0] ?? null;

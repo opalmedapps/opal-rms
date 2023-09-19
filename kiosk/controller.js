@@ -29,7 +29,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     locationIsReception ? "blue" : "rgb(51,153,51)",
+        messageBackgroundColor:     "rgb(186,218,85)",
         locationDisplay:            kioskLocation.replace("_","-"),
         kioskHeight:                locationIsReception ? "98%" : null,
         siteDisplay:                site
@@ -186,8 +186,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 french: "Enregistrement",
             },
             subMessage: {
-                english: $sce.trustAsHtml("Please enter the patient MRN to check in."),
-                french: $sce.trustAsHtml("Veuillez entrer le numero de dossier medical du patient pour l'enregistrer."),
+                english: $sce.trustAsHtml("Please scan the barcode at the back of your RAMQ card to check in."),
+                french: $sce.trustAsHtml("Veuillez scanner le code-barres au dos de votre carte RAMQ pour vous enregistrer."),
             }
         };
     }
@@ -272,8 +272,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
                 french: "Vous êtes Enregistré",
             },
             subMessage: {
-                english: $sce.trustAsHtml(`<span style="background-color: yellow">You are checked in. Please leave the Cancer Centre and wait to be called by SMS or come back only 5 minutes before your appointment time.</span>`),
-                french: $sce.trustAsHtml(`<span style="background-color: yellow">Vous êtes enregistré. Veuillez sortir du Centre de cancer et attendre d'être appelé par SMS ou retourner 5 minutes avant votre rendez-vous.</span>`),
+                english: $sce.trustAsHtml(`<span style="background-color: yellow">You are checked in. Please have a seat in the waiting room. You will be called by SMS, Opal or on the screen when it is your time to be seen.</span>`),
+                french: $sce.trustAsHtml(`<span style="background-color: yellow">Vous êtes enregistré. Veuillez vous asseoir dans la salle d'attente. Vous serez appelé par SMS, Opal ou sur l'écran quand il sera temps d'être vu.</span>`),
             }
         };
     }
@@ -385,7 +385,8 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             data: {
                 patientId:  patient.patientId,
                 room:       destination,
-            }
+            },
+            timeout: 15000,
         })
         .then(r => ({
             ariaPhotoOk:     r.data.data.ariaPhotoOk,

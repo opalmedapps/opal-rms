@@ -34,6 +34,24 @@ class Authentication
         return $response;
     }
 
+    public static function validate(string $sessionid): ResponseInterface
+    {
+        $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/validate/';
+        //check if the session id is valid in the opalAdmin backend
+        $client = new Client();
+        $response = $client->request(
+            "GET",
+            $authUrl,
+            [
+                'headers' => [
+                    'Cookie' => 'sessionid='.$sessionid,
+                ],
+            ],
+        );
+
+        return $response;
+    }
+
     /**
      *
      * @return array{

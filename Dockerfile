@@ -1,6 +1,6 @@
 # Build/install JS dependencies
 # Pin platform since PhantomJS binary is not available for linux/arm64 architecture
-FROM node:16.20.1-alpine3.17 as js-dependencies
+FROM node:16.20.2-alpine3.17 as js-dependencies
 
 WORKDIR /app
 

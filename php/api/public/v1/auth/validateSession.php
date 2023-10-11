@@ -25,30 +25,26 @@ $sessionid = "";
 if(isset($_COOKIE["sessionid"])) {
     $sessionid = $_COOKIE["sessionid"];
 }
-
-$username = "";
-$first_name = "";
-$last_name = "";
-try {
-    $response = Authentication::validate($sessionid);
-    $content = json_decode($response->getBody()->getContents(), true);
-    $username = $content["username"];
-    $first_name = $content["first_name"];
-    $last_name = $content["last_name"];
-    if (
-        $response->getStatusCode() == 200
-        && isset($username)
-    ) {
-        // If authenticated and authorized, return HTTP 200 and set cookies
-        $cookie = Authentication::createUserSession($username);
-        Logger::logLoginEvent($username, $first_name.' '.$last_name, $response->getStatusCode(), null);
-        Http::generateResponseJsonAndExit(200, data: $cookie);
-    }
+$response = Authentication::validate($sessionid);
+$content = json_decode($response->getBody()->getContents(), true);
+$username = $content["username"];
+$first_name = $content["first_name"];
+$last_name = $content["last_name"];
+if (
+    $response->getStatusCode() == 200
+    && isset($username)
+) {
+    // If authenticated and authorized, return HTTP 200 and set cookies
+    $cookie = Authentication::createUserSession($username);
+    Logger::logLoginEvent($username, $first_name.' '.$last_name, $response->getStatusCode(), null);
+    Http::generateResponseJsonAndExit(200, data: $cookie);
 }
-catch(Exception $e) {
-    Logger::logLoginEvent($username, $first_name.' '.$last_name, $e->getCode(), $e->getMessage());
+else {
+    // Return "Authentication failure" for any other errors
+    $error = "Authentication failure.";
+    Logger::logLoginEvent($username, $first_name.' '.$last_name, 406, $error);
     Http::generateResponseJsonAndExit(
-        httpCode: 403,
-        error: $e->getMessage()
+        httpCode: 406,
+        error: $error
     );
 }

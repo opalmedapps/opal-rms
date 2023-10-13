@@ -9,7 +9,7 @@ This project has the following requirements to be available on your system:
 * [Docker Desktop](https://docs.docker.com/desktop/) (or Docker Engine on Linux)
 * Running [Highcharts Export Server](https://gitlab.com/opalmedapps/highcharts-export-server) container for generating weights PDF reports
 * Composer for installing `PHP` code quality dependencies that used in git hooks
-* Optional: node 16 (needed if you want to invoke `npm` commands locally)
+* Optional: node v20 (needed if you want to invoke `npm` commands locally)
 
 ## Getting Started
 
@@ -57,7 +57,7 @@ The current `Dockerfile` is using a [multi-stage build](https://docs.docker.com/
 If you need to run `npm` commands you can either do it using your locally installed `node` or run a separate container:
 
 ```shell
-docker run --rm -it -v $PWD:/app --workdir /app node:16 npm install markdownlint2-cli
+docker run --rm -it -v $PWD:/app --workdir /app node:20 npm install markdownlint2-cli
 ```
 
 #### Composer and Code Quality Tools

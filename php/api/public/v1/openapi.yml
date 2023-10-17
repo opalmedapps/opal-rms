@@ -155,6 +155,21 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
+  /auth/removeSession:
+    post:
+      summary: Remove user session
+      description: Remove user session
+      tags:
+        - auth
+                    
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
   /auth/createSession:
     post:
       summary: Create a user session

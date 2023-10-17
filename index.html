@@ -81,14 +81,28 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
 
     $scope.logOut = function()
     {
-        // need to set the path specifically to ensure removal: https://stackoverflow.com/a/25373087
-        $cookies.remove("ormsAuth", {path: "/"});
-        $cookies.remove("specialityGroupId", {path: "/"});
-        $cookies.remove("specialityGroupName", {path: "/"});
-        $cookies.remove("clinicHubId", {path: "/"});
-        $cookies.remove("clinicHubName", {path: "/"});
-        $cookies.remove("hospitalCode", {path: "/"});
-        $window.location.href = $location.absUrl();
+        $http({
+            url: "php/api/public/v1/auth/removeSession",
+            method: "POST",
+            data: null
+        })
+        .then(x => removeCookies())
+        .catch(err => {
+            $error = err?.data?.error ? err.data.error : "CSRF token or Session Id is missing.";
+            console.log($error);
+        });
+
+        function removeCookies()
+        {
+            // need to set the path specifically to ensure removal: https://stackoverflow.com/a/25373087
+            $cookies.remove("ormsAuth", {path: "/"});
+            $cookies.remove("specialityGroupId", {path: "/"});
+            $cookies.remove("specialityGroupName", {path: "/"});
+            $cookies.remove("clinicHubId", {path: "/"});
+            $cookies.remove("clinicHubName", {path: "/"});
+            $cookies.remove("hospitalCode", {path: "/"});
+            $window.location.href = $location.absUrl();
+        }
     }
 });
 

@@ -19,7 +19,7 @@ After cloning this repo, follow the below steps to get started.
 
 All configuration is stored within the `.env` file to follow the [12factor app methodology](https://12factor.net/config) on storing config in the environment. This means that any setting that depends on the environment the app is run in should be exposed via the `.env`.
 
-Copy the `.env.sample` to `.env` and adjust the values as necessary. You need to at least modify `NEW_OPAL_ADMIN_TOKEN` to login through the `django-backend`. Also, you need to set `FIREBASE_URL` and `FIREBASE_SECRET` for the `Virtual Waiting Room` page.
+Copy the `.env.sample` to `.env` and adjust the values as necessary. You need to set `FIREBASE_URL` and `FIREBASE_SECRET` for the `Virtual Waiting Room` page.
 
 These configuration parameters are read by `docker compose` and by `php/class/Config.php` (via [`phpdotenv`](https://github.com/vlucas/phpdotenv)).
 

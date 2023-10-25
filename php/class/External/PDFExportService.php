@@ -38,14 +38,17 @@ class PDFExportService
             $payload = json_encode(['mrn' => $mrn, 'site' => $site]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
-            $token = Config::getApplicationSettings()->system->newOpalAdminToken;
+            $sessionid = "";
+            if(isset($_COOKIE["sessionid"])) {
+                $sessionid = $_COOKIE["sessionid"];
+            }
 
             curl_setopt(
                 $ch,
                 CURLOPT_HTTPHEADER,
                 array(
                     'Content-Type:application/json',
-                    'Authorization: Token ' . $token,
+                    'Authorization: Token ' . $sessionid,
                 )
             );
 

@@ -55,7 +55,6 @@ class Config
         $dotenv->required('SMS_INCOMING_SMS_CRON_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
-        $dotenv->required('NEW_OPAL_ADMIN_TOKEN')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
@@ -83,7 +82,6 @@ class Config
             processIncomingSmsCronEnabled:      (bool) ($_ENV["SMS_INCOMING_SMS_CRON_ENABLED"] ?? false),
             newOpalAdminHostInternal:           $_ENV["NEW_OPAL_ADMIN_HOST_INTERNAL"] ?? null,
             newOpalAdminHostExternal:           $_ENV["NEW_OPAL_ADMIN_HOST_EXTERNAL"] ?? null,
-            newOpalAdminToken:                  $_ENV["NEW_OPAL_ADMIN_TOKEN"] ?? null,
             emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
             emailHostUser:                      $_ENV["EMAIL_USER"] ?? null,
             emailHostPassword:                  $_ENV["EMAIL_PASSWORD"] ?? null,
@@ -218,7 +216,6 @@ class SystemConfig
         public bool $processIncomingSmsCronEnabled,
         public string $newOpalAdminHostInternal,
         public string $newOpalAdminHostExternal,
-        public string $newOpalAdminToken,
         public string $emailHost,
         public string $emailHostUser,
         public string $emailHostPassword,

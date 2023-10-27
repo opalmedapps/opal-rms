@@ -92,6 +92,8 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
             console.log($error);
         });     
 
+        // clear out legacy opal admin session id
+        $cookies.remove("PHPSESSID", {path: "/"});
         // need to set the path specifically to ensure removal: https://stackoverflow.com/a/25373087
         $cookies.remove("ormsAuth", {path: "/"});
         $cookies.remove("specialityGroupId", {path: "/"});

@@ -46,9 +46,42 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // Function to grab the list of patients
     var loadPatients = function ()
     {
-        $http.get($scope.pageSettings.CheckInFile).then(function(response)
-        {
-            $scope.checkins = response.data;
+        $http.get($scope.pageSettings.CheckInFile)
+        .then(async function(response){
+            /* Add unreadWearablesData counts to the received checkins records by making a call to the Django backend.
+            Since the cronjob script (e.g., /php/cron/generateVwrAppointments.php) does not have the required
+            sessionid cookie to fetch the unviewed health data counts, we populate those values here
+            (e.g., a call from the browser). */
+            let checkins = response?.data;
+
+            // Check if checkins does not exist, is not an array, or is empty
+            if (!Array.isArray(checkins) || !checkins.length) return;
+
+            // Find backend host's address from the wearables URL.
+            const wearableDataChartsURL = new URL(checkins[0]?.wearablesURL);
+            const backendHost = wearableDataChartsURL.origin;
+            const patientUUIDsList = checkins.map(
+                ({OpalUUID}) => ({'patient_uuid': OpalUUID}),
+            );
+            const unreadWearablesCounts = await WearableCharts.getUnreadWearablesDataCounts(
+                backendHost + '/api/patients/health-data/unviewed/',
+                patientUUIDsList,
+            );
+
+            // Set unread wearables data counts to the $scope.checkins
+            checkins.map(
+                // Iterate through every checkin object and add unreadWearablesData field
+                (checkin) => {
+                    let checkinPatient = unreadWearablesCounts.find(
+                        patient => patient?.patient_uuid == checkin?.OpalUUID
+                    );
+                    // Set unreadWearablesData to 0 if the backend does not return a count for this checkin/patient
+                    checkin.unreadWearablesData = checkinPatient?.count ?? 0;
+                }
+            );
+
+            // Update scope variable
+            $scope.checkins = checkins;
         });
     };
 

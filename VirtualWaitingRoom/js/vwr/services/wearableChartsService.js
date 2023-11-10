@@ -5,13 +5,14 @@
         .module('vwr')
         .service('WearableCharts', WearableCharts);
 
-    WearableCharts.$inject = ['$http', '$mdDialog'];
+    WearableCharts.$inject = ['$http', '$mdDialog', '$cookies'];
 
     /* @ngInject */
-    function WearableCharts($http, $mdDialog) {
+    function WearableCharts($http, $mdDialog, $cookies) {
 
         return {
-            showWearableDataCharts: showWearableDataCharts
+            showWearableDataCharts: showWearableDataCharts,
+            getUnreadWearablesDataCounts: getUnreadWearablesDataCounts,
         };
 
         async function showWearableDataCharts(wearablesURL) {
@@ -47,6 +48,26 @@
             }
 
             $mdDialog.show(modalDialog);
+        }
+
+        async function getUnreadWearablesDataCounts(
+            unviewedHealthDataURL,
+            patientUUIDsList,
+        ) {
+            const response = await $http.post(
+                unviewedHealthDataURL,
+                patientUUIDsList,
+                {
+                    'headers': {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-csrftoken': $cookies.get('csrftoken'),
+                    },
+                    'withCredentials': true,
+                },
+            );
+
+            return response?.data;
         }
     }
 })();

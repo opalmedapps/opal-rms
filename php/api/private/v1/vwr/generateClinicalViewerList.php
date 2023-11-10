@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Config;
+use GuzzleHttp\Client;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
@@ -152,9 +153,6 @@ if($afilter === false)
             && ($qfilter === true || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === true)
             && ($qType === "all" || $answeredQuestionnaire === true)
         ) {
-            // Create an URL to the patient's wearables data. Set to NULL if opalUUID is empty.
-            $wearablesURL = Config::getApplicationSettings()->system->getWearablesURL($app["opalUUID"]);
-
             $listOfAppointments[] = [
                 "fname"         => $app["fname"],
                 "lname"         => $app["lname"],
@@ -171,7 +169,7 @@ if($afilter === false)
                 "mediStatus"    => $app["mediStatus"],
                 "QStatus"       => $app["questionnaireStatus"],
                 "opalPatient"   => (int) $app["opalEnabled"],
-                "wearablesURL"  => $wearablesURL,
+                "opalUUID"      => $app["opalUUID"],
                 "age"           => date_diff($app["dateOfBirth"],new DateTime())->format("%y"),
                 "sex"           => mb_substr($app["sex"], 0, 1),
                 "PhoneNumber"   => $app["phoneNumber"],
@@ -243,6 +241,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
             "mediStatus"    => null,
             "QStatus"       => $pat["questionnaireStatus"],
             "opalPatient"   => $ormsInfo->opalStatus,
+            "opalUUID"      => $ormsInfo["opalUUID"],
             "age"           => date_diff($ormsInfo->dateOfBirth,new DateTime())->format("%y"),
             "sex"           => mb_substr($ormsInfo->sex, 0, 1),
             "PhoneNumber"   => $phoneNumber,
@@ -250,6 +249,33 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
         ];
     }
 }
+
+$patientUUIDList = array_map(
+    fn($appointment) => ["patient_uuid" => $appointment["opalUUID"]],
+    $listOfAppointments
+);
+
+$unviewedCountsList = fetchUnviewedWearableDataCounts($patientUUIDList);
+
+$listOfAppointments = array_map(function($appointment) use ($unviewedCountsList) {
+    // Create an URL to the patient's wearables data. Set to NULL if opalUUID is empty.
+    $wearablesURL = Config::getApplicationSettings()->system->getWearablesURL(
+        $appointment["opalUUID"]
+    );
+    $appointment["wearablesURL"] = $wearablesURL;
+
+    // Set patient's unviewed wearables data counts
+    $appointment["unreadWearablesData"] = 0;
+    $unviewedCountKey = array_search(
+        $appointment["opalUUID"],
+        array_column($unviewedCountsList, 'patient_uuid')
+    );
+
+    if (is_int($unviewedCountKey) && array_key_exists($unviewedCountKey, $unviewedCountsList))
+        $appointment["unreadWearablesData"] = $unviewedCountsList[$unviewedCountKey]["count"];
+
+    return $appointment;
+}, $listOfAppointments);
 
 $listOfAppointments = Encoding::utf8_encode_recursive($listOfAppointments);
 Http::generateResponseJsonAndExit(200,data: $listOfAppointments);
@@ -268,4 +294,34 @@ function checkDiagnosis(int $patientId, array $diagnosisList): bool
         }
     }
     return false;
+}
+
+/**
+ *
+ * @param array $patientUUIDList
+ */
+function fetchUnviewedWearableDataCounts(array $patientUUIDList): array
+{
+    if ($patientUUIDList) {
+        $client = new Client();
+        $unviewedCountsURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/patients/health-data/unviewed/';
+        $response = $client->request(
+            "POST",
+            $unviewedCountsURL,
+            [
+                'json' => $patientUUIDList,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Cookie' => 'sessionid=' . $_COOKIE['sessionid'] . ';csrftoken=' . $_COOKIE['csrftoken'],
+                    'X-CSRFTOKEN' => $_COOKIE['csrftoken'],
+                ],
+            ],
+        );
+
+        if ($response &&  $response->getStatusCode() == 200)
+            return json_decode($response->getBody()->getContents(), true);
+    }
+
+    return [];
 }

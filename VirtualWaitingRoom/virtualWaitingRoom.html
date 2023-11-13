@@ -255,7 +255,7 @@
 
                     <span ng-switch-when="WearablesData">
                         <div ng-if="patient.wearablesURL">
-                            <a href="" ng-click="showWearableDataCharts(patient.wearablesURL)" 
+                            <a href="" ng-click="showWearableDataCharts(patient.wearablesURL, patient.OpalUUID)"
                                 class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;">
                                 <span class="alert-circle {{patient.unreadWearablesData > 0 ? 'green-circle' : ''}}"></span>
                             </a>

@@ -9,6 +9,8 @@ require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Config;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ConnectException;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
@@ -250,6 +252,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
     }
 }
 
+// List of UUIDs of the patients that will be shown in the table
 $patientUUIDList = array_map(
     fn($appointment) => ["patient_uuid" => $appointment["opalUUID"]],
     $listOfAppointments
@@ -305,22 +308,28 @@ function fetchUnviewedWearableDataCounts(array $patientUUIDList): array
     if ($patientUUIDList) {
         $client = new Client();
         $unviewedCountsURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/patients/health-data/unviewed/';
-        $response = $client->request(
-            "POST",
-            $unviewedCountsURL,
-            [
-                'json' => $patientUUIDList,
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                    'Cookie' => 'sessionid=' . $_COOKIE['sessionid'] . ';csrftoken=' . $_COOKIE['csrftoken'],
-                    'X-CSRFTOKEN' => $_COOKIE['csrftoken'],
+        try {
+            $response = $client->request(
+                "POST",
+                $unviewedCountsURL,
+                [
+                    'json' => $patientUUIDList,
+                    'headers' => [
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                        'Cookie' => 'sessionid=' . $_COOKIE['sessionid'] . ';csrftoken=' . $_COOKIE['csrftoken'],
+                        'X-CSRFTOKEN' => $_COOKIE['csrftoken'],
+                    ],
                 ],
-            ],
-        );
+            );
 
-        if ($response &&  $response->getStatusCode() == 200)
-            return json_decode($response->getBody()->getContents(), true);
+            if ($response &&  $response->getStatusCode() == 200)
+                return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            error_log($e->getMessage());
+        } catch (ConnectException $e) {
+            error_log($e->getMessage());
+        }
     }
 
     return [];

@@ -559,7 +559,7 @@
                                 ng-src="VirtualWaitingRoom/images/opal_logo.png"></img>
                         </td>
                         <td class="text-center">
-                            <div ng-if="appoint.wearablesURL"><a href="" ng-click="showWearableDataCharts(appoint.wearablesURL)"
+                            <div ng-if="appoint.wearablesURL"><a href="" ng-click="showWearableDataCharts(appoint.wearablesURL, appoint.opalUUID)"
                                     class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;">
                                     <span class="alert-circle {{appoint.unreadWearablesData > 0 ? 'green-circle' : ''}}"></span>
                                 </a>

@@ -472,10 +472,15 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
                     {
                         patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn,'Site': appoint.site,'Age': appoint.age,'Sex': appoint.sex};},
                     }
-            }).result.then(function(response)
-        {
-
-        });
+            }).result.then(function(response) {
+                // Handle the case when the modal is closed via $uibModalInstance.close()
+            }, function(reason) {
+                // Handle the case when the modal is dismissed (e.g., backdrop click)
+                //console.log('Modal dismissed at: ' + new Date(), 'Reason:', reason);
+            }).catch(function(error) {
+                // Handle any uncaught error in the promise chain
+                console.error('Error with labs modal promise:', error);
+            });
     }
 
     //=========================================================================

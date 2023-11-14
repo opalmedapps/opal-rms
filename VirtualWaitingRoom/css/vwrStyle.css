@@ -216,6 +216,49 @@ table.table-measurement>tbody>tr>td {
 }
 
 /*###############################################*/
+/*css for the labs modal */
+/*###############################################*/
+
+div.labsModal > div.modal-dialog {
+    width: calc(90vw);
+}
+
+.sort-arrow {
+    margin-left: 5px;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid black; /* Default: pointing up */
+}
+
+.sort-arrow.asc {
+    border-top: none;
+    border-bottom: 5px solid black; /* Triangle pointing up */
+}
+
+.sort-arrow.desc {
+    border-bottom: none;
+    border-top: 5px solid black; /* Triangle pointing down */
+}
+
+.labs-modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 1020; /* Ensure it stays on top of other content */
+    background-color: white; /* Or the background color of your modal */
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6; /* Optional, for a solid separation line */
+}
+
+.labs-modal-body {
+    overflow-y: auto; /* Allows scrolling */
+    max-height: calc(100vh - 120px); /* Adjust the height as needed */
+}
+
+
+/*###############################################*/
 /*css for the questionnaire modal */
 /*###############################################*/
 

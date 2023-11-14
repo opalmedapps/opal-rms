@@ -215,6 +215,7 @@
                     </span>
 
                     <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info btn-questionnaire">View<span class="alert-circle {{patient.QStatus}}"></span></button>
+                    <button ng-switch-when="Labs" ng-click="openLabsModal(patient)" class="btn btn-info btn-questionnaire">View</button>
 
                     <span ng-switch-when="RemainingTime" ng-switch="patient.RowType">
                         <span ng-switch-when="CheckedIn">

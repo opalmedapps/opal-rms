@@ -646,6 +646,32 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         });
     }
 
+       //=========================================================================
+    // Open the Labs modal
+    //=========================================================================
+    $scope.openLabsModal = function (patient)
+    {
+        $uibModal.open(
+            {
+                animation: true,
+                templateUrl: 'VirtualWaitingRoom/js/vwr/templates/labsModal.htm',
+                controller: labsModalController,
+                windowClass: 'labsModal',
+                resolve:
+                    {
+                        patient: function() {return {'LastName': patient.lname, 'FirstName': patient.fname, 'PatientId': patient.patientId, 'Mrn': patient.mrn,'Site': patient.site,'Age': patient.age,'Sex': patient.sex};},
+                    }
+            }).result.then(function(response) {
+                // Handle the case when the modal is closed via $uibModalInstance.close()
+            }, function(reason) {
+                // Handle the case when the modal is dismissed (e.g., backdrop click)
+                //console.log('Modal dismissed at: ' + new Date(), 'Reason:', reason);
+            }).catch(function(error) {
+                // Handle any uncaught error in the promise chain
+                console.error('Error with labs modal promise:', error);
+            });
+    }
+
 
     //=========================================================================
     // Open the SMS modal

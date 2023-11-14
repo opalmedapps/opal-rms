@@ -458,6 +458,27 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     }
 
     //=========================================================================
+    // Open the Labs modal
+    //=========================================================================
+    $scope.openLabsModal = function (appoint)
+    {
+        $uibModal.open(
+            {
+                animation: true,
+                templateUrl: 'VirtualWaitingRoom/js/vwr/templates/labsModal.htm',
+                controller: labsModalController,
+                windowClass: 'labsModal',
+                resolve:
+                    {
+                        patient: function() {return {'LastName': appoint.lname, 'FirstName': appoint.fname, 'PatientId': appoint.patientId, 'Mrn': appoint.mrn,'Site': appoint.site,'Age': appoint.age,'Sex': appoint.sex};},
+                    }
+            }).result.then(function(response)
+        {
+
+        });
+    }
+
+    //=========================================================================
     // Open the Diagnosis modal
     //=========================================================================
     $scope.openDiagnosisModal = function(appoint)

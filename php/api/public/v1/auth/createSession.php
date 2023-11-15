@@ -1,5 +1,10 @@
 <?php
 
+/* Script to authenticate a user trying to log into ORMS.
+
+Creates a session on the server using memcache and returns the info needed for the front end
+to create a cookie that validates the user. */
+
 declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
@@ -9,8 +14,6 @@ use Orms\Authentication;
 use Orms\Http;
 use Orms\Util\Encoding;
 
-//script to authenticate a user trying to log into ORMS
-//creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
 
 try {
     $fields = Http::parseApiInputs('v1');

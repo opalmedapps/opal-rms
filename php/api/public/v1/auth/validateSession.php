@@ -1,5 +1,12 @@
 <?php
 
+/* Script to validate logged in user's session.
+
+Creates a session on the server using memcache and returns
+the info needed for the front end to create a cookie that validates the user.
+
+Logs the the result of logging in with Django's sessionid. */
+
 declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
@@ -9,9 +16,6 @@ use Orms\Http;
 use Orms\Util\Encoding;
 use Orms\System\Logger;
 
-//script to validate a user session logged into ORMS
-//creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
-//log the information in success or failed
 
 try {
     $fields = Http::parseApiInputs('v1');
@@ -22,14 +26,14 @@ catch(\Exception $e) {
 }
 
 $sessionid = "";
-if(isset($_COOKIE["sessionid"])) {
-    $sessionid = $_COOKIE["sessionid"];
-}
+if (isset($_COOKIE["sessionid"])) $sessionid = $_COOKIE["sessionid"];
+
 $response = Authentication::validate($sessionid);
 $content = json_decode($response->getBody()->getContents(), true);
 $username = $content["username"];
 $first_name = $content["first_name"];
 $last_name = $content["last_name"];
+
 if (
     $response->getStatusCode() == 200
     && isset($username)

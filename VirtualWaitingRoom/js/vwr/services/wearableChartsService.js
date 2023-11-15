@@ -5,16 +5,17 @@
         .module('vwr')
         .service('WearableCharts', WearableCharts);
 
-    WearableCharts.$inject = ['$http', '$mdDialog'];
+    WearableCharts.$inject = ['$http', '$mdDialog', '$cookies'];
 
     /* @ngInject */
-    function WearableCharts($http, $mdDialog) {
+    function WearableCharts($http, $mdDialog, $cookies) {
 
         return {
-            showWearableDataCharts: showWearableDataCharts
+            showWearableDataCharts: showWearableDataCharts,
+            getUnreadWearablesDataCounts: getUnreadWearablesDataCounts,
         };
 
-        async function showWearableDataCharts(wearablesURL) {
+        async function showWearableDataCharts(wearablesURL, patientUUID) {
             try {
                 const response = await $http.get(
                     wearablesURL,
@@ -27,9 +28,28 @@
                 var modalDialog = $mdDialog.confirm(
                     {
                         templateUrl: 'VirtualWaitingRoom/js/vwr/templates/wearableCharts.htm',
-                        onComplete: (scope, element, options) => {
+                        onComplete: async function (scope, element, options) {
                             element.find("img").replaceWith(response.data);
                             element.find("h2").remove();
+
+                            // Find backend host's address from the wearables URL.
+                            const wearableDataChartsURL = new URL(wearablesURL);
+                            const backendHost = wearableDataChartsURL.origin;
+
+                            // Mark patient's wearable data as viewed
+                            await $http.patch(
+                                backendHost + `/api/patients/${patientUUID}/health-data/viewed/`,
+                                {},
+                                {
+                                    'headers': {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'x-csrftoken': $cookies.get('csrftoken'),
+                                    },
+                                    'withCredentials': true,
+                                    'timeout': 3000  // 3 seconds
+                                }
+                            );
                         }
                     })
                     .ariaLabel('Smart Devices Data')
@@ -47,6 +67,26 @@
             }
 
             $mdDialog.show(modalDialog);
+        }
+
+        async function getUnreadWearablesDataCounts(
+            unviewedHealthDataURL,
+            patientUUIDsList,
+        ) {
+            const response = await $http.post(
+                unviewedHealthDataURL,
+                patientUUIDsList,
+                {
+                    'headers': {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-csrftoken': $cookies.get('csrftoken'),
+                    },
+                    'withCredentials': true,
+                },
+            );
+
+            return response?.data;
         }
     }
 })();

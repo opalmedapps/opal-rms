@@ -70,6 +70,16 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     //     - show area selection modal pop-up dialog (e.g., $scope.showSpecialitySelection = true);
     // Otherwise user should see login page (e.g., normal logging in workflow).
 
+    // $http({
+    //     url: "php/api/public/v1/auth/validateSession",
+    //     method: "GET"
+    // })
+    // .then(v => processAuthentication(v.data.data))
+    // .catch(err => {
+    //     $error = err?.data?.error ? err.data.error : "Authentication failed";
+    //     console.log($error);
+    // });
+
     $scope.authenticateUser = async function()
     {
         $scope.error = "";
@@ -137,14 +147,14 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
 
     function createCookiesAndRedirect(authData, hubData)
     {
-        $cookies.put("specialityGroupId",hubData["specialityGroupId"],{path: "/"});
-        $cookies.put("specialityGroupName",hubData["specialityGroupName"],{path: "/"});
-        $cookies.put("clinicHubId",hubData["clinicHubId"],{path: "/"});
-        $cookies.put("clinicHubName",hubData["clinicHubName"],{path: "/"});
-        $cookies.put("hospitalCode",hubData["hospitalCode"],{path: "/"});
-        $cookies.put("csrftoken",authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
-        $cookies.put("sessionid",authData["sessionid"]["value"], authData["sessionid"]["params"]);
-        $cookies.put(authData["name"],authData["key"],{path: "/"});
+        $cookies.put("specialityGroupId", hubData["specialityGroupId"], {path: "/"});
+        $cookies.put("specialityGroupName", hubData["specialityGroupName"], {path: "/"});
+        $cookies.put("clinicHubId", hubData["clinicHubId"], {path: "/"});
+        $cookies.put("clinicHubName", hubData["clinicHubName"], {path: "/"});
+        $cookies.put("hospitalCode", hubData["hospitalCode"], {path: "/"});
+        $cookies.put("csrftoken", authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
+        $cookies.put("sessionid", authData["sessionid"]["value"], authData["sessionid"]["params"]);
+        $cookies.put(authData["name"], authData["key"], {path: "/"});
         $window.location.href = $location.absUrl();
     }
 

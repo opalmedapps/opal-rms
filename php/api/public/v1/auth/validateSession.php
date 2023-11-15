@@ -25,8 +25,7 @@ catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
 }
 
-$sessionid = "";
-if (isset($_COOKIE["sessionid"])) $sessionid = $_COOKIE["sessionid"];
+$sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
 
 $response = Authentication::validate($sessionid);
 $content = json_decode($response->getBody()->getContents(), true);

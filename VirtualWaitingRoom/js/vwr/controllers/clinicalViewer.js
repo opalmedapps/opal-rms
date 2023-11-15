@@ -387,8 +387,16 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         if($scope.inputs.opal&& $scope.inputs.SMS) $scope.opalUsed = false;
         else $scope.opalUsed = true;
 
-        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate),$scope.inputs,speciality).then(function (response)
-        {
+        callScript.getData(
+            $scope.convertDate($scope.sDate),
+            $scope.convertDate($scope.eDate),
+            $scope.convertTime($scope.sTime),
+            $scope.convertTime($scope.eTime),
+            $scope.convertDate($scope.qdate),
+            $scope.convertTime($scope.qdate),
+            $scope.inputs,
+            speciality,
+        ).then(function (response) {
             $scope.tableData = response;
             //filter all blood test appointments
             $scope.tableData = $scope.tableData.filter(function(app) {
@@ -542,9 +550,9 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     //=========================================================================
     // Open the wearable charts modal dialog
     //=========================================================================
-    $scope.showWearableDataCharts = async function(wearablesURL)
+    $scope.showWearableDataCharts = async function(wearablesURL, patientUUID)
     {
-        WearableCharts.showWearableDataCharts(wearablesURL);
+        WearableCharts.showWearableDataCharts(wearablesURL, patientUUID);
     }
 
     $scope.sendZoomLink = function(appoint)
@@ -601,9 +609,17 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
         $scope.qdate.setHours($scope.qdate.getHours()- nhour);
         $scope.qdate.setDate($scope.qdate.getDate() - nday );
         $scope.qdate.setMonth($scope.qdate.getMonth() - nmonth);
-
         if($scope.isInputsChange && $scope.liveMode === 'Live'){
-            callScript.getData($scope.convertDate($scope.sDate), $scope.convertDate($scope.eDate), $scope.convertTime($scope.sTime), $scope.convertTime($scope.eTime),$scope.convertDate($scope.qdate),$scope.convertTime($scope.qdate), $scope.inputs, speciality).then(function (response) {
+            callScript.getData(
+                $scope.convertDate($scope.sDate),
+                $scope.convertDate($scope.eDate),
+                $scope.convertTime($scope.sTime),
+                $scope.convertTime($scope.eTime),
+                $scope.convertDate($scope.qdate),
+                $scope.convertTime($scope.qdate),
+                $scope.inputs,
+                speciality,
+            ).then(function (response) {
                 $scope.tableData = response;
 
                 if ($scope.inputs.type == 'all') {
@@ -630,10 +646,10 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
 
 
 
-app.factory('callScript',function($http,$q)
+app.factory('callScript', function($http, $q)
 {
     return {
-        getData: function(sDate,eDate,sTime,eTime,qdate,qtime,inputs,speciality)
+        getData: function(sDate, eDate, sTime, eTime, qdate, qtime, inputs, speciality)
         {
             let defer = $q.defer();
 
@@ -680,12 +696,13 @@ app.factory('callScript',function($http,$q)
                 andb = "&andbutton=Add";
             }
 
-
-            $http.get(url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+
+            $http.get(
+                url+"sDate="+sDate+"&eDate="+eDate+"&sTime="+sTime+"&eTime="+eTime+comp+openn+canc+arrived+
                 notArrived+opal+SMS+typeSelect+specificType+ctypeSelect+cspecificType+dtypeSelect+dspecificType +
-                qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&speciality="+speciality).then(function (response){
+                qtypeSelect+qspecificType+selectedDate+offb+andb+afilter+qfilter+"&speciality="+speciality
+            ).then(function (response){
                 let info = {};
-                info = response.data.data;
+                info = response?.data?.data;
                 defer.resolve(info);
             });
             return defer.promise;

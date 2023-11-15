@@ -20,7 +20,7 @@ class DateTime extends \DateTime implements JsonSerializable
 
     public function jsonSerialize(): string
     {
-        return $this->format(static::ISO8601);
+        return $this->format(\DateTime::ATOM);
     }
 
 }

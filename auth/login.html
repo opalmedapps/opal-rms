@@ -70,15 +70,17 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     //     - show area selection modal pop-up dialog (e.g., $scope.showSpecialitySelection = true);
     // Otherwise user should see login page (e.g., normal logging in workflow).
 
-    // $http({
-    //     url: "php/api/public/v1/auth/validateSession",
-    //     method: "GET"
-    // })
-    // .then(v => processAuthentication(v.data.data))
-    // .catch(err => {
-    //     $error = err?.data?.error ? err.data.error : "Authentication failed";
-    //     console.log($error);
-    // });
+    try {
+        const response = await $http({
+            url: "php/api/public/v1/auth/validateSession",
+            method: "GET"
+        });
+
+        processAuthentication(response.data.data)
+    } catch (error) {
+        $scope.error = error?.data?.error ? error.data.error : "Session validation failed";
+        console.error($scope.error);
+    }
 
     $scope.authenticateUser = async function()
     {

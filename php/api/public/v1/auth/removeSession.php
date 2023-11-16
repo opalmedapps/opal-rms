@@ -1,38 +1,26 @@
 <?php
 
+// Logout from ORMS. Call Opaladmin V2 endpoint to flush the session
+
 declare(strict_types=1);
 
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Authentication;
 use Orms\Http;
-use Orms\Util\Encoding;
 
-// Logout from ORMS. Call Opaladmin V2 endpoint to flush the session
 
-try {
-    $fields = Http::parseApiInputs('v1');
-    $fields = Encoding::utf8_decode_recursive($fields);
-}
-catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
-}
+$sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
+$csrftoken = isset($_COOKIE["csrftoken"]) ? $_COOKIE["csrftoken"] : "";
 
-$csrftoken = "";
-if(isset($_COOKIE["csrftoken"])) {
-    $csrftoken = $_COOKIE["csrftoken"];
-}
-$sessionid = "";
-if(isset($_COOKIE["sessionid"])) {
-    $sessionid = $_COOKIE["sessionid"];
+if (!empty($csrftoken) && !empty($sessionid)) {
+    // If csrftoken and sessionid cookies are not empty, logout from the Django backend.
+    $response = Authentication::logout($csrftoken, $sessionid);
+    if (!$response || $response->getStatusCode() != 200) {
+        // TODO: log unsuccessful logout
+    }
 }
 
-if($csrftoken !== "" && $sessionid !== ""){
-    Authentication::logout($csrftoken, $sessionid);
-}
-else{
-    Http::generateResponseJsonAndExit(
-        httpCode: 406,
-        error: "CSRF token or Session Id is missing."
-    );
-}
+// TODO: remove session from memcache
+
+Http::generateResponseJsonAndExit(200);

@@ -35,13 +35,13 @@ class Authentication
         return $response;
     }
 
-    public static function logout(string $csrftoken, string $sessionid): void
+    public static function logout(string $csrftoken, string $sessionid): ResponseInterface
     {
         $logoutUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
 
         // Call the endpoint to flush the session in opalAdmin backend.
         $client = new Client();
-        $client->request(
+        $response = $client->request(
             method: "POST",
             uri: $logoutUrl,
             options: [
@@ -53,6 +53,8 @@ class Authentication
                 "http_errors" => false,
             ],
         );
+
+        return $response;
     }
 
     public static function validate(string $sessionid): ResponseInterface
@@ -100,7 +102,7 @@ class Authentication
         $value .="RemoteIP=$_SERVER[REMOTE_ADDR]\r\n";
         //$value.="Expiration=60\r\n"; //duration is handled server side; default is 1 hr and the time left refreshes on every page connection
 
-        //store value for the key in memcache deamon
+        //store value for the key in memcache daemon
         $memcache->set($key, $value);
 
         //return a cookie object

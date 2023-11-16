@@ -2,10 +2,9 @@
 
 /* Script to validate logged in user's session.
 
-Creates a session on the server using memcache and returns
-the info needed for the front end to create a cookie that validates the user.
+Creates a session on the server using memcache and returns ORMS cookies to the caller.
 
-Logs the the result of logging in with Django's sessionid. */
+Logs the the result of Django's sessionid validation. */
 
 declare(strict_types=1);
 
@@ -13,41 +12,47 @@ require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Authentication;
 use Orms\Http;
-use Orms\Util\Encoding;
 use Orms\System\Logger;
 
 
-try {
-    $fields = Http::parseApiInputs('v1');
-    $fields = Encoding::utf8_decode_recursive($fields);
-}
-catch(\Exception $e) {
-    Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));
-}
-
 $sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
+$csrftoken = isset($_COOKIE["csrftoken"]) ? $_COOKIE["csrftoken"] : "";
+
+if (empty($sessionid) || empty($csrftoken))
+    // Return successful response with no ORMS cookies if sessionid and csrftoken do not exist.
+    Http::generateResponseJsonAndExit(
+        httpCode: 400,
+        error: "Missing Django's sessionid and csrftoken tokens.",
+    );
 
 $response = Authentication::validate($sessionid);
+
+if (!$response || $response->getStatusCode() != 200) {
+    $error = "Unsuccessful user's session validation.";
+    Logger::logLoginEvent(
+        $username,
+        $first_name . ' ' . $last_name,
+        $response->getStatusCode(),
+        $error
+    );
+
+    Http::generateResponseJsonAndExit(
+        httpCode: $response->getStatusCode(),
+        error: $error,
+    );
+}
+
+// If user's session successfully validated against Django backend, set user's ORMS cookies
 $content = json_decode($response->getBody()->getContents(), true);
 $username = $content["username"];
 $first_name = $content["first_name"];
 $last_name = $content["last_name"];
 
-if (
-    $response->getStatusCode() == 200
-    && isset($username)
-) {
-    // If authenticated and authorized, return HTTP 200 and set cookies
-    $cookie = Authentication::createUserSession($username);
-    Logger::logLoginEvent($username, $first_name.' '.$last_name, $response->getStatusCode(), null);
-    Http::generateResponseJsonAndExit(200, data: $cookie);
-}
-else {
-    // Return "Authentication failure" for any other errors
-    $error = "Authentication failure.";
-    Logger::logLoginEvent($username, $first_name.' '.$last_name, 406, $error);
-    Http::generateResponseJsonAndExit(
-        httpCode: 406,
-        error: $error
-    );
-}
+$cookie = Authentication::createUserSession($username);
+Logger::logLoginEvent(
+    $username,
+    $first_name . ' ' . $last_name,
+    $response->getStatusCode(),
+    null
+);
+Http::generateResponseJsonAndExit(200, data: $cookie);

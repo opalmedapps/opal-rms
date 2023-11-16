@@ -61,18 +61,16 @@ var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
 
 app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window)
 {
-    // Check if Django's session cookies exist (e.g., sessionid and csrftoken) in case
-    // user already logged in via OpalAdmin.
+    // Check if Django's session cookies already exist (e.g., sessionid and csrftoken) in case
+    // user logged in via OpalAdmin.
+    // The actual check is performed in PHP: php/api/public/v1/auth/validateSession
     //
     // If the condition is True:
     //     - validate Django's session cookies by making a call to the Django backend;
     //     - if session cookies are valid, create a session in the ORMS backend;
     //     - show area selection modal pop-up dialog;
     // Otherwise user should see login page (e.g., normal logging in workflow).
-    console.log($cookies.get("csrftoken"));
-    console.log($cookies.get("sessionid"));
-    if ($cookies.get("csrftoken") && $cookies.get("sessionid"))
-        validateOpalAdminSession();
+    validateOpalAdminSession();
 
     $scope.authenticateUser = async function()
     {
@@ -149,9 +147,9 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
 
         // Set csrftoken and sessionid cookies if user logins through the ORMS login page.
         // Otherwise user already have these tokens by logging in via opalAdmin.
-        if (!$cookies.get("csrftoken"))
+        if ("csrftoken" in authData)
             $cookies.put("csrftoken", authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
-        if (!$cookies.get("sessionid"))
+        if ("sessionid" in authData)
             $cookies.put("sessionid", authData["sessionid"]["value"], authData["sessionid"]["params"]);
 
         $cookies.put(authData["name"], authData["key"], {path: "/"});
@@ -186,8 +184,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
             // Show area modal pop-up dialog and set ORMS cookies.
             processAuthentication(response?.data?.data);
         } catch (error) {
-            $scope.error = error?.data?.error ? error.data.error : "Session validation failed";
-            console.error($scope.error);
+            console.error(`Session validation failed: ${error?.data?.error}`);
         }
     }
 });

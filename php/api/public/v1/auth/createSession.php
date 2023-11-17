@@ -37,29 +37,42 @@ $response = Authentication::login($user->username, $user->password);
 $content = json_decode($response->getBody()->getContents(), true);
 
 if (
-    $response->getStatusCode() == 200
+    $response
+    && $response->getStatusCode() == 200
     && isset($content["key"])
     && isset($response->getHeaders()["Set-Cookie"])
 ) {
     // If authenticated and authorized, return HTTP 200 and set cookies
-    $cookie = Authentication::createUserSession($user->username);
+    $ormsSession = Authentication::createUserSession($user->username);
+
+    // Iterate through all the received cookies from the new backend and add them to the response.
+    // Set csrftoken and sessionid cookies if user logins through the ORMS login page.
+    // Otherwise user already have these tokens by logging in via opalAdmin.
     $cookieParser = new CookieParser();
     $cookiesArr = $response->getHeaders()["Set-Cookie"];
 
-    // Iterate through all the received cookies from the new backend and add them to the response.
     foreach ($cookiesArr as $cookieStr) {
         $cookieDict = $cookieParser->fromString($cookieStr)->toArray();
-        $name = $cookieDict["Name"];
-        $cookie[$name]["value"] = $cookieDict["Value"];
-        $cookie[$name]["params"] = [
-            "path" => $cookieDict["Path"],
-            "domain" => $cookieDict["Domain"],
-            "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $cookieDict["Expires"]),
-            "samesite" => $cookieDict["SameSite"],
-        ];
+        setcookie(
+            name: $cookieDict["Name"],
+            value: $cookieDict["Value"],
+            expires_or_options: $cookieDict["Expires"],
+            path: $cookieDict["Path"],
+            secure: $cookieDict["Secure"],
+            httponly: $cookieDict["HttpOnly"],
+        );
     }
 
-    Http::generateResponseJsonAndExit(200, data: $cookie);
+    // Set ormsAuth session cookie
+    // TODO: remove ormsAuth cookie and use for memcache only sessionid (or API token)
+    setcookie(
+        name: $ormsSession["name"],
+        value: $ormsSession["key"],
+        path: "/",
+        httponly: true,
+    );
+
+    Http::generateResponseJsonAndExit(200);
 }
 elseif ($response->getStatusCode() == 403) {
     // If user is unauthorized (HTTP 403) return a human-readable error message

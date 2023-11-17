@@ -36,6 +36,18 @@ if (!$response || $response->getStatusCode() != 200) {
         $error
     );
 
+    // Remove sessionid cookie
+    if (isset($_COOKIE['sessionid'])) {
+        unset($_COOKIE['sessionid']);
+        setcookie(name: 'sessionid', value: '', expires_or_options: -1, path: '/');
+    }
+
+    // Remove csrftoken cookie
+    if (isset($_COOKIE['csrftoken'])) {
+        unset($_COOKIE['csrftoken']);
+        setcookie(name: 'csrftoken', value: '', expires_or_options: -1, path: '/');
+    }
+
     Http::generateResponseJsonAndExit(
         httpCode: $response->getStatusCode(),
         error: $error,
@@ -48,11 +60,20 @@ $username = $content["username"];
 $first_name = $content["first_name"];
 $last_name = $content["last_name"];
 
-$cookie = Authentication::createUserSession($username);
+$ormsSession = Authentication::createUserSession($username);
 Logger::logLoginEvent(
     $username,
     $first_name . ' ' . $last_name,
     $response->getStatusCode(),
-    null
+    null,
 );
-Http::generateResponseJsonAndExit(200, data: $cookie);
+
+// Set ormsAuth session cookie
+// TODO: remove ormsAuth cookie and use for memcache only sessionid (or API token)
+setcookie(
+    name: $ormsSession["name"],
+    value: $ormsSession["key"],
+    path: "/",
+    httponly: true,
+);
+Http::generateResponseJsonAndExit(200);

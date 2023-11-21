@@ -123,7 +123,8 @@ class Http
     }
 
     /**
-     * Returns a response to client without stopping script execution. Since the connection with the client gets closed, no further responses can be sent.
+     * Returns a response to client without stopping script execution.
+     * Since the connection with the client gets closed, no further responses can be sent.
      *
      */
     public static function generateResponseJsonAndContinue(int $httpCode, mixed $data = null, string $error = null): void
@@ -142,7 +143,7 @@ class Http
         header("Content-Type: application/json");
         echo $returnString;
         header("Connection: close");
-        header("Content-Length: ".ob_get_length());
+        header("Content-Length: " . ob_get_length());
         ob_end_flush();
         ob_flush();
         flush();

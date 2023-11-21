@@ -79,23 +79,18 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
     $scope.hubName    = $cookies.get("clinicHubName");
     $scope.site       = $cookies.get("hospitalCode");
 
-    $scope.logOut = function()
+    $scope.logOut = async function()
     {
-        $http({
-            url: "php/api/public/v1/auth/removeSession",
-            method: "POST",
-            data: null
-        })
-        .then(x => {})
-        .catch(err => {
-            $error = err?.data?.error ? err.data.error : "CSRF token or Session Id is missing.";
-            console.log($error);
-        });     
+        try {
+            const response = await $http({
+                url: "php/api/public/v1/auth/removeSession",
+                method: "POST",
+                data: null
+            });
+        } catch (error) {
+            console.error(`An error occurred during logging out: ${error?.data?.error}`);
+        }
 
-        // clear out legacy opal admin session id
-        $cookies.remove("PHPSESSID", {path: "/"});
-        // need to set the path specifically to ensure removal: https://stackoverflow.com/a/25373087
-        $cookies.remove("ormsAuth", {path: "/"});
         $cookies.remove("specialityGroupId", {path: "/"});
         $cookies.remove("specialityGroupName", {path: "/"});
         $cookies.remove("clinicHubId", {path: "/"});

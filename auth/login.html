@@ -86,14 +86,14 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
                     }
             });
 
-            processAuthentication(response?.data?.data);
+            processAuthentication();
         } catch (error) {
             $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
             $scope.password = "";
         };
     };
 
-    async function processAuthentication(authData)
+    async function processAuthentication()
     {
         $scope.showSpecialitySelection = true;
 
@@ -109,7 +109,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
         if (area.length !== 1) hub = await showAreaModalDialog(hubTemplate, area);
         else hub = area[0];
 
-        createCookiesAndRedirect(authData, hub);
+        createCookiesAndRedirect(hub);
     }
 
     async function showAreaModalDialog(template, dialogOptions)
@@ -137,7 +137,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
         return result;
     }
 
-    function createCookiesAndRedirect(authData, hubData)
+    function createCookiesAndRedirect(hubData)
     {
         $cookies.put("specialityGroupId", hubData["specialityGroupId"], {path: "/"});
         $cookies.put("specialityGroupName", hubData["specialityGroupName"], {path: "/"});
@@ -145,14 +145,6 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
         $cookies.put("clinicHubName", hubData["clinicHubName"], {path: "/"});
         $cookies.put("hospitalCode", hubData["hospitalCode"], {path: "/"});
 
-        // Set csrftoken and sessionid cookies if user logins through the ORMS login page.
-        // Otherwise user already have these tokens by logging in via opalAdmin.
-        if ("csrftoken" in authData)
-            $cookies.put("csrftoken", authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
-        if ("sessionid" in authData)
-            $cookies.put("sessionid", authData["sessionid"]["value"], authData["sessionid"]["params"]);
-
-        $cookies.put(authData["name"], authData["key"], {path: "/"});
         $window.location.href = $location.absUrl();
     }
 
@@ -182,7 +174,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
             });
 
             // Show area modal pop-up dialog and set ORMS cookies.
-            processAuthentication(response?.data?.data);
+            processAuthentication();
         } catch (error) {
             console.error(`Session validation failed: ${error?.data?.error}`);
         }

@@ -64,7 +64,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 ({OpalUUID}) => ({'patient_uuid': OpalUUID}),
             );
             const unreadWearablesCounts = await WearableCharts.getUnreadWearablesDataCounts(
-                backendHost + '/api/patients/health-data/unviewed/',
+                backendHost + '/api/patients/health-data/quantity-samples/unviewed/',
                 patientUUIDsList,
             );
 

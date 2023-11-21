@@ -61,14 +61,16 @@ var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
 
 app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window)
 {
-    // TODO: check if Django's session cookies exist (e.g., sessionid and csrftoken)
-    //       AND ORMS session cookies (e,g., ormsAuth) does not exist (to avoid unnecessary /validate calls).
+    // Check if Django's session cookies already exist (e.g., sessionid and csrftoken) in case
+    // user logged in via OpalAdmin.
+    // The actual check is performed in PHP: php/api/public/v1/auth/validateSession
     //
     // If the condition is True:
-    //     - make a "php/api/public/v1/auth/validateSession" call to the Django backend;
-    //     - if Django's session is valid, create a session in the ORMS backend;
-    //     - show area selection modal pop-up dialog (e.g., $scope.showSpecialitySelection = true);
+    //     - validate Django's session cookies by making a call to the Django backend;
+    //     - if session cookies are valid, create a session in the ORMS backend;
+    //     - show area selection modal pop-up dialog;
     // Otherwise user should see login page (e.g., normal logging in workflow).
+    validateOpalAdminSession();
 
     $scope.authenticateUser = async function()
     {
@@ -84,7 +86,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
                     }
             });
 
-            processAuthentication(response.data.data);
+            processAuthentication(response?.data?.data);
         } catch (error) {
             $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
             $scope.password = "";
@@ -137,14 +139,20 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
 
     function createCookiesAndRedirect(authData, hubData)
     {
-        $cookies.put("specialityGroupId",hubData["specialityGroupId"],{path: "/"});
-        $cookies.put("specialityGroupName",hubData["specialityGroupName"],{path: "/"});
-        $cookies.put("clinicHubId",hubData["clinicHubId"],{path: "/"});
-        $cookies.put("clinicHubName",hubData["clinicHubName"],{path: "/"});
-        $cookies.put("hospitalCode",hubData["hospitalCode"],{path: "/"});
-        $cookies.put("csrftoken",authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
-        $cookies.put("sessionid",authData["sessionid"]["value"], authData["sessionid"]["params"]);
-        $cookies.put(authData["name"],authData["key"],{path: "/"});
+        $cookies.put("specialityGroupId", hubData["specialityGroupId"], {path: "/"});
+        $cookies.put("specialityGroupName", hubData["specialityGroupName"], {path: "/"});
+        $cookies.put("clinicHubId", hubData["clinicHubId"], {path: "/"});
+        $cookies.put("clinicHubName", hubData["clinicHubName"], {path: "/"});
+        $cookies.put("hospitalCode", hubData["hospitalCode"], {path: "/"});
+
+        // Set csrftoken and sessionid cookies if user logins through the ORMS login page.
+        // Otherwise user already have these tokens by logging in via opalAdmin.
+        if ("csrftoken" in authData)
+            $cookies.put("csrftoken", authData["csrftoken"]["value"], authData["csrftoken"]["params"]);
+        if ("sessionid" in authData)
+            $cookies.put("sessionid", authData["sessionid"]["value"], authData["sessionid"]["params"]);
+
+        $cookies.put(authData["name"], authData["key"], {path: "/"});
         $window.location.href = $location.absUrl();
     }
 
@@ -155,13 +163,28 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
             const response = await $http({
                 url: "php/api/public/v1/hospital/getHubs",
                 method: "POST",
-                data: null
+                data: null,
             });
 
-            return response.data.data;
+            return response?.data?.data;
         } catch (error) {
             console.error('An error occurred while fetching speciality groups: ', error);
             return [];
+        }
+    }
+
+    // Check if Django's sessionid and csrftoken cookies are valid and set ORMS cookies.
+    async function validateOpalAdminSession() {
+        try {
+            const response = await $http({
+                url: "php/api/public/v1/auth/validateSession",
+                method: "GET",
+            });
+
+            // Show area modal pop-up dialog and set ORMS cookies.
+            processAuthentication(response?.data?.data);
+        } catch (error) {
+            console.error(`Session validation failed: ${error?.data?.error}`);
         }
     }
 });

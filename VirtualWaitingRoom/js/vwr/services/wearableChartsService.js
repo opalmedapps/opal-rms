@@ -38,7 +38,7 @@
 
                             // Mark patient's wearable data as viewed
                             await $http.patch(
-                                backendHost + `/api/patients/${patientUUID}/health-data/viewed/`,
+                                backendHost + `/api/patients/${patientUUID}/health-data/quantity-samples/viewed/`,
                                 {},
                                 {
                                     'headers': {

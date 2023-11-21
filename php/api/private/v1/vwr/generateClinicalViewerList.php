@@ -307,7 +307,8 @@ function fetchUnviewedWearableDataCounts(array $patientUUIDList): array
 {
     if ($patientUUIDList) {
         $client = new Client();
-        $unviewedCountsURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/patients/health-data/unviewed/';
+        $unviewedCountsURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal .
+                            '/api/patients/health-data/quantity-samples/unviewed/';
         try {
             $response = $client->request(
                 "POST",

@@ -7,9 +7,7 @@ namespace Orms;
 use Exception;
 use GuzzleHttp\Client;
 use Memcached;
-use Orms\System\Logger;
 use Orms\Config;
-use Orms\Http;
 use Psr\Http\Message\ResponseInterface;
 
 class Authentication
@@ -17,16 +15,18 @@ class Authentication
     public static function login(string $username, string $password): ResponseInterface
     {
         $loginUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
-        //check if the credentials are valid in the opalAdmin backend
+
+        // Check if the credentials are valid in the opalAdmin backend.
         $client = new Client();
         $response = $client->request(
-            "POST",
-            $loginUrl,
-            [
+            method: "POST",
+            uri: $loginUrl,
+            options: [
                 "form_params" => [
-                    "username"           => $username,
-                    "password"           => $password,
+                    "username" => $username,
+                    "password" => $password,
                 ],
+                // disable throwing exceptions on an HTTP protocol errors
                 "http_errors" => false,
             ],
         );
@@ -38,16 +38,19 @@ class Authentication
     public static function logout(string $csrftoken, string $sessionid): void
     {
         $logoutUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
-        // call the endpoint to flush the session in opalAdmin backend
+
+        // Call the endpoint to flush the session in opalAdmin backend.
         $client = new Client();
         $client->request(
-            "POST",
-            $logoutUrl,
-            [
+            method: "POST",
+            uri: $logoutUrl,
+            options: [
                 'headers' => [
-                    'Cookie' => 'sessionid='.$sessionid.';csrftoken='.$csrftoken,
-                    'X-CSRFToken' => $csrftoken,
+                    'cookie' => 'sessionid=' . $sessionid . ';csrftoken=' . $csrftoken,
+                    'x-csrftoken' => $csrftoken,
                 ],
+                // disable throwing exceptions on an HTTP protocol errors
+                "http_errors" => false,
             ],
         );
     }
@@ -55,27 +58,22 @@ class Authentication
     public static function validate(string $sessionid): ResponseInterface
     {
         $validateUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/validate/';
-        //check if the session id is valid in the opalAdmin backend
+
+        // Check if the session id is valid in the opalAdmin backend.
         $client = new Client();
-        try {
-            $response = $client->request(
-                "GET",
-                $validateUrl,
-                [
-                    'headers' => [
-                        'Cookie' => 'sessionid='.$sessionid,
-                    ],
+        $response = $client->request(
+            method: "GET",
+            uri: $validateUrl,
+            options: [
+                'headers' => [
+                    'cookie' => 'sessionid=' . $sessionid,
                 ],
-            );
-    
-            return $response;
-        }
-        catch(Exception $e) {
-            Http::generateResponseJsonAndExit(
-                httpCode: 406,
-                error: $e->getMessage()
-            );
-        }
+                // disable throwing exceptions on an HTTP protocol errors
+                "http_errors" => false,
+            ],
+        );
+
+        return $response;
     }
 
     /**

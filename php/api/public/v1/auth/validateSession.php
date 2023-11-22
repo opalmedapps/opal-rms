@@ -21,7 +21,7 @@ $csrftoken = isset($_COOKIE["csrftoken"]) ? $_COOKIE["csrftoken"] : "";
 if (empty($sessionid) || empty($csrftoken))
     // Return successful response with no ORMS cookies if sessionid and csrftoken do not exist.
     Http::generateResponseJsonAndExit(
-        httpCode: 400,
+        httpCode: 401,
         error: "Missing Django's sessionid and csrftoken tokens.",
     );
 

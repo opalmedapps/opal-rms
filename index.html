@@ -100,6 +100,8 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
         $cookies.remove("clinicHubName", {path: "/"});
         $cookies.remove("hospitalCode", {path: "/"});
 
+        // remove cache for the "/orms" page so the user cannot access the index.html after logout
+        await caches.delete("/orms");
         $window.location.reload();
     }
 });

@@ -59,7 +59,7 @@
 <script>
 var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
 
-app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window)
+app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window, $timeout)
 {
     // Check if Django's session cookies already exist (e.g., sessionid and csrftoken) in case
     // user logged in via OpalAdmin.
@@ -88,8 +88,10 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
 
             processAuthentication();
         } catch (error) {
-            $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
-            $scope.password = "";
+            $timeout(function(){
+                $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
+                $scope.password = "";
+            });
         };
     };
 

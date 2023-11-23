@@ -60,7 +60,7 @@ $username = $content["username"];
 $first_name = $content["first_name"];
 $last_name = $content["last_name"];
 
-$ormsSession = Authentication::createUserSession($username);
+Authentication::createUserSession($username, $sessionid);
 Logger::logLoginEvent(
     $username,
     $first_name . ' ' . $last_name,
@@ -68,12 +68,4 @@ Logger::logLoginEvent(
     null,
 );
 
-// Set ormsAuth session cookie
-// TODO: remove ormsAuth cookie and use for memcache only sessionid (or API token)
-setcookie(
-    name: $ormsSession["name"],
-    value: $ormsSession["key"],
-    path: "/",
-    httponly: true,
-);
 Http::generateResponseJsonAndExit(200);

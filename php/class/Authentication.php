@@ -60,19 +60,12 @@ class Authentication
             }
         }
 
-        // Remove ormsAuth cookie and corresponding ORMS session in memcache
-        // TODO: remove ormsAuth cookie and use for memcache only sessionid (or API token)
-        if (isset($_COOKIE['ormsAuth'])) {
-            $memcache = new Memcached(); // connect to memcached on localhost port 11211
-            $memcache->addServer("memcached", 11211) ?: throw new Exception("Failed to connect to memcached server");
-            $memcache->delete($_COOKIE['ormsAuth']);
-
-            unset($_COOKIE['ormsAuth']);
-            setcookie(name: 'ormsAuth', value: '', expires_or_options: -1, path: '/');
-        }
-
         // Remove sessionid cookie
         if (isset($_COOKIE['sessionid'])) {
+            $memcache = new Memcached(); // connect to memcached on localhost port 11211
+            $memcache->addServer("sessionid", 11211) ?: throw new Exception("Failed to connect to memcached server");
+            $memcache->delete($_COOKIE['sessionid']);
+
             unset($_COOKIE['sessionid']);
             setcookie(name: 'sessionid', value: '', expires_or_options: -1, path: '/');
         }
@@ -111,21 +104,11 @@ class Authentication
         return $response;
     }
 
-    /**
-     *
-     * @return array{
-     *      name: string,
-     *      key: string
-     * }
-     */
-    public static function createUserSession(string $username): array
+    public static function createUserSession(string $username, string $sessionid): void
     {
         // Store the user session in the memcache
         $memcache = new Memcached(); // connect to memcached on localhost port 11211
         $memcache->addServer("memcached", 11211) ?: throw new Exception("Failed to connect to memcached server");
-
-        // Generate cookie uniq session id
-        $key = md5(uniqid((string) rand(), true) . $_SERVER["REMOTE_ADDR"] . time());
 
         // Construct session value to be stored in memcached for the cookie session id.
         $value = "UserName=$username\r\n";
@@ -134,12 +117,6 @@ class Authentication
         // $value .= "Expiration=60\r\n"; //duration is handled server side; default is 1 hr and the time left refreshes on every page connection
 
         // Store value for the key in memcache daemon
-        $memcache->set($key, $value);
-
-        //return a cookie object
-        return [
-            "name" => "ormsAuth",
-            "key"  => $key,
-        ];
+        $memcache->set($sessionid, $value);
     }
 }

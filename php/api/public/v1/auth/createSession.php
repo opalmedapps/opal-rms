@@ -42,9 +42,6 @@ if (
     && isset($content["key"])
     && isset($response->getHeaders()["Set-Cookie"])
 ) {
-    // If authenticated and authorized, return HTTP 200 and set cookies
-    $ormsSession = Authentication::createUserSession($user->username);
-
     // Iterate through all the received cookies from the new backend and add them to the response.
     // Set csrftoken and sessionid cookies if user logins through the ORMS login page.
     // Otherwise user already have these tokens by logging in via opalAdmin.
@@ -61,16 +58,11 @@ if (
             secure: $cookieDict["Secure"],
             httponly: $cookieDict["HttpOnly"],
         );
-    }
 
-    // Set ormsAuth session cookie
-    // TODO: remove ormsAuth cookie and use for memcache only sessionid (or API token)
-    setcookie(
-        name: $ormsSession["name"],
-        value: $ormsSession["key"],
-        path: "/",
-        httponly: true,
-    );
+        // Store sessionid in the memcache
+        if ($cookieDict["Name"] === "sessionid")
+            Authentication::createUserSession($user->username, $cookieDict["Value"]);
+    }
 
     Http::generateResponseJsonAndExit(200);
 }

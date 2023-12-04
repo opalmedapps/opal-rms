@@ -1,6 +1,6 @@
 # Build/install JS dependencies
 # Pin platform since PhantomJS binary is not available for linux/arm64 architecture
-FROM node:20.8.0-alpine3.18 as js-dependencies
+FROM node:20.10.0-alpine3.18 as js-dependencies
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-autoloader
 
 # final image
-FROM php:8.1.0-apache-bullseye
+FROM php:8.1.26-apache-bookworm
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -56,12 +56,21 @@ RUN curl -SL https://github.com/ZenProjects/Apache-Authmemcookie-Module/tarball/
     && autoconf -f && ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr/ && make && make install \
     && echo "LoadModule mod_auth_memcookie_module /usr/lib/apache2/modules/mod_auth_memcookie.so" > /etc/apache2/mods-enabled/00-authCookie.load
 
+# which php.ini to use, can be either production or development
+ARG PHP_ENV=production
+ENV PHP_ENV=${PHP_ENV}
+
+COPY docker/update_php_config.sh /tmp
+
 # Configure Apache2
 RUN ln -sf /dev/stdout /var/log/apache2/error.log \
     && a2enmod headers rewrite \
     # Change default port to 8080 to allow non-root user to bind port
     # Binding port 80 on CentOS seems to be forbidden for non-root users
-    && sed -ri -e 's!Listen 80!Listen 8080!g' /etc/apache2/ports.conf
+    && sed -ri -e 's!Listen 80!Listen 8080!g' /etc/apache2/ports.conf \
+    # Use production php.ini file by default
+    && mv "${PHP_INI_DIR}/php.ini-${PHP_ENV}" "${PHP_INI_DIR}/php.ini" \
+    && /tmp/update_php_config.sh
 
 COPY ./docker/app/ssl.conf /etc/apache2/sites-enabled
 COPY ./docker/app/hardwareIpList.list /etc/apache2/

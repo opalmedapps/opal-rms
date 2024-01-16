@@ -15,7 +15,6 @@
   "separateMinorPatch": true,
   "ignoreDeps": [
     "checklist-model",
-    "crypto-js",
     "dayjs",
     "firebase",
     "popper.js",

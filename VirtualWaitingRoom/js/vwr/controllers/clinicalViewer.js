@@ -550,9 +550,10 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interv
     //=========================================================================
     // Open the wearable charts modal dialog
     //=========================================================================
-    $scope.showWearableDataCharts = async function(wearablesURL, patientUUID)
+    $scope.showWearableDataCharts = async function(unreadWearablesData, wearablesURL, patientUUID)
     {
         WearableCharts.showWearableDataCharts(wearablesURL, patientUUID);
+        unreadWearablesData = 0;
     }
 
     $scope.sendZoomLink = function(appoint)

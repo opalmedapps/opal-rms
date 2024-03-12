@@ -12,4 +12,5 @@ use Orms\Http;
 
 $response = Authentication::logout();
 
-Http::generateResponseJsonAndExit(200);
+// provide the URL to redirect to
+Http::generateResponseJsonAndExit(200, 'http://localhost:8082/#!/home');

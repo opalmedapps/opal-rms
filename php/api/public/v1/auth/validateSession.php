@@ -28,25 +28,25 @@ if (empty($sessionid) || empty($csrftoken))
 $response = Authentication::validate($sessionid);
 
 if (!$response || $response->getStatusCode() != 200) {
-    $error = "Unsuccessful user's session validation.";
+    $error = $response->getBody()->getContents();
     Logger::logLoginEvent(
-        $username,
-        $first_name . ' ' . $last_name,
+        $sessionid,
+        '',
         $response->getStatusCode(),
         $error
     );
 
-    // Remove sessionid cookie
-    if (isset($_COOKIE['sessionid'])) {
-        unset($_COOKIE['sessionid']);
-        setcookie(name: 'sessionid', value: '', expires_or_options: -1, path: '/');
-    }
+    // // Remove sessionid cookie
+    // if (isset($_COOKIE['sessionid'])) {
+    //     unset($_COOKIE['sessionid']);
+    //     setcookie(name: 'sessionid', value: '', expires_or_options: -1, path: '/');
+    // }
 
     // Remove csrftoken cookie
-    if (isset($_COOKIE['csrftoken'])) {
-        unset($_COOKIE['csrftoken']);
-        setcookie(name: 'csrftoken', value: '', expires_or_options: -1, path: '/');
-    }
+    // if (isset($_COOKIE['csrftoken'])) {
+    //     unset($_COOKIE['csrftoken']);
+    //     setcookie(name: 'csrftoken', value: '', expires_or_options: -1, path: '/');
+    // }
 
     Http::generateResponseJsonAndExit(
         httpCode: $response->getStatusCode(),
@@ -66,6 +66,13 @@ Logger::logLoginEvent(
     $first_name . ' ' . $last_name,
     $response->getStatusCode(),
     null,
+);
+
+setcookie(
+    name: 'ormsAuth',
+    value: $sessionid,
+    path: "/",
+    httponly: true,
 );
 
 Http::generateResponseJsonAndExit(200);

@@ -25,8 +25,10 @@
 
     <body ng-app="myApp" ng-controller="main">
         <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
-
-        <div class="body-login">
+        <div class="error-wrapper" ng-if="error">
+            <div class="error-text">{{error}}</div>
+        </div>
+        <!-- <div class="body-login">
             <div class="pageHeader"></div>
             <div class="logo-desc">
                 <img src="images/Opal_RMS_logo.png" width="40%">
@@ -52,7 +54,7 @@
                 </div>
 
             </form>
-        </div>
+        </div> -->
     </body>
 </html>
 
@@ -72,28 +74,28 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     // Otherwise user should see login page (e.g., normal logging in workflow).
     validateOpalAdminSession();
 
-    $scope.authenticateUser = async function()
-    {
-        $scope.error = "";
+    // $scope.authenticateUser = async function()
+    // {
+    //     $scope.error = "";
 
-        try {
-            const response = await $http({
-                    url: "php/api/public/v1/auth/createSession",
-                    method: "POST",
-                    data: {
-                        "username": $scope.username,
-                        "password": $scope.password
-                    }
-            });
+    //     try {
+    //         const response = await $http({
+    //                 url: "php/api/public/v1/auth/createSession",
+    //                 method: "POST",
+    //                 data: {
+    //                     "username": $scope.username,
+    //                     "password": $scope.password
+    //                 }
+    //         });
 
-            processAuthentication();
-        } catch (error) {
-            $timeout(function(){
-                $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
-                $scope.password = "";
-            });
-        };
-    };
+    //         processAuthentication();
+    //     } catch (error) {
+    //         $timeout(function(){
+    //             $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
+    //             $scope.password = "";
+    //         });
+    //     };
+    // };
 
     async function processAuthentication()
     {
@@ -178,7 +180,13 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
             // Show area modal pop-up dialog and set ORMS cookies.
             processAuthentication();
         } catch (error) {
-            console.error(`Session validation failed: ${error?.data?.error}`);
+            if (error.status === 403) {
+                $timeout(function() {
+                    $scope.error = "You do not have permission to access ORMS. Contact the Opal systems administrator.";
+                });
+            } else {
+                console.error(`Session validation failed: ${error?.data?.error}`);
+            }
         }
     }
 });

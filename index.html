@@ -29,8 +29,8 @@
 
     <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
-    <td colspan='8' style="vertical-align: center; background-color: rgb(255,254,244);text-align: right;">
-        <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Log Out</a></span><br></td>
+    <td colspan='8' style="vertical-align: center; background-color: rgb(255,254,244);text-align: right; padding-top: 10px;">
+        <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Return to OpalAdmin</a></span><br></td>
     <td></td>
     </tr>
 
@@ -87,17 +87,18 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
                 method: "POST",
                 data: null
             });
+
+            $cookies.remove("specialityGroupId", {path: "/"});
+            $cookies.remove("specialityGroupName", {path: "/"});
+            $cookies.remove("clinicHubId", {path: "/"});
+            $cookies.remove("clinicHubName", {path: "/"});
+            $cookies.remove("hospitalCode", {path: "/"});
+    
+            $window.location.href = response.data.data;
         } catch (error) {
             console.error(`An error occurred during logging out: ${error?.data?.error}`);
         }
 
-        $cookies.remove("specialityGroupId", {path: "/"});
-        $cookies.remove("specialityGroupName", {path: "/"});
-        $cookies.remove("clinicHubId", {path: "/"});
-        $cookies.remove("clinicHubName", {path: "/"});
-        $cookies.remove("hospitalCode", {path: "/"});
-
-        $window.location.reload();
     }
 });
 

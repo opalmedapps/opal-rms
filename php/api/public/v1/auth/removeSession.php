@@ -7,10 +7,11 @@ declare(strict_types=1);
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Authentication;
+use Orms\Config;
 use Orms\Http;
 
 
 $response = Authentication::logout();
 
 // provide the URL to redirect to
-Http::generateResponseJsonAndExit(200, 'http://localhost:8082/#!/home');
+Http::generateResponseJsonAndExit(200, Config::getApplicationSettings()->environment->opalAdminHost);

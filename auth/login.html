@@ -185,7 +185,7 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
                     $scope.error = "You do not have permission to access ORMS. Contact the Opal systems administrator.";
                 });
             } else if (error.status === 401) {
-                $window.location.href = 'http://localhost:8082';
+                $window.location.href = error.data.data;
             } else {
                 console.error(`Session validation failed: ${error?.data?.error}`);
             }

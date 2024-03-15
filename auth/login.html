@@ -47,29 +47,6 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     // Otherwise user should see login page (e.g., normal logging in workflow).
     validateOpalAdminSession();
 
-    // $scope.authenticateUser = async function()
-    // {
-    //     $scope.error = "";
-
-    //     try {
-    //         const response = await $http({
-    //                 url: "php/api/public/v1/auth/createSession",
-    //                 method: "POST",
-    //                 data: {
-    //                     "username": $scope.username,
-    //                     "password": $scope.password
-    //                 }
-    //         });
-
-    //         processAuthentication();
-    //     } catch (error) {
-    //         $timeout(function(){
-    //             $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
-    //             $scope.password = "";
-    //         });
-    //     };
-    // };
-
     async function processAuthentication()
     {
         $scope.showSpecialitySelection = true;

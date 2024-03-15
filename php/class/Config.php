@@ -55,6 +55,7 @@ class Config
         $dotenv->required('SMS_INCOMING_SMS_CRON_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
+        $dotenv->required('OPALADMIN_HOST')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
@@ -71,6 +72,7 @@ class Config
             firebaseUrl:                    $_ENV["FIREBASE_URL"],
             firebaseSecret:                 $_ENV["FIREBASE_SECRET"],
             completedQuestionnairePath:     $_ENV["BASE_PATH"]."/tmp/completedQuestionnaires.json",
+            opalAdminHost:                  $_ENV["OPALADMIN_HOST"],
             highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
         );
 
@@ -175,6 +177,7 @@ class EnvironmentConfig
         public string $firebaseUrl,
         public string $firebaseSecret,
         public string $completedQuestionnairePath,
+        public string $opalAdminHost,
         public ?string $highchartsUrl
     ) {}
 }

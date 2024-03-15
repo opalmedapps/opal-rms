@@ -25,33 +25,8 @@
 
     <body ng-app="myApp" ng-controller="main">
         <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
-
-        <div class="body-login">
-            <div class="pageHeader"></div>
-            <div class="logo-desc">
-                <img src="images/Opal_RMS_logo.png" width="40%">
-            </div>
-
-            <form class="login-form" ng-submit="authenticateUser()">
-                <div style="width: 200%"><h1 style="font-size: 32px">Login to ORMS to manage your clinic</h1></div>
-                <fieldset class="field-holder">
-                    <input class="credentials" type="text" ng-model="username" name="username" placeholder="MUHC AD Username" autofocus required />
-                    <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
-
-                    <div class="error-wrapper">
-                        <div class="error-text">{{error}}</div>
-                    </div>
-                    <div class="submit-wrapper">
-                        <input type="submit" class="login-submit" title="Confirm" value="Log in" />
-                        <div class="submit-icon"><img src="images/confirm-white.png" /></div>
-                    </div>
-                </fieldset>
-                <div class="help-container">
-                    <div class="help-trigger">Need help?</div>
-                    <div class="help-text">Please contact the help desk at extension x48484</div>
-                </div>
-
-            </form>
+        <div class="error-wrapper" ng-if="error">
+            <div class="error-text">{{error}}</div>
         </div>
     </body>
 </html>
@@ -71,29 +46,6 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     //     - show area selection modal pop-up dialog;
     // Otherwise user should see login page (e.g., normal logging in workflow).
     validateOpalAdminSession();
-
-    $scope.authenticateUser = async function()
-    {
-        $scope.error = "";
-
-        try {
-            const response = await $http({
-                    url: "php/api/public/v1/auth/createSession",
-                    method: "POST",
-                    data: {
-                        "username": $scope.username,
-                        "password": $scope.password
-                    }
-            });
-
-            processAuthentication();
-        } catch (error) {
-            $timeout(function(){
-                $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
-                $scope.password = "";
-            });
-        };
-    };
 
     async function processAuthentication()
     {
@@ -178,7 +130,15 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
             // Show area modal pop-up dialog and set ORMS cookies.
             processAuthentication();
         } catch (error) {
-            console.error(`Session validation failed: ${error?.data?.error}`);
+            if (error.status === 403) {
+                $timeout(function() {
+                    $scope.error = "You do not have permission to access ORMS. Contact the Opal systems administrator.";
+                });
+            } else if (error.status === 401) {
+                $window.location.href = error.data.data;
+            } else {
+                console.error(`Session validation failed: ${error?.data?.error}`);
+            }
         }
     }
 });

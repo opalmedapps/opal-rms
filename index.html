@@ -4,80 +4,173 @@
     <base href="/orms/">
     <title>Opal RMS</title>
     <style>
+        html, body {
+            background-color: rgb(128,128, 128);
+        }
+        body {
+            color: rgb(0, 0, 0); 
+            font-family: Helvetica,Arial,sans-serif; 
+            margin: 0,
+        }
         ul li {padding-bottom: 25px;}
     </style>
     <script src="node_modules/angular/angular.min.js"></script>
     <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
+    <script src="node_modules/angular-animate/angular-animate.min.js"></script>
+    <script src="node_modules/angular-aria/angular-aria.min.js"></script>
+    <script src="node_modules/angular-material/angular-material.js"></script>
+
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+
 </head>
-<body ng-app="myApp" ng-controller="main" style="color: rgb(0, 0, 0); background-color: rgb(128,128, 128); font-size:18px; font-family: Helvetica,Arial,sans-serif;" link="#0000ee" vlink="#551a8b" alink="#ee0000">
-<center>
+<body ng-app="myApp" ng-controller="main" link="#0000ee" vlink="#551a8b" alink="#ee0000">
+    <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
+    <center ng-if="!showSpecialitySelection">
 
-<table style="table-layout:fixed;text-align: left; width: 1300px; background-color: rgb(255,254,244); font-size:24px;border-spacing: 10px 0px;">
-<thead></thead>
-<tbody>
-    <tr style="font-family: Helvetica,Arial,sans-serif;">
-    <td colspan="10" style="vertical-align: center; background-color: rgb(255,254,244);">
-        <center><img src="images/Opal_RMS_logo.png" alt="MUHC logo" border="0" width="40%"></center></td>
-    </tr>
+    <table style="table-layout:fixed;text-align: left; width: 1300px; background-color: rgb(255,254,244); font-size:24px;border-spacing: 10px 0px;">
+    <thead></thead>
+    <tbody>
+        <tr style="font-family: Helvetica,Arial,sans-serif;">
+        <td colspan="10" style="vertical-align: center; background-color: rgb(255,254,244);">
+            <center><img src="images/Opal_RMS_logo.png" alt="MUHC logo" border="0" width="40%"></center></td>
+        </tr>
 
-    <tr style="font-family: Helvetica,Arial,sans-serif;">
-        <td colspan="10" style="vertical-align: center; background-color: rgb(111,84,153);">
-            <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;"><center>Opal Room Management System</center></span>
-        </td>
-    </tr>
+        <tr style="font-family: Helvetica,Arial,sans-serif;">
+            <td colspan="10" style="vertical-align: center; background-color: rgb(111,84,153);">
+                <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;"><center>Opal Room Management System</center></span>
+            </td>
+        </tr>
 
-    <tr style="font-family: Helvetica,Arial,sans-serif;">
-    <td></td>
-    <td colspan='8' style="vertical-align: center; background-color: rgb(255,254,244);text-align: right; padding-top: 10px;">
-        <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Exit ORMS</a></span><br></td>
-    <td></td>
-    </tr>
-
-    <tr>
-    <td><br></td>
-    </tr>
-
-    <tr>
+        <tr style="font-family: Helvetica,Arial,sans-serif;">
         <td></td>
-        <td style="vertical-align: center;" colspan="8">
-            <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
-                <center>
-                    <ul style="list-style:none;">
-                        <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Opal Virtual Waiting Room - Clinics</a></li>
-                        <li><a href="./VirtualWaitingRoom/screenDisplay.html?location={{hub}}">Opal Virtual Waiting Room - TV Screen</a></li>
-                        <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Opal Clinical Viewer</a></li>
-                        <!-- <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li> -->
-                        <li><a href="./interface/AddOn.html">Register Patient for Opal SMS Messages<br></a></li>
-                        <li><a href="./kiosk/?location={{hubName+ ' Reception'}}&site={{site}}">Opal Patient check-in interface <br></a></li>
-                        <li><a href="./reports/indexOnc.html">Opal RMS Waiting Room Reports</a></li>
-                    </ul>
-                </center>
-            </span>
-        </td>
-    </tr>
+        <td colspan='8' style="vertical-align: center; background-color: rgb(255,254,244);text-align: right; padding-top: 10px;">
+            <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Exit ORMS</a></span><br></td>
+        <td></td>
+        </tr>
+
+        <tr>
+        <td><br></td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td style="vertical-align: center;" colspan="8">
+                <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
+                    <center>
+                        <ul style="list-style:none;">
+                            <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Opal Virtual Waiting Room - Clinics</a></li>
+                            <li><a href="./VirtualWaitingRoom/screenDisplay.html?location={{hub}}">Opal Virtual Waiting Room - TV Screen</a></li>
+                            <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Opal Clinical Viewer</a></li>
+                            <!-- <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li> -->
+                            <li><a href="./interface/AddOn.html">Register Patient for Opal SMS Messages<br></a></li>
+                            <li><a href="./kiosk/?location={{hubName+ ' Reception'}}&site={{site}}">Opal Patient check-in interface <br></a></li>
+                            <li><a href="./reports/indexOnc.html">Opal RMS Waiting Room Reports</a></li>
+                        </ul>
+                    </center>
+                </span>
+            </td>
+        </tr>
+
+        <tr><td><br></td></tr>
 
     <tr><td><br></td></tr>
 
-<tr><td><br></td></tr>
+    </tbody>
+    </table>
 
-</tbody>
-</table>
-
-</center>
+    </center>
 
 </body>
 </html>
 
 <script>
-var app = angular.module('myApp',['ngCookies']);
+var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
 
-app.controller('main', function($scope,$http,$cookies,$location,$window)
+app.controller('main', function($scope, $http, $cookies, $location, $mdDialog, $window)
 {
     $scope.speciality = $cookies.get("specialityGroupName");
     $scope.hub        = $cookies.get("clinicHubId");
     $scope.hubName    = $cookies.get("clinicHubName");
     $scope.site       = $cookies.get("hospitalCode");
+
+    // show the "speciality" (sic!) selection if any of the cookies is missing
+    if (!$scope.speciality || !$scope.hub || !$scope.hubName || !$scope.site) {
+        showSpecialitySelection();
+    }
+
+    async function showSpecialitySelection()
+    {
+        $scope.showSpecialitySelection = true;
+
+        // Fetch all available areas
+        const specialityGroups = await fetchSpecialityGroups();
+
+        // Show a modal pop-up dialog with the all available areas
+        let area = await showAreaModalDialog(specialityTemplate, specialityGroups);
+
+        // If chosen speciality group (a.k.a. area) has more than one TV hubs (e.g., several floors or levels)
+        // show the second modal pop-up dialog with the hubs.
+        let hub;
+        if (area.length !== 1) hub = await showAreaModalDialog(hubTemplate, area);
+        else hub = area[0];
+
+        createCookiesAndRedirect(hub);
+    }
+
+    async function showAreaModalDialog(template, dialogOptions)
+    {
+        let areaModalDialog = $mdDialog.confirm(
+        {
+            escapeToClose: false,
+            template: template,
+            locals: {
+                dialogOptions: dialogOptions,
+            },
+            controller: function($scope, dialogOptions)
+            {
+                $scope.dialogOptions = dialogOptions;
+                $scope.complete = function(option)
+                {
+                    $mdDialog.hide(option);
+                }
+            }
+        })
+        .ariaLabel('Area Dialog')
+        .hasBackdrop(false);
+
+        const result = await $mdDialog.show(areaModalDialog);
+        return result;
+    }
+
+    function createCookiesAndRedirect(hubData)
+    {
+        $cookies.put("specialityGroupId", hubData["specialityGroupId"], {path: "/"});
+        $cookies.put("specialityGroupName", hubData["specialityGroupName"], {path: "/"});
+        $cookies.put("clinicHubId", hubData["clinicHubId"], {path: "/"});
+        $cookies.put("clinicHubName", hubData["clinicHubName"], {path: "/"});
+        $cookies.put("hospitalCode", hubData["hospitalCode"], {path: "/"});
+
+        // reload the page to initialize the $scope variables for the cookies
+        $window.location.href = $location.absUrl();
+    }
+
+    // Get a list of clinical areas (a.k.a. hubs) by making a call to the ORMS backend
+    async function fetchSpecialityGroups()
+    {
+        try {
+            const response = await $http({
+                url: "php/api/public/v1/hospital/getHubs",
+                method: "POST",
+                data: null,
+            });
+
+            return response?.data?.data;
+        } catch (error) {
+            console.error('An error occurred while fetching speciality groups: ', error);
+            return [];
+        }
+    }
 
     $scope.logOut = async function()
     {
@@ -101,5 +194,27 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
 
     }
 });
+
+var specialityTemplate = `
+    <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+        <h2 class="md-title ng-binding">Connect to a Clinical Area</h2>
+        <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+            <span style="display:flex;justify-content:center;">
+                <md-button ng-repeat="(key,spec) in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{key}}</md-button>
+            </span>
+        </div>
+    </md-dialog-content>
+`;
+
+var hubTemplate = `
+    <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
+        <h2 class="md-title ng-binding">Select a TV Hub</h2>
+        <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
+            <span style="display:flex;justify-content:center;">
+                <md-button ng-repeat="hub in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.clinicHubName}}</md-button>
+            </span>
+        </div>
+    </md-dialog-content>
+`;
 
 </script>

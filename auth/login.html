@@ -7,12 +7,6 @@
 
         <script src="node_modules/angular/angular.min.js"></script>
         <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
-        <script src="node_modules/angular-animate/angular-animate.min.js"></script>
-        <script src="node_modules/angular-aria/angular-aria.min.js"></script>
-        <script src="node_modules/angular-material/angular-material.js"></script>
-
-        <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
-        <link rel="stylesheet" href="auth/custom.css">
 
         <noscript>
             <div id="nojavascript">
@@ -24,7 +18,6 @@
     </head>
 
     <body ng-app="myApp" ng-controller="main">
-        <div ng-if="showSpecialitySelection" style="width:100%;height:100%;background-color: white;position: absolute;z-index: 1;"></div>
         <div class="error-wrapper" ng-if="error">
             <div class="error-text">{{error}}</div>
         </div>
@@ -32,9 +25,9 @@
 </html>
 
 <script>
-var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
+var app = angular.module('myApp', ['ngCookies']);
 
-app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window, $timeout)
+app.controller('main', function($scope, $http, $cookies, $location, $window, $timeout)
 {
     // Check if Django's session cookies already exist (e.g., sessionid and csrftoken) in case
     // user logged in via OpalAdmin.
@@ -47,78 +40,6 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
     // Otherwise user should see login page (e.g., normal logging in workflow).
     validateOpalAdminSession();
 
-    async function processAuthentication()
-    {
-        $scope.showSpecialitySelection = true;
-
-        // Fetch all available areas
-        const specialityGroups = await fetchSpecialityGroups();
-
-        // Show a modal pop-up dialog with the all available areas
-        let area = await showAreaModalDialog(specialityTemplate, specialityGroups);
-
-        // If chosen speciality group (a.k.a. area) has more than one TV hubs (e.g., several floors or levels)
-        // show the second modal pop-up dialog with the hubs.
-        let hub;
-        if (area.length !== 1) hub = await showAreaModalDialog(hubTemplate, area);
-        else hub = area[0];
-
-        createCookiesAndRedirect(hub);
-    }
-
-    async function showAreaModalDialog(template, dialogOptions)
-    {
-        let areaModalDialog = $mdDialog.confirm(
-        {
-            escapeToClose: false,
-            template: template,
-            locals: {
-                dialogOptions: dialogOptions,
-            },
-            controller: function($scope, dialogOptions)
-            {
-                $scope.dialogOptions = dialogOptions;
-                $scope.complete = function(option)
-                {
-                    $mdDialog.hide(option);
-                }
-            }
-        })
-        .ariaLabel('Area Dialog')
-        .hasBackdrop(false);
-
-        const result = await $mdDialog.show(areaModalDialog);
-        return result;
-    }
-
-    function createCookiesAndRedirect(hubData)
-    {
-        $cookies.put("specialityGroupId", hubData["specialityGroupId"], {path: "/"});
-        $cookies.put("specialityGroupName", hubData["specialityGroupName"], {path: "/"});
-        $cookies.put("clinicHubId", hubData["clinicHubId"], {path: "/"});
-        $cookies.put("clinicHubName", hubData["clinicHubName"], {path: "/"});
-        $cookies.put("hospitalCode", hubData["hospitalCode"], {path: "/"});
-
-        $window.location.href = $location.absUrl();
-    }
-
-    // Get a list of clinical areas (a.k.a. hubs) by making a call to the ORMS backend
-    async function fetchSpecialityGroups()
-    {
-        try {
-            const response = await $http({
-                url: "php/api/public/v1/hospital/getHubs",
-                method: "POST",
-                data: null,
-            });
-
-            return response?.data?.data;
-        } catch (error) {
-            console.error('An error occurred while fetching speciality groups: ', error);
-            return [];
-        }
-    }
-
     // Check if Django's sessionid and csrftoken cookies are valid and set ORMS cookies.
     async function validateOpalAdminSession() {
         try {
@@ -127,8 +48,8 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
                 method: "GET",
             });
 
-            // Show area modal pop-up dialog and set ORMS cookies.
-            processAuthentication();
+            // Redirect to main page
+            $window.location.href = $location.absUrl();
         } catch (error) {
             if (error.status === 403) {
                 $timeout(function() {
@@ -142,27 +63,5 @@ app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $
         }
     }
 });
-
-var specialityTemplate = `
-    <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
-        <h2 class="md-title ng-binding">Connect to a Clinical Area</h2>
-        <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
-            <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="(key,spec) in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{key}}</md-button>
-            </span>
-        </div>
-    </md-dialog-content>
-`;
-
-var hubTemplate = `
-    <md-dialog-content class="md-dialog-content" role="document" tabindex="-1" id="dialogContent_0">
-        <h2 class="md-title ng-binding">Select a TV Hub</h2>
-        <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
-            <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="hub in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.clinicHubName}}</md-button>
-            </span>
-        </div>
-    </md-dialog-content>
-`;
 
 </script>

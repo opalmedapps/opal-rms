@@ -2,8 +2,7 @@
     "name": "opal/orms",
     "description": "",
     "autoload": {
-        "psr-4": {"Orms\\": "php/class/"},
-        "files": ["php/settings.php"]
+        "psr-4": {"Orms\\": "php/class/"}
     },
     "require": {
         "twilio/sdk": "6.44.4",

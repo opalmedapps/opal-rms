@@ -1,7 +1,29 @@
+# Ignore hidden files
 .*
 
+# Include the following hidden files
 !.htaccess
 !.npmrc
+
+# Ignore auxiliary files and folders
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/bin
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/obj
 
 # node
 node_modules
@@ -9,3 +31,6 @@ npm-debug.log
 
 # composer
 vendor
+
+README.md
+renovate.json5

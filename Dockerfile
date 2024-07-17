@@ -11,7 +11,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # Build/install PHP dependencies
-FROM composer:2.7.6 as php-dependencies
+FROM composer:2.7.7 as php-dependencies
 
 WORKDIR /app
 

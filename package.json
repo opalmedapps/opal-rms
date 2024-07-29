@@ -39,7 +39,5 @@
     "ui-select": "0.19.8"
   },
   "scripts": {},
-  "devDependencies": {
-    "redoc-cli": "0.10.4"
-  }
+  "devDependencies": {}
 }

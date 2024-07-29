@@ -12,25 +12,11 @@ function processExitCode { #(code,message)
 cd "$(dirname "$0")"
 cd ../
 
-#re-generate the api index file
-echo "Re-generating api html file"
-npx redoc-cli bundle php/api/public/v1/openapi.yml -o php/api/public/v1/index_redoc.html > /dev/null 2>&1
-npx redoc-cli bundle php/api/public/v2/openapi.yml -o php/api/public/v2/index_redoc.html > /dev/null 2>&1
-
-processExitCode $? "Something went wrong with redoc-cli"
-
 #run the linter
 echo "Running php-cs-fixer"
 ./vendor/bin/php-cs-fixer fix --using-cache=no --quiet
 
 processExitCode $? "Something went wrong with php-cs-fixer"
-
-#add the linter changes to the commit
-#only add files that are already staged and the index.html for the api
-git update-index --again && git add php/api/public/v1/index_redoc.html
-git update-index --again && git add php/api/public/v2/index_redoc.html
-
-processExitCode $? "Something went wrong with git"
 
 #run phpstan
 echo "Analyzing code with phpstan"

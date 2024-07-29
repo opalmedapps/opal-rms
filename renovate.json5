@@ -31,7 +31,6 @@
     "phpstan/phpstan",
     "vimeo/psalm",
     "friendsofphp/php-cs-fixer",
-    "redoc-cli",
   ],
   "packageRules": [
     // Change commit type to build for Docker-related updates

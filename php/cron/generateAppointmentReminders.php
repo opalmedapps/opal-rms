@@ -31,6 +31,12 @@ $appointments = array_map(function($x) {
 
 //filter all appointments where the patient doesn't have a phone number
 $appointments = array_values(array_filter($appointments,fn($x) => $x["patient"]->phoneNumber !== null));
+
+//filter all appointments where the ScheduledTime is between midnight and 2AM
+$appointments = array_values(array_filter(
+    $appointments,
+    fn($x) => $x["scheduledDatetime"] > new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 02:00:00')
+));
 $appointments = Encoding::utf8_encode_recursive($appointments);
 
 $patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "patientId");

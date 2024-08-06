@@ -86,6 +86,15 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     };
 
     //=================================================
+    // Get anonymous mode value
+    //=================================================
+    if(sessionStorage.getItem("anonymous")) {
+        $scope.confid = sessionStorage.getItem("anonymous");
+    }
+    else
+    $scope.confid = 'Anonymous Mode';
+
+    //=================================================
     // Get any images that will be needed
     //=================================================
     $scope.opalLogo = "";
@@ -869,4 +878,18 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
         return cssClass;
     }
+
+    //-------------------------------------
+    // anonymous button functionality
+    //-------------------------------------
+    $scope.confidentialMode = function(){
+        if($scope.confid == 'Nominal Mode') {
+            $scope.confid = 'Anonymous Mode';
+            sessionStorage.setItem("anonymous",$scope.confid)
+        }
+        else{
+            $scope.confid = 'Nominal Mode';
+            sessionStorage.setItem("anonymous",$scope.confid)
+        }
+    };
 });

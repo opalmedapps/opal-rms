@@ -96,6 +96,11 @@
                     </div>
                 </div>
 
+                <div class="option-holder-div">
+                    <button type="button" ng-class="anonymous ? 'btn btn-danger' : 'btn btn-sr'"
+                        ng-click="anonymousMode()" style="margin-left:2%">
+                    {{ anonymous ? 'Nominal Mode': 'Anonymous Mode'}}
+                </div>
                 <br>
 
                 <!-- <div class="option-holder-div" style="align-items: center;">
@@ -163,8 +168,10 @@
                     </span>
 
                     <span ng-switch-when="CellPhoneNumber" ng-switch="patient.RowType">
-                        <button ng-if="patient.PhoneNumber" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button">{{patient.PhoneNumber}}</button>
-                        <button ng-if="!patient.PhoneNumber" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
+                        <div ng-if="!anonymous">
+                            <button ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="!patient.PhoneNumber && isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}"> {{patient.PhoneNumber || 'Register For SMS'}} </button>
+                        </div>
+                        <div ng-if="anonymous"> (***)-*******</div>
                     </span>
 
                     <span ng-switch-when="ClinicName">{{patient.ResourceName}}</span>
@@ -209,8 +216,10 @@
                     </div>
 
                     <span ng-switch-when="PatientName">
-                        {{patient.LastName}}, {{patient.FirstName}}<br>
-                        <span>({{patient.Mrn +"-"+ patient.Site}})</span>
+                        <div>
+                            {{ anonymous ? '***************, ***************' : patient.LastName + ', ' + patient.FirstName }}
+                            <span ng-if="!anonymous">({{ patient.Mrn }}-{{ patient.Site }})</span>
+                        </div>
                     </span>
 
                     <button ng-switch-when="Questionnaires" ng-click="openQuestionnaireModal(patient)" class="btn btn-info btn-questionnaire">View<span class="alert-circle {{patient.QStatus}}"></span></button>

@@ -82,23 +82,6 @@ class Fetch
 
     /**
      *
-     * @return list<array{
-     *    questionnaireId: int,
-     *    name: string
-     * }>
-     */
-    public static function getListOfQuestionnaires(): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PUBLISHED)?->getBody()?->getContents() ?? "[]";
-
-        return array_map(fn($x) => [
-            "questionnaireId"  => (int) $x["ID"],
-            "name"             => (string) $x["name_EN"]
-        ], json_decode($response, true));
-    }
-
-    /**
-     *
      * @return array<array-key, array{
      *      completionDate: string,
      *      completed: true,
@@ -258,50 +241,6 @@ class Fetch
         }
 
         return $lastCompletedQuestionnaires;
-    }
-
-    /**
-     *
-     * @param int[] $questionnaireIds
-     * @return list<array{
-     *   mrn: string,
-     *   site: string,
-     *   completionDate: DateTime,
-     *   lastUpdated: DateTime
-     * }>
-     */
-    public static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PATIENT_COMPLETED, [
-            "query" => [
-                "questionnaires" => $questionnaireIds
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
-
-        return array_map(fn($x) => [
-            "mrn"             => (string) $x["mrn"],
-            "site"            => (string) $x["site"],
-            "completionDate"  => DateTime::createFromFormatN("Y-m-d H:i:s", $x["completionDate"]) ?? throw new Exception("Invalid datetime"),
-            "lastUpdated"     => DateTime::createFromFormatN("Y-m-d H:i:s", $x["lastUpdated"]) ?? throw new Exception("Invalid datetime")
-        ], json_decode($response, true));
-    }
-
-    /**
-     *
-     * @return list<array{
-     *   purposeId: int,
-     *   title: string,
-     * }>
-     */
-    public static function getQuestionnairePurposes(): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_QUESTIONNAIRE_PURPOSE)?->getBody()?->getContents() ?? "[]";
-
-        $response = array_filter(json_decode($response, true), fn($x) => in_array($x["title_EN"], ["Clinical","Research"]));
-        return array_map(fn($x) => [
-            "purposeId"       => (int) $x["ID"],
-            "title"           => (string) $x["title_EN"]
-        ], $response);
     }
 
     /**

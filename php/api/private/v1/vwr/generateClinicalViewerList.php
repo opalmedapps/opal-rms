@@ -15,6 +15,7 @@ use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
 use Orms\External\OIE\Fetch;
+use Orms\External\LEGACY_OA\Fetch as FetchOA;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
@@ -187,7 +188,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
     $qappFilter = ($qType === "all") ? [] : explode(",", $qspecificApp);
     $qappFilter = array_map(fn($x) => (int) $x, $qappFilter);
 
-    $patients = Fetch::getPatientsWhoCompletedQuestionnaires($qappFilter);
+    $patients = FetchOA::getPatientsWhoCompletedQuestionnaires($qappFilter);
 
     $seenPatients = array_unique(array_column($listOfAppointments,"patientId"));
 

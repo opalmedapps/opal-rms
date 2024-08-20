@@ -82,46 +82,6 @@ class Fetch
 
     /**
      *
-     * @return array<array-key, array{
-     *      completionDate: string,
-     *      completed: true,
-     *      purposeId: int,
-     *      purposeTitle: string,
-     *      questionnaireId: int,
-     *      questionnaireName: string,
-     *      respondentId: int,
-     *      respondentTitle: string,
-     *      status: string,
-     *      visualization: int,
-     *      studyIdList: int[]
-     * }>
-     */
-    public static function getListOfCompletedQuestionnairesForPatient(Patient $patient): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
-            "query" => [
-                "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                "site"      => $patient->getActiveMrns()[0]->site
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
-
-        return array_map(fn($x) => [
-            "completionDate"        => (string) $x["completionDate"],
-            "completed"             => true,
-            "status"                => (string) $x["status"],
-            "questionnaireId"       => (int) $x["questionnaireDBId"],
-            "questionnaireName"     => (string) $x["name_EN"],
-            "visualization"         => (int) $x["visualization"],
-            "purposeId"             => (int) $x["purposeId"],
-            "respondentId"          => (int) $x["respondentId"],
-            "purposeTitle"          => (string) $x["purpose_EN"],
-            "respondentTitle"       => (string) $x["respondent_EN"],
-            "studyIdList"           => array_map("intval", $x["studies"] ?? [])
-        ], json_decode($response, true));
-    }
-
-    /**
-     *
      * @return list<array{
      *  questionId: int,
      *  questionTitle: string,
@@ -204,66 +164,7 @@ class Fetch
         ], json_decode($response, true));
     }
 
-    /**
-     * @param Patient[] $patients
-     * @return array<int,null|array{
-     *  questionnaireControlId: int,
-     *  completionDate: DateTime,
-     *  lastUpdated: DateTime
-     * }>
-     */
-    public static function getLastCompletedQuestionnaireForPatients(array $patients): ?array
-    {
-        $lastCompletedQuestionnaires = []; //hash of last completed questionnaires with patient ids as the keys
 
-        $response = Connection::getHttpClient()?->request("GET",Connection::API_PATIENT_QUESTIONNAIRE_COMPLETED, [
-            "json" => [
-                "last"      => true, //by putting this parameter, we get a different response from the api
-                "patient"   => array_map(fn($p) => [
-                                    "mrn"   => $p->getActiveMrns()[0]->mrn,
-                                    "site"  => $p->getActiveMrns()[0]->site,
-                                ], $patients)
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
-        $response = json_decode($response, true);
-
-        foreach($patients as $index => $p) {
-            $r = ($response[$index] ?? null) ?: null; //response for an individual patient may be false if the patient has no questionnaires
-            if($r !== null) {
-                $r = [
-                    "questionnaireControlId" => (int) $r["questionnaireControlId"],
-                    "completionDate"         => DateTime::createFromFormatN("Y-m-d H:i:s", $r["completionDate"]) ?? throw new Exception("Invalid datetime"),
-                    "lastUpdated"            => DateTime::createFromFormatN("Y-m-d H:i:s", $r["lastUpdated"]) ?? throw new Exception("Invalid datetime")
-                ];
-            }
-
-            $lastCompletedQuestionnaires[$p->id] = $r;
-        }
-
-        return $lastCompletedQuestionnaires;
-    }
-
-    /**
-     *
-     * @return list<array{
-     *   studyId: int,
-     *   title: string
-     * }>
-     */
-    public static function getStudiesForPatient(Patient $patient): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_STUDY, [
-            "query" => [
-                "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                "site"      => $patient->getActiveMrns()[0]->site
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
-
-        return array_map(fn($x) => [
-            "studyId"         => (int) $x["studyId"],
-            "title"           => (string) $x["title_EN"]
-        ], json_decode($response, true));
-    }
 
     /**
      *  Checks in the Aria system wether a patient has a photo. A null value indicates that the patient is not an Aria patient

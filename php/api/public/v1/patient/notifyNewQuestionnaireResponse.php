@@ -8,7 +8,7 @@ require_once __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Config;
 use Orms\DataAccess\ReportAccess;
-use Orms\External\OIE\Fetch;
+use Orms\External\LEGACY_OA\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 

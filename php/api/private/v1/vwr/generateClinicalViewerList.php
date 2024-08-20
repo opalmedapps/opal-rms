@@ -88,7 +88,7 @@ if($afilter === false)
 
     //fetch questionnaire data for opal patients
     try {
-        $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($patients);
+        $lastCompletedQuestionnaires = FetchOA::getLastCompletedQuestionnaireForPatients($patients);
     }
     catch(Exception $e) {
         $lastCompletedQuestionnaires = [];
@@ -141,7 +141,7 @@ if($afilter === false)
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
             try {
-                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient), "questionnaireId");
+                $patientQuestionnaires = array_column(FetchOA::getListOfCompletedQuestionnairesForPatient($patient), "questionnaireId");
             }
             catch(Exception $e) {
                 $patientQuestionnaires = [];

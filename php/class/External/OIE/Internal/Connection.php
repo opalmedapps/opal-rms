@@ -17,7 +17,6 @@ class Connection
     public const API_PATIENT_DIAGNOSIS                          = "Patient/Diagnosis";
     public const API_PATIENT_LOCATION                           = "Patient/Location";
     public const API_PATIENT_QUESTIONNAIRE_ANSWERS              = "Patient/Questionnaire/Answer";
-    public const API_PATIENT_QUESTIONNAIRE_STUDY                = "Patient/Study";
     public const API_ROOM_NOTIFICATION                          = "Patient/RoomNotification";
 
     public static function getHttpClient(): ?Client

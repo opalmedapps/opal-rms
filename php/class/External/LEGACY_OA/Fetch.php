@@ -15,7 +15,7 @@ use Orms\Config;
 class Fetch
 {
     /**
-     * Memcached instance for storing the LegacyOA API cookie
+     * Get a Memcached instance for storing the LegacyOA API cookie
      */
     private static function getMemcached(): Memcached
     {
@@ -24,7 +24,27 @@ class Fetch
         return $memcached;
     }
 
-     /**
+    /**
+     * Retrieve a cached API cookie or login to OA via system login endpoint
+     */
+    private static function getOrSetOACookie(): ?string
+    {
+        // Check memcached for pre-existing legacy OA cookie
+        $memcached = self::getMemcached();
+        $cookie = $memcached->get('legacy_oa_cookie');
+      
+        if (!$cookie) {
+            $cookie = self::loginToLegacyOpalAdmin();
+            if($cookie){
+                return $cookie;
+            } else {
+                throw new Exception('Could not perform system login to the LegacyOpalAdmin');
+            }
+        }
+        return $cookie;
+    }
+
+    /**
      *  Credentialled system login to the legacy OpalAdmin API, retrieve and store Cookie for future API requests.
      */
     public static function loginToLegacyOpalAdmin(): ?string
@@ -64,13 +84,7 @@ class Fetch
      */
     public static function getQuestionnairePurposes(): array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-      
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
 
         if ($cookie) {
             $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PURPOSE, [
@@ -97,13 +111,7 @@ class Fetch
      */
     public static function getListOfQuestionnaires(): array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-      
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
 
         if ($cookie) {
             $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PUBLISHED, [
@@ -125,13 +133,7 @@ class Fetch
      */
     public static function isOpalPatient(Patient $patient): bool
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-    
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
         if ($cookie) {
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_EXISTS, [
                 'headers' => [
@@ -161,13 +163,7 @@ class Fetch
      */
     public static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-    
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
 
         if ($cookie) {
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_QUESTIONNAIRE_PATIENT_COMPLETED, [
@@ -201,32 +197,26 @@ class Fetch
      */
     public static function getStudiesForPatient(Patient $patient): array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-    
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
 
-        if ($cookie) {
-            $is_opal_patient = self::isOpalPatient($patient);
-            if($is_opal_patient){
-                $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_STUDY, [
-                   'headers' => [
-                        'Cookie' => $cookie,
-                    ],
-                    'form_params' => [
-                        'mrn'  => $patient->getActiveMrns()[0]->mrn,
-                        'site' => $patient->getActiveMrns()[0]->site,
-                    ]
-                ])?->getBody()?->getContents() ?? '[]';
-               
-                return array_map(fn($x) => [
-                    'studyId'         => (int) $x['studyId'],
-                    'title'           => (string) $x['title_EN']
-                ], json_decode($response, true));
-            }
+        // Check for opal patient status
+        $is_opal_patient = self::isOpalPatient($patient);
+
+        if ($cookie && $is_opal_patient) {
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_STUDY, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'  => $patient->getActiveMrns()[0]->mrn,
+                    'site' => $patient->getActiveMrns()[0]->site,
+                ]
+            ])?->getBody()?->getContents() ?? '[]';
+            
+            return array_map(fn($x) => [
+                'studyId'         => (int) $x['studyId'],
+                'title'           => (string) $x['title_EN']
+            ], json_decode($response, true));    
         }
         return [];
     }
@@ -250,40 +240,35 @@ class Fetch
      */
     public static function getListOfCompletedQuestionnairesForPatient(Patient $patient): array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-    
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
-        if ($cookie) {
-            $is_opal_patient = self::isOpalPatient($patient);
-            if($is_opal_patient){
-                $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_COMPLETED, [
-                    'headers' => [
-                        'Cookie' => $cookie,
-                    ],
-                    'form_params' => [
-                        'mrn'  => $patient->getActiveMrns()[0]->mrn,
-                        'site' => $patient->getActiveMrns()[0]->site,
-                    ]
-                ])?->getBody()?->getContents() ?? '[]';
+        $cookie = self::getOrSetOACookie();
 
-                return array_map(fn($x) => [
-                    'completionDate'        => (string) $x['completionDate'],
-                    'completed'             => true,
-                    'status'                => (string) $x['status'],
-                    'questionnaireId'       => (int) $x['questionnaireDBId'],
-                    'questionnaireName'     => (string) $x['name_EN'],
-                    'visualization'         => (int) $x['visualization'],
-                    'purposeId'             => (int) $x['purposeId'],
-                    'respondentId'          => (int) $x['respondentId'],
-                    'purposeTitle'          => (string) $x['purpose_EN'],
-                    'respondentTitle'       => (string) $x['respondent_EN'],
-                    'studyIdList'           => array_map('intval', $x['studies'] ?? [])
-                ], json_decode($response, true));
-            }
+        // Check for opal patient status
+        $is_opal_patient = self::isOpalPatient($patient);
+
+        if ($cookie && $is_opal_patient) { 
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_COMPLETED, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'  => $patient->getActiveMrns()[0]->mrn,
+                    'site' => $patient->getActiveMrns()[0]->site,
+                ]
+            ])?->getBody()?->getContents() ?? '[]';
+
+            return array_map(fn($x) => [
+                'completionDate'        => (string) $x['completionDate'],
+                'completed'             => true,
+                'status'                => (string) $x['status'],
+                'questionnaireId'       => (int) $x['questionnaireDBId'],
+                'questionnaireName'     => (string) $x['name_EN'],
+                'visualization'         => (int) $x['visualization'],
+                'purposeId'             => (int) $x['purposeId'],
+                'respondentId'          => (int) $x['respondentId'],
+                'purposeTitle'          => (string) $x['purpose_EN'],
+                'respondentTitle'       => (string) $x['respondent_EN'],
+                'studyIdList'           => array_map('intval', $x['studies'] ?? [])
+            ], json_decode($response, true));
         }
         return [];
     }
@@ -298,13 +283,7 @@ class Fetch
      */
     public static function getLastCompletedQuestionnaireForPatients(array $patients): ?array
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-    
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-        }
+        $cookie = self::getOrSetOACookie();
 
         if($cookie){
             $lastCompletedQuestionnaires = [];
@@ -355,7 +334,7 @@ class Fetch
     }
 
     /**
-     *
+     * Get patient responses to a chartable questionnaire (one that includes sliders)
      * @return list<array{
      *  questionId: int,
      *  questionTitle: string,
@@ -368,35 +347,42 @@ class Fetch
      */
     public static function getPatientAnswersForChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS, [
-            "query" => [
-                "mrn"               => $patient->getActiveMrns()[0]->mrn,
-                "site"              => $patient->getActiveMrns()[0]->site,
-                "questionnaireId"   => $questionnaireId,
-                "visualization"     => 1
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
+        $cookie = self::getOrSetOACookie();
 
-        return array_map(function($x) {
+        // Check for opal patient status
+        $is_opal_patient = self::isOpalPatient($patient);
 
-            //data should be sorted in asc datetime order
-            usort($x["answers"], fn($a, $b) => $a["dateTimeAnswered"] <=> $b["dateTimeAnswered"]);
+        if($cookie && $is_opal_patient){
+            $response = Connection::getHttpClient()?->request('POST', Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'  => $patient->getActiveMrns()[0]->mrn,
+                    'site' => $patient->getActiveMrns()[0]->site,
+                    'questionnaireId'  => $questionnaireId
+                ]
+            ])?->getBody()?->getContents() ?? '[]';
 
-            return [
-                "questionId"    => (int) $x["questionId"],
-                "questionTitle" => (string) $x["question_EN"],
-                "questionLabel" => (string) $x["display_EN"],
-                // "position"      => (int) $x["questionOrder"],
-                "answers"       => array_map(fn($y) => [
-                                        "dateTimeAnswered" => (int) $y["dateTimeAnswered"],
-                                        "answer"           => (int) $y["answer"]
-                                ], $x["answers"])
-            ];
-        }, json_decode($response, true));
+            return array_map(function($x) {
+                //data should be sorted in asc datetime order
+                usort($x['answers'], fn($a, $b) => $a['dateTimeAnswered'] <=> $b['dateTimeAnswered']);
+                return [
+                    'questionId'    => (int) $x['questionId'],
+                    'questionTitle' => (string) $x['question_EN'],
+                    'questionLabel' => (string) $x['display_EN'],
+                    'answers'       => array_map(fn($y) => [
+                                        'dateTimeAnswered' => (int) $y['dateTimeAnswered'],
+                                        'answer'           => (int) $y['answer']
+                                    ], $x['answers'])
+                ];
+            }, json_decode($response, true));
+        }
+        return [];
     }
 
     /**
-     *
+     * Get patient responses to a non chartable questionnaire (one that does not include sliders)
      * @return list<array{
      *  questionnaireAnswerId: int,
      *  questionId: int,
@@ -413,29 +399,38 @@ class Fetch
      */
     public static function getPatientAnswersForNonChartTypeQuestionnaire(Patient $patient, int $questionnaireId): array
     {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS, [
-            "query" => [
-                "mrn"               => $patient->getActiveMrns()[0]->mrn,
-                "site"              => $patient->getActiveMrns()[0]->site,
-                "questionnaireId"   => $questionnaireId,
-                "visualization"     => 0
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
+        $cookie = self::getOrSetOACookie();
 
-        return array_map(fn($x) => [
-            "questionnaireAnswerId" => (int) $x["answerQuestionnaireId"],
-            "questionId"            => (int) $x["questionId"],
-            "dateTimeAnswered"      => (string) $x["dateTimeAnswered"],
-            "questionTitle"         => (string) $x["question_EN"],
-            "questionLabel"         => (string) $x["display_EN"],
-            // "position"              => (int) $x["questionOrder"],
-            "hasScale"              => ($x["legacyTypeId"] === "2"),
-            "options"               => array_map(fn($y) => [
-                                            "value"       => (int) $y["value"],
-                                            "description" => (string) $y["description_EN"]
-                                        ], $x["options"]),
-            "answers"               => array_map(fn($y) => (string) $y["answer"], $x["answers"])
-        ], json_decode($response, true));
+        // Check for opal patient status
+        $is_opal_patient = self::isOpalPatient($patient);
+
+        if($cookie && $is_opal_patient){
+            $response = Connection::getHttpClient()?->request('POST', Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'  => $patient->getActiveMrns()[0]->mrn,
+                    'site' => $patient->getActiveMrns()[0]->site,
+                    'questionnaireId'  => $questionnaireId
+                ]
+            ])?->getBody()?->getContents() ?? '[]';
+
+            return array_map(fn($x) => [
+                'questionnaireAnswerId' => (int) $x['answerQuestionnaireId'],
+                'questionId'            => (int) $x['questionId'],
+                'dateTimeAnswered'      => (string) $x['dateTimeAnswered'],
+                'questionTitle'         => (string) $x['question_EN'],
+                'questionLabel'         => (string) $x['display_EN'],
+                'hasScale'              => ($x['legacyTypeId'] === '2'),
+                'options'               => array_map(fn($y) => [
+                                                'value'       => (int) $y['value'],
+                                                'description' => (string) $y['description_EN']
+                                            ], $x['options']),
+                'answers'               => array_map(fn($y) => (string) $y['answer'], $x['answers'])
+            ], json_decode($response, true));
+        }
+        return [];
     }
 
 }

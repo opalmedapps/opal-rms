@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Orms\External\LEGACY_OA;
+namespace Orms\External\LegacyOpalAdmin;
 
 use Exception;
 use Memcached;
 
 use Orms\DateTime;
-use Orms\External\LEGACY_OA\Internal\Connection;
+use Orms\External\LegacyOpalAdmin\Internal\Connection;
 use Orms\Patient\Model\Patient;
 use Orms\Config;
 
@@ -55,8 +55,8 @@ class Fetch
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_SYSTEM_LOGIN, [
             // Login credentials for ORMs system login
             'form_params' => [
-                'username' => $config->legacyApiUsername,
-                'password' => $config->legacyApiPassword,
+                'username' => $config->opalAdminUsername,
+                'password' => $config->opalAdminPassword,
             ]
         ]);
         

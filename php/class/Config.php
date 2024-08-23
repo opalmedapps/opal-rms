@@ -56,9 +56,9 @@ class Config
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
         $dotenv->required('OPALADMIN_HOST')->notEmpty();
-        $dotenv->required('LEGACY_OA_API_URL')->notEmpty();
-        $dotenv->required('LEGACY_OA_API_USERNAME')->notEmpty();
-        $dotenv->required('LEGACY_OA_API_PASSWORD')->notEmpty();
+        $dotenv->required('LEGACY_OPAL_ADMIN_API_URL')->notEmpty();
+        $dotenv->required('LEGACY_OPAL_ADMIN_API_USERNAME')->notEmpty();
+        $dotenv->required('LEGACY_OPAL_ADMIN_API_PASSWORD')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
@@ -76,9 +76,9 @@ class Config
             firebaseSecret:                 $_ENV["FIREBASE_SECRET"],
             completedQuestionnairePath:     $_ENV["BASE_PATH"]."/tmp/completedQuestionnaires.json",
             opalAdminHost:                  $_ENV["OPALADMIN_HOST"],
-            legacyApiUrl:                   $_ENV["LEGACY_OA_API_URL"],
-            legacyApiUsername:              $_ENV["LEGACY_OA_API_USERNAME"],
-            legacyApiPassword:              $_ENV["LEGACY_OA_API_PASSWORD"],
+            opalAdminApiUrl:                   $_ENV["LEGACY_OPAL_ADMIN_API_URL"],
+            opalAdminUsername:              $_ENV["LEGACY_OPAL_ADMIN_API_USERNAME"],
+            opalAdminPassword:              $_ENV["LEGACY_OPAL_ADMIN_API_PASSWORD"],
             highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
         );
 
@@ -184,9 +184,9 @@ class EnvironmentConfig
         public string $firebaseSecret,
         public string $completedQuestionnairePath,
         public string $opalAdminHost,
-        public string $legacyApiUrl,
-        public string $legacyApiUsername,
-        public string $legacyApiPassword,
+        public string $opalAdminUrl,
+        public string $opalAdminUsername,
+        public string $opalAdminPassword,
         public ?string $highchartsUrl
     ) {}
 }

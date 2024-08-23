@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Orms\External\LEGACY_OA\Internal;
+namespace Orms\External\LegacyOpalAdmin\Internal;
 
 use GuzzleHttp\Client;
 
@@ -27,7 +27,7 @@ class Connection
         if($config === null) return null;
 
         return new Client([
-            'base_uri'      => $config->legacyApiUrl,
+            'base_uri'      => $config->opalAdminUrl,
             'verify'        => true
         ]);
     }

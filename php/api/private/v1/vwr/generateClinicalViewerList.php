@@ -14,7 +14,7 @@ use GuzzleHttp\Exception\ConnectException;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\External\LEGACY_OA\Fetch;
+use Orms\External\LegacyOpalAdmin\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;

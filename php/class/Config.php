@@ -76,7 +76,7 @@ class Config
             firebaseSecret:                 $_ENV["FIREBASE_SECRET"],
             completedQuestionnairePath:     $_ENV["BASE_PATH"]."/tmp/completedQuestionnaires.json",
             opalAdminHost:                  $_ENV["OPALADMIN_HOST"],
-            opalAdminApiUrl:                   $_ENV["LEGACY_OPAL_ADMIN_API_URL"],
+            opalAdminApiUrl:                $_ENV["LEGACY_OPAL_ADMIN_API_URL"],
             opalAdminUsername:              $_ENV["LEGACY_OPAL_ADMIN_API_USERNAME"],
             opalAdminPassword:              $_ENV["LEGACY_OPAL_ADMIN_API_PASSWORD"],
             highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
@@ -184,7 +184,7 @@ class EnvironmentConfig
         public string $firebaseSecret,
         public string $completedQuestionnairePath,
         public string $opalAdminHost,
-        public string $opalAdminUrl,
+        public string $opalAdminApiUrl,
         public string $opalAdminUsername,
         public string $opalAdminPassword,
         public ?string $highchartsUrl

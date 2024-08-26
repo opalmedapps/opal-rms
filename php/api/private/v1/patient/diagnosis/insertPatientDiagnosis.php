@@ -6,7 +6,8 @@ require_once __DIR__."/../../../../../../vendor/autoload.php";
 
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\External\OIE\Export;
+use Orms\External\LegacyOpalAdmin\Export;
+use Orms\External\LegacyOpalAdmin\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 
@@ -27,13 +28,32 @@ Http::generateResponseJsonAndContinue(200);
 $patient = PatientInterface::getPatientById($patientId);
 
 if($patient !== null) {
-    Export::exportPatientDiagnosis(
-        $patient,
-        $newDiag->id,
-        $newDiag->diagnosis->subcode,
-        $newDiag->createdDate,
-        $newDiag->diagnosis->subcodeDescription,
-        "",
-        $newDiag->status
-    );
+    $is_opal_patient = Fetch::isOpalPatient($patient);
+    
+    if($is_opal_patient){
+
+        // Ensure the code to be assigned exists in the Opal MasterSource list
+        $is_diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($newDiag->diagnosis->subcode);
+        if(!$is_diagnosis_exists){
+            Export::insertMasterSourceDiagnosis(
+                $newDiag->diagnosis->subcode,
+                $newDiag->createdDate,
+                $newDiag->diagnosis->subcodeDescription
+            );
+        }
+
+        // Assign patient the diagnosis
+        Export::insertPatientDiagnosis(
+            $patient,
+            $newDiag->id,
+            $newDiag->diagnosis->subcode,
+            $newDiag->createdDate,
+            $newDiag->diagnosis->subcodeDescription,
+            "",
+            $newDiag->status
+        );
+    }else{
+        // TODO: Raise error if patient not registered in opal?
+    }
+    
 }

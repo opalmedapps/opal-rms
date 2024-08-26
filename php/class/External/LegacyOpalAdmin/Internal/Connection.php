@@ -27,7 +27,7 @@ class Connection
         if($config === null) return null;
 
         return new Client([
-            'base_uri'      => $config->opalAdminUrl,
+            'base_uri'      => $config->opalAdminApiUrl,
             'verify'        => true
         ]);
     }

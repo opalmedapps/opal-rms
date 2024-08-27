@@ -102,9 +102,9 @@ COPY --chown=www-data:www-data ./reports ./reports
 COPY --chown=www-data:www-data ./VirtualWaitingRoom ./VirtualWaitingRoom
 
 COPY --chown=www-data:www-data ./docker/app ./docker/app
+COPY --chown=www-data:www-data ./docker/cron/scripts/run-crunz-tasks.sh ./docker/cron/scripts/run-crunz-tasks.sh
 
 # Set up the cron jobs
 COPY ./docker/cron/crontab /var/spool/cron/crontabs/www-data
-COPY ./docker/cron/scripts/run-crunz-tasks.sh ./docker/cron/scripts/run-crunz-tasks.sh
 
 EXPOSE 8080

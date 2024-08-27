@@ -57,7 +57,7 @@ $profileDetails = [
     "sortOrder"            => in_array($profile["category"],["PAB","Treatment Machine","Physician"]) ? ["ScheduledStartTime_hh","ScheduledStartTime_mm"] : "LastName", //set the load order of the appointments on the vwr page depending the category
     "FirebaseUrl"          => $configs->environment->firebaseUrl,
     "FirebaseSecret"       => $configs->environment->firebaseSecret,
-    "CheckInFile"          => $configs->environment->baseUrl ."/tmp/$profile[specialityGroupId].vwr.json"
+    "CheckInFile"          => "tmp/$profile[specialityGroupId].vwr.json"
 ];
 
 Http::generateResponseJsonAndExit(200, data: Encoding::utf8_encode_recursive($profileDetails));

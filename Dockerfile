@@ -1,6 +1,6 @@
 # Build/install JS dependencies
 # Pin platform since PhantomJS binary is not available for linux/arm64 architecture
-FROM node:20.15.1-alpine3.19 as js-dependencies
+FROM node:20.15.1-alpine3.19 AS js-dependencies
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # Build/install PHP dependencies
-FROM composer:2.7.7 as php-dependencies
+FROM composer:2.7.7 AS php-dependencies
 
 WORKDIR /app
 
@@ -103,9 +103,7 @@ COPY --chown=www-data:www-data ./VirtualWaitingRoom ./VirtualWaitingRoom
 
 COPY --chown=www-data:www-data ./docker/app ./docker/app
 
-# Set up the cron jobs
-COPY ./docker/cron/crontab /var/spool/cron/crontabs/www-data
-COPY ./docker/cron/scripts/run-crunz-tasks.sh ./docker/cron/scripts/run-crunz-tasks.sh
+# Create temporary directory for virtual waiting room files
 RUN mkdir ./tmp
 
 EXPOSE 8080

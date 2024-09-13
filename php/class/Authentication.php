@@ -81,6 +81,8 @@ class Authentication
         $value .= "RemoteIP=$_SERVER[REMOTE_ADDR]\r\n";
         // $value .= "Expiration=60\r\n"; //duration is handled server side; default is 1 hr and the time left refreshes on every page connection
         // Store value for the key in memcache daemon
-        $memcache->set($sessionid, $value);
+        if (!$memcache->set($sessionid, $value)) {
+            throw new Exception("Failed to store session in memcached. Error code: " . $memcache->getResultCode());
+        } 
     }
 }

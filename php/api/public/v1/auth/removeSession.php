@@ -14,4 +14,4 @@ use Orms\Http;
 $response = Authentication::logout();
 
 // provide the URL to redirect to
-Http::generateResponseJsonAndExit(200, Config::getApplicationSettings()->environment->opalAdminHost);
+Http::generateResponseJsonAndExit(200, Config::getApplicationSettings()->environment->legacyOpalAdminHostExternal);

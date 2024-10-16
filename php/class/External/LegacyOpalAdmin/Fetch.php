@@ -52,7 +52,7 @@ class Fetch
     /**
      * Get or set a LegacyOA cookie for system api calls
      */
-    private static function getOrSetOACookie(): ?string
+    public static function getOrSetOACookie(): ?string
     {
         $memcached = self::getMemcachedInstance();
         $cookieKey = 'legacy_oa_cookie';
@@ -304,7 +304,7 @@ class Fetch
                 $postParams[$index . '[mrn]'] = $activeMrn->mrn;
             } else {
                 // Handle the case where no active MRN is found
-                error_log("No active MRN found for patient index: $index");
+                error_log('No active MRN found for patient index: $index');
             }
         }
         $response = Connection::getHttpClient()?->request(
@@ -436,4 +436,75 @@ class Fetch
         return [];
     }
 
+    /**
+     * Check if an ICD diagnosis record exists in the legacy OpalAdmin
+     */
+    public static function getMasterSourceDiagnosisExists(string $diagSubcode): bool
+    {
+        $cookie = self::getOrSetOACookie();
+
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DIAGNOSIS_EXISTS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'source'        => 'ORMS',
+                'externalId'    => 'ICD-10',
+                'code'          => $diagSubcode
+            ]
+        ])?->getBody()?->getContents();
+        $responseData = json_decode($response ?: '[]', true);
+        return !empty($decodedResponse['code']);
+    }
+
+    /**
+     * Check if a patient has been assigned a particular ICD diagnosis in the legacy OpalAdmin
+     *
+     * @return list<array{
+     *  isExternalSystem: 1,
+     *  status: 'Active',
+     *  createdDate: string,
+     *  updatedDate: string,
+     *  diagnosis: array{
+     *      subcode: string,
+     *      subcodeDescription: string
+     *  }
+     * }>
+     */
+    public static function getPatientDiagnosis(Patient $patient): array
+    {
+        $cookie = self::getOrSetOACookie();
+        $is_opal_patient = self::isOpalPatient($patient);
+
+        if($is_opal_patient){
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_GET_PATIENT_DIAGNOSIS, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'       => $patient->getActiveMrns()[0]->mrn,
+                    'site'      => $patient->getActiveMrns()[0]->site,
+                    'source'    => 'ORMS',
+                    'include'   => 0,
+                    'startDate' => '1970-01-01',
+                    'endDate'   => '2099-12-31'
+                ]
+            ])?->getBody()?->getContents();
+            $responseData = json_decode($response ?: '[]', true);
+
+            return array_map(fn($x) => [
+                'isExternalSystem'  => 1,
+                'status'            => 'Active',
+                'createdDate'       => (string) $x['CreationDate'],
+                'updatedDate'       => (string) $x['LastUpdated'],
+                'diagnosis'         => [
+                    'subcode'               => (string) $x['DiagnosisCode'],
+                    'subcodeDescription'    => (string) $x['Description_EN']
+                ]
+            ], $responseData);
+        }
+
+        return [];
+    }
+    
 }

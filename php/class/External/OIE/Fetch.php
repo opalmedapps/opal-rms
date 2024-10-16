@@ -42,45 +42,6 @@ class Fetch
     }
 
     /**
-     *
-     * @return list<array{
-     *  isExternalSystem: 1,
-     *  status: "Active",
-     *  createdDate: string,
-     *  updatedDate: string,
-     *  diagnosis: array{
-     *      subcode: string,
-     *      subcodeDescription: string
-     *  }
-     * }>
-     */
-    public static function getPatientDiagnosis(Patient $patient): array
-    {
-        $response = Connection::getHttpClient()?->request("GET", Connection::API_PATIENT_DIAGNOSIS, [
-            "json" => [
-                "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                "site"      => $patient->getActiveMrns()[0]->site,
-                "source"    => "ORMS",
-                "include"   => 0,
-                "startDate" => "1970-01-01",
-                "endDate"   => "2099-12-31"
-            ]
-        ])?->getBody()?->getContents() ?? "[]";
-
-        //map the fields returned by Opal into something resembling a patient diagnosis
-        return array_map(fn($x) => [
-            "isExternalSystem"  => 1,
-            "status"            => "Active",
-            "createdDate"       => (string) $x["CreationDate"],
-            "updatedDate"       => (string) $x["LastUpdated"],
-            "diagnosis"         => [
-                "subcode"               => (string) $x["DiagnosisCode"],
-                "subcodeDescription"    => (string) $x["Description_EN"]
-            ]
-        ], json_decode($response, true));
-    }
-
-    /**
      *  Checks in the Aria system wether a patient has a photo. A null value indicates that the patient is not an Aria patient
      */
     public static function checkAriaPhotoForPatient(Patient $patient): ?bool

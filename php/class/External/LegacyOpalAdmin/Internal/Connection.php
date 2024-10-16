@@ -20,11 +20,17 @@ class Connection
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED  = 'questionnaire/get/last-completed-questionnaire-list'; 
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE     = 'questionnaire/get/chart-answers-patient'; 
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE     = 'questionnaire/get/non-chart-answers-patient';
+    
+    public const LEGACY_API_DIAGNOSIS_EXISTS                 = 'master-source/get/diagnosis-exists';
+    public const LEGACY_API_INSERT_DIAGNOSIS                 = 'master-source/insert/diagnoses';
+
+    public const LEGACY_API_GET_PATIENT_DIAGNOSIS                 = 'diagnosis/get/patient-diagnoses';
+    public const LEGACY_API_INSERT_PATIENT_DIAGNOSIS              = 'diagnosis/insert/patient-diagnosis';
+    public const LEGACY_API_DELETE_PATIENT_DIAGNOSIS              = 'diagnosis/delete/patient-diagnosis';
 
     public static function getHttpClient(): ?Client
     {
         $config = Config::getApplicationSettings()->environment;
-        if($config === null) return null;
 
         return new Client([
             'base_uri'      => $config->legacyOpalAdminHostInternal,

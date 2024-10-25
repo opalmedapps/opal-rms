@@ -26,4 +26,4 @@ if($patient === null)  {
 
 Http::generateResponseJsonAndContinue(200);
 
-LocationInterface::movePatientToLocation($patient, $room, $appointmentId);
+LocationInterface::movePatientToLocation($patient, $room, $appointmentId, "VWR");

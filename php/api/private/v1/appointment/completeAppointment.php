@@ -34,4 +34,4 @@ if($patient === null)  {
 AppointmentInterface::completeAppointment($appointmentId);
 
 LocationInterface::removePatientLocationForAppointment($appointmentId);
-LocationInterface::movePatientToLocation($patient, $room);
+LocationInterface::movePatientToLocation($patient, $room, null, "VWR");

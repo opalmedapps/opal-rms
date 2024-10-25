@@ -6,7 +6,7 @@ namespace Orms\Appointment;
 
 use Orms\DataAccess\AppointmentAccess;
 use Orms\DateTime;
-use Orms\External\OIE\Export;
+use Orms\External\Backend\Export;
 use Orms\Patient\Model\Patient;
 
 class LocationInterface
@@ -14,7 +14,7 @@ class LocationInterface
     /**
      * Updates a patient's location for every appointment they have. If an appointment id was supplied, that appointment will be marked as the cause for the move in the db
      */
-    public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null): void
+    public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null, string $checkin_type): void
     {
         //get the list of appointments that the patient has today
         //only open appointments can be updated
@@ -26,8 +26,11 @@ class LocationInterface
 
             AppointmentAccess::moveAppointmentToLocation($app["appointmentId"], $room, $intendedAppointment);
 
-            //also export the appointment to other systems
-            Export::exportPatientLocation($patient,$app["sourceId"], $app["sourceSystem"], $room);
+            //also export the appointment to other systems if the appointment originated in orms
+            if ($checkin_type !== "APP"){
+                Export::exportPatientCheckin($patient,$app["sourceId"], $app["sourceSystem"]);
+            }
+            
         }
     }
 

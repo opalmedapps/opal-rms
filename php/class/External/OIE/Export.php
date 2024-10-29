@@ -12,42 +12,42 @@ use Orms\Patient\Model\Patient;
 
 class Export
 {
-    public static function exportAppointmentCompletion(string $sourceId, string $sourceSystem): void
-    {
-        try {
-            Connection::getHttpClient()?->request("POST", Connection::API_APPOINTMENT_COMPLETION, [
-                "json" => [
-                    "sourceId"      => $sourceId,
-                    "sourceSystem"  => $sourceSystem,
-                    "status"        => "Completed"
-                ]
-            ]);
-        }
-        catch(\Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(), E_USER_WARNING);
-        }
-    }
+    // public static function exportAppointmentCompletion(string $sourceId, string $sourceSystem): void
+    // {
+    //     try {
+    //         Connection::getHttpClient()?->request("POST", Connection::API_APPOINTMENT_COMPLETION, [
+    //             "json" => [
+    //                 "sourceId"      => $sourceId,
+    //                 "sourceSystem"  => $sourceSystem,
+    //                 "status"        => "Completed"
+    //             ]
+    //         ]);
+    //     }
+    //     catch(\Exception $e) {
+    //         trigger_error($e->getMessage() ."\n". $e->getTraceAsString(), E_USER_WARNING);
+    //     }
+    // }
 
-    public static function exportRoomNotification(Patient $patient, string $appointmentId, string $appointmentSystem, string $roomNameEn, string $roomNameFr): void
-    {
-        if($patient->opalStatus !== 1) return;
+    // public static function exportRoomNotification(Patient $patient, string $appointmentId, string $appointmentSystem, string $roomNameEn, string $roomNameFr): void
+    // {
+    //     if($patient->opalStatus !== 1) return;
 
-        try {
-            Connection::getHttpClient()?->request("POST", Connection::API_ROOM_NOTIFICATION, [
-                "json" => [
-                    "mrn"                   => $patient->getActiveMrns()[0]->mrn,
-                    "site"                  => $patient->getActiveMrns()[0]->site,
-                    "appointmentId"         => $appointmentId,
-                    "appointmentSystem"     => $appointmentSystem,
-                    "locationEN"            => $roomNameEn,
-                    "locationFR"            => $roomNameFr,
-                ]
-            ]);
-        }
-        catch(\Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(), E_USER_WARNING);
-        }
-    }
+    //     try {
+    //         Connection::getHttpClient()?->request("POST", Connection::API_ROOM_NOTIFICATION, [
+    //             "json" => [
+    //                 "mrn"                   => $patient->getActiveMrns()[0]->mrn,
+    //                 "site"                  => $patient->getActiveMrns()[0]->site,
+    //                 "appointmentId"         => $appointmentId,
+    //                 "appointmentSystem"     => $appointmentSystem,
+    //                 "locationEN"            => $roomNameEn,
+    //                 "locationFR"            => $roomNameFr,
+    //             ]
+    //         ]);
+    //     }
+    //     catch(\Exception $e) {
+    //         trigger_error($e->getMessage() ."\n". $e->getTraceAsString(), E_USER_WARNING);
+    //     }
+    // }
 
     public static function exportMeasurementPdf(Patient $patient): void
     {

@@ -87,4 +87,48 @@ class Export
         );
         $responseCode = $response->getStatusCode();
     }
+
+    public static function exportAppointmentCompletion(string $sourceId, string $sourceSystem): void
+    {
+        $cookie = Fetch::getOrSetOACookie();
+        try {
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_APPOINTMENT_COMPLETION, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'sourceId'      => $sourceId,
+                    'sourceSystem'  => $sourceSystem,
+                    'status'        => 'Completed'
+                ]
+            ]);
+        }
+        catch(\Exception $e) {
+            trigger_error($e->getMessage() .'\n'. $e->getTraceAsString(), E_USER_WARNING);
+        }
+    }
+
+    public static function exportRoomNotification(Patient $patient, string $appointmentId, string $appointmentSystem, string $roomNameEn, string $roomNameFr): void
+    {
+        if($patient->opalStatus !== 1) return;
+        $cookie = Fetch::getOrSetOACookie();
+        try {
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_ROOM_NOTIFICATION, [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'                   => $patient->getActiveMrns()[0]->mrn,
+                    'site'                  => $patient->getActiveMrns()[0]->site,
+                    'appointment_ariaser'   => $appointmentId,
+                    'appointmentSystem'     => $appointmentSystem,
+                    'room_EN'            => $roomNameEn,
+                    'room_FR'            => $roomNameFr,
+                ]
+            ]);
+        }
+        catch(\Exception $e) {
+            trigger_error($e->getMessage() .'\n'. $e->getTraceAsString(), E_USER_WARNING);
+        }
+    }
 }

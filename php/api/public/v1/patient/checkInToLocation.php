@@ -14,11 +14,13 @@ try {
         mrn:   $fields["mrn"],
         site:  $fields["site"],
         room:  $fields["room"],
+        checkinType:  $fields["checkinType"],
     ) {
         public function __construct(
             public string $mrn,
             public string $site,
-            public string $room
+            public string $room,
+            public string $checkinType
         ) {}
     };
 }
@@ -32,6 +34,6 @@ if($patient === null)  {
     Http::generateResponseJsonAndExit(400, error: "Patient not found");
 }
 
-LocationInterface::movePatientToLocation($patient, $checkIn->room);
+LocationInterface::movePatientToLocation($patient, $checkIn->room, null, $checkIn->checkinType);
 
 Http::generateResponseJsonAndExit(200);

@@ -28,6 +28,10 @@ class Connection
     public const LEGACY_API_INSERT_PATIENT_DIAGNOSIS              = 'diagnosis/insert/patient-diagnosis';
     public const LEGACY_API_DELETE_PATIENT_DIAGNOSIS              = 'diagnosis/delete/patient-diagnosis';
 
+    public const LEGACY_API_ROOM_NOTIFICATION                          = "publisher/php/sendCallPatientNotification.php";
+    public const LEGACY_API_APPOINTMENT_COMPLETION                     = "appointment/update/appointment-status";
+
+
     public static function getHttpClient(): ?Client
     {
         $config = Config::getApplicationSettings()->environment;

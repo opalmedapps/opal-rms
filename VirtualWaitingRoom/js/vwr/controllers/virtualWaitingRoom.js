@@ -1,12 +1,16 @@
 //virtualWaitingRoom Controller
 
-myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http,$firebaseObject,$interval,$filter,$mdDialog,$window,ProfileSettings,WearableCharts)
-{
+myApp.controller("virtualWaitingRoomController",function (
+    $scope, $uibModal, $http, $firebaseObject, $interval, $filter, $mdDialog, $window, ProfileSettings, WearableCharts, CONFIG
+){
     //=========================================================================
     // General useful stuff
     //=========================================================================
     //get the profile settings that have already been defined for the page
     $scope.pageSettings = ProfileSettings;
+
+    $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+    $scope.supportEmail = CONFIG.BRANDING_SUPPORT_EMAIL_ADDRESS;
 
     $scope.screenMessage = "Normal";
 
@@ -102,7 +106,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         reader.onloadend = _ => {$scope.opalLogo = reader.result;}
         reader.readAsDataURL(xhr.response);
     };
-    xhr.open("GET","VirtualWaitingRoom/images/opal_logo.png");
+    xhr.open("GET", CONFIG.BRANDING_APP_LOGO_PATH);
     xhr.responseType = "blob";
     xhr.send();
 

@@ -1,5 +1,5 @@
 //main controller
-var myApp = angular.module('vwr', ['checklist-model','firebase','ui.bootstrap','ui.select','ngAnimate','ngMaterial','highcharts-ng','ngCookies','ngTable']);
+var myApp = angular.module('vwr', ['checklist-model','firebase','ui.bootstrap','ui.select','ngAnimate','ngMaterial','highcharts-ng','ngCookies','ngTable','vwr.config']);
 
 //create mock module to define the $rootElement as it will be needed to manually bootstrap the page later
 //used right after defining the vwr controller

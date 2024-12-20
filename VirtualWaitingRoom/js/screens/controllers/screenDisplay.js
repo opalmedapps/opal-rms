@@ -1,11 +1,14 @@
 //screen controller
-myApp.controller("screenDisplayController",async function($scope,$http,$firebaseArray,$interval,$location,$window,ngAudio)
-{
+myApp.controller("screenDisplayController", async function(
+    $scope, $http, $firebaseArray, $interval, $location, $window, ngAudio, CONFIG
+){
     let today = dayjs();
     let hour = today.hour();
 
+    $scope.screenDisplayBackground = CONFIG.BRANDING_SCREEN_DISPLAY_BACKGROUND_PATH;
+
     //if its late at night, turn the screen black
-    $scope.currentLogo = "VirtualWaitingRoom/images/Banner_treatments.png";
+    $scope.currentLogo = CONFIG.BRANDING_SCREEN_DISPLAY_BANNER_PATH;
 
     if(hour >= 20 || hour < 6) {
         $scope.currentLogo = "VirtualWaitingRoom/images/black.jpg";

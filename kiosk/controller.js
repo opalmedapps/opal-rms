@@ -1,4 +1,4 @@
-var app = angular.module('myApp',[]);
+var app = angular.module('myApp', ['vwr.config']);
 
 app.config(['$locationProvider',function ($locationProvider)
 {
@@ -9,7 +9,7 @@ app.config(['$locationProvider',function ($locationProvider)
     });
 }]);
 
-app.controller('main', async function($scope,$http,$sce,$location,$interval,$window)
+app.controller('main', async function($scope, $http, $sce, $location, $interval, $window, CONFIG)
 {
     let params        = $location.search();
     let kioskLocation = params.location ?? "DS1_1";
@@ -26,10 +26,12 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
         checkInRoom = "D S1 WAITING ROOM";
     }
 
+    $scope.mobileAppLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     "rgb(186,218,85)",
+        messageBackgroundColor:     "BRANDING_YOUR_BACKGROUND_COLOR",
         locationDisplay:            kioskLocation.replace("_","-"),
         kioskHeight:                locationIsReception ? "98%" : null,
         siteDisplay:                site

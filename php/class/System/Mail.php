@@ -62,7 +62,7 @@ class Mail
         if($recepients === "") return;
 
         $headers = [
-            "From" => "opal@muhc.mcgill.ca"
+            "From" => Config::getApplicationSettings()->system->emailSentFromAddress
         ];
 
         /** @psalm-suppress UnusedFunctionCall */

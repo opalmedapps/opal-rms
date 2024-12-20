@@ -1,17 +1,20 @@
 <html>
     <head>
-        <title>Opal Room Management System Reports</title>
+        <title>Room Management System Reports</title>
         <base href="/orms/">
+
+        <script src="node_modules/angular/angular.min.js"></script>
+        <script src="VirtualWaitingRoom/js/config.js"></script>
     </head>
-<body>
+<body ng-app="myApp" ng-controller="main">
 <center>
     <table border=0 class="table" style="width: 100%">
         <tr>
             <td align="center" valign="center"></td>
-            <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+            <td width="15%"><img src="{{rmsLogo}}" width="100%"></td>
             <td align="center" valign="center">
                 <center>
-                    <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Opal Room Management System Reports</b><br></h2>
+                    <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Room Management System Reports</b><br></h2>
                 </center>
             </td>
             <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153); font-size: 40px"><b><u>About Opal</u></b></h2></td>
@@ -49,7 +52,16 @@
 
 <hr>
 <center> Database reports are posted online as they become available</center>
-<center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+<center> Problems and bug reports to <a href="mailto: {{supportEmail}}">{{supportEmail}}</a></center>
+
+<script>
+    var app = angular.module('myApp', ['vwr.config']);
+    app.controller('main', function ($scope, CONFIG) {
+        $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+        $scope.supportEmail = CONFIG.BRANDING_SUPPORT_EMAIL_ADDRESS;
+    });
+</script>
+
 </body>
 
 </html>

@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Opal Chemotherapy Durations Report</title>
+    <title>Chemotherapy Durations Report</title>
     <base href="/orms/">
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
@@ -15,6 +15,7 @@
     <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="node_modules/ui-bootstrap4/dist//ui-bootstrap-tpls.js"></script>
     <script src="node_modules/angular-bowser/src/angular-bowser.js"></script>
+    <script src="VirtualWaitingRoom/js/config.js"></script>
     
     <link media="all" type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link media="all" type="text/css" rel="stylesheet"
@@ -105,15 +106,15 @@
         </style>
 </head>
 
-<body ng-app="myApp">
+<body ng-app="myApp" ng-controller="main">
     <center>
         <table border=0 class="table" style="width: 100%">
             <tr>
                 <td align="center" valign="center"></td>
-                <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                <td width="15%"><img src="{{rmsLogo}}" width="100%"></td>
                 <td align="center" valign="center">
                     <center>
-                        <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Opal Chemotherapy Durations Report</b><br></h2>
+                        <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Chemotherapy Durations Report</b><br></h2>
                     </center>
                 </td>
                 <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153); font-size: 40px"><b><u>About Opal</u></b></h2></td>
@@ -122,7 +123,7 @@
         </table>
     </center>    
 
-    <div class="page" ng-controller="main">
+    <div class="page">
         <table border="0" width="50%" padding="5">
             <tr>
                 <td valign="top"><b>Description:</b></td>
@@ -214,17 +215,24 @@
                 </tbody>
             </table>
         </div>
+
+        <br>
+        <hr>
+        <center> Problems and bug reports to <a href="mailto: {{supportEmail}}">{{supportEmail}}</a></center>
     </div>
 
     <script>
-        var app = angular.module('myApp', ['datatables', 'datatables.buttons', 'ui.bootstrap', 'jlareau.bowser']);
-        app.controller('main', function ($scope, $filter, DTOptionsBuilder, callScript, bowser) {
+        var app = angular.module('myApp', ['datatables', 'datatables.buttons', 'ui.bootstrap', 'jlareau.bowser', 'vwr.config']);
+        app.controller('main', function ($scope, $filter, DTOptionsBuilder, callScript, bowser, CONFIG) {
             $scope.chromeDetected = bowser.name == 'Chrome' ? 1 : 0;
             if (!$scope.chromeDetected) { $('[type="date"]').datepicker({ dateFormat: 'yy-mm-dd' }); }
 
             $scope.today = new Date();
             $scope.sDate = new Date();
             $scope.eDate = new Date();
+
+            $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+            $scope.supportEmail = CONFIG.BRANDING_SUPPORT_EMAIL_ADDRESS;
 
             //add datatables settings
             $scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -306,9 +314,6 @@
         });
     </script>
 
-    <br>
-    <hr>
-    <center> Problems and bug reports to John Kildea<br> (jkildea@medphys.mcgill.ca)</center>
 </body>
 
 </html>

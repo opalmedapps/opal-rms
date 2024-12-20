@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Opal RMS Waiting Room Management System</title>
+    <title>Register Patient for SMS</title>
     <base href="/orms/">
     <style>
         #patients {
@@ -33,17 +33,22 @@
         }
 
     </style>
+
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
+
+    <script src="VirtualWaitingRoom/js/config.js"></script>
 </head>
 
-<body ng-app="myApp">
+<body ng-app="myApp" ng-controller="main">
     <center>
         <table border=0 class="table" style="width: 100%">
             <tr>
                 <td align="center" valign="center"></td>
-                <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                <td width="15%"><img src="{{rmsLogo}}" width="100%"></td>
                 <td align="center" valign="center">
                     <center>
-                        <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Register Patient for Opal SMS</b><br></h2>
+                        <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153); font-size: 32px"><b>Register Patient for SMS</b><br></h2>
                     </center>
                 </td>
                 <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153); font-size: 40px"><b><u>About Opal</u></b></h2></td>
@@ -55,7 +60,7 @@
     <table border="0" width="50%" padding="5">
         <tr><td valign="top"> Enter patient MRN or RAMQ to find a patient. You will then have the option to register the patient for sms. </td></tr>
     </table>
-<div ng-controller="main">
+<div>
     <form>
         <table border="0" width="50%" padding="2">
             <!--  User enters MRN or RAMQ to retrieve info  -->
@@ -121,15 +126,12 @@ Click on any patient data to be brought to add-on page.
     </form>
 </div>
 <hr>
-<center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+<center> Problems and bug reports to <a href="mailto: {{supportEmail}}">{{supportEmail}}</a></center>
 <center> <a href="./">Main Page</a></center>
 </body>
 
-<script src="node_modules/angular/angular.min.js"></script>
-<script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
-
 <script>
-var app = angular.module('myApp',['ngCookies']);
+var app = angular.module('myApp',['ngCookies', 'vwr.config']);
 
 app.config(['$locationProvider',function ($locationProvider)
 {
@@ -140,11 +142,14 @@ app.config(['$locationProvider',function ($locationProvider)
     });
 }]);
 
-app.controller('main',function($scope,$http,$window,$location)
+app.controller('main',function($scope, $http, $window, $location, CONFIG)
 {
     $scope.mrn = null;
     $scope.site = null;
     $scope.ramq = null;
+
+    $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+    $scope.supportEmail = CONFIG.BRANDING_SUPPORT_EMAIL_ADDRESS;
 
     //Ensure page is refreshed when using back button
     if (!!$window.performance && $window.performance.navigation.type==2) {

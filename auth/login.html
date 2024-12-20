@@ -2,7 +2,7 @@
 <html>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <head>
-        <title>Opal RMS Login Page</title>
+        <title>RMS Login Page</title>
         <base href="/orms/">
 
         <script src="node_modules/angular/angular.min.js"></script>
@@ -53,7 +53,7 @@ app.controller('main', function($scope, $http, $cookies, $location, $window, $ti
         } catch (error) {
             if (error.status === 403) {
                 $timeout(function() {
-                    $scope.error = "You do not have permission to access ORMS. Contact the Opal systems administrator.";
+                    $scope.error = "You do not have permission to access ORMS. Contact the systems administrator.";
                 });
             } else if (error.status === 401) {
                 $window.location.href = error.data.data;

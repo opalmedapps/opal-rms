@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="screen">
+<html ng-app="screen" ng-controller="screenDisplayController">
 
 <head>
     <base href="/orms/">
@@ -18,12 +18,13 @@
     <link rel="stylesheet" href="VirtualWaitingRoom/css/screenStyle.css">
 
     <!--Custom controllers -->
+    <script src="VirtualWaitingRoom/js/config.js"></script>
     <script src="VirtualWaitingRoom/js/screens/module.js"></script>
     <script src="VirtualWaitingRoom/js/screens/controllers/screenDisplay.js"></script>
 
     <style>
         body {
-            background-image: url('VirtualWaitingRoom/images/background.jpg');
+            background-image: url({{screenDisplayBackground}});
             background-repeat: no-repeat;
             background-size: 100%;
         }
@@ -31,7 +32,7 @@
 </head>
 
 <body>
-    <div ng-controller="screenDisplayController">
+    <div>
         <table border=0 style="width: 100%">
             <tr>
                 <td align="right" valign="center"></td>

@@ -6,6 +6,7 @@
 
         <script src="node_modules/angular/angular.min.js"></script>
         <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
+        <script src="VirtualWaitingRoom/js/config.js"></script>
 
   </head>
   <body ng-app="myApp" ng-controller="main" style="color: rgb(0, 0, 0); background-color: rgb(128,128,128); font-size:18px; font-family: Helvetica,Arial,sans-serif;" link="#0000ee" vlink="#551a8b" alink="#ee0000">
@@ -18,7 +19,7 @@
     <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
     <td style="vertical-align: center; background-color: rgb(255, 255, 255);">
-        <center><img height="150" src="./images/Opal_RMS_logo.png" alt="logo" border="0"></center>
+        <center><img height="150" src="{{rmsLogo}}" alt="logo" border="0"></center>
     </td>
     <td></td>
     </tr>
@@ -67,7 +68,7 @@
 </center>
 
 <script>
-var app = angular.module('myApp',['ngCookies']);
+var app = angular.module('myApp', ['ngCookies', 'vwr.config']);
 
 app.config(["$locationProvider",function ($locationProvider)
 {
@@ -78,10 +79,12 @@ app.config(["$locationProvider",function ($locationProvider)
     });
 }]);
 
-app.controller('main', function($scope,$location,$http,$cookies)
+app.controller('main', function($scope, $location, $http, $cookies, CONFIG)
 {
     let speciality = $cookies.get("specialityGroupId");
     $scope.clinicHubId = $cookies.get("clinicHubId");
+
+    $scope.rmsLogo    = CONFIG.BRANDING_RMS_LOGO_PATH;
 
     $scope.profileList = {};
     //get list of profiles available

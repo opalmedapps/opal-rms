@@ -1,11 +1,20 @@
-let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies','ngTable']);
+let app = angular.module('vwr', [
+    'checklist-model', 'datatables', 'datatables.buttons', 'ui.bootstrap', 'jlareau.bowser', 'ngMaterial', 'ngCookies', 'ngTable', 'vwr.config'
+]);
 
-app.controller('main', function($scope,$uibModal,$http,$filter,$mdDialog,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser,WearableCharts)
+app.controller('main', function(
+    $scope, $uibModal, $http, $filter, $mdDialog, $interval, $cookies, $window, DTOptionsBuilder, callScript, bowser, WearableCharts, CONFIG
+)
 {
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
 
     $scope.today = new Date();
+
+    $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
+    $scope.mobileAppName = CONFIG.BRANDING_MOBILE_APP_NAME;
+    $scope.mobileAppLogo = CONFIG.BRANDING_APP_LOGO_PATH;
+    $scope.supportEmail = CONFIG.BRANDING_SUPPORT_EMAIL_ADDRESS;
 
     let speciality = $cookies.get("specialityGroupId");
 

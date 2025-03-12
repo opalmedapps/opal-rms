@@ -4,12 +4,6 @@
     overflow-wrap: break-word;
 }
 
-.third-party-pre {
-    font-size: 1.1em;
-    margin-top: 10px;
-    font-style: italic;
-}
-
 /* Header font-size adjustments */
 .third-party h1 {
     font-size: 1.6em;
@@ -34,35 +28,10 @@
     padding: 2px 6px;
 }
 
-/* Hide the border box when the details are open */
-.third-party details[open] {
-    background-color: transparent;
-    border: none;
-}
-
 .third-party details[open] summary {
     margin-bottom: 4px;
 }
 
-/* Arrow in front of details summary (closed) */
-.third-party details summary:before {
-    color: #444;
-    content: "▶";
-    font-family: math;
-    font-size: 0.7em;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-/* Arrow in front of details summary (open) */
-.third-party details[open] summary:before {
-    content: "▼";
-}
-
 .third-party a {
     color: #007BFF;
-}
-
-.third-party a:hover {
-    text-decoration: underline;
 }

@@ -35,3 +35,7 @@
 .third-party a {
     color: #007BFF;
 }
+
+.third-party pre {
+    white-space: pre-wrap;
+}

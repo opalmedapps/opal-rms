@@ -26,21 +26,21 @@
       <h3 align="left"><font color="#6f5499">License Information</font></h3>
       <p align="left"><font size="2">
         Unless otherwise stated, this code is subject to the terms of the
-        <a href="../LICENSE">GNU Affero General Public License version 3 or later (AGPL)</a>,
+        <a href="LICENSE">GNU Affero General Public License version 3 or later (AGPL)</a>,
         a copy of which is linked here for your convenience. This code is also distributed under the terms of the
-        <a href="#healthcare-disclaimer">Healthcare Disclaimer</a>,
+        <a href='#' ng-click='$event.preventDefault(); gotoDisclaimer()'>Healthcare Disclaimer</a>,
         which can be found at the bottom of this page.
       </font></p>
 
       <h3 align="left"><font color="#6f5499">Websites</font></h3>
       <ul align="left"><font size="2">
         <li>The Opal website: 
-            <a href="https://www.opalmedapps.com" class="url-link">
+            <a href="https://www.opalmedapps.com">
                 https://www.opalmedapps.com
             </a>
         </li>
         <li>The Opal GitHub organization:
-            <a href="https://github.com/opalmedapps" class="url-link">
+            <a href="https://github.com/opalmedapps">
                 https://github.com/opalmedapps
             </a>
         </li>
@@ -331,7 +331,7 @@
   var about = angular.module('aboutApp', []);
   
   about.controller('about', function(
-      $scope, $http, $sce, $location
+      $scope, $http, $sce, $location, $anchorScroll
   ){
     const customRenderExtension = {
         renderer: {
@@ -373,6 +373,12 @@
         })
         .catch(function(error) {
             console.error('Error fetching Markdown file:', error);
-    });
+        });
+
+    $scope.gotoDisclaimer = function() {
+        // Set the location hash to the id of the element
+        $location.hash('healthcare-disclaimer');
+        $anchorScroll();
+    };
   });
 </script>

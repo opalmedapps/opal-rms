@@ -38,6 +38,11 @@
     "ui-bootstrap4": "3.0.6",
     "ui-select": "0.19.8"
   },
+  "overrides": {
+    "angular-aria": { ".": "npm:@neverendingsupport/angularjs@1.9.9-aria" },
+    "angular-animate": { ".": "npm:@neverendingsupport/angularjs@1.9.9-animate" },
+    "angular-messages": { ".": "npm:@neverendingsupport/angularjs@1.9.9-messages" }
+  },
   "scripts": {},
   "devDependencies": {}
 }

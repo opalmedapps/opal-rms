@@ -7,16 +7,16 @@
   },
   "private": true,
   "dependencies": {
-    "angular": "npm:@xlts.dev/angular@1.9.7",
-    "angular-animate": "npm:@xlts.dev/angular-animate@1.9.7",
-    "angular-aria": "npm:@xlts.dev/angular-aria@1.9.7",
+    "angular": "npm:@neverendingsupport/angularjs@1.9.9",
+    "angular-animate": "npm:@neverendingsupport/angularjs@1.9.9-animate",
+    "angular-aria": "npm:@neverendingsupport/angularjs@1.9.9-aria",
     "angular-audio": "1.7.3",
     "angular-bowser": "0.0.4",
-    "angular-cookies": "npm:@xlts.dev/angular-cookies@1.9.7",
+    "angular-cookies": "npm:@neverendingsupport/angularjs@1.9.9-cookies",
     "angular-datatables": "0.6.4",
     "angular-drag-and-drop-lists": "2.1.0",
     "angular-material": "1.2.5",
-    "angular-messages": "npm:@xlts.dev/angular-messages@1.9.7",
+    "angular-messages": "npm:@neverendingsupport/angularjs@1.9.9-messages",
     "angular-ui-bootstrap": "2.5.6",
     "angularfire": "2.3.0",
     "bootstrap": "4.3.1",
@@ -37,6 +37,11 @@
     "swagger-ui-dist": "^4.1.2",
     "ui-bootstrap4": "3.0.6",
     "ui-select": "0.19.8"
+  },
+  "overrides": {
+    "angular-aria": { ".": "npm:@neverendingsupport/angularjs@1.9.9-aria" },
+    "angular-animate": { ".": "npm:@neverendingsupport/angularjs@1.9.9-animate" },
+    "angular-messages": { ".": "npm:@neverendingsupport/angularjs@1.9.9-messages" }
   },
   "scripts": {},
   "devDependencies": {}

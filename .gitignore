@@ -22,3 +22,6 @@ php-error.log
 
 # ignore IDE files
 .idea/
+
+# ignore npmrc file
+.npmrc

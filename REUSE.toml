@@ -1,5 +1,15 @@
 version = 1
 
+[[annotations]]
+path = [
+    ".vscode/extensions.json",
+    ".vscode/lauch.json",
+    ".vscode/stteing.json",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2022 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
 
 [[annotations]]
 path = [
@@ -8,6 +18,9 @@ path = [
     "composer.lock",
     "package-lock.json",
     "package.json",
+    ".vscode/extensions.json",
+    ".vscode/lauch.json",
+    ".vscode/stteing.json",
     "php/class/Document/Measurement/highchartsTemplate.json",
     "php/tool/databaseMaintenance/diagnosis/data/processed_codes.json",
     "php/tool/databaseMaintenance/diagnosis/data/raw_codes.json",

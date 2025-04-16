@@ -5,11 +5,13 @@
 //controller for the index file
 // main controller for page
 
-myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossCtrlFuncs)
+myApp.controller("indexController",function($scope,$http,$window,$cookies,CrossCtrlFuncs,CONFIG)
 {
     $scope.selectedTab = ''; //set the first tab as the default view
     $scope.speciality = $cookies.get("specialityGroupId");
     $scope.clinicHub = $cookies.get("clinicHubId");
+
+    $scope.rmsLogo = CONFIG.BRANDING_RMS_LOGO_PATH;
 
     var resetPage = function()
     {

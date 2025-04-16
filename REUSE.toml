@@ -1,0 +1,80 @@
+version = 1
+
+
+[[annotations]]
+path = [
+    "VirtualWaitingRoom/fonts/note.txt",
+    "composer.json",
+    "composer.lock",
+    "package-lock.json",
+    "package.json",
+    "php/class/Document/Measurement/highchartsTemplate.json",
+    "php/tool/databaseMaintenance/diagnosis/data/processed_codes.json",
+    "php/tool/databaseMaintenance/diagnosis/data/raw_codes.json",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2015 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+
+[[annotations]]
+path = [
+    "favicon.ico",
+    "images/BRANDING_your_logo_here.png",
+    "images/DRC_1_Alone.gif",
+    "images/DRC_2_Alone.gif",
+    "images/DRC_3_Alone.gif",
+    "images/Measles.png",
+    "images/RV_Admissions.png",
+    "images/Reception_generic.png",
+    "images/TestCentre.png",
+    "images/animation.gif",
+    "images/arrow_down.png",
+    "images/arrow_down_left.png",
+    "images/arrow_down_right.png",
+    "images/arrow_here.png",
+    "images/arrow_hereDefault.png",
+    "images/arrow_hereOrtho.png",
+    "images/arrow_hereRC.png",
+    "images/arrow_left.png",
+    "images/arrow_leftOrtho.png",
+    "images/arrow_right.png",
+    "images/arrow_rightOrtho.png",
+    "images/arrow_up.png",
+    "images/arrow_up_left.png",
+    "images/confirm-white.png",
+    "images/noscan.png",
+    "images/salle_DRC.png",
+    "images/salle_DS1.png",
+    "VirtualWaitingRoom/images/BRANDING_banner_your_product_name.png",
+    "VirtualWaitingRoom/images/BRANDING_customize_watermark_background.png",
+    "VirtualWaitingRoom/images/OHIG_team.jpg",
+    "VirtualWaitingRoom/images/Opal_awards.png",
+    "VirtualWaitingRoom/images/Opal_components.png",
+    "VirtualWaitingRoom/images/Opal_funding_source.png",
+    "VirtualWaitingRoom/images/Opal_funding_source_type.png",
+    "VirtualWaitingRoom/images/Opal_partners.png",
+    "VirtualWaitingRoom/images/QSCC_logo.png",
+    "VirtualWaitingRoom/images/black.jpg",
+    "VirtualWaitingRoom/images/laurie_app.png",
+    "VirtualWaitingRoom/images/left-arrow.png",
+    "VirtualWaitingRoom/images/right-arrow.png",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2015 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
+
+
+[[annotations]]
+path = [
+    "VirtualWaitingRoom/css/bootstrap_3.3.6.min.css",
+    "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.eot",
+    "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.svg",
+    "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.ttf",
+    "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.woff",
+    "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.woff2",
+]
+precedence = "override"
+# https://github.com/twbs/bootstrap/blob/v3.3.6/LICENSE
+SPDX-FileCopyrightText = "Copyright (c) 2011-2015 Twitter, Inc"
+SPDX-License-Identifier = "MIT"

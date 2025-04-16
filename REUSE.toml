@@ -80,6 +80,7 @@ SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
 
 [[annotations]]
 path = [
+    "VirtualWaitingRoom/images/Opal_logo_purple.png",
     "VirtualWaitingRoom/images/waiting.gif",
     "VirtualWaitingRoom/sounds/magic.wav",
     "images/networkWarning.png",

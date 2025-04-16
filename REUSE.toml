@@ -67,6 +67,18 @@ SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
 
 [[annotations]]
 path = [
+    "VirtualWaitingRoom/images/waiting.gif",
+    "VirtualWaitingRoom/sounds/magic.wav",
+    "images/networkWarning.png",
+    "images/waiting.gif",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "NOASSERTION"
+SPDX-License-Identifier = "NOASSERTION"
+
+
+[[annotations]]
+path = [
     "VirtualWaitingRoom/css/bootstrap_3.3.6.min.css",
     "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.eot",
     "VirtualWaitingRoom/fonts/glyphicons-halflings-regular.svg",

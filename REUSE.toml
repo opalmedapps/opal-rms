@@ -16,12 +16,7 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 path = [
     "VirtualWaitingRoom/fonts/note.txt",
     "composer.json",
-    "composer.lock",
-    "package-lock.json",
     "package.json",
-    ".vscode/extensions.json",
-    ".vscode/lauch.json",
-    ".vscode/stteing.json",
     "php/class/Document/Measurement/highchartsTemplate.json",
     "php/tool/databaseMaintenance/diagnosis/data/processed_codes.json",
     "php/tool/databaseMaintenance/diagnosis/data/raw_codes.json",
@@ -105,3 +100,13 @@ precedence = "override"
 # https://github.com/twbs/bootstrap/blob/v3.3.6/LICENSE
 SPDX-FileCopyrightText = "Copyright (c) 2011-2015 Twitter, Inc"
 SPDX-License-Identifier = "MIT"
+
+# generated files
+[[annotations]]
+path = [
+    "composer.lock",
+    "package-lock.json",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2015 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"

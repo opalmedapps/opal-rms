@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2025 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 Healthcare Disclaimer
 
 In Canada, or any other jurisdictions where they may apply, the following additional healthcare disclaimer of warranty and limitation of liability are hereby incorporated into the terms and conditions of the GNU Affero General Public License:

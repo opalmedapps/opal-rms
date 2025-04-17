@@ -28,8 +28,17 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
 path = [
-    "images/BRANDING_your_logo_here.png",
+    "favicon.ico",
     "VirtualWaitingRoom/images/Opal_logo_purple.png",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2015 Ackeem Joseph <ackeem.joseph@muhc.mcgill.ca> "
+SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
+
+
+[[annotations]]
+path = [
+    "images/BRANDING_your_logo_here.png",
     "VirtualWaitingRoom/images/BRANDING_banner_your_product_name.png",
     "VirtualWaitingRoom/images/BRANDING_customize_watermark_background.png",
     "VirtualWaitingRoom/images/OHIG_team.jpg",
@@ -48,7 +57,6 @@ SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
 
 [[annotations]]
 path = [
-    "favicon.ico",
     "images/DRC_1_Alone.gif",
     "images/DRC_2_Alone.gif",
     "images/DRC_3_Alone.gif",
@@ -85,14 +93,11 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
 path = [
-    "VirtualWaitingRoom/images/waiting.gif",
     "VirtualWaitingRoom/sounds/magic.wav",
-    "images/networkWarning.png",
-    "images/waiting.gif",
 ]
 precedence = "override"
-SPDX-FileCopyrightText = "NOASSERTION"
-SPDX-License-Identifier = "NOASSERTION"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "MIT"
 
 
 [[annotations]]

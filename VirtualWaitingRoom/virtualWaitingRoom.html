@@ -124,7 +124,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                     <md-button class="md-primary" ng-if="patientLoadingEnabled && resourceLoadingEnabled" ng-click="openLegendDialog()"><b>Show Legend</b></md-button>
                     <br>
                     <span>
-                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="VirtualWaitingRoom/images/waiting.gif"></img>
+                        <div class="spinner-border selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                         <span ng-if="patientLoadingEnabled && resourceLoadingEnabled" class="btn-group">
                             <label ng-model="pageSettings.SelectedRowTypes.CheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.CheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Checked In</label>
                             <label ng-model="pageSettings.SelectedRowTypes.NotCheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.NotCheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Scheduled</label>

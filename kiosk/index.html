@@ -30,7 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             <div class="header-div">
                 <span class="header-section-div align-center" style="width: 25%;">
                     <span style="font-size: 2.5vh;" ng-if="!pageProperties.displayNetworkWarning">{{pageProperties.siteDisplay}}</span>
-                    <i class="fa-solid fa-triangle-exclamation image-container" ng-if="pageProperties.displayNetworkWarning"></i>
+                    <span class="glyphicon glyphicon-alert" style="font-size: 1000%" ng-if="pageProperties.displayNetworkWarning"></span>
                 </span>
                 <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" style="max-height: 150%;" src="{{mobileAppLogo}}"></span>
                 <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>

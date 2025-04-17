@@ -28,8 +28,27 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
 path = [
-    "favicon.ico",
     "images/BRANDING_your_logo_here.png",
+    "VirtualWaitingRoom/images/Opal_logo_purple.png",
+    "VirtualWaitingRoom/images/BRANDING_banner_your_product_name.png",
+    "VirtualWaitingRoom/images/BRANDING_customize_watermark_background.png",
+    "VirtualWaitingRoom/images/OHIG_team.jpg",
+    "VirtualWaitingRoom/images/Opal_awards.png",
+    "VirtualWaitingRoom/images/Opal_components.png",
+    "VirtualWaitingRoom/images/Opal_funding_source.png",
+    "VirtualWaitingRoom/images/Opal_funding_source_type.png",
+    "VirtualWaitingRoom/images/Opal_partners.png",
+    "VirtualWaitingRoom/images/QSCC_logo.png",
+    "VirtualWaitingRoom/images/laurie_app.png",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright (C) 2015 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
+
+
+[[annotations]]
+path = [
+    "favicon.ico",
     "images/DRC_1_Alone.gif",
     "images/DRC_2_Alone.gif",
     "images/DRC_3_Alone.gif",
@@ -55,24 +74,13 @@ path = [
     "images/noscan.png",
     "images/salle_DRC.png",
     "images/salle_DS1.png",
-    "VirtualWaitingRoom/images/Opal_logo_purple.png",
-    "VirtualWaitingRoom/images/BRANDING_banner_your_product_name.png",
-    "VirtualWaitingRoom/images/BRANDING_customize_watermark_background.png",
-    "VirtualWaitingRoom/images/OHIG_team.jpg",
-    "VirtualWaitingRoom/images/Opal_awards.png",
-    "VirtualWaitingRoom/images/Opal_components.png",
-    "VirtualWaitingRoom/images/Opal_funding_source.png",
-    "VirtualWaitingRoom/images/Opal_funding_source_type.png",
-    "VirtualWaitingRoom/images/Opal_partners.png",
-    "VirtualWaitingRoom/images/QSCC_logo.png",
     "VirtualWaitingRoom/images/black.jpg",
-    "VirtualWaitingRoom/images/laurie_app.png",
     "VirtualWaitingRoom/images/left-arrow.png",
     "VirtualWaitingRoom/images/right-arrow.png",
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "Copyright (C) 2015 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
-SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 
 [[annotations]]

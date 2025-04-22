@@ -19,7 +19,7 @@
     "angular-messages": "npm:@neverendingsupport/angularjs@1.9.9-messages",
     "angular-ui-bootstrap": "2.5.6",
     "angularfire": "2.3.0",
-    "bootstrap": "4.3.1",
+    "bootstrap": "4.6.2",
     "bootstrap-select": "1.13.18",
     "checklist-model": "1.0.0",
     "crypto-js": "4.2.0",

@@ -29,7 +29,7 @@
         <a href="LICENSE">GNU Affero General Public License version 3 or later (AGPL)</a>,
         a copy of which is linked here for your convenience. This code is also distributed under the terms of the
         <a href='#' ng-click='$event.preventDefault(); gotoDisclaimer()'>Healthcare Disclaimer</a>,
-        which can be found at the bottom of this page.
+        which can be found further below.
       </font></p>
 
       <h3 align="left"><font color="#6f5499">Websites</font></h3>
@@ -340,14 +340,14 @@
                 return `
                     <details>
                       <summary>Show license text</summary>
-                      <pre><code>${code}</code></pre>
+                      <pre><code>${code.text}</code></pre>
                     </details>
                 `;
             },
             // Convert all links to open in a new tab using a _blank target
             link(href, title, text) {
                 const titleAttr = title ? ` title="${title}"` : '';
-                return `<a href="${href}"${titleAttr} target="_blank" rel="noopener">${text}</a>`;
+                return `<a href="${href.href}"${titleAttr} target="_blank" rel="noopener">${href.href}</a>`;
             }
         }
     };

@@ -1,33 +1,89 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head>
+  
+  <base href="/orms/">
+
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <title>About Opal</title>
+
+  <script src="node_modules/angular/angular.min.js"></script>
+  <script src="node_modules/marked/marked.min.js"></script>
+
+  <link rel="stylesheet" href="VirtualWaitingRoom/css/aboutOpal.css">
 </head>
-<body vlink="#551A8B" text="#000000" link="#0000EE" bgcolor="#cccccc" alink="#EE0000">
+<body ng-app="aboutApp" ng-controller="about" vlink="#551A8B" text="#000000" link="#0000EE" bgcolor="#cccccc" alink="#EE0000">
 <br>
 <font color="#6600cc"></font><br>
 <table width="1119" height="3645" cellspacing="2" cellpadding="2" border="0" bgcolor="#ffffff" align="center">
   <tbody>
   <tr align="center">
-    <td valign="top"><img moz-do-not-send="true" src="./images/Opal_logo_purple.png" alt="" width="178" height="93"><br>
+    <td valign="top"><img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_logo_purple.png" alt="" width="178" height="93"><br>
     </td>
   </tr>
   <tr align="center">
     <td valign="top"><br>
       <h1><font color="#6f5499">Legal Information</font><br></h1>
+      <h3 align="left"><font color="#6f5499">License Information</font></h3>
       <p align="left"><font size="2">
-        The source code of this version of ORMS is licensed 
-        under <a href="../LICENSE">the following license</a>, a copy of which is 
-        included here for your convenience.<br><br>
-          
-        This code is also distributed under the terms of 
-        the <a href="../HEALTHCARE_DISCLAIMER.md">Healthcare Disclaimer</a>.<br><br> 
-        By using this software you agree with the terms and 
-        conditions of the license and acknowledge 
-        the Healthcare Disclaimer.<br><br>
-        
-        You can download a copy of the ORMS source code here: <placeholder></placeholder><br>
+        Unless otherwise stated, this code is subject to the terms of the
+        <a href="LICENSE">GNU Affero General Public License version 3 or later (AGPL)</a>,
+        a copy of which is linked here for your convenience. This code is also distributed under the terms of the
+        <a href='#' ng-click='$event.preventDefault(); gotoDisclaimer()'>Healthcare Disclaimer</a>,
+        which can be found further below.
       </font></p>
+
+      <h3 align="left"><font color="#6f5499">Websites</font></h3>
+      <ul align="left"><font size="2">
+        <li>The Opal website: 
+            <a href="https://www.opalmedapps.com">
+                https://www.opalmedapps.com
+            </a>
+        </li>
+        <li>The Opal GitHub organization:
+            <a href="https://github.com/opalmedapps">
+                https://github.com/opalmedapps
+            </a>
+        </li>
+      </font></ul>
+
+      <h3 align="left"><font color="#6f5499">Copyright</font></h3>
+      <p align="left"><font size="2">
+        Copyright information for most files in the distribution can be found within each file.
+      </font></p>
+
+      <h3 id="healthcare-disclaimer" align="left"><font color="#6f5499">Healthcare Disclaimer</font></h3>
+      <p align="left"><font size="2">
+        In Canada, or any other jurisdictions where they may apply, the following additional healthcare disclaimer
+        of warranty and limitation of liability are hereby incorporated into the terms and conditions of
+        the GNU Affero General Public License:
+      </font></p>
+
+      <ol align="left"><font size="2">
+        <li>
+            No warranties of any kind whatsoever are made as to the results that you will obtain from relying
+            upon the covered code (or any information or content obtained by way of the covered code),
+            including but not limited to compliance with privacy laws or regulations or clinical care
+            industry standards and protocols. Use of the covered code is not a substitute for a health care
+            provider’s standard practice or professional judgment. Any decision with regard to the
+            appropriateness of treatment, or the validity or reliability of information or content made
+            available by the covered code, is the sole responsibility of the health care provider.
+            Consequently, it is incumbent upon each health care provider to verify all medical history and
+            treatment plans with each patient.
+        </li>
+        <li>
+            Under no circumstances and under no legal theory, whether tort (including negligence), contract,
+            or otherwise, shall any contributor, or anyone who distributes covered software as permitted by the
+            license, be liable to you for any indirect, special, incidental, consequential damages of any
+            character including, without limitation, damages for loss of goodwill, work stoppage, computer
+            failure or malfunction, or any and all other damages or losses, of any nature whatsoever (direct
+            or otherwise) on account of or associated with the use or inability to use the covered content
+            (including, without limitation, the use of information or content made available by the covered
+            code, all documentation associated therewith, and the failure of the covered code to comply with
+            privacy laws and regulations or clinical care industry standards and protocols), even if such party
+            shall have been informed of the possibility of such damages.
+        </li>
+      </font></ol>
+
       <hr width="100%" size="2"><br>
     </td>
   </tr>
@@ -38,7 +94,7 @@
         brought to you by the <b>Opal Health Informatics Group</b>
         at the RI-MUHC</font><br>
         <br>
-      </font> <img moz-do-not-send="true" src="./images/Opal_awards.png" alt="" width="1140" height="176"><br>
+      </font> <img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_awards.png" alt="" width="1140" height="176"><br>
       <hr width="100%" size="2"></td>
   </tr>
   <tr align="center">
@@ -51,7 +107,7 @@
         operational at the MUHC and is being installed at CHU Ste-Justine.</font><br>
       </font></p>
       <a href="https://www.soinsintelligentsquebec.com/"><br>
-        <img moz-do-not-send="true" src="./images/QSCC_logo.png" alt="" width="318" height="131" border="0"></a><br>
+        <img moz-do-not-send="true" src="VirtualWaitingRoom/images/QSCC_logo.png" alt="" width="318" height="131" border="0"></a><br>
       <div align="left"><br>
         <font size="+2">Opal's use at the MUHC is supported by the
           <a moz-do-not-send="true" href="https://www.soinsintelligentsquebec.com/">Quebec
@@ -102,7 +158,7 @@
       <hr width="100%" size="2"><br>
       <h1><font color="#6f5499">The Components of Opal</font><br>
       </h1>
-      <img moz-do-not-send="true" src="./images/Opal_components.png" alt="" width="1109" height="329"><br>
+      <img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_components.png" alt="" width="1109" height="329"><br>
       <br>
       <div align="left"><font size="+2">The main components of
         Opal are:<br>
@@ -162,7 +218,7 @@
         <tbody>
         <tr>
           <td valign="top">
-            <h2 align="right"><img moz-do-not-send="true" src="./images/laurie_app.png" alt="" width="220" height="309"></h2>
+            <h2 align="right"><img moz-do-not-send="true" src="VirtualWaitingRoom/images/laurie_app.png" alt="" width="220" height="309"></h2>
           </td>
           <td valign="middle">
             <p align="left"><font size="+2">The OHIG is a unique
@@ -212,7 +268,7 @@
       </table>
       <p><br>
       </p>
-      <img moz-do-not-send="true" src="./images/OHIG_team.jpg" alt="" width="1081" height="591"><br>
+      <img moz-do-not-send="true" src="VirtualWaitingRoom/images/OHIG_team.jpg" alt="" width="1081" height="591"><br>
       <font size="+1"><br>
         The Opal Health Informatics Group at the RI-MUHC (February
         2023). </font><br>
@@ -234,9 +290,9 @@
       <table width="100%" cellspacing="2" cellpadding="2" border="0">
         <tbody>
         <tr>
-          <td valign="top"><img moz-do-not-send="true" src="./images/Opal_funding_source_type.png" alt="" width="551" height="339"><br>
+          <td valign="top"><img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_funding_source_type.png" alt="" width="551" height="339"><br>
           </td>
-          <td valign="top"><img moz-do-not-send="true" src="./images/Opal_funding_source.png" alt="" width="555" height="343"><br>
+          <td valign="top"><img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_funding_source.png" alt="" width="555" height="343"><br>
           </td>
         </tr>
         </tbody>
@@ -253,11 +309,76 @@
     <td valign="top">
       <hr width="100%" size="2"><br>
       <h1><font color="#6f5499">Funding for Opal</font></h1>
-      <img moz-do-not-send="true" src="./images/Opal_partners.png" alt="" width="1132" height="561"><br>
+      <img moz-do-not-send="true" src="VirtualWaitingRoom/images/Opal_partners.png" alt="" width="1132" height="561"><br>
     </td>
   </tr>
+
+  <tr align="center">
+    <td valign="top">
+      <hr width="100%" size="2"><br>
+      <h1><font color="#6f5499">Third-Party Dependencies</font></h1>
+      <div class="third-party" align="left" ng-bind-html="thirdPartyContent"></div>
+    </td>
+  </tr>
+
   </tbody>
 </table>
 <br>
 <br>
 </body></html>
+
+<script>
+  var about = angular.module('aboutApp', []);
+  
+  about.controller('about', function(
+      $scope, $http, $sce, $location, $anchorScroll
+  ){
+    const customRenderExtension = {
+        renderer: {
+            // Turn all license text blocks into collapsible sections using <details><summary>
+            code(code) {
+                return `
+                    <details>
+                      <summary>Show license text</summary>
+                      <pre><code>${code.text}</code></pre>
+                    </details>
+                `;
+            },
+            // Convert all links to open in a new tab using a _blank target
+            link(href, title, text) {
+                const titleAttr = title ? ` title="${title}"` : '';
+                return `<a href="${href.href}"${titleAttr} target="_blank" rel="noopener">${href.href}</a>`;
+            }
+        }
+    };
+
+    marked.use(customRenderExtension);
+    // Configure Marked (GFM for auto-linkifying bare URLs)
+    marked.setOptions({ gfm: true });
+
+    const thirdPartyURL = window.location.protocol + '//' + window.location.host + '/orms/THIRDPARTY.md';
+
+    // Fetch the Markdown file
+    $http.get(thirdPartyURL)
+        .then(function(response) {
+            let mdContent = response.data;
+            // Remove both the comment block and the section header
+            mdContent = mdContent.replace(/<!--[\s\S]*?-->\s*# Third-Party Dependencies\s*\n/, '');
+
+            // Process the Markdown content into HTML
+            const parsedHtml = marked.parse(mdContent);
+
+            // Trust the HTML to bypass Angular's sanitizer
+            $scope.thirdPartyContent = $sce.trustAsHtml(parsedHtml);
+        })
+        .catch(function(error) {
+            console.error('Error fetching Markdown file:', error);
+        });
+
+    $scope.gotoDisclaimer = function() {
+        // Set the location hash to the id of the element
+        $location.hash('healthcare-disclaimer');
+        $anchorScroll();
+    };
+  });
+</script>

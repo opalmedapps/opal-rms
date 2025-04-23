@@ -96,8 +96,8 @@ path = [
     "VirtualWaitingRoom/sounds/magic.wav",
 ]
 precedence = "override"
-SPDX-FileCopyrightText = "NONE"
-SPDX-License-Identifier = "MIT"
+SPDX-FileCopyrightText = "Copyright (C) 2025 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 
 [[annotations]]

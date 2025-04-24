@@ -19,7 +19,7 @@
     "angular-messages": "npm:@neverendingsupport/angularjs@1.9.9-messages",
     "angular-ui-bootstrap": "2.5.6",
     "angularfire": "2.3.0",
-    "bootstrap": "4.3.1",
+    "bootstrap": "4.6.2",
     "bootstrap-select": "1.13.18",
     "checklist-model": "1.0.0",
     "crypto-js": "4.2.0",
@@ -32,10 +32,11 @@
     "jquery": "3.7.1",
     "jquery-csv": "^1.0.21",
     "jquery-ui-dist": "1.12.1",
+    "marked": "15.0.7",
     "ng-table": "3.0.1",
     "popper.js": "1.16.1",
     "swagger-ui-dist": "^4.1.2",
-    "ui-bootstrap4": "3.0.6",
+    "ui-bootstrap4": "3.0.7",
     "ui-select": "0.19.8"
   },
   "overrides": {

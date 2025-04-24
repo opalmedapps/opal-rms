@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: Copyright (C) 2020 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 declare(strict_types=1);
 //---------------------------------------------------------------------------------------------------------------
 // This script finds all appointments matching the specified criteria and returns patient information from the ORMS database.

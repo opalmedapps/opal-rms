@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2020 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,6 +42,7 @@
 <!--CSS -->
 <!-- <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
 <!-- use bootstrap v3 css; the css styling can be done later -->
+<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="VirtualWaitingRoom/css/bootstrap_3.3.6.min.css">
 <link rel="stylesheet" href="node_modules/ui-select/dist/select.min.css">
 <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
@@ -118,7 +125,9 @@
                     <md-button class="md-primary" ng-if="patientLoadingEnabled && resourceLoadingEnabled" ng-click="openLegendDialog()"><b>Show Legend</b></md-button>
                     <br>
                     <span>
-                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="VirtualWaitingRoom/images/waiting.gif"></img>
+                        <div class="spinner-border selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                         <span ng-if="patientLoadingEnabled && resourceLoadingEnabled" class="btn-group">
                             <label ng-model="pageSettings.SelectedRowTypes.CheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.CheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Checked In</label>
                             <label ng-model="pageSettings.SelectedRowTypes.NotCheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.NotCheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Scheduled</label>

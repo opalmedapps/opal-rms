@@ -127,7 +127,7 @@ class Http
      * Since the connection with the client gets closed, no further responses can be sent.
      *
      */
-    public static function generateResponseJsonAndContinue(int $httpCode, mixed $data = null, string $error = null): void
+    public static function generateResponseJsonAndContinue(int $httpCode, mixed $data = null, ?string $error = null): void
     {
         $response = [
             "status" => ($error === null) ? "Success" : "Error",
@@ -153,7 +153,7 @@ class Http
      *
      * @return never
      */
-    public static function generateResponseJsonAndExit(int $httpCode, mixed $data = null, string $error = null): void
+    public static function generateResponseJsonAndExit(int $httpCode, mixed $data = null, ?string $error = null): void
     {
         self::generateResponseJsonAndContinue($httpCode, $data, $error);
         exit;

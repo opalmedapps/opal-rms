@@ -1,8 +1,15 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2021 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <!DOCTYPE html>
 <html class="fullscreen">
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <head>
         <base href="/orms/">
+        <link rel="stylesheet" href="VirtualWaitingRoom/css/bootstrap_3.3.6.min.css">
         <link rel="stylesheet" href="kiosk/kiosk.css">
         <script src="node_modules/dayjs/dayjs.min.js"></script>
         <script src="node_modules/jquery/dist/jquery.min.js"></script>
@@ -24,7 +31,7 @@
             <div class="header-div">
                 <span class="header-section-div align-center" style="width: 25%;">
                     <span style="font-size: 2.5vh;" ng-if="!pageProperties.displayNetworkWarning">{{pageProperties.siteDisplay}}</span>
-                    <img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="images/networkWarning.png">
+                    <span class="glyphicon glyphicon-alert" style="font-size: 250%" ng-if="pageProperties.displayNetworkWarning"></span>
                 </span>
                 <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" style="max-height: 150%;" src="{{mobileAppLogo}}"></span>
                 <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>

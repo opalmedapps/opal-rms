@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2020 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # ORMS
 
 The Online Room Management System (ORMS) provides a clinical viewer (aka. live clinician dashboard), a virtual waiting room and separate frontends for kiosks and TV screens.

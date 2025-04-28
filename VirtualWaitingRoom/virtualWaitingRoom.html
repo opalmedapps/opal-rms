@@ -105,7 +105,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                 </div>
 
                 <div class="option-holder-div">
-                    <button type="button" ng-class="anonymous ? 'btn btn-danger' : 'btn btn-sr'"
+                    <button type="button" ng-class="anonymous ? 'btn btn-danger' : 'btn btn-light'"
                         ng-click="anonymousMode()" style="margin-left:2%">
                     {{ anonymous ? 'Nominal Mode': 'Anonymous Mode'}}
                 </div>
@@ -141,7 +141,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         <br><br><br>
 
         <table class="table patient-list">
-            <tr class="bg-info">
+            <tr class="bg-info" style="background-color: #d9edf7 !important;">
                 <th ng-click="changeSortOrder()">&#9660;</th>
                 <th ng-repeat="column in pageSettings.ColumnsDisplayed" style="text-align: center;">
                     {{column.DisplayName}}<br /><span class="glyphicon {{column.Glyphicon}}"></span>

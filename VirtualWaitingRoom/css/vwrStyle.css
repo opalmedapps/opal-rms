@@ -368,3 +368,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .diagnosis-hover:hover .diagnosis-table {
     visibility: visible;
 }
+
+.bg-info {
+    background-color: #d9edf7 !important;
+}

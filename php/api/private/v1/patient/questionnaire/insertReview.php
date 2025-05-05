@@ -30,10 +30,12 @@ if($patient === null) {
 PatientInterface::insertQuestionnaireReview($patient,$user);
 
 // call the endpoint that generates a questionnaire PDF report and submits it to the OIE
-if(!empty($patient->mrns)) {
+if (!empty($patient->mrns)) {
     $mrn = $patient->mrns[0]->mrn ?? '';
     $site = $patient->mrns[0]->site ?? '';
     PDFExportService::triggerQuestionnaireReportGeneration(mrn: $mrn, site: $site);
+} else {
+    error_log("Patient with ID {$patientId} has no MRNs");
 }
 
 Http::generateResponseJsonAndExit(200);

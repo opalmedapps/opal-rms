@@ -8,6 +8,10 @@ declare(strict_types=1);
 
 namespace Orms\External;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ConnectException;
+
 use Orms\Config;
 
 class PDFExportService
@@ -20,46 +24,26 @@ class PDFExportService
     public static function triggerQuestionnaireReportGeneration(string $mrn, string $site): void
     {
         try {
-            // create curl handle
-            $ch = curl_init();
+            $client = new Client([
+                'timeout' => 10,
+                'connect_timeout' => 1,
+            ]);
 
-            // url to generate a PDF report
             $questionnairesReviewedURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/questionnaires/reviewed/';
 
-            // set url
-            curl_setopt($ch, CURLOPT_URL, $questionnairesReviewedURL);
-
-            // true to return the transfer as a string of the return value of curl_exec() instead of outputting it directly
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            // https://stackoverflow.com/a/14668762
-            // the number of milliseconds to wait while trying to connect.
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 1000);
-
-            // the maximum number of milliseconds to allow cURL functions to execute
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1000);
-
-            $payload = json_encode(['mrn' => $mrn, 'site' => $site]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-
-            $sessionid = "";
-            if(isset($_COOKIE["sessionid"])) {
-                $sessionid = $_COOKIE["sessionid"];
-            }
-
-            curl_setopt(
-                $ch,
-                CURLOPT_HTTPHEADER,
-                array(
-                    'Content-Type:application/json',
-                    'Authorization: Token ' . $sessionid,
-                )
-            );
-
-            curl_exec($ch);
-        } catch (Exception $e){
-            error_log((string) $e);
-            return;
+            $response = $client->post($questionnairesReviewedURL, [
+            'json' => [
+                'mrn' => $mrn,
+                'site' => $site,
+            ],
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'sessionid=' . $_COOKIE['sessionid'] . ';csrftoken=' . $_COOKIE['csrftoken'],
+                'X-CSRFToken' => $_COOKIE['csrftoken'],
+            ],
+            ]);
+        } catch (RequestException | ConnectException $e) {
+            error_log($e->getMessage());
         }
     }
 }

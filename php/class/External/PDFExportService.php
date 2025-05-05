@@ -25,8 +25,8 @@ class PDFExportService
     {
         try {
             $client = new Client([
-            'timeout' => 10,
-            'connect_timeout' => 1,
+                'timeout' => 10,
+                'connect_timeout' => 1,
             ]);
 
             $questionnairesReviewedURL = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/questionnaires/reviewed/';

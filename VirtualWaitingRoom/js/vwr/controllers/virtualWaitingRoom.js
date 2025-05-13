@@ -67,26 +67,28 @@ myApp.controller("virtualWaitingRoomController",function (
 
             // Find backend host's address from the wearables URL.
             const wearableDataChartsURL = new URL(checkins[0]?.wearablesURL);
-            const backendHost = wearableDataChartsURL.origin;
-            const patientUUIDsList = checkins.map(
-                ({OpalUUID}) => ({'patient_uuid': OpalUUID}),
-            );
-            const unreadWearablesCounts = await WearableCharts.getUnreadWearablesDataCounts(
-                backendHost + '/api/patients/health-data/quantity-samples/unviewed/',
-                patientUUIDsList,
-            );
+            if (wearableDataChartsURL){
+                const backendHost = wearableDataChartsURL.origin;
+                const patientUUIDsList = checkins.map(
+                    ({OpalUUID}) => ({'patient_uuid': OpalUUID}),
+                );
+                const unreadWearablesCounts = await WearableCharts.getUnreadWearablesDataCounts(
+                    backendHost + '/api/patients/health-data/quantity-samples/unviewed/',
+                    patientUUIDsList,
+                );
 
-            // Set unread wearables data counts to the $scope.checkins
-            checkins.map(
-                // Iterate through every checkin object and add unreadWearablesData field
-                (checkin) => {
-                    let checkinPatient = unreadWearablesCounts.find(
-                        patient => patient?.patient_uuid == checkin?.OpalUUID
-                    );
-                    // Set unreadWearablesData to 0 if the backend does not return a count for this checkin/patient
-                    checkin.unreadWearablesData = checkinPatient?.count ?? 0;
-                }
-            );
+                // Set unread wearables data counts to the $scope.checkins
+                checkins.map(
+                    // Iterate through every checkin object and add unreadWearablesData field
+                    (checkin) => {
+                        let checkinPatient = unreadWearablesCounts.find(
+                            patient => patient?.patient_uuid == checkin?.OpalUUID
+                        );
+                        // Set unreadWearablesData to 0 if the backend does not return a count for this checkin/patient
+                        checkin.unreadWearablesData = checkinPatient?.count ?? 0;
+                    }
+                );
+            }
 
             // Update scope variable
             $scope.checkins = checkins;

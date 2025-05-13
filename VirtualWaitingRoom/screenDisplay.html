@@ -30,14 +30,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
     <style>
         body {
-            background-image: url({{screenDisplayBackground}});
             background-repeat: no-repeat;
             background-size: 100%;
         }
     </style>
 </head>
 
-<body>
+<body ng-style="{'background-image': 'url({{screenDisplayBackground}})'}">
     <div>
         <table border=0 style="width: 100%">
             <tr>

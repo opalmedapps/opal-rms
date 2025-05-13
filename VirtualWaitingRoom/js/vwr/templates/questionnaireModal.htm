@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <!--Purpose Buttons-->
     <div ng-if="purposeSelected === ''">
         <div class="row questionnaire-container">
-            <h2 style="text-align:center;margin-top:0;">Questionnaire List</h2>
+            <h2 style="text-align:center;margin-top:0">Questionnaire List</h2>
             <br/>
             <div style="left:17%; right:17%" class="col-xs-4 col-md-4 ques-row text-center animate-show" ng-repeat="purpose in purposeList" ng-click="updatePurpose(purpose)">
                 <input style="font-size:20px;padding:20px" type="button" class="btn btn-info btn-block btn-que" value="{{purpose.title}} Questionnaires">

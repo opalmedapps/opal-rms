@@ -65,9 +65,10 @@ table.patient-list {
 
 /*modal animate css */
 .modal.in .modal-dialog {
-  -webkit-transform: translate(0, 0);
-       -o-transform: translate(0, 0);
-          transform: translate(0, 0);
+    max-width: 150%;
+    -webkit-transform: translate(0, 0);
+        -o-transform: translate(0, 0);
+            transform: translate(0, 0);
 }
 
 .modal-backdrop.in {
@@ -371,4 +372,8 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .bg-info {
     background-color: #d9edf7 !important;
+}
+
+.questionnaire-container {
+    display: block;
 }

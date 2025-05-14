@@ -106,7 +106,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         $uibModalInstance.close(weightEntered);
     };
 
-    //create a highcharts graph using highcharts for the patient's historical height and weight
+    //create a graph for the patient's historical height and weight
     function getHistoricalMeasurementsAsync()
     {
         return $http({

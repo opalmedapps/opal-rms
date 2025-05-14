@@ -49,7 +49,7 @@ if((int) $visualization === 1)
 
     $data["lastDateAnswered"] = $lastDateAnswered;
 
-    //convert all unix timestamps to millseconds for highcharts
+    //convert all unix timestamps to millseconds for graph display
     $questions = array_map(function($x) {
         $x["answers"] = array_map(function($y) {
             $y["dateTimeAnswered"] = $y["dateTimeAnswered"] *1000;
@@ -59,7 +59,7 @@ if((int) $visualization === 1)
         return $x;
     }, $questions);
 
-    //for each question in the questionnaire, generate a highcharts object and add it to the JSON return array
+    //for each question in the questionnaire, generate a graph object and add it to the JSON return array
     $data["questions"] = array_map(fn($x) => [
         "credits" => ["enabled" => false],
         "exporting" => ["enabled" => false],
@@ -109,7 +109,7 @@ if((int) $visualization === 1)
             [
                 "name"         => $x["questionTitle"],
                 "showInLegend" => false,
-                "data"         => array_map(fn($y) => [$y["dateTimeAnswered"],$y["answer"]], $x["answers"]), //convert to non-assoc array for highcharts
+                "data"         => array_map(fn($y) => [$y["dateTimeAnswered"],$y["answer"]], $x["answers"]), //convert to non-assoc array for graph display
                 "tooltip"      => ["valueDecimals" => 0]
             ]
         ]

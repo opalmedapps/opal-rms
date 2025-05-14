@@ -9,12 +9,6 @@
     opacity: 1;
 }
 
-/*necessary for highcharts to display properly*/
-highchart {
-    width: 100%;
-    display: block;
-}
-
 /*make sure md dialogs are at the front of the page*/
 .md-dialog-container {
     z-index: 2000;

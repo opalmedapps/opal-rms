@@ -92,7 +92,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
         <div class="row">
             <div class="col-xs-4 col-md-4" ng-repeat="questions in selectedQuestionnaire.questions track by $index">
-                <div id='question{{$index}}'></div>
+                <p style="font-size:20px;">{{questions.title.text}}</p>
+                <p style="font-size:30px;">The charts are currently unavailable.</p>
             </div>
         </div>
     </div>

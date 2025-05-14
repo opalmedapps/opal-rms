@@ -33,10 +33,6 @@ RUN apt-get update \
         # For the web server
         libmemcached-dev \
         apache2-dev \
-        # Install latexmk
-        latexmk \
-        # Install texlive-latex-extra that contains missing xcolor and lastpage packages
-        texlive-latex-extra \
     # cleaning up unused files
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/* \

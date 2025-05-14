@@ -14,8 +14,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <script src="node_modules/angular/angular.min.js"></script>
     <script src="node_modules/angular-animate/angular-animate.min.js"></script>
     <script src="node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
-    <script src="node_modules/highcharts/highcharts.js"></script>
-    <script src="node_modules/highcharts-ng/dist/highcharts-ng.min.js"></script>
     <script src="node_modules/angular-bowser/src/angular-bowser.js"></script>
     <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
     <script src="VirtualWaitingRoom/js/config.js"></script>
@@ -140,7 +138,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
             <div ng-show="showDiv" ng-repeat="(key,data) in chartData">
                 <p>Mean: {{data.mean/3600 | number: 2}} STD: {{data.std/3600| number: 2}}</p>
-                <highchart ng-show="showChart[key]" config="configs[key]"></highchart>
+                <!--TODO: display the weight graph here using configs[key]-->
+                <p style="font-size:30px;">The charts are currently unavailable.</p>
             </div>
 
             <script type="text/ng-template" id="patients.htm">
@@ -180,7 +179,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         </div>
 
         <script>
-            var app = angular.module('myApp', ['ui.bootstrap', 'ngAnimate', 'highcharts-ng', 'jlareau.bowser', 'ngCookies', 'vwr.config']).config(['$qProvider', function ($qProvider) {
+            var app = angular.module('myApp', ['ui.bootstrap', 'ngAnimate', 'jlareau.bowser', 'ngCookies', 'vwr.config']).config(['$qProvider', function ($qProvider) {
                 $qProvider.errorOnUnhandledRejections(false);
             }]);
 

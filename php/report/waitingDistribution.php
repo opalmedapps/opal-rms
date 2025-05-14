@@ -67,7 +67,7 @@ $resources = array_map(function($checkIn) use ($method) {
 $resources = array_merge_recursive(...$resources);
 
 //extract the appointments entries from the inner array
-//also perform some processing and construct the data needed for highcharts on the front-end
+//also perform some processing and construct the data needed for graph on the front-end
 $resources = array_map(function($resource) {
 
     $patientData = array_diff_key($resource, ["name"=>""]);

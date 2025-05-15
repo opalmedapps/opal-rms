@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "adca0135d069442c4dbc14f76c0cdf94",
+    "content-hash": "ec9590e40d3679964da43b5f0f2ad7ff",
     "packages": [
         {
             "name": "cebe/php-openapi",
@@ -5799,14 +5799,7 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {
-        "php": "8.0.*",
-        "ext-mbstring": "*",
-        "ext-simplexml": "*",
-        "ext-pdo": "*",
-        "ext-pdo_mysql": "*",
-        "lib-memcached-libmemcached": "^1.0"
-    },
+    "platform": [],
     "platform-dev": {
         "ext-xml": "*"
     },

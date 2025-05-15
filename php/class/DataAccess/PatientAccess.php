@@ -35,6 +35,7 @@ class PatientAccess
                     DateOfBirth         = :dob,
                     Sex                 = :sex,
                     OpalPatient         = :status,
+                    OpalUUID            = :uuid,
                     SMSAlertNum         = :smsNum,
                     SMSSignupDate       = IF(:smsNum IS NULL,NULL,COALESCE(SMSSignupDate,NOW())),
                     SMSLastUpdated      = IF(:smsNum <=> SMSAlertNum AND :language <=> LanguagePreference,SMSLastUpdated,NOW()),
@@ -47,6 +48,7 @@ class PatientAccess
                 ":dob"          => $patient->dateOfBirth->format("Y-m-d H:i:s"),
                 ":sex"          => $patient->sex,
                 ":status"       => $patient->opalStatus,
+                ":uuid"         => $patient->opalUUID,
                 ":smsNum"       => $patient->phoneNumber,
                 ":language"     => $patient->languagePreference
             ];
@@ -103,6 +105,7 @@ class PatientAccess
                 Sex,
                 SMSAlertNum,
                 OpalPatient,
+                OpalUUID,
                 LanguagePreference
             FROM
                 Patient
@@ -123,6 +126,7 @@ class PatientAccess
             sex:                   $row["Sex"],
             phoneNumber:           $row["SMSAlertNum"],
             opalStatus:            (int) $row["OpalPatient"],
+            opalUUID:              $row["OpalUUID"],
             languagePreference:    $row["LanguagePreference"],
             mrns:                  self::_deserializeMrnsForPatientId($patientId),
             insurances:            self::_deserializeInsurancesForPatientId($patientId)
@@ -549,6 +553,7 @@ class PatientAccess
                     Acquirer.SMSSignupDate      = COALESCE(Acquirer.SMSSignupDate,Target.SMSSignupDate),
                     Acquirer.SMSLastUpdated     = COALESCE(Acquirer.SMSLastUpdated,Target.SMSLastUpdated),
                     Acquirer.OpalPatient        = COALESCE(Acquirer.OpalPatient,Target.OpalPatient),
+                    Acquirer.OpalUUID           = COALESCE(Acquirer.OpalUUID,Target.OpalUUID),
                     Acquirer.LanguagePreference = COALESCE(Acquirer.LanguagePreference,Target.LanguagePreference)
                 WHERE
                     Acquirer.PatientSerNum = :acquirerId

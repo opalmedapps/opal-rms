@@ -38,12 +38,14 @@ services:
     entrypoint: ["highcharts-export-server", "--enableServer", "1", "--sslOnly", "1", "--sslPort", "7801", "--sslPath", "/etc/certs"]
 
   memcached:
-    # TODO: set timezone
     image: memcached:1.6.18-alpine3.17
+    environment:
+      - TZ=EST5EDT
 
   cron:
-    # TODO: set timezone
     image: "willfarrell/crontab:1.0.0"
+    environment:
+      - TZ=EST5EDT
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # - ./env:/opt/env:ro

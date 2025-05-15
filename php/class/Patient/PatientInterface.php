@@ -187,31 +187,6 @@ class PatientInterface
     }
 
     /**
-     * Separates a patient entry into two separate entries
-     * @param Mrn $unlinkedMrn
-     */
-    public static function unlinkPatientEntries(Patient $originalEntry,Mrn $unlinkedMrn): void
-    {
-        //delete the unlinked mrn from the original patient so it's available to the unlinked patient
-        PatientAccess::deleteMrn($originalEntry,$unlinkedMrn);
-
-        //create a new entry for the unlinked patient using the original patient demographics
-        PatientInterface::insertNewPatient(
-            firstName:   $originalEntry->firstName,
-            lastName:    $originalEntry->lastName,
-            dateOfBirth: $originalEntry->dateOfBirth,
-            sex:         $originalEntry->sex,
-            mrns:        [$unlinkedMrn],
-            insurances:  [] //don't re-use the insurances as an insurance number can only belong to one patient
-        );
-
-        //patient should exist now, so searching for them will work
-        $unlinkedPatient = self::getPatientByMrn($unlinkedMrn->mrn, $unlinkedMrn->site) ?? throw new Exception("Failed to create patient");
-
-        PatientAccess::unlinkPatientEntries($originalEntry,$unlinkedPatient);
-    }
-
-    /**
      *
      * @param Mrn[] $mrns
      * @return Patient[]

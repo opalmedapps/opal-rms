@@ -53,6 +53,7 @@ class Config
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
+        $dotenv->required('NEW_OPAL_ADMIN_TOKEN')->notEmpty();
         $dotenv->required('LEGACY_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
         $dotenv->required('LEGACY_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('LEGACY_OPAL_ADMIN_API_USERNAME')->notEmpty();
@@ -60,10 +61,15 @@ class Config
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
         $dotenv->ifPresent('DATABASE_USE_SSL')->isBoolean();
+        $dotenv->ifPresent('SOURCE_SYSTEM_SUPPORTS_CHECKIN')->isBoolean();
 
         // Check if DATABASE_USE_SSL is truthy and require SSL_CA only if it is
         if (array_key_exists('DATABASE_USE_SSL', $_ENV) && filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {
             $dotenv->required('SSL_CA')->notEmpty();
+        }
+        // Check if SOURCE_SYSTEM_SUPPORTS_CHECKIN is truthy and require SOURCE_SYSTEM_HOST_EXTERNAL only if it is
+        if (array_key_exists('SOURCE_SYSTEM_SUPPORTS_CHECKIN', $_ENV) && filter_var($_ENV['SOURCE_SYSTEM_SUPPORTS_CHECKIN'], FILTER_VALIDATE_BOOLEAN)) {
+            $dotenv->required('SOURCE_SYSTEM_HOST_EXTERNAL')->notEmpty();
         }
         $_ENV = self::_parseData($_ENV);
 
@@ -80,6 +86,8 @@ class Config
             opalAdminUsername:              $_ENV["LEGACY_OPAL_ADMIN_API_USERNAME"],
             opalAdminPassword:              $_ENV["LEGACY_OPAL_ADMIN_API_PASSWORD"],
             highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
+            sourceSystemSupportsCheckin:    (bool) ($_ENV["SOURCE_SYSTEM_SUPPORTS_CHECKIN"] ?? false),
+            sourceSystemHost:               (string) ($_ENV["SOURCE_SYSTEM_HOST_EXTERNAL"] ?? ''),
         );
 
         $system = new SystemConfig(
@@ -87,6 +95,7 @@ class Config
             sendWeights:                        (bool) ($_ENV["SEND_WEIGHTS"] ?? false),
             newOpalAdminHostInternal:           $_ENV["NEW_OPAL_ADMIN_HOST_INTERNAL"] ?? null,
             newOpalAdminHostExternal:           $_ENV["NEW_OPAL_ADMIN_HOST_EXTERNAL"] ?? null,
+            newOpalAdminToken:                  $_ENV["NEW_OPAL_ADMIN_TOKEN"] ?? null,
             emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
             emailHostUser:                      $_ENV["EMAIL_USER"] ?? null,
             emailHostPassword:                  $_ENV["EMAIL_PASSWORD"] ?? null,
@@ -184,7 +193,9 @@ class EnvironmentConfig
         public string $legacyOpalAdminHostInternal,
         public string $opalAdminUsername,
         public string $opalAdminPassword,
-        public ?string $highchartsUrl
+        public ?string $highchartsUrl,
+        public string $sourceSystemHost,
+        public bool $sourceSystemSupportsCheckin,
     ) {}
 }
 
@@ -222,6 +233,7 @@ class SystemConfig
         public bool $sendWeights,
         public string $newOpalAdminHostInternal,
         public string $newOpalAdminHostExternal,
+        public string $newOpalAdminToken,
         public string $emailHost,
         public string $emailHostUser,
         public string $emailHostPassword,

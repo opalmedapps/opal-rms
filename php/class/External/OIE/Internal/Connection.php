@@ -9,13 +9,13 @@ use GuzzleHttp\Client;
 use Orms\Config;
 
 class Connection
-{
-    public const API_APPOINTMENT_COMPLETION                     = "Appointment/Status";
-    public const API_APPOINTMENT_MRN                            = "Appointment";
+{   
+    # These are the last 2 endpoints which currently go to the OIE
+
+    # Used when a patient checks in via kiosk, OIE forwards call to {serverAriaIE}/patient/hasPhoto and returns a boolean response
     public const API_ARIA_PHOTO                                 = "Patient/Photo";
+    # Used when a new patient measurement is created by a clinical staff, pdf submitted to OIE channel (same channel as questionnaire pdf from backend)
     public const API_MEASUREMENT_PDF                            = "report/post";
-    public const API_PATIENT_LOCATION                           = "Patient/Location";
-    public const API_ROOM_NOTIFICATION                          = "Patient/RoomNotification";
 
     public static function getHttpClient(): ?Client
     {

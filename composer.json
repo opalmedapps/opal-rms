@@ -6,12 +6,12 @@
         "files": ["php/settings.php"]
     },
     "require": {
-        "twilio/sdk": "^6.28",
-        "guzzlehttp/guzzle": "^7.2",
-        "ulrichsg/getopt-php": "^3.4",
-        "league/openapi-psr7-validator": "^0.15.2",
-        "cebe/php-openapi": "^1.5",
-        "lavary/crunz": "^3.2",
+        "twilio/sdk": "6.44.4",
+        "guzzlehttp/guzzle": "7.7.0",
+        "ulrichsg/getopt-php": "3.4.0",
+        "league/openapi-psr7-validator": "0.15.2",
+        "cebe/php-openapi": "1.7.0",
+        "lavary/crunz": "3.2.1",
         "symfony/lock": "^6.0",
         "vlucas/phpdotenv": "5.5.0",
         "phpmailer/phpmailer": "6.8.0"
@@ -20,6 +20,6 @@
         "ext-xml": "*",
         "phpstan/phpstan": "1.10.16",
         "vimeo/psalm": "4.11",
-        "friendsofphp/php-cs-fixer": "^3.2"
+        "friendsofphp/php-cs-fixer": "3.4.0"
     }
 }

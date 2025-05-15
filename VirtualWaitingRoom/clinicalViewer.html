@@ -560,7 +560,9 @@
                         </td>
                         <td class="text-center">
                             <div ng-if="appoint.wearablesURL"><a href="" ng-click="showWearableDataCharts(appoint.wearablesURL)"
-                                    class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a>
+                                    class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;">
+                                    <span class="alert-circle {{appoint.unreadWearablesData > 0 ? 'green-circle' : ''}}"></span>
+                                </a>
                             </div>
                         </td>
                         <td ng-class="(clinicsUsed) ? 'textStyleRed': ''">{{appoint.appName}}</td>

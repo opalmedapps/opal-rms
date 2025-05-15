@@ -14,7 +14,7 @@ class Authentication
 {
     public static function login(string $username, string $password): ResponseInterface
     {
-        $authUrl = Config::getApplicationSettings()->system->newOpalAdminUrl . '/api/auth/orms/login/';
+        $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
         //check if the credentials are valid in the AD
         $client = new Client();
         $response = $client->request(

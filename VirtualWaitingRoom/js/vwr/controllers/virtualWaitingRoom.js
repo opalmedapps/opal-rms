@@ -214,10 +214,10 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         },function() {});
     }
 
-    $scope.showWearableDataCharts = async function()
+    $scope.showWearableDataCharts = async function(wearablesURL)
     {
         const response = await $http.get(
-            'http://127.0.0.1:8000/health-data/3cd612fa-ceb3-4fa4-96eb-f58d9cd23baf/quantity-samples/',
+            wearablesURL,
             {
                 'withCredentials': true
             }

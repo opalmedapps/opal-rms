@@ -58,6 +58,12 @@ if (
 
     Http::generateResponseJsonAndExit(200, data: $cookie);
 }
+elseif ($response->getStatusCode() == 403) {
+    Http::generateResponseJsonAndExit(
+        httpCode: 403,
+        error: "You do not have permission to access ORMS. Contact the Opal systems administrator."
+    );
+}
 else {
     Http::generateResponseJsonAndExit(406);
 }

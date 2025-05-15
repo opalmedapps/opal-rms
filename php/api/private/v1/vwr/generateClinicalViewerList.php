@@ -71,17 +71,14 @@ if($afilter === false)
     $appointments = ReportAccess::getListOfAppointmentsInDateRange(new DateTime($sDate),new DateTime($eDate),(int) $speciality,$activeStatusConditions,$clinicCodes,$appointmentCodes);
 
     //get questionnaire data for opal patients
-    $patients = array_filter($appointments, function ($x){
-        return $x["opalEnabled"] === true;
-    });
-    $patients = array_unique(array_map(function ($x){
-        return $x["patientId"];
-    },$patients),SORT_REGULAR);
-    $patients = array_values(array_filter(array_map(function ($x){
+    $patients = array_filter($appointments, fn($x) => $x["opalEnabled"] === true);
+    $patients = array_unique(array_map(fn($x) => $x["patientId"],$patients),SORT_REGULAR);
+    $patients = array_values(array_filter(array_map(function($x) {
         $patient = PatientInterface::getPatientById($x);
         if($patient === null) {
-            error_log((string) new Exception("Unknown patient id $x[PatientId]"));
+            error_log((string) new Exception("Unknown patient id $x"));
         }
+
         return $patient;
     },$patients)));
 

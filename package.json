@@ -23,7 +23,7 @@
     "bootstrap-select": "1.13.18",
     "checklist-model": "1.0.0",
     "crypto-js": "3.1.9-1",
-    "datatables.net": "1.10.20",
+    "datatables.net": "1.13.5",
     "datatables.net-buttons-dt": "1.6.1",
     "dayjs": "^1.10.6",
     "firebase": "2.2.1",
@@ -38,8 +38,7 @@
     "ui-bootstrap4": "3.0.6",
     "ui-select": "0.19.8"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "devDependencies": {
     "redoc-cli": "0.10.4"
   }

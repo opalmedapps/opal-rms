@@ -1,6 +1,6 @@
 # Build/install JS dependencies
 # Pin platform since PhantomJS binary is not available for linux/arm64 architecture
-FROM node:16.20.1-alpine3.17 as js-dependencies
+FROM node:20.8.0-alpine3.18 as js-dependencies
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-autoloader
 
 # final image
-FROM php:8.0.29-apache-bullseye
+FROM php:8.1.0-apache-bullseye
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \

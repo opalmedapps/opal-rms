@@ -13,7 +13,7 @@ use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
 
 try {
-    $fields = Http::parseApiInputs();
+    $fields = Http::parseApiInputs('v1');
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {

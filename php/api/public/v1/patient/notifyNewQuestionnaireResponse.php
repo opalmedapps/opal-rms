@@ -13,7 +13,7 @@ use Orms\Http;
 use Orms\Patient\PatientInterface;
 
 try {
-    Http::parseApiInputs();
+    Http::parseApiInputs('v1');
 }
 catch(\Exception $e) {
     Http::generateResponseJsonAndExit(400, error: Http::generateApiParseError($e));

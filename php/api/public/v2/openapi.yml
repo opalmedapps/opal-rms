@@ -1,0 +1,99 @@
+openapi: 3.0.2
+info:
+  title: ORMS Public Api
+  version: 0.3.0
+servers:
+  - url: /php/api/public/v2
+
+paths:
+  /patient/updateOpalStatus:
+    post:
+      summary: Update a patient's Opal status and UUID
+      description: Marks whether a patient is registered for Opal, and if so, saves their Opal UUID.
+      tags:
+        - patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mrn:
+                  description: Medical record number
+                  type: string
+                site:
+                  description: Hospital site
+                  type: string
+                opalStatus:
+                  description: Whether or not the patient is registered for Opal
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                opalUUID:
+                  description: UUID of the patient in Opal. This value is required if the patient is registered in Opal. If not, it must be omitted.
+                  type: string
+                  format: uuid
+              required:
+                - mrn
+                - site
+                - opalStatus
+            examples:
+              Opal patient:
+                value:
+                  mrn: 9999996
+                  site: HHH
+                  opalStatus: 1
+                  opalUUID: eb192698-dc8e-439f-b303-476eae38b0fa
+              Non-Opal patient:
+                value:
+                  mrn: 9999990
+                  site: HHH
+                  opalStatus: 0
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+components:
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessObject'
+    400:
+      description: Input error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+    500:
+      description: Server error
+
+  schemas:
+    SuccessObject:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/SuccessProperty'
+    ErrorObject:
+      type: object
+      properties:
+        status:
+          description: Status of the api call
+          type: string
+          enum:
+            - Error
+        error:
+          description: Description of the error, if any
+          type: string
+    SuccessProperty:
+      description: Status of the api call
+      type: string
+      enum:
+        - Success

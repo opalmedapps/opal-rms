@@ -13,7 +13,7 @@ use Orms\Util\Encoding;
 //creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
 
 try {
-    $fields = Http::parseApiInputs();
+    $fields = Http::parseApiInputs('v1');
     $fields = Encoding::utf8_decode_recursive($fields);
 }
 catch(\Exception $e) {

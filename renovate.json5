@@ -32,7 +32,6 @@
     "vimeo/psalm",
     "friendsofphp/php-cs-fixer",
     "angular-datatables",
-    "jquery",
     "datatables.net",
   ],
   "packageRules": [

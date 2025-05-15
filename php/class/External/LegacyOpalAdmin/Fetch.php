@@ -77,7 +77,7 @@ class Fetch
         if($config === null) return null;
 
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_SYSTEM_LOGIN, [
-            // Login credentials for ORMs system login
+            // Login credentials for Legacy OpalAdmin system login
             'form_params' => [
                 'username' => $config->opalAdminUsername,
                 'password' => $config->opalAdminPassword,
@@ -86,7 +86,7 @@ class Fetch
         $set_cookie = null;
         if ($response !== null && $response->getStatusCode() === 200) {
 
-            $set_cookie = $response->getHeaderLine('Set-Cookie') ?? null;
+            $set_cookie = $response->getHeaderLine('Set-Cookie');
             if ($set_cookie) {
                 // Store the cookie in Memcached for 24 minutes to match the default php maxlifetime in LegacyOA
                 // https://stackoverflow.com/a/1516338
@@ -137,14 +137,13 @@ class Fetch
             'headers' => [
                 'Cookie' => $cookie,
             ]
-        ])?->getBody()?->getContents() ?? '[]';
-        
-        $responseData = json_decode($response, true);
-        
-        return $responseData ? array_map(fn($x) => [
+        ])?->getBody()?->getContents() ?: '[]';
+
+        $responseData = json_decode($response, true) ?? [];
+        return array_map(fn($x) => [
             'questionnaireId' => (int) $x['ID'], 
             'name'            => (string) $x['name_EN']
-        ], $responseData) : [];
+        ], $responseData);
     }
 
     /**
@@ -161,9 +160,9 @@ class Fetch
                 'mrn'  => $patient->getActiveMrns()[0]->mrn,
                 'site' => $patient->getActiveMrns()[0]->site,
             ]
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
 
-        return json_decode($response, true)['data'] ?? false;
+        return json_decode($response ?: '[]', true)['data'] ?? false;
     }
 
     /**
@@ -186,15 +185,14 @@ class Fetch
             'form_params' => [
                 'questionnaires' => $questionnaireIds,
             ],
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
 
-        $responseData = json_decode($response, true);
-
+        $responseData = json_decode($response ?: '[]', true);
         return $responseData ? array_map(fn($x) => [
             'mrn'            => (string) $x['mrn'],
             'site'           => (string) $x['site'],
-            'completionDate' => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?? throw new Exception('Invalid datetime'),
-            'lastUpdated'    => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?? throw new Exception('Invalid datetime'),
+            'completionDate' => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?: throw new Exception('Invalid datetime'),
+            'lastUpdated'    => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?: throw new Exception('Invalid datetime'),
         ], $responseData) : [];
 
     }
@@ -222,8 +220,8 @@ class Fetch
                     'mrn'  => $patient->getActiveMrns()[0]->mrn,
                     'site' => $patient->getActiveMrns()[0]->site,
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-            
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'studyId'         => (int) $x['studyId'],
                 'title'           => (string) $x['title_EN']
@@ -265,8 +263,8 @@ class Fetch
                     'mrn'  => $patient->getActiveMrns()[0]->mrn,
                     'site' => $patient->getActiveMrns()[0]->site,
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'completionDate'        => (string) $x['completionDate'],
                 'completed'             => true,
@@ -318,23 +316,23 @@ class Fetch
                 ],
                 'form_params' => $postParams,
             ]
-        )?->getBody()?->getContents() ?? '[]';
-        $response = json_decode($response, true);
+        )?->getBody()?->getContents();
+        $response = json_decode($response ?: '[]', true);
         // Transform the response
         foreach ($patients as $index => $p) {
             $r = ($response[$index] ?? null) ?: null; // Response for an individual patient may be false if the patient has no questionnaires
             if ($r !== null) {
                 $r = [
                     'questionnaireControlId' => (int) $r['questionnaireControlId'],
-                    'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?? throw new Exception('Invalid datetime'),
-                    'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?? throw new Exception('Invalid datetime')
+                    'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?: throw new Exception('Invalid datetime'),
+                    'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?: throw new Exception('Invalid datetime')
                 ];
             }
 
             $lastCompletedQuestionnaires[$p->id] = $r;
         }
 
-        return $lastCompletedQuestionnaires ?? [];
+        return $lastCompletedQuestionnaires;
 
     }
 
@@ -367,8 +365,8 @@ class Fetch
                     'site' => $patient->getActiveMrns()[0]->site,
                     'questionnaireId'  => $questionnaireId
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(function($x) {
                 //data should be sorted in asc datetime order
                 usort($x['answers'], fn($a, $b) => $a['dateTimeAnswered'] <=> $b['dateTimeAnswered']);
@@ -419,8 +417,8 @@ class Fetch
                     'site' => $patient->getActiveMrns()[0]->site,
                     'questionnaireId'  => $questionnaireId
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'questionnaireAnswerId' => (int) $x['answerQuestionnaireId'],
                 'questionId'            => (int) $x['questionId'],

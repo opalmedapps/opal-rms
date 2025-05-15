@@ -17,7 +17,7 @@ class LocationInterface
     /**
      * Updates a patient's location for every appointment they have. If an appointment id was supplied, that appointment will be marked as the cause for the move in the db
      */
-    public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null, string $checkin_type): void
+    public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null, string $checkinType): void
     {
         // load environment configurations
         $config = Config::getApplicationSettings()->environment;
@@ -33,12 +33,12 @@ class LocationInterface
             AppointmentAccess::moveAppointmentToLocation($app["appointmentId"], $room, $intendedAppointment);
 
             //also export the appointment to opal if the appointment originated in orms
-            if ($checkin_type !== "APP" && $patient->opalStatus === 1){
+            if ($checkinType !== "APP" && $patient->opalStatus === 1){
                 BackendExport::exportPatientCheckin($patient,$app["sourceId"], $app["sourceSystem"]);
             }
 
             // export appointment location to source system if enabled && appointment came from Aria
-            if ($checkin_type !== "APP" && $app["sourceSystem"] === "Aria" && $config->sourceSystemSupportsCheckin){
+            if ($checkinType !== "APP" && $app["sourceSystem"] === "Aria" && $config->sourceSystemSupportsCheckin){
                 SourceSystemExport::exportPatientLocation($app["sourceId"], $room);
             }
             

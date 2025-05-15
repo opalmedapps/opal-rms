@@ -18,7 +18,7 @@ $mrn            = $params["mrn"];
 $site           = $params["site"];
 $diagnosisId    = (int) $params["diagnosisId"];
 $diagnosisDate  = new DateTime($params["diagnosisDate"]);
-$user           = $params["user"];
+$user           = 'AGKE6000';// $params["user"];
 
 $newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId, $mrn, $site, $diagnosisId, $diagnosisDate, $user);
 
@@ -38,7 +38,8 @@ if($patient !== null) {
             Export::insertMasterSourceDiagnosis(
                 $newDiag->diagnosis->subcode,
                 $newDiag->createdDate,
-                $newDiag->diagnosis->subcodeDescription
+                $newDiag->diagnosis->subcodeDescription,
+                ""
             );
         }
 

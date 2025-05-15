@@ -27,7 +27,7 @@ class Fetch
     /**
      * Retrieve a cached API cookie or login to OA via system login endpoint
      */
-    private static function getOrSetOACookie(): ?string
+    public static function getOrSetOACookie(): ?string
     {
         // Check memcached for pre-existing legacy OA cookie
         $memcached = self::getMemcached();
@@ -451,8 +451,11 @@ class Fetch
                     'code'          => $diagSubcode
                 ]
             ])?->getBody()?->getContents() ?? '[]';
-            print_r(json_decode($response, true));
-            return json_decode($response, true)['data'] ?? false;
+
+            $decodedResponse = json_decode($response, true);
+            error_log(json_encode($decodedResponse)); // Convert array to JSON string before logging
+
+            return json_decode($response, true)['code'] ?? false;
         }
     }
 

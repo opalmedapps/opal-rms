@@ -5,7 +5,7 @@ declare(strict_types=1);
 require __DIR__ ."/../../../../../../vendor/autoload.php";
 
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\External\OIE\Fetch;
+use Orms\External\LegacyOpalAdmin\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 

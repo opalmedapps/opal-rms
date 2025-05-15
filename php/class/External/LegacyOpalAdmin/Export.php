@@ -31,7 +31,8 @@ class Export
                     'code'          => $diagSubcode,
                     'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
                     'description' => $descEn
-                ]
+                ],
+                'debug' => true
             ])?->getBody()?->getContents() ?? '[]';
             print_r(json_decode($response, true));
         }
@@ -46,7 +47,7 @@ class Export
         $cookie = Fetch::getOrSetOACookie();
         // status != 'Deleted'
         
-        if ($cookie && $is_opal_patient) {
+        if ($cookie) {
             // only insert if status==WHATEVER
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_PATIENT_DIAGNOSIS, [
                 'headers' => [
@@ -81,7 +82,7 @@ class Export
                 'headers' => [
                     'Cookie' => $cookie,
                 ],
-                'form_params' => [
+                'json' => [
                     'mrn'           => $patient->getActiveMrns()[0]->mrn,
                     'site'          => $patient->getActiveMrns()[0]->site,
                     'source'        => 'ORMS',

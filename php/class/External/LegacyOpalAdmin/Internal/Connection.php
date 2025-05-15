@@ -24,7 +24,7 @@ class Connection
     public const LEGACY_API_DIAGNOSIS_EXISTS                 = 'master-source/get/diagnosis-exists';
     public const LEGACY_API_INSERT_DIAGNOSIS                 = 'master-source/insert/diagnoses';
 
-    public const LEGACY_API_GET_PATIENT_DIAGNOSIS                 = 'diagnosis/get/patient-diagnosis';
+    public const LEGACY_API_GET_PATIENT_DIAGNOSIS                 = 'diagnosis/get/patient-diagnoses';
     public const LEGACY_API_INSERT_PATIENT_DIAGNOSIS              = 'diagnosis/insert/patient-diagnosis';
     public const LEGACY_API_DELETE_PATIENT_DIAGNOSIS              = 'diagnosis/delete/patient-diagnosis';
 

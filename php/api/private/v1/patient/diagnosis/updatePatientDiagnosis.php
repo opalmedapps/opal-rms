@@ -18,7 +18,7 @@ $patientDiagnosisId  = (int) $params["patientDiagnosisId"];
 $diagnosisId         = (int) $params["diagnosisId"];
 $diagnosisDate       = new DateTime($params["diagnosisDate"] ?? "");
 $status              = $params["status"];
-$user                = $params["user"];
+$user                = 'AGKE6000';//$params["user"];
 
 $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId, $diagnosisId, $diagnosisDate, $status, $user);
 
@@ -33,12 +33,13 @@ if($patient !== null) {
     if($is_opal_patient){
 
         // Ensure the code to be assigned exists in the Opal MasterSource list
-        $is_diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($newDiag->diagnosis->subcode);
+        $is_diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($updatedDiag->diagnosis->subcode);
         if(!$is_diagnosis_exists){
             Export::insertMasterSourceDiagnosis(
-                $newDiag->diagnosis->subcode,
-                $newDiag->createdDate,
-                $newDiag->diagnosis->subcodeDescription
+                $updatedDiag->diagnosis->subcode,
+                $updatedDiag->createdDate,
+                $updatedDiag->diagnosis->subcodeDescription,
+                ""
             );
         }
 
@@ -46,23 +47,23 @@ if($patient !== null) {
             // Separate endpoint for diagnosis deletions
             Export::deletePatientDiagnosis(
                 $patient,
-                $newDiag->id,
-                $newDiag->diagnosis->subcode,
-                $newDiag->createdDate,
-                $newDiag->diagnosis->subcodeDescription,
+                $updatedDiag->id,
+                $updatedDiag->diagnosis->subcode,
+                $updatedDiag->createdDate,
+                $updatedDiag->diagnosis->subcodeDescription,
                 "",
-                $newDiag->status
+                $updatedDiag->status
             );
         }else{
             // Assign patient the diagnosis
             Export::insertPatientDiagnosis(
                 $patient,
-                $newDiag->id,
-                $newDiag->diagnosis->subcode,
-                $newDiag->createdDate,
-                $newDiag->diagnosis->subcodeDescription,
+                $updatedDiag->id,
+                $updatedDiag->diagnosis->subcode,
+                $updatedDiag->createdDate,
+                $updatedDiag->diagnosis->subcodeDescription,
                 "",
-                $newDiag->status
+                $updatedDiag->status
             ); 
         }
 

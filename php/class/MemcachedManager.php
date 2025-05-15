@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace orms;
+namespace Orms;
 
 use Exception;
 use Memcached;

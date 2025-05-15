@@ -36,7 +36,7 @@ $appointments = array_values(array_filter($appointments,fn($x) => $x["patient"]-
 $appointments = array_values(array_filter($appointments, function($x){
     $start = new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 00:00:00');
     $end = new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 02:00:00');
-    return !($x["scheduledDatetime"] >= $start && $x["scheduledDatetime"] < $end);
+    return $x["scheduledDatetime"] <= $start && $x["scheduledDatetime"] > $end;
 }));
 $appointments = Encoding::utf8_encode_recursive($appointments);
 

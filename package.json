@@ -29,7 +29,7 @@
     "firebase": "2.2.1",
     "highcharts": "9.2.2",
     "highcharts-ng": "1.2.1",
-    "jquery": "3.6.0",
+    "jquery": "3.7.1",
     "jquery-csv": "^1.0.21",
     "jquery-ui-dist": "1.12.1",
     "ng-table": "3.0.1",

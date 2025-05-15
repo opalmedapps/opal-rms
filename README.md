@@ -60,7 +60,7 @@ The same concept applies to `composer.
 
 ## Open Issues
 
-The following notes were adding by Victor and have been slightly edited for readability.
+The following notes were added by Victor and have been slightly edited for readability.
 
 ### Remaining Containerization Issues
 

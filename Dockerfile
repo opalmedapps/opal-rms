@@ -58,7 +58,7 @@ RUN curl -SL https://github.com/ZenProjects/Apache-Authmemcookie-Module/tarball/
 
 # Configure Apache2
 RUN ln -sf /dev/stdout /var/log/apache2/error.log \
-    && a2enmod rewrite ssl \
+    && a2enmod rewrite \
     # Change default port to 8080 to allow non-root user to bind port
     # Binding port 80 on CentOS seems to be forbidden for non-root users
     && sed -ri -e 's!Listen 80!Listen 8080!g' /etc/apache2/ports.conf

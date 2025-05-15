@@ -17,7 +17,7 @@ path = [
     "VirtualWaitingRoom/fonts/note.txt",
     "composer.json",
     "package.json",
-    "php/class/Document/Measurement/highchartsTemplate.json",
+    "php/class/Document/Measurement/graphTemplate.json",
     "php/tool/databaseMaintenance/diagnosis/data/processed_codes.json",
     "php/tool/databaseMaintenance/diagnosis/data/raw_codes.json",
 ]

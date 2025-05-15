@@ -68,18 +68,31 @@ $listOfAppointments = [];
 //get ORMS patients if the appointment filter is disabled
 if($afilter === false)
 {
-    //get questionnaire data for opal patients
-    $lastCompletedQuestionnaires = json_decode(@file_get_contents(Config::getApplicationSettings()->environment->completedQuestionnairePath) ?: "{}",true) ?? [];
-    $lastCompletedQuestionnaires = array_filter($lastCompletedQuestionnaires);
-    $lastCompletedQuestionnaires = array_map(function($x) {
-        $x["completionDate"] = new DateTime($x["completionDate"]);
-        /** @psalm-suppress InvalidArrayOffset */
-        $x["lastUpdated"]    = new DateTime($x["lastUpdated"]);
-
-        return $x;
-    },$lastCompletedQuestionnaires);
-
     $appointments = ReportAccess::getListOfAppointmentsInDateRange(new DateTime($sDate),new DateTime($eDate),(int) $speciality,$activeStatusConditions,$clinicCodes,$appointmentCodes);
+
+    //get questionnaire data for opal patients
+    $patients = array_filter($appointments, function ($x){
+        return $x["opalEnabled"] === true;
+    });
+    $patients = array_unique(array_map(function ($x){
+        return $x["patientId"];
+    },$patients),SORT_REGULAR);
+    $patients = array_values(array_filter(array_map(function ($x){
+        $patient = PatientInterface::getPatientById($x);
+        if($patient === null) {
+            error_log((string) new Exception("Unknown patient id $x[PatientId]"));
+        }
+        return $patient;
+    },$patients)));
+
+    //fetch questionnaire data for opal patients
+    try {
+        $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($patients);
+    }
+    catch(Exception $e) {
+        $lastCompletedQuestionnaires = [];
+        error_log((string) $e);
+    }
 
     foreach($appointments as $app)
     {

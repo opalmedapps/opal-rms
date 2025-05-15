@@ -91,7 +91,6 @@ COPY --from=php-dependencies --chown=www-data:www-data /app/vendor ./vendor
 COPY --chown=www-data:www-data ./.htaccess ./
 COPY --chown=www-data:www-data ./index.html ./
 COPY --chown=www-data:www-data ./favicon.ico ./
-COPY --chown=www-data:www-data ./.npmrc ./
 
 COPY --chown=www-data:www-data ./config ./config
 COPY --chown=www-data:www-data ./images ./images

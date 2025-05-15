@@ -11,12 +11,12 @@ tags:
   - name: auth
     description: Endpoints related to api authorization
   - name: hospital
-    description: Endpoints related to wait room configuration within a hospital
+    description: Endpoints related to waiting room configuration within a hospital
   - name: patient
     description: Endpoints related to patient demographics, diagnoses, and hospital identifiers
   - name: sms
     description: Endpoints related to SMS messaging support for patients
-  - name: Institution Integration
+  - name: institution integration
     description: Endpoints for integrating the Open Opal solution with an external institution
 
 paths:
@@ -26,7 +26,7 @@ paths:
       description: Imports or updates appointments from (external) source systems into ORMS
       tags:
         - appointment
-        - Institution Integration
+        - institution integration
       requestBody:
         content:
           application/json:
@@ -161,7 +161,7 @@ paths:
       description: Validate user session
       tags:
         - auth
-        - Institution Integration       
+        - institution integration    
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -399,7 +399,7 @@ paths:
       description: Updates the patient's location in the hospital for all their appointments of the day
       tags:
         - patient
-        - Institution Integration
+        - institution integration
       requestBody:
         content:
           application/json:

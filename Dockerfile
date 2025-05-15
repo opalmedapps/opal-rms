@@ -63,8 +63,6 @@ RUN ln -sf /dev/stdout /var/log/apache2/error.log \
 COPY ./docker/app/ssl.conf /etc/apache2/sites-enabled
 COPY ./docker/app/hardwareIpList.list /etc/apache2/
 
-# Install pdflatex and tex packages
-
 WORKDIR /var/www/orms
 
 # Parent needs to be owned by www-data to satisfy npm

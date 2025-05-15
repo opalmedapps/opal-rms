@@ -51,8 +51,6 @@ class Config
         $dotenv->required('HIGHCHARTS_PORT')->notEmpty();
         $dotenv->required('OIE_ENABLED')->notEmpty();
         $dotenv->required('SMS_ENABLED')->notEmpty();
-        $dotenv->required('SMS_REMINDER_CRON_ENABLED')->notEmpty();
-        $dotenv->required('SMS_INCOMING_SMS_CRON_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
         $dotenv->required('LEGACY_OPAL_ADMIN_HOST_EXTERNAL')->notEmpty();
@@ -60,7 +58,6 @@ class Config
         $dotenv->required('LEGACY_OPAL_ADMIN_API_USERNAME')->notEmpty();
         $dotenv->required('LEGACY_OPAL_ADMIN_API_PASSWORD')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
-        $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
         $dotenv->required('DATABASE_USE_SSL')->isBoolean();
         
@@ -69,6 +66,10 @@ class Config
             $dotenv->required('SSL_CA')->notEmpty();
         }
 
+        // Check if DATABASE_USE_SSL is truthy and require SSL_CA only if it is
+        if (filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {
+            $dotenv->required('SSL_CA')->notEmpty();
+        }
         $_ENV = self::_parseData($_ENV);
 
         //create required configs
@@ -89,9 +90,6 @@ class Config
         $system = new SystemConfig(
             emails:                             explode(',', $_ENV["RECIPIENT_EMAILS"]),
             sendWeights:                        (bool) ($_ENV["SEND_WEIGHTS"] ?? false),
-            vwrAppointmentCronEnabled:          (bool) ($_ENV["VWR_CRON_ENABLED"] ?? false),
-            appointmentReminderCronEnabled:     (bool) ($_ENV["SMS_REMINDER_CRON_ENABLED"] ?? false),
-            processIncomingSmsCronEnabled:      (bool) ($_ENV["SMS_INCOMING_SMS_CRON_ENABLED"] ?? false),
             newOpalAdminHostInternal:           $_ENV["NEW_OPAL_ADMIN_HOST_INTERNAL"] ?? null,
             newOpalAdminHostExternal:           $_ENV["NEW_OPAL_ADMIN_HOST_EXTERNAL"] ?? null,
             emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
@@ -227,9 +225,6 @@ class SystemConfig
     public function __construct(
         public array $emails,
         public bool $sendWeights,
-        public bool $vwrAppointmentCronEnabled,
-        public bool $appointmentReminderCronEnabled,
-        public bool $processIncomingSmsCronEnabled,
         public string $newOpalAdminHostInternal,
         public string $newOpalAdminHostExternal,
         public string $emailHost,

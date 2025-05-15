@@ -1,36 +1,33 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     // https://docs.renovatebot.com/presets-default/#pinallexceptpeerdependencies
     ":pinAllExceptPeerDependencies",
     // https://docs.renovatebot.com/presets-default/#separatemultiplemajorreleases
     ":separateMultipleMajorReleases",
     // https://docs.renovatebot.com/presets-default/#separatepatchreleases
     ":separatePatchReleases",
+    "gitlab>opalmedapps/renovate-bot//presets/docker-alpine.json5",
   ],
-
-  "assignees": ["anton.gladyr", "yickmo"],
+  // Extra rules for node images. See: https://github.com/renovatebot/renovate/discussions/29501
+  // Ensure that node docker versioning doesn't interfer with the custom managers.
+  "ignorePresets": ["workarounds:nodeDockerVersioning"],
+  // Only rebase existing MRs when the branch is conflicted
+  // This avoids getting spammed by updates to existing MRs
+  // We need to rebase branches to fast-forward merge anyway
+  //
+  // https://docs.renovatebot.com/configuration-options/#rebasewhen
+  "rebaseWhen": "conflicted",
+  "assignees": ["Douzeyu"],
   "labels": ["dependencies"],
-  "separateMinorPatch": true,
   "ignoreDeps": [
-    "checklist-model",
-    "dayjs",
-    "firebase",
-    "popper.js",
-    "swagger-ui-dist",
-    "twilio/sdk",
-    "guzzlehttp/guzzle",
-    "ulrichsg/getopt-php",
-    "league/openapi-psr7-validator",
-    "cebe/php-openapi",
     "symfony/lock",
-    "vlucas/phpdotenv",
-    "phpmailer/phpmailer",
-    "ext-xml",
     "phpstan/phpstan",
     "vimeo/psalm",
     "friendsofphp/php-cs-fixer",
+    "angular-datatables",
+    "datatables.net",
   ],
   "packageRules": [
     // Change commit type to build for Docker-related updates
@@ -49,40 +46,5 @@
       "matchSourceUrlPrefixes": ["https://github.com/xlts-dev/"],
       "groupName": "xlts angular packages"
     },
-    // Group datatables-related updates
-    // TODO: remove "enabled": false
-    {
-        "matchPackagePatterns": ["^datatables"],
-        "groupName": "datatables packages",
-        "enabled": false
-    },
-    // Group highcharts-related updates
-    // TODO: remove "enabled": false
-    {
-        "matchPackagePatterns": ["^highcharts"],
-        "groupName": "highcharts packages",
-        "enabled": false
-    },
-    // Group bootstrap-related updates
-    // TODO: remove "enabled": false
-    {
-        "matchPackagePatterns": ["^bootstrap"],
-        "groupName": "bootstrap packages",
-        "enabled": false
-    },
-    // Group jquery-related updates
-    // TODO: remove "enabled": false
-    {
-        "matchPackagePatterns": ["^jquery"],
-        "groupName": "jquery packages",
-        "enabled": false
-    },
-    // Group ui-related updates
-    // TODO: remove "enabled": false
-    {
-        "matchPackagePatterns": ["^ui"],
-        "groupName": "ui packages",
-        "enabled": false
-    }
   ],
 }

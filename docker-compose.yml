@@ -1,6 +1,6 @@
 services:
   db-orms:
-    image: mariadb:10.6.12-focal
+    image: mariadb:10.6.13-focal
     ports:
       - ${ORMS_DATABASE_PORT}:3306
     environment:
@@ -8,12 +8,13 @@ services:
       - MARIADB_USER=${ORMS_DATABASE_USER}
       - MARIADB_PASSWORD=${ORMS_DATABASE_PASSWORD}
       - MARIADB_DATABASE=${ORMS_DATABASE_NAME}
+      - TZ=EST5EDT
     command: --max_allowed_packet=16777216
     volumes:
       - ./docker/db/orms:/docker-entrypoint-initdb.d
 
   db-log:
-    image: mariadb:10.6.12-focal
+    image: mariadb:10.6.13-focal
     ports:
       - ${LOG_DATABASE_PORT}:3306
     environment:
@@ -21,6 +22,7 @@ services:
       - MARIADB_USER=${LOG_DATABASE_USER}
       - MARIADB_PASSWORD=${LOG_DATABASE_PASSWORD}
       - MARIADB_DATABASE=${LOG_DATABASE_NAME}
+      - TZ=EST5EDT
     command: --max_allowed_packet=16777216
     volumes:
       - ./docker/db/log:/docker-entrypoint-initdb.d
@@ -36,9 +38,11 @@ services:
     entrypoint: ["highcharts-export-server", "--enableServer", "1", "--sslOnly", "1", "--sslPort", "7801", "--sslPath", "/etc/certs"]
 
   memcached:
+    # TODO: set timezone
     image: memcached:1.6.18-alpine3.17
 
   cron:
+    # TODO: set timezone
     image: "willfarrell/crontab:1.0.0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -48,8 +52,12 @@ services:
   app:
     build:
       context: .
+    # TODO: set time zone
+    # See: https://dev.to/kakisoft/dockerphp-what-is-the-most-prioritized-timezone-setting-4bk6
+    # https://serverfault.com/a/683651
     environment:
-      PHP_MEMORY_LIMIT: 512M
+      - PHP_MEMORY_LIMIT=512M
+      - TZ=EST5EDT
     depends_on:
       - db-orms
       - db-log

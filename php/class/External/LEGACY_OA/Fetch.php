@@ -353,7 +353,7 @@ class Fetch
         $is_opal_patient = self::isOpalPatient($patient);
 
         if($cookie && $is_opal_patient){
-            $response = Connection::getHttpClient()?->request('POST', Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE, [
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE, [
                 'headers' => [
                     'Cookie' => $cookie,
                 ],
@@ -405,7 +405,7 @@ class Fetch
         $is_opal_patient = self::isOpalPatient($patient);
 
         if($cookie && $is_opal_patient){
-            $response = Connection::getHttpClient()?->request('POST', Connection::API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE, [
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE, [
                 'headers' => [
                     'Cookie' => $cookie,
                 ],

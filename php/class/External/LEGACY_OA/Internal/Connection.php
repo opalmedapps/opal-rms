@@ -18,9 +18,8 @@ class Connection
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_STUDY           = 'study/get/studies-patient-consented';
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_COMPLETED       = 'questionnaire/get/questionnaires-list-orms'; 
     public const LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED  = 'questionnaire/get/last-completed-questionnaire-list'; 
-
-    public const API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE     = 'questionnaire/get/chart-answers-patient'; 
-    public const API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE = 'questionnaire/get/non-chart-answers-patient';
+    public const LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE     = 'questionnaire/get/chart-answers-patient'; 
+    public const LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE     = 'questionnaire/get/non-chart-answers-patient';
 
     public static function getHttpClient(): ?Client
     {

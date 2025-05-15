@@ -3,7 +3,7 @@
 //=============================================================================
 angular.module('vwr').component('callModal',
 {
-        templateUrl: 'js/vwr/templates/callModal.htm',
+        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/callModal.htm',
         controller: callModalController
 });
 

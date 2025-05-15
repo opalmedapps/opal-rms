@@ -1,6 +1,6 @@
 angular.module('vwr').component('weightModal',
 {
-    templateUrl: 'js/vwr/templates/weightModal.htm',
+    templateUrl: 'VirtualWaitingRoom/js/vwr/templates/weightModal.htm',
     controllerAs: 'weightModalController',
     bindToController: true
 });

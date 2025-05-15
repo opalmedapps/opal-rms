@@ -1,5 +1,5 @@
 angular.module('vwr').component('questionnaireModal',{
-    templateUrl: 'js/vwr/templates/questionnaireModal.htm',
+    templateUrl: 'VirtualWaitingRoom/js/vwr/templates/questionnaireModal.htm',
     controller: questionnaireModalController
 });
 

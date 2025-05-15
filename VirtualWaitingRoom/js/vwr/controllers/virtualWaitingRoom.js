@@ -555,7 +555,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         {
             $uibModal.open({
                 animation: true,
-                templateUrl: 'js/vwr/templates/callModal.htm',
+                templateUrl: 'VirtualWaitingRoom/js/vwr/templates/callModal.htm',
                 controller: callModalController,
                 scope: $scope,
                 size: 'sm',
@@ -634,7 +634,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         $uibModal.open(
         {
             animation: true,
-            templateUrl: 'js/vwr/templates/questionnaireModal.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/questionnaireModal.htm',
             controller: questionnaireModalController,
             windowClass: 'questionnaireModal',
             size: 'lg',
@@ -655,7 +655,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         $uibModal.open(
         {
             animation: true,
-            templateUrl: 'js/vwr/templates/registerSMSModal.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/registerSMSModal.htm',
             controller: registerSMSModalController,
             windowClass: 'registerSMSModal',
             size: 'lg',
@@ -676,7 +676,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         $uibModal.open(
         {
             animation: true,
-            templateUrl: 'js/vwr/templates/weightModal.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/weightModal.htm',
             controller: weightModalController,
             windowClass: 'weightModal',
             size: 'lg',

@@ -19,6 +19,8 @@ stages:
 
 include: 
   - project: 'opalmedapps/engineering/ci-templates'
+    file: '/templates/InterruptibleMergeRequest-Pipelines.gitlab-ci.yml'
+  - project: 'opalmedapps/engineering/ci-templates'
     file: '/templates/autodevops/Auto-DevOps.gitlab-ci.yml'
   - component: $CI_SERVER_FQDN/opalmedapps/engineering/ci-templates/check-thirdparty-notice@main
     inputs:

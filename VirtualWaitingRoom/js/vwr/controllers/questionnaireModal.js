@@ -138,10 +138,8 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 					//I think this goes without saying, but this requires a more long term solution in the future...
 					angular.forEach($scope.selectedQuestionnaire.questions.qData, function(val, key)
 					{
-					if(val.series[0].data[0][1] === "0 - No pain" || val.series[0].data[0][1] === "0 - No Anxiety (Anxiety = feeling nervous)"){
-						val.series[0].data[0][1] = 0;
-					}else if(val.series[0].data[0][1] === "10 - Worst Possible Tiredness")						{
-						val.series[0].data[0][1] = 10;
+					if(typeof val.series[0].data[0][1] === 'string' || val.series[0].data[0][1] instanceof String){
+						val.series[0].data[0][1] = parseInt(val.series[0].data[0][1].split(" ",1)[0]);
 					} 
 					});
 					$scope.selectedQuestionnaireIsChart = true;

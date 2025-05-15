@@ -102,7 +102,6 @@ class Export
                     'status'        => 'Completed'
                 ]
             ]);
-            // $responseCode = $response->getStatusCode();
         }
         catch(\Exception $e) {
             trigger_error($e->getMessage() .'\n'. $e->getTraceAsString(), E_USER_WARNING);
@@ -127,7 +126,6 @@ class Export
                     'room_FR'            => $roomNameFr,
                 ]
             ]);
-            // $responseCode = $response->getStatusCode();
         }
         catch(\Exception $e) {
             trigger_error($e->getMessage() .'\n'. $e->getTraceAsString(), E_USER_WARNING);

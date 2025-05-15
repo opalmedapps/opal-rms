@@ -6,6 +6,10 @@
 require_once __DIR__."/../../../vendor/autoload.php";
 
 use Orms\Database;
+use Orms\DiagnosisInterface;
+use Orms\Diagnosis\Diagnosis;
+use Orms\Diagnosis\PatientDiagnosis;
+use Orms\DateTime;
 
 #get input parameters
 
@@ -59,20 +63,6 @@ if($dbOpal === NULL)
 #opal database query run under 'and' mode
 $sqlOpal = "
     SELECT
-            DT.Name_EN,
-            Q.QuestionnaireCompletionDate,
-            Q.CompletedWithinLastWeek,
-            Q.RecentAnswered
-        FROM
-            (SELECT P.PatientId, D.DiagnosisCode
-             from Patient P
-             INNER JOIN Diagnosis D ON D.PatientSerNum = P.PatientSerNum
-             AND P.PatientId = :uid
-             ORDER BY D.LastUpdated DESC
-             LIMIT 1) DP
-             INNER JOIN DiagnosisCode DC ON DC.DiagnosisCode = DP.DiagnosisCode
-             INNER JOIN  DiagnosisTranslation DT ON DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum,
-            (SELECT
                 Questionnaire.CompletionDate AS QuestionnaireCompletionDate,
                 CASE
                     WHEN Questionnaire.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
@@ -86,10 +76,9 @@ $sqlOpal = "
                 Patient
                 INNER JOIN Questionnaire ON Questionnaire.PatientSerNum = Patient.PatientSerNum
                     AND Questionnaire.CompletedFlag = 1
-                    AND Patient.PatientId = :uid2
+                    AND Patient.PatientId = :uid
             ORDER BY Questionnaire.CompletionDate DESC
-            LIMIT 1) Q
-    LIMIT 1";
+            LIMIT 1";
 
 $queryOpal = $dbOpal->prepare($sqlOpal);
 
@@ -131,10 +120,6 @@ $cappFilter = ($appcType === "all") ? "" : " AND MV.AppointmentCode IN (" . impl
 //$appFilter = ($appType === "all") ? "" : " AND MV.ResourceDescription IN :resDesc ";
 //$cappFilter = ($appcType === "all") ? "" : " AND MV.AppointmentCode IN :appCode ";
 
-/*print_r(explode(",",$dspecificApp));
-if(in_array("Sarcoma", explode(",",$dspecificApp))) print "good";
-
-else print "bad";*/
 
 #ORMS database query run under 'and' mode for basic appoint information
 $sql = "
@@ -185,56 +170,24 @@ $query = $dbh->prepare($sql);
 # if we are in 'or' mode or appointment filter is disable
 if($andbutton == "Or"||(!$qfilter &&$afilter)) {
     $qappFilter = ($qType === "all") ? "" : " AND QC.QuestionnaireName_EN IN ('" . implode("','", explode(",", $qspecificApp)) . "')";
-    $dappFilter = ($appdType === "all") ? "" : " AND DT.Name_EN IN ('" . implode("','", explode(",", $dspecificApp)) . "')";
 
-
-    $sqlOpal3 = "SELECT P.PatientId,
-            (select DT.Name_EN from Diagnosis D
-             INNER JOIN DiagnosisCode DC ON DC.DiagnosisCode = D.DiagnosisCode
-             INNER JOIN DiagnosisTranslation DT ON DC.DiagnosisTranslationSerNum = DT.DiagnosisTranslationSerNum
-             $dappFilter
-             where D.PatientSerNum = P.PatientSerNum
-             ORDER BY D.LastUpdated DESC
-             LIMIT 1) AS Name_EN,
-             (SELECT Q.CompletionDate
-                FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS QuestionnaireCompletionDate,
-			 (SELECT QC.QuestionnaireName_EN
-                FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS QuestionnaireName,
-			(SELECT CASE
+    $sqlOpal3 = "SELECT distinct P.PatientId,
+                Q.CompletionDate AS QuestionnaireCompletionDate,
+			    QC.QuestionnaireName_EN AS QuestionnaireName,
+                (CASE
                     WHEN Q.CompletionDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND NOW() THEN 1
                         ELSE 0
-                    END AS CompletedWithinLastWeek
-                FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS CompletedWithinLastWeek,
-			(SELECT CASE
+                    END) AS CompletedWithinLastWeek,
+			    (CASE
                     WHEN Q.LastUpdated BETWEEN :qDate AND NOW() THEN 1
                         ELSE 0
-                    END AS RecentAnswered
-                FROM Questionnaire Q
-				Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
-				AND Q.CompletedFlag = 1
-				$qappFilter
-				where Q.PatientSerNum = P.PatientSerNum
-				ORDER BY Q.CompletionDate DESC
-				LIMIT 1) AS RecentAnswered
-            FROM Patient P";
+                    END) AS RecentAnswered
+                FROM Patient P
+                Inner join Questionnaire Q ON Q.PatientSerNum = P.PatientSerNum
+                Inner JOIN QuestionnaireControl QC ON QC.QuestionnaireControlSerNum = Q.QuestionnaireControlSerNum
+                Where Q.CompletedFlag = 1
+                $qappFilter
+                ORDER BY Q.CompletionDate DESC";
 
     $queryOpal3 = $dbOpal->prepare($sqlOpal3);
 
@@ -280,10 +233,8 @@ if(!$afilter) {
         if (isset($row["ssnExp"]) && $row["ssnExp"] !== NULL) $row["ssnExp"] = (new DateTime($row["ssnExp"]))->format("ym");
         $row["ScheduledTime"] = substr($row["ScheduledTime"], 0, -3);
 
-        $queryOpal->execute(array(":uid" => $row["PatientId"], ":qDate" => $qDate, ":uid2" => $row["PatientId"]));
+        $queryOpal->execute(array( ":qDate" => $qDate, ":uid" => $row["PatientId"]));
         $resultOpal = $queryOpal->fetchAll()[0] ?? [];
-
-        $row["Diagnosis"] = !empty($resultOpal["Name_EN"]) ? $resultOpal["Name_EN"] : "";
         $row["QuestionnaireName"] = !empty($resultOpal["QuestionnaireName"]) ? $resultOpal["QuestionnaireName"] : "";
         if ($row["SMSAlertNum"]) $row["SMSAlertNum"] = substr($row["SMSAlertNum"], 0, 3) . "-" . substr($row["SMSAlertNum"], 3, 3) . "-" . substr($row["SMSAlertNum"], 6, 4);
 
@@ -314,7 +265,7 @@ if(!$afilter) {
             array_push($mrnList, $row["PatientId"]);
         }
 
-        if (($appdType === "all" || in_array($row["Diagnosis"], explode(",", $dspecificApp))) && ($recentlyAnswered == 1 || $offbutton == "OFF"||$qfilter||$andbutton=='Or') && ($qType === "all" || $answeredQuestionnaire)) {
+        if (($appdType === "all" || checkDiagnosis($row["PatientSerNum"],explode(",",$dspecificApp))) && ($recentlyAnswered == 1 || $offbutton == "OFF"||$qfilter||$andbutton=='Or') && ($qType === "all" || $answeredQuestionnaire)) {
             $listOfAppointments[] = [
                 "fname" => $row["FirstName"],
                 "lname" => $row["LastName"],
@@ -334,7 +285,6 @@ if(!$afilter) {
                 "createdToday" => new DateTime($row["CreationDate"]) == new DateTime("midnight"),
                 "referringPhysician" => $row["ReferringPhysician"],
                 "mediStatus" => $row["MedivisitStatus"],
-                "diagnosis" => $row["Diagnosis"],
                 "QStatus" => $row["QStatus"],
                 "opalpatient" => $row["OpalPatient"],
                 "SMSAlertNum" => $row["SMSAlertNum"],
@@ -371,7 +321,7 @@ if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($que
         ) $row2["QStatus"] = "red-circle";
 
         if (($appdType === "all" || $row2["Name_EN"]) && ($recentlyAnswered == 1 || $offbutton == "OFF") && ($qType === "all" || $row2["QuestionnaireName"]) && (!in_array($row2["PatientId"], $mrnList)) && ($resultORMS["FirstName"])
-        && ($row2["QuestionnaireCompletionDate"])) {
+        && ($row2["QuestionnaireCompletionDate"])&&($appdType === "all" || checkDiagnosis($resultORMS["PatientSerNum"],explode(",",$dspecificApp)))) {
 
             $listOfAppointments[] = [
                 "fname" => $resultORMS["FirstName"],
@@ -392,7 +342,6 @@ if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($que
                 "createdToday" => NULL,
                 "referringPhysician" => $row2["ReferringPhysician"],
                 "mediStatus" => $row2["MedivisitStatus"],
-                "diagnosis" => $row2["Name_EN"],
                 "QStatus" => $row2["QStatus"],
                 "opalpatient" => $resultORMS["OpalPatient"],
                 "SMSAlertNum" => $resultORMS["SMSAlertNum"],
@@ -405,6 +354,15 @@ if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($que
 $listOfAppointments = utf8_encode_recursive($listOfAppointments);
 echo json_encode($listOfAppointments);
 
+function checkDiagnosis($patientId, $diagnosisList){
+    $list =  DiagnosisInterface::getDiagnosisListForPatient((int)$patientId);
+    foreach($list as $d){
+        if(in_array(((array)((array)$d)["diagnosis"])["subcode"],$diagnosisList)){
+            return true;
+        }
+    }
+    return false;
+}
 
 exit;
 

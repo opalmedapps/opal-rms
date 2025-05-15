@@ -647,7 +647,7 @@ app.factory('callScript',function($http,$q)
             }
             var diagnosis = "";
             for (i = 0; i < inputs.selecteddiagnosis.length; i++) {
-                diagnosis += ""+inputs.selecteddiagnosis[i].Name + "";
+                diagnosis += ""+inputs.selecteddiagnosis[i].subcode + "";
                 if(i< inputs.selecteddiagnosis.length-1) diagnosis += ",";
             }
 

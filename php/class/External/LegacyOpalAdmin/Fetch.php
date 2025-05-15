@@ -11,34 +11,55 @@ use Orms\DateTime;
 use Orms\External\LegacyOpalAdmin\Internal\Connection;
 use Orms\Patient\Model\Patient;
 use Orms\Config;
-use Orms\MemcachedManager;
+use Orms\Util\Encoding;
 
 class Fetch
 {
+    private static ?Memcached $memcachedInstance = null;
 
     /**
-     * Fetch the memcached instance from the Manager class and ensure a server exists
+     * Get or create a memcached object instance
      */
-    private static function getMemcachedInstance(): Memcached
-    {
-        // id for this Memcached instance
-        $memcachedManager = new MemcachedManager('legacy_oa_memcached');
-        $success = $memcachedManager->serverConnection('127.0.0.1', 11211);
-        if (!$success) {
-            throw new Exception('Could not connect to a Memcached server.');
+    private static function getMemcachedInstance(): Memcached {
+        if (self::$memcachedInstance === null) {
+            self::$memcachedInstance = new Memcached();
         }
-        return $memcachedManager->getMemcached();
+        self::serverConnection(self::$memcachedInstance, 'memcached', 11211);
+        return self::$memcachedInstance;
+    }
+
+    /**
+     * Establish a connection to a server matching the request parameters, or return True if an existing one is found
+     */
+    private static function serverConnection(Memcached $memcached, string $host, int $port): bool {
+        $servers = $memcached->getServerList();
+        if (is_array($servers)) {
+            foreach ($servers as $server) {
+                if ($server['host'] === $host && $server['port'] === $port) {
+                    return true;
+                }
+            }
+        }
+    
+        $success = $memcached->addServer($host, $port);
+        if (!$success) {
+            error_log('Failed to add server: ' . $memcached->getResultMessage());
+        }
+    
+        return $success;
     }
     
+    /**
+     * Get or set a LegacyOA cookie for system api calls
+     */
     private static function getOrSetOACookie(): ?string
     {
         $memcached = self::getMemcachedInstance();
         $cookieKey = 'legacy_oa_cookie';
         $oaCookie = $memcached->get($cookieKey);
-
         if (!$oaCookie) {
             // No cookie in cache, log in and set it
-            $oaCookie = self::loginToLegacyOpalAdmin(); // Ensure this method exists and is correct
+            $oaCookie = self::loginToLegacyOpalAdmin();
             if (!$oaCookie) {
                 throw new Exception('Could not perform system login to the LegacyOpalAdmin.');
             }
@@ -62,10 +83,9 @@ class Fetch
                 'password' => $config->opalAdminPassword,
             ]
         ]);
-        
         $set_cookie = null;
-        
         if ($response !== null && $response->getStatusCode() === 200) {
+
             $set_cookie = $response->getHeaderLine('Set-Cookie') ?? null;
             if ($set_cookie) {
                 // Store the cookie in Memcached for 24 minutes to match the default php maxlifetime in LegacyOA

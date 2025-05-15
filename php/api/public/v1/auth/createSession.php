@@ -52,7 +52,6 @@ if (
             "path" => $cookieDict["Path"],
             "domain" => $cookieDict["Domain"],
             "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $cookieDict["Expires"]),
-            // "secure" => $cookieDict["HttpOnly"],
             "samesite" => $cookieDict["SameSite"],
         ];
     }

@@ -31,7 +31,7 @@
     "highcharts-ng": "1.2.1",
     "jquery": "3.7.1",
     "jquery-csv": "^1.0.21",
-    "jquery-ui-dist": "1.12.1",
+    "jquery-ui-dist": "1.13.3",
     "ng-table": "3.0.1",
     "popper.js": "1.16.1",
     "swagger-ui-dist": "^4.1.2",

@@ -18,7 +18,7 @@ use Orms\System\Logger;
 
 
 try {
-    $opalAdminHost = Config::getApplicationSettings()->environment->opalAdminHost;
+    $opalAdminHost = Config::getApplicationSettings()->environment->legacyOpalAdminHostExternal;
     $sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
 
     $response = Authentication::validate($sessionid);

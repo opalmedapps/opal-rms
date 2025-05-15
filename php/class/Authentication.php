@@ -30,7 +30,7 @@ class Authentication
             ],
         );
         $statusCode = $response->getStatusCode(); 
-        $error = ($statusCode != 200) ? "Authentication failure" : "";
+        $error = ($statusCode != 200 && isset($content["key"]) && isset($response->getHeaders()["Set-Cookie"]))? "Authentication failure" : "";
         Logger::logLoginEvent($username,$username,$statusCode,$error);
 
         return $response;

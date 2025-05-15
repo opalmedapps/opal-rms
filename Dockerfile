@@ -27,6 +27,10 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         libmemcached-dev \
         apache2-dev \
+        # Install latexmk
+        latexmk \
+        # Install texlive-latex-extra that contains missing xcolor and lastpage packages
+        texlive-latex-extra \
     # cleaning up unused files
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
@@ -59,12 +63,11 @@ RUN ln -sf /dev/stdout /var/log/apache2/error.log \
 COPY ./docker/app/ssl.conf /etc/apache2/sites-enabled
 COPY ./docker/app/hardwareIpList.list /etc/apache2/
 
-# Install pdflatex and tex packages
-
 WORKDIR /var/www/orms
 
 # Parent needs to be owned by www-data to satisfy npm
-RUN chown -R www-data:www-data /var/www/
+RUN chown -R www-data:www-data /var/www/ \
+    && chown -R www-data:www-data /var/log/
 
 USER www-data
 

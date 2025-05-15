@@ -31,6 +31,9 @@
     "phpstan/phpstan",
     "vimeo/psalm",
     "friendsofphp/php-cs-fixer",
+    "angular-datatables",
+    "jquery",
+    "datatables.net",
   ],
   "packageRules": [
     // Change commit type to build for Docker-related updates

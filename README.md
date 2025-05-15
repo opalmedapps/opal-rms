@@ -309,3 +309,10 @@ In addition to appending a `!` after the type/scope in the commit message header
 ## Profile system notes
 
 * When adding a new column type, run the php/tool/verifyProfileColumns script right after
+
+## Branding
+
+This project, when deployed out of the box, includes generic logos and other branding references.
+To apply your own branding, search the repository globally for the key word `BRANDING`.
+This will identify all instances of logos, names, etc. that should be replaced to reflect your brand identity.
+Note: most of the branding elements can be configured by editing the `VirtualWaitingRoom/js/config.js` file.

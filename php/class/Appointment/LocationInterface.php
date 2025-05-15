@@ -6,8 +6,11 @@ namespace Orms\Appointment;
 
 use Orms\DataAccess\AppointmentAccess;
 use Orms\DateTime;
-use Orms\External\Backend\Export;
+use Orms\External\Backend\Export as BackendExport;
+use Orms\External\SourceSystem\Export as SourceSystemExport;
 use Orms\Patient\Model\Patient;
+
+use Orms\Config;
 
 class LocationInterface
 {
@@ -16,6 +19,9 @@ class LocationInterface
      */
     public static function movePatientToLocation(Patient $patient, string $room, int $appointmentId = null, string $checkin_type): void
     {
+        // load environment configurations
+        $config = Config::getApplicationSettings()->environment;
+
         //get the list of appointments that the patient has today
         //only open appointments can be updated
         $appointments = AppointmentAccess::getOpenAppointments((new DateTime())->modify("midnight"),(new DateTime())->modify("tomorrow")->modify("-1 ms"),$patient->id);
@@ -28,7 +34,12 @@ class LocationInterface
 
             //also export the appointment to opal if the appointment originated in orms
             if ($checkin_type !== "APP" && $patient->opalStatus === 1){
-                Export::exportPatientCheckin($patient,$app["sourceId"], $app["sourceSystem"]);
+                BackendExport::exportPatientCheckin($patient,$app["sourceId"], $app["sourceSystem"]);
+            }
+
+            // export appointment location to source system if enabled && appointment came from Aria
+            if ($checkin_type !== "APP" && $app["sourceSystem"] === "Aria" && $config->sourceSystemSupportsCheckin){
+                SourceSystemExport::exportPatientLocation($app["sourceId"], $room);
             }
             
         }

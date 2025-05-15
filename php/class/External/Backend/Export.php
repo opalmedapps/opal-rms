@@ -15,10 +15,17 @@ class Export
     public static function exportPatientCheckin(Patient $patient,string $sourceId, string $sourceSystem): void
     {
         try {
+            // Convert string sourceSystem to OpalDB.SourceDatabase.SourceDatabaseSerNum
+            $source_database = Connection::SOURCE_SYSTEM_MAPPING[strtoupper($sourceSystem)];
+            if ($source_database === null) {
+                trigger_error("Unknown source system: $sourceSystem", E_USER_WARNING);
+                return; // Early exit if mapping is not found
+            }
+
             Connection::getHttpClient()?->request("POST", Connection::PATIENT_APPOINTMENT_CHECKIN, [
                 "json" => [
                     "source_system_id"      => $sourceId,
-                    "sourceSystem"          => $sourceSystem,
+                    "source_database"       => $source_database,
                     "checkin"               => 1,
                 ],
                 "timeout" => 10

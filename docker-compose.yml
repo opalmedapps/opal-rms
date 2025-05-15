@@ -1,6 +1,6 @@
 services:
   memcached:
-    image: memcached:1.6.19-alpine3.17
+    image: memcached:1.6.19-alpine3.18
     environment:
       - TZ=EST5EDT
 

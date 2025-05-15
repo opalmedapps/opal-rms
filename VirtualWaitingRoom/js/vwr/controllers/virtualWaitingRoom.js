@@ -88,10 +88,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=================================================
     // Get anonymous mode value
     //=================================================
-    if(sessionStorage.getItem("anonymous")) {
-        $scope.anonymous = sessionStorage.getItem("anonymous") === 'true';
-    }
-    else $scope.anonymous = false;
+    $scope.anonymous = sessionStorage.getItem("anonymous") === 'true';
 
     //=================================================
     // Get any images that will be needed
@@ -882,13 +879,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     // anonymous button functionality
     //-------------------------------------
     $scope.anonymousMode = function(){
-        if(!$scope.anonymous) {
-            $scope.anonymous = true;
-            sessionStorage.setItem("anonymous", $scope.anonymous)
-        }
-        else{
-            $scope.anonymous = false;
-            sessionStorage.setItem("anonymous", $scope.anonymous)
-        }
+        $scope.anonymous = !$scope.anonymous;
+        sessionStorage.setItem("anonymous", $scope.anonymous);
     };
 });

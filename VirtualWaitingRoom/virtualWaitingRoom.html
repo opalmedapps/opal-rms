@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <title>Virtual Waiting Room</title>
+<base href="/orms/">
 
 <!-- angular app will be bootstapped inside the scripts -->
 
@@ -108,7 +109,7 @@
                     <md-button class="md-primary" ng-if="patientLoadingEnabled && resourceLoadingEnabled" ng-click="openLegendDialog()"><b>Show Legend</b></md-button>
                     <br>
                     <span>
-                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="./images/waiting.gif"></img>
+                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="images/waiting.gif"></img>
                         <span ng-if="patientLoadingEnabled && resourceLoadingEnabled" class="btn-group">
                             <label ng-model="pageSettings.SelectedRowTypes.CheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.CheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Checked In</label>
                             <label ng-model="pageSettings.SelectedRowTypes.NotCheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.NotCheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Scheduled</label>

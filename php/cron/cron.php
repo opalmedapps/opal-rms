@@ -15,10 +15,8 @@ $reloadConfigs = function(): Config
 };
 
 $configs = Config::getApplicationSettings();
-if (!is_dir(__DIR__."/../../tmp/stores")) {
-    mkdir(__DIR__."/../../tmp/stores", 0777, true);
-}
-$flock = new FlockStore(__DIR__."/../../tmp/stores"); //use a lockstore for the second based crons as crunz sometimes creates duplicate processes
+//use a lockstore for the second based crons as crunz sometimes creates duplicate processes
+$flock = new FlockStore(__DIR__."/../../tmp/stores"); 
 $schedule = new Schedule();
 
 $schedule->run(function() use ($configs,$reloadConfigs) {

@@ -13,12 +13,16 @@ FIREBASE_SECRET                 =
 
 HIGHCHARTS_URL                  =
 
+NEW_OPAL_ADMIN_URL              = 'http://127.0.0.1:8000'
+
 [system]
 SEND_WEIGHTS                    =
 VWR_CRON_ENABLED                =
 SMS_REMINDER_CRON_ENABLED       =
 INCOMING_SMS_CRON_ENABLED       =
 EMAIL[]                         =
+NEW_OPAL_ADMIN_USERNAME         = 'admin'
+NEW_OPAL_ADMIN_PASSWORD         = '123456'
 
 [database]
 ORMS_HOST                       =

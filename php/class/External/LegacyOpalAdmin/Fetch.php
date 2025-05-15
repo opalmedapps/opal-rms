@@ -297,21 +297,18 @@ class Fetch
         $cookie = self::getOrSetOACookie();
 
         $lastCompletedQuestionnaires = [];
-
         // Post params must be a form parameter list of mrn site pairs
         $postParams = [];
         foreach ($patients as $index => $p) {
-            $activeMrn = $p->getActiveMrns()[0];
-            $postParams[] = new \GuzzleHttp\Psr7\Query(
-                $index . '[site]',
-                $activeMrn->site
-            );
-            $postParams[] = new \GuzzleHttp\Psr7\Query(
-                $index . '[mrn]',
-                $activeMrn->mrn
-            );
+            $activeMrn = $p->getActiveMrns()[0] ?? null;
+            if ($activeMrn) {
+                $postParams[$index . '[site]'] = $activeMrn->site;
+                $postParams[$index . '[mrn]'] = $activeMrn->mrn;
+            } else {
+                // Handle the case where no active MRN is found
+                error_log("No active MRN found for patient index: $index");
+            }
         }
-
         $response = Connection::getHttpClient()?->request(
             'POST',
             Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED,
@@ -323,7 +320,6 @@ class Fetch
             ]
         )?->getBody()?->getContents() ?? '[]';
         $response = json_decode($response, true);
-
         // Transform the response
         foreach ($patients as $index => $p) {
             $r = ($response[$index] ?? null) ?: null; // Response for an individual patient may be false if the patient has no questionnaires

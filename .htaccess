@@ -16,6 +16,7 @@ ErrorDocument 401 "/orms/auth/login.html"
 # use memcache for authentication
 Require valid-user
 
+# For authentication use sessionid cookie that is coming from new opalAdmin (Django)
 Auth_memCookie_CookieName sessionid
 Auth_memCookie_Memcached_Configuration --server=memcached:11211
 Auth_memCookie_SilmulateAuthBasic on

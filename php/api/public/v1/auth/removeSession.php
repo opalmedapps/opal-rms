@@ -8,8 +8,7 @@ use Orms\Authentication;
 use Orms\Http;
 use Orms\Util\Encoding;
 
-//logout from the ORMS
-//call the API endpoint to flush the session in the opalAdmin backend
+// Logout from ORMS. Call Opaladmin V2 endpoint to flush the session
 
 try {
     $fields = Http::parseApiInputs('v1');

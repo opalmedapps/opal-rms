@@ -794,9 +794,9 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     // Open the wearable charts modal dialog
     //=========================================================================
-    $scope.showWearableDataCharts = async function(wearablesURL)
+    $scope.showWearableDataCharts = async function(wearablesURL, patientUUID)
     {
-        WearableCharts.showWearableDataCharts(wearablesURL);
+        WearableCharts.showWearableDataCharts(wearablesURL, patientUUID);
     }
 
     //-------------------------------------

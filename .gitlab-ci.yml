@@ -1,4 +1,4 @@
-# dummy stages to follow the template guidelines
+# dummy stages to follow the AutoDevOps template guidelines
 stages:
   - build
   - test
@@ -18,7 +18,8 @@ stages:
 
 
 include: 
-  - template: Auto-DevOps.gitlab-ci.yml
+  - project: 'opalmedapps/engineering/ci-templates'
+    file: '/templates/autodevops/Auto-DevOps.gitlab-ci.yml'
   - component: $CI_SERVER_FQDN/opalmedapps/engineering/ci-templates/check-thirdparty-notice@main
     inputs:
       package-file: package.json

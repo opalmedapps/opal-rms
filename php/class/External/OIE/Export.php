@@ -12,25 +12,6 @@ use Orms\Patient\Model\Patient;
 
 class Export
 {
-    public static function exportPatientLocation(Patient $patient,string $sourceId, string $sourceSystem, string $room): void
-    {
-        try {
-            Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_LOCATION, [
-                "json" => [
-                    "room"          => $room,
-                    "mrn"           => $patient->getActiveMrns()[0]->mrn,
-                    "site"          => $patient->getActiveMrns()[0]->site,
-                    "sourceId"      => $sourceId,
-                    "sourceSystem"  => $sourceSystem,
-                ],
-                "timeout" => 10
-            ]);
-        }
-        catch(\Exception $e) {
-            trigger_error($e->getMessage() ."\n". $e->getTraceAsString(), E_USER_WARNING);
-        }
-    }
-
     public static function exportAppointmentCompletion(string $sourceId, string $sourceSystem): void
     {
         try {

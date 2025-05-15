@@ -34,7 +34,7 @@ $photoOk = null;
 $nextAppointment = $appointments[0] ?? null;
 
 if($nextAppointment !== null) {
-    LocationInterface::movePatientToLocation($patient,$room);
+    LocationInterface::movePatientToLocation($patient,$room, null, "KIOSK");
 
     if($nextAppointment["sourceSystem"] === "Aria") {
         $photoOk = Fetch::checkAriaPhotoForPatient($patient);

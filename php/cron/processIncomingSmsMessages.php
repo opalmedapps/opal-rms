@@ -115,6 +115,6 @@ foreach($messages as $message)
     $appointmentString = preg_replace("/\n\n----------------$/", "", $appointmentString) ?? ""; //remove last separator newline
 
     //check the patient into all of his appointments
-    LocationInterface::movePatientToLocation($patient, $checkInLocation);
+    LocationInterface::movePatientToLocation($patient, $checkInLocation, null, "SMS");
     SmsInterface::sendSms($message->clientNumber, $appointmentString, $message->serviceNumber);
 }

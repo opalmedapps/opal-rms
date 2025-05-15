@@ -14,8 +14,7 @@ use GuzzleHttp\Exception\ConnectException;
 use Orms\DataAccess\ReportAccess;
 use Orms\DateTime;
 use Orms\Diagnosis\DiagnosisInterface;
-use Orms\External\OIE\Fetch;
-use Orms\External\LEGACY_OA\Fetch as FetchOA;
+use Orms\External\LEGACY_OA\Fetch;
 use Orms\Http;
 use Orms\Patient\PatientInterface;
 use Orms\Util\Encoding;
@@ -88,7 +87,7 @@ if($afilter === false)
 
     //fetch questionnaire data for opal patients
     try {
-        $lastCompletedQuestionnaires = FetchOA::getLastCompletedQuestionnaireForPatients($patients);
+        $lastCompletedQuestionnaires = Fetch::getLastCompletedQuestionnaireForPatients($patients);
     }
     catch(Exception $e) {
         $lastCompletedQuestionnaires = [];
@@ -141,7 +140,7 @@ if($afilter === false)
 
             //check if any of a patient's questionnaires are in the user selected questionnaire list
             try {
-                $patientQuestionnaires = array_column(FetchOA::getListOfCompletedQuestionnairesForPatient($patient), "questionnaireId");
+                $patientQuestionnaires = array_column(Fetch::getListOfCompletedQuestionnairesForPatient($patient), "questionnaireId");
             }
             catch(Exception $e) {
                 $patientQuestionnaires = [];
@@ -188,7 +187,7 @@ if($andbutton === "Or" || ($qfilter === false && $afilter === true))
     $qappFilter = ($qType === "all") ? [] : explode(",", $qspecificApp);
     $qappFilter = array_map(fn($x) => (int) $x, $qappFilter);
 
-    $patients = FetchOA::getPatientsWhoCompletedQuestionnaires($qappFilter);
+    $patients = Fetch::getPatientsWhoCompletedQuestionnaires($qappFilter);
 
     $seenPatients = array_unique(array_column($listOfAppointments,"patientId"));
 

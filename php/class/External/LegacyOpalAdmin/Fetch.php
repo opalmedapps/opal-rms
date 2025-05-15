@@ -11,37 +11,42 @@ use Orms\DateTime;
 use Orms\External\LegacyOpalAdmin\Internal\Connection;
 use Orms\Patient\Model\Patient;
 use Orms\Config;
+use Orms\MemcachedManager;
 
 class Fetch
 {
-    /**
-     * Get a Memcached instance for storing the LegacyOA API cookie
-     */
-    private static function getMemcached(): Memcached
-    {
-        $memcached = new Memcached();
-        $memcached->addServer('memcached', 11211);
-        return $memcached;
-    }
 
     /**
-     * Retrieve a cached API cookie or login to OA via system login endpoint
+     * Fetch the memcached instance from the Manager class and ensure a server exists
      */
+    private static function getMemcachedInstance(): Memcached
+    {
+        // id for this Memcached instance
+        $memcachedManager = new MemcachedManager('legacy_oa_memcached');
+        $success = $memcachedManager->serverConnection('127.0.0.1', 11211);
+        if (!$success) {
+            throw new Exception('Could not connect to a Memcached server.');
+        }
+        return $memcachedManager->getMemcached();
+    }
+    
     private static function getOrSetOACookie(): ?string
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-      
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-            if(!$cookie){
-                throw new Exception('Could not perform system login to the LegacyOpalAdmin');
-            }
-        }
-        return $cookie;
-    }
+        $memcached = self::getMemcachedInstance();
+        $cookieKey = 'legacy_oa_cookie';
+        $oaCookie = $memcached->get($cookieKey);
 
+        if (!$oaCookie) {
+            // No cookie in cache, log in and set it
+            $oaCookie = self::loginToLegacyOpalAdmin(); // Ensure this method exists and is correct
+            if (!$oaCookie) {
+                throw new Exception('Could not perform system login to the LegacyOpalAdmin.');
+            }
+            $memcached->set($cookieKey, $oaCookie, 1440); // 24-minute expiry
+        }
+
+        return $oaCookie;
+    }
     /**
      *  Credentialled system login to the legacy OpalAdmin API, retrieve and store Cookie for future API requests.
      */
@@ -65,7 +70,7 @@ class Fetch
             if ($set_cookie) {
                 // Store the cookie in Memcached for 24 minutes to match the default php maxlifetime in LegacyOA
                 // https://stackoverflow.com/a/1516338
-                $memcached = self::getMemcached();
+                $memcached = self::getMemcachedInstance();
                 $memcached->set('legacy_oa_cookie', $set_cookie, 1440);
             }
         }

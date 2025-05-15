@@ -154,8 +154,7 @@ $sql = "
         MV.MedivisitStatus,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
         Patient.OpalPatient,
-        Patient.SMSAlertNum,
-        Patient.ClinicalActionStatus
+        Patient.SMSAlertNum
     FROM
         Patient
         INNER JOIN MediVisitAppointmentList MV ON MV.PatientSerNum = Patient.PatientSerNum
@@ -242,8 +241,7 @@ if($andbutton == "Or"||(!$qfilter &&$afilter)) {
         Patient.SSN,
         (SELECT DATE_FORMAT(MAX(TEMP_PatientQuestionnaireReview.ReviewTimestamp),'%Y-%m-%d %H:%i') FROM TEMP_PatientQuestionnaireReview WHERE TEMP_PatientQuestionnaireReview.PatientSer = Patient.PatientSerNum) AS LastQuestionnaireReview,
         Patient.OpalPatient,
-        Patient.SMSAlertNum,
-        Patient.ClinicalActionStatus
+        Patient.SMSAlertNum
         FROM Patient
         WHERE Patient.PatientId = :uid";
 
@@ -347,7 +345,6 @@ if(!$afilter) {
                 "opalpatient" => $row["OpalPatient"],
                 "SMSAlertNum" => $row["SMSAlertNum"],
                 "LastReview" => $row["LastQuestionnaireReview"],
-                "CAStatus" => $row["ClinicalActionStatus"],
             ];
         }
     }
@@ -406,7 +403,6 @@ if(($andbutton=="Or"||(!$qfilter &&$afilter)) && isset($queryOpal3)&& isset($que
                 "opalpatient" => $resultORMS["OpalPatient"],
                 "SMSAlertNum" => $resultORMS["SMSAlertNum"],
                 "LastReview" => $resultORMS["LastQuestionnaireReview"],
-                "CAStatus" => $resultORMS["ClinicalActionStatus"],
             ];
         }
     }

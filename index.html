@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <tbody>
         <tr style="font-family: Helvetica,Arial,sans-serif;">
         <td colspan="10" style="vertical-align: center; background-color: rgb(255,254,244);">
-            <center><img src="{{rmsLogo}}" alt="MUHC logo" border="0" width="40%"></center></td>
+            <center><img ng-src="{{rmsLogo}}" alt="ORMS logo" border="0" width="40%"></center></td>
         </tr>
 
         <tr style="font-family: Helvetica,Arial,sans-serif;">
@@ -102,7 +102,7 @@ app.controller('main', function($scope, $http, $cookies, $location, $mdDialog, $
     $scope.site       = $cookies.get("hospitalCode");
 
     $scope.rmsLogo    = CONFIG.BRANDING_RMS_LOGO_PATH;
-
+    
     // show the "speciality" (sic!) selection if any of the cookies is missing
     if (!$scope.speciality || !$scope.hub || !$scope.hubName || !$scope.site) {
         showSpecialitySelection();

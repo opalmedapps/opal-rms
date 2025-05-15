@@ -68,7 +68,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             <table border=0 class="table" style="width: 100%">
                 <tr>
                     <td align="center" valign="center"></td>
-                    <td width="15%"><img src="{{rmsLogo}}" width="100%"></td>
+                    <td width="15%"><img ng-src="{{rmsLogo}}" width="100%"></td>
                     <td align="center" valign="center">
                         <center>
                             <h2 align="center" style="margin-left:10%; margin-right:15%"><b>{{pageSettings.ProfileId}} - Virtual Waiting Room</b><br></h2>
@@ -99,7 +99,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                 </div>
 
                 <div class="option-holder-div">
-                    <button type="button" ng-class="anonymous ? 'btn btn-danger' : 'btn btn-sr'"
+                    <button type="button" ng-class="anonymous ? 'btn btn-danger' : 'btn btn-light'"
                         ng-click="anonymousMode()" style="margin-left:2%">
                     {{ anonymous ? 'Nominal Mode': 'Anonymous Mode'}}
                 </div>

@@ -39,8 +39,12 @@ SPDX-License-Identifier = "LicenseRef-OpalTrademarks"
 [[annotations]]
 path = [
     "images/BRANDING_your_logo_here.png",
+    "images/Opal_RMS_logo.png",
     "VirtualWaitingRoom/images/BRANDING_banner_your_product_name.png",
     "VirtualWaitingRoom/images/BRANDING_customize_watermark_background.png",
+    "VirtualWaitingRoom/images/Banner_treatments.png",
+    "VirtualWaitingRoom/images/background.jpg",
+    "VirtualWaitingRoom/images/Opal_logo.png",
     "VirtualWaitingRoom/images/OHIG_team.jpg",
     "VirtualWaitingRoom/images/Opal_awards.png",
     "VirtualWaitingRoom/images/Opal_components.png",

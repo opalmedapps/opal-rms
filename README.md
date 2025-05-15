@@ -325,9 +325,9 @@ In addition to appending a `!` after the type/scope in the commit message header
 
 ## Branding
 
-This project, when deployed out of the box, includes generic logos and other branding references.
+This project includes Opal logos and other branding references.
 To apply your own branding, search the repository globally for the key word `BRANDING`.
-This will identify all instances of logos, names, etc. that should be replaced to reflect your brand identity.
+This will identify most instances of logos, names, etc. that should be replaced to reflect your brand identity.
 Note: most of the branding elements can be configured by editing the `VirtualWaitingRoom/js/config.js` file.
 Only two files must be updated manually: `VirtualWaitingRoom/js/vwr/templates/legendDialog.htm` and
-`VirtualWaitingRoom/js/vwr/templates/legendDialogClinicalViewer.htm` (refer to `BRANDING_YOUR_APP_LOGO`).
+`VirtualWaitingRoom/js/vwr/templates/legendDialogClinicalViewer.htm`.

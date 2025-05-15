@@ -97,7 +97,8 @@ composer install
 
 For testing `Clinical Viewer` and `Virtual Waiting Room` locally:
 
-* Set `OpalUUID` field in the `Patient` table. The value should be copied from the `Patient.UUID` field in the `django-backend`.
+* Set `OpalUUID` field in the `Patient` table. The value should be copied from the `Patient.UUID` field in the `django-backend`
+* Set `OpalPatient` field in the `Patient` table to `1`
 * Create a record in the `MediVisitAppointmentList` table. For example:
 
 ```text
@@ -127,7 +128,8 @@ To see the appointment on the `Virtual Waiting Room` page:
 
 For testing the weight PDFs locally:
 
-* In the `.env`, set `SEND_WEIGHTS=1`
+* In the `.env`, set `SEND_WEIGHTS=1` and `VWR_CRON_ENABLED=1`
+* Copy and rename `config/crunz.yml.template` to `config/crunz.yml`. Then edit the required fields
 * In the `orms` database, update existing record in the `Hospital` table by setting `HospitalCode` field to `RVH`
 * In the `php/class/External/OIE/Export.php` file, add the following line before the line that makes OIE call (e.g., `Connection::getHttpClient()?->request("POST", Connection::API_MEASUREMENT_PDF, [`:
 

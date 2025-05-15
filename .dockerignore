@@ -28,6 +28,10 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 
+# node
+node_modules
+npm-debug.log
+
 # composer
 vendor
 

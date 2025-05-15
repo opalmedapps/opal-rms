@@ -31,7 +31,8 @@ class Config
     public static function __init(): void
     {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
-        $dotenv->load();
+        // don't fail if the .env file is not there
+        $dotenv->safeload();
 
         // Ensure that the following environment variables are set
         $dotenv->required('BASE_PATH')->notEmpty();
@@ -58,7 +59,7 @@ class Config
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
-        $dotenv->required('DATABASE_USE_SSL')->isInteger();
+        $dotenv->required('DATABASE_USE_SSL')->isBoolean();
         $dotenv->required('SSL_CA')->notEmpty();
 
         $_ENV = self::_parseData($_ENV);
@@ -95,7 +96,7 @@ class Config
             databaseName:   $_ENV["ORMS_DATABASE_NAME"],
             username:       $_ENV["ORMS_DATABASE_USER"],
             password:       $_ENV["ORMS_DATABASE_PASSWORD"],
-            usessl:         $_ENV["DATABASE_USE_SSL"],
+            usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
             sslca:          $_ENV["SSL_CA"],
         );
 
@@ -105,7 +106,7 @@ class Config
             databaseName:   $_ENV["LOG_DATABASE_NAME"],
             username:       $_ENV["LOG_DATABASE_USER"],
             password:       $_ENV["LOG_DATABASE_PASSWORD"],
-            usessl:         $_ENV["DATABASE_USE_SSL"],
+            usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
             sslca:          $_ENV["SSL_CA"],
         );
 
@@ -198,7 +199,7 @@ class DatabaseConfig
         public string $databaseName,
         public string $username,
         public string $password,
-        public int $usessl,
+        public bool $usessl,
         public string $sslca
     ) {}
 }

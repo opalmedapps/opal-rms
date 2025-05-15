@@ -175,6 +175,21 @@ class SystemConfig
         public string $newOpalAdminUrl,
         public string $newOpalAdminToken
     ) {}
+
+    /**
+     * Function to build wearables URL based on the given $opalUUID parameter
+     * @param string|null $opalUUID
+     * @return string|null
+     */
+    public function getWearablesURL(?string $opalUUID): ?string
+    {
+        if (empty($opalUUID)) return NULL;
+
+        return $this->newOpalAdminUrl
+        . '/health-data/'
+        . $opalUUID
+        . '/quantity-samples/';
+    }
 }
 
 /** @psalm-immutable */

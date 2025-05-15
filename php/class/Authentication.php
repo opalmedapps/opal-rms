@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use Memcached;
 use Orms\System\Logger;
 use Orms\Config;
+use Orms\Http;
 use Psr\Http\Message\ResponseInterface;
 
 class Authentication
@@ -39,17 +40,25 @@ class Authentication
         $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/validate/';
         //check if the session id is valid in the opalAdmin backend
         $client = new Client();
-        $response = $client->request(
-            "GET",
-            $authUrl,
-            [
-                'headers' => [
-                    'Cookie' => 'sessionid='.$sessionid,
+        try {
+            $response = $client->request(
+                "GET",
+                $authUrl,
+                [
+                    'headers' => [
+                        'Cookie' => 'sessionid='.$sessionid,
+                    ],
                 ],
-            ],
-        );
-
-        return $response;
+            );
+    
+            return $response;
+        }
+        catch(Exception $e) {
+            Http::generateResponseJsonAndExit(
+                httpCode: 406,
+                error: $e->getMessage()
+            );
+        }
     }
 
     /**

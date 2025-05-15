@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Fetches and returns a gragh compatible json object containing a patient's measurements
+// Fetches and returns a graph compatible json object containing a patient's measurements
 
 require_once __DIR__ ."/../../../../../../vendor/autoload.php";
 

@@ -99,7 +99,7 @@ app.controller('main', function($scope,$http,$cookies,$location,$window)
         $cookies.remove("clinicHubId", {path: "/"});
         $cookies.remove("clinicHubName", {path: "/"});
         $cookies.remove("hospitalCode", {path: "/"});
-        $window.location.href = $location.absUrl();
+        $window.location.reload();
     }
 });
 

@@ -5,7 +5,7 @@
         "psr-4": {"Orms\\": "php/class/"}
     },
     "require": {
-        "twilio/sdk": "6.44.4",
+        "twilio/sdk": "7.16.2",
         "guzzlehttp/guzzle": "7.9.3",
         "ulrichsg/getopt-php": "4.0.4",
         "league/openapi-psr7-validator": "0.15.2",

@@ -15,6 +15,9 @@ $reloadConfigs = function(): Config
 };
 
 $configs = Config::getApplicationSettings();
+if (!file_exists(__DIR__."/../../tmp/stores")) {
+    mkdir(__DIR__."/../../tmp/stores", 0777, true);
+}
 $flock = new FlockStore(__DIR__."/../../tmp/stores"); //use a lockstore for the second based crons as crunz sometimes creates duplicate processes
 $schedule = new Schedule();
 

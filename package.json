@@ -26,7 +26,7 @@
     "datatables.net": "1.13.11",
     "datatables.net-buttons-dt": "1.6.1",
     "dayjs": "^1.10.6",
-    "firebase": "2.2.9",
+    "firebase": "2.4.2",
     "highcharts": "9.2.2",
     "highcharts-ng": "1.2.1",
     "jquery": "3.7.1",

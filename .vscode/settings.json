@@ -1,0 +1,7 @@
+{
+    "php.suggest.basic": false,
+    "phpcs.executablePath": "./vendor/bin/phpcs",
+    "phpcs.standard": ".php-cs-fixer.dist.php",
+    "phpcs.errorSeverity": 1,
+    "phpcs.warningSeverity": 1
+}

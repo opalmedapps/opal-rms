@@ -192,10 +192,6 @@ paths:
       description: Get a list of room hubs defined in ORMS
       tags:
         - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success
@@ -241,10 +237,6 @@ paths:
       description: Get a list of all the speciality group in the hospital
       tags:
         - hospital
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success
@@ -524,10 +516,6 @@ paths:
       description: Notify ORMS about new questionnaires answered in Opal
       tags:
         - patient
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -620,10 +608,6 @@ paths:
       description: Get a list of all the sms appointments in the system
       tags:
         - sms
-      requestBody:
-        content:
-          application/json:
-            schema: {}
       responses:
         200:
           description: Success

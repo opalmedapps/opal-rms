@@ -11,19 +11,14 @@ declare(strict_types=1);
 require __DIR__."/../../../../../vendor/autoload.php";
 
 use Orms\Authentication;
+use Orms\Config;
 use Orms\Http;
 use Orms\System\Logger;
 
 
-$sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
-$csrftoken = isset($_COOKIE["csrftoken"]) ? $_COOKIE["csrftoken"] : "";
 
-if (empty($sessionid) || empty($csrftoken))
-    // Return successful response with no ORMS cookies if sessionid and csrftoken do not exist.
-    Http::generateResponseJsonAndExit(
-        httpCode: 401,
-        error: "Missing Django's sessionid and csrftoken tokens.",
-    );
+$opalAdminHost = Config::getApplicationSettings()->environment->opalAdminHost;
+$sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
 
 $response = Authentication::validate($sessionid);
 
@@ -31,30 +26,27 @@ if (!$response || $response->getStatusCode() != 200) {
     $error = $response->getBody()->getContents();
     Logger::logLoginEvent(
         $sessionid,
-        '',
+        "",
         $response->getStatusCode(),
         $error
     );
 
-    // // Remove sessionid cookie
-    // if (isset($_COOKIE['sessionid'])) {
-    //     unset($_COOKIE['sessionid']);
-    //     setcookie(name: 'sessionid', value: '', expires_or_options: -1, path: '/');
-    // }
-
-    // Remove csrftoken cookie
-    // if (isset($_COOKIE['csrftoken'])) {
-    //     unset($_COOKIE['csrftoken']);
-    //     setcookie(name: 'csrftoken', value: '', expires_or_options: -1, path: '/');
-    // }
-
-    Http::generateResponseJsonAndExit(
-        httpCode: $response->getStatusCode(),
-        error: $error,
-    );
+    // convert 403: Authentication credentials were not provided into 401 to distinguish between not authenticated and not authorized
+    if ($response->getStatusCode() == 403 && json_decode($error, true)["detail"] == "Authentication credentials were not provided.") {
+        Http::generateResponseJsonAndExit(
+            httpCode: 401,
+            data: $opalAdminHost,
+            error: $error,
+        );
+    } else {
+        Http::generateResponseJsonAndExit(
+            httpCode: $response->getStatusCode(),
+            error: $error,
+        );
+    }
 }
 
-// If user's session successfully validated against Django backend, set user's ORMS cookies
+// If the user has a valid session in the backend, establish the ORMS session
 $content = json_decode($response->getBody()->getContents(), true);
 $username = $content["username"];
 $first_name = $content["first_name"];
@@ -63,13 +55,13 @@ $last_name = $content["last_name"];
 Authentication::createUserSession($username, $sessionid);
 Logger::logLoginEvent(
     $username,
-    $first_name . ' ' . $last_name,
+    $first_name . " " . $last_name,
     $response->getStatusCode(),
     null,
 );
 
 setcookie(
-    name: 'ormsAuth',
+    name: "ormsAuth",
     value: $sessionid,
     path: "/",
     httponly: true,

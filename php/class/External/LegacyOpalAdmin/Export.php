@@ -33,7 +33,8 @@ class Export
                     'description' => $descEn
                 ]
             ]
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
+        // TODO: Process response code
     }
 
     /**
@@ -59,7 +60,8 @@ class Export
                 'descriptionFr' => $descFr,
                 'status'        => $status
             ]
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
+        // TODO: Process response code
     }
 
     /**
@@ -70,21 +72,25 @@ class Export
     
         // TODO: OA accepts only one description field, but we can send both EN and FR
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DELETE_PATIENT_DIAGNOSIS, [
-            'headers' => [
-                'Cookie' => $cookie,
-            ],
-            'form_params' => [
-                'mrn'           => $patient->getActiveMrns()[0]->mrn,
-                'site'          => $patient->getActiveMrns()[0]->site,
-                'source'        => 'ORMS',
-                'rowId'         => $diagId,
-                'externalId'    => 'ICD-10',
-                'code'          => $diagSubcode,
-                'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
-                'descriptionEn' => $descEn,
-                'descriptionFr' => $descFr,
-                'status'        => $status
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => [
+                    'mrn'           => $patient->getActiveMrns()[0]->mrn,
+                    'site'          => $patient->getActiveMrns()[0]->site,
+                    'source'        => 'ORMS',
+                    'rowId'         => $diagId,
+                    'externalId'    => 'ICD-10',
+                    'code'          => $diagSubcode,
+                    'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
+                    'descriptionEn' => $descEn,
+                    'descriptionFr' => $descFr,
+                    'status'        => $status
+                ]
             ]
-        ])?->getBody()?->getContents() ?? '[]';
+        );
+        $responseCode = $response->getStatusCode();
+        // $responseData = json_decode($response?->getBody()?->getContents() ?: '[]', true)['data'] ?? false;
+        // TODO: Process response code
     }
 }

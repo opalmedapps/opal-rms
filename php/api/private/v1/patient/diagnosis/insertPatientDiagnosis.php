@@ -53,8 +53,5 @@ if($patient !== null) {
             "",
             $newDiag->status
         );
-    }else{
-        // TODO: Raise error if patient not registered in opal?
     }
-    
 }

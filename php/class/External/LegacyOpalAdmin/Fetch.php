@@ -11,37 +11,63 @@ use Orms\DateTime;
 use Orms\External\LegacyOpalAdmin\Internal\Connection;
 use Orms\Patient\Model\Patient;
 use Orms\Config;
+use Orms\Util\Encoding;
 
 class Fetch
 {
+    private static ?Memcached $memcachedInstance = null;
+
     /**
-     * Get a Memcached instance for storing the LegacyOA API cookie
+     * Get or create a memcached object instance
      */
-    private static function getMemcached(): Memcached
-    {
-        $memcached = new Memcached();
-        $memcached->addServer('memcached', 11211);
-        return $memcached;
+    private static function getMemcachedInstance(): Memcached {
+        if (self::$memcachedInstance === null) {
+            self::$memcachedInstance = new Memcached();
+        }
+        self::serverConnection(self::$memcachedInstance, 'memcached', 11211);
+        return self::$memcachedInstance;
     }
 
     /**
-     * Retrieve a cached API cookie or login to OA via system login endpoint
+     * Establish a connection to a server matching the request parameters, or return True if an existing one is found
+     */
+    private static function serverConnection(Memcached $memcached, string $host, int $port): bool {
+        $servers = $memcached->getServerList();
+        if (is_array($servers)) {
+            foreach ($servers as $server) {
+                if ($server['host'] === $host && $server['port'] === $port) {
+                    return true;
+                }
+            }
+        }
+    
+        $success = $memcached->addServer($host, $port);
+        if (!$success) {
+            error_log('Failed to add server: ' . $memcached->getResultMessage());
+        }
+    
+        return $success;
+    }
+    
+    /**
+     * Get or set a LegacyOA cookie for system api calls
      */
     public static function getOrSetOACookie(): ?string
     {
-        // Check memcached for pre-existing legacy OA cookie
-        $memcached = self::getMemcached();
-        $cookie = $memcached->get('legacy_oa_cookie');
-      
-        if (!$cookie) {
-            $cookie = self::loginToLegacyOpalAdmin();
-            if(!$cookie){
-                throw new Exception('Could not perform system login to the LegacyOpalAdmin');
+        $memcached = self::getMemcachedInstance();
+        $cookieKey = 'legacy_oa_cookie';
+        $oaCookie = $memcached->get($cookieKey);
+        if (!$oaCookie) {
+            // No cookie in cache, log in and set it
+            $oaCookie = self::loginToLegacyOpalAdmin();
+            if (!$oaCookie) {
+                throw new Exception('Could not perform system login to the LegacyOpalAdmin.');
             }
+            $memcached->set($cookieKey, $oaCookie, 1440); // 24-minute expiry
         }
-        return $cookie;
-    }
 
+        return $oaCookie;
+    }
     /**
      *  Credentialled system login to the legacy OpalAdmin API, retrieve and store Cookie for future API requests.
      */
@@ -51,21 +77,20 @@ class Fetch
         if($config === null) return null;
 
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_SYSTEM_LOGIN, [
-            // Login credentials for ORMs system login
+            // Login credentials for Legacy OpalAdmin system login
             'form_params' => [
                 'username' => $config->opalAdminUsername,
                 'password' => $config->opalAdminPassword,
             ]
         ]);
-        
         $set_cookie = null;
-        
         if ($response !== null && $response->getStatusCode() === 200) {
-            $set_cookie = $response->getHeaderLine('Set-Cookie') ?? null;
+
+            $set_cookie = $response->getHeaderLine('Set-Cookie');
             if ($set_cookie) {
                 // Store the cookie in Memcached for 24 minutes to match the default php maxlifetime in LegacyOA
                 // https://stackoverflow.com/a/1516338
-                $memcached = self::getMemcached();
+                $memcached = self::getMemcachedInstance();
                 $memcached->set('legacy_oa_cookie', $set_cookie, 1440);
             }
         }
@@ -112,14 +137,13 @@ class Fetch
             'headers' => [
                 'Cookie' => $cookie,
             ]
-        ])?->getBody()?->getContents() ?? '[]';
-        
-        $responseData = json_decode($response, true);
-        
-        return $responseData ? array_map(fn($x) => [
+        ])?->getBody()?->getContents() ?: '[]';
+
+        $responseData = json_decode($response, true) ?? [];
+        return array_map(fn($x) => [
             'questionnaireId' => (int) $x['ID'], 
             'name'            => (string) $x['name_EN']
-        ], $responseData) : [];
+        ], $responseData);
     }
 
     /**
@@ -136,9 +160,9 @@ class Fetch
                 'mrn'  => $patient->getActiveMrns()[0]->mrn,
                 'site' => $patient->getActiveMrns()[0]->site,
             ]
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
 
-        return json_decode($response, true)['data'] ?? false;
+        return json_decode($response ?: '[]', true)['data'] ?? false;
     }
 
     /**
@@ -161,15 +185,14 @@ class Fetch
             'form_params' => [
                 'questionnaires' => $questionnaireIds,
             ],
-        ])?->getBody()?->getContents() ?? '[]';
+        ])?->getBody()?->getContents();
 
-        $responseData = json_decode($response, true);
-
+        $responseData = json_decode($response ?: '[]', true);
         return $responseData ? array_map(fn($x) => [
             'mrn'            => (string) $x['mrn'],
             'site'           => (string) $x['site'],
-            'completionDate' => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?? throw new Exception('Invalid datetime'),
-            'lastUpdated'    => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?? throw new Exception('Invalid datetime'),
+            'completionDate' => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?: throw new Exception('Invalid datetime'),
+            'lastUpdated'    => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?: throw new Exception('Invalid datetime'),
         ], $responseData) : [];
 
     }
@@ -197,8 +220,8 @@ class Fetch
                     'mrn'  => $patient->getActiveMrns()[0]->mrn,
                     'site' => $patient->getActiveMrns()[0]->site,
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-            
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'studyId'         => (int) $x['studyId'],
                 'title'           => (string) $x['title_EN']
@@ -240,8 +263,8 @@ class Fetch
                     'mrn'  => $patient->getActiveMrns()[0]->mrn,
                     'site' => $patient->getActiveMrns()[0]->site,
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'completionDate'        => (string) $x['completionDate'],
                 'completed'             => true,
@@ -272,21 +295,18 @@ class Fetch
         $cookie = self::getOrSetOACookie();
 
         $lastCompletedQuestionnaires = [];
-
         // Post params must be a form parameter list of mrn site pairs
         $postParams = [];
         foreach ($patients as $index => $p) {
-            $activeMrn = $p->getActiveMrns()[0];
-            $postParams[] = new \GuzzleHttp\Psr7\Query(
-                $index . '[site]',
-                $activeMrn->site
-            );
-            $postParams[] = new \GuzzleHttp\Psr7\Query(
-                $index . '[mrn]',
-                $activeMrn->mrn
-            );
+            $activeMrn = $p->getActiveMrns()[0] ?? null;
+            if ($activeMrn) {
+                $postParams[$index . '[site]'] = $activeMrn->site;
+                $postParams[$index . '[mrn]'] = $activeMrn->mrn;
+            } else {
+                // Handle the case where no active MRN is found
+                error_log('No active MRN found for patient index: $index');
+            }
         }
-
         $response = Connection::getHttpClient()?->request(
             'POST',
             Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED,
@@ -296,24 +316,23 @@ class Fetch
                 ],
                 'form_params' => $postParams,
             ]
-        )?->getBody()?->getContents() ?? '[]';
-        $response = json_decode($response, true);
-
+        )?->getBody()?->getContents();
+        $response = json_decode($response ?: '[]', true);
         // Transform the response
         foreach ($patients as $index => $p) {
             $r = ($response[$index] ?? null) ?: null; // Response for an individual patient may be false if the patient has no questionnaires
             if ($r !== null) {
                 $r = [
                     'questionnaireControlId' => (int) $r['questionnaireControlId'],
-                    'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?? throw new Exception('Invalid datetime'),
-                    'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?? throw new Exception('Invalid datetime')
+                    'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?: throw new Exception('Invalid datetime'),
+                    'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?: throw new Exception('Invalid datetime')
                 ];
             }
 
             $lastCompletedQuestionnaires[$p->id] = $r;
         }
 
-        return $lastCompletedQuestionnaires ?? [];
+        return $lastCompletedQuestionnaires;
 
     }
 
@@ -346,8 +365,8 @@ class Fetch
                     'site' => $patient->getActiveMrns()[0]->site,
                     'questionnaireId'  => $questionnaireId
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(function($x) {
                 //data should be sorted in asc datetime order
                 usort($x['answers'], fn($a, $b) => $a['dateTimeAnswered'] <=> $b['dateTimeAnswered']);
@@ -398,8 +417,8 @@ class Fetch
                     'site' => $patient->getActiveMrns()[0]->site,
                     'questionnaireId'  => $questionnaireId
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-
+            ])?->getBody()?->getContents();
+            $response = !empty($response) ? $response : '[]';
             return array_map(fn($x) => [
                 'questionnaireAnswerId' => (int) $x['answerQuestionnaireId'],
                 'questionId'            => (int) $x['questionId'],
@@ -433,9 +452,8 @@ class Fetch
                 'externalId'    => 'ICD-10',
                 'code'          => $diagSubcode
             ]
-        ])?->getBody()?->getContents() ?? '[]';
-
-        $decodedResponse = json_decode($response, true);
+        ])?->getBody()?->getContents();
+        $responseData = json_decode($response ?: '[]', true);
         return !empty($decodedResponse['code']);
     }
 
@@ -444,7 +462,7 @@ class Fetch
      *
      * @return list<array{
      *  isExternalSystem: 1,
-     *  status: "Active",
+     *  status: 'Active',
      *  createdDate: string,
      *  updatedDate: string,
      *  diagnosis: array{
@@ -459,31 +477,31 @@ class Fetch
         $is_opal_patient = self::isOpalPatient($patient);
 
         if($is_opal_patient){
-            $response = Connection::getHttpClient()?->request("POST", Connection::LEGACY_API_GET_PATIENT_DIAGNOSIS, [
+            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_GET_PATIENT_DIAGNOSIS, [
                 'headers' => [
                     'Cookie' => $cookie,
                 ],
-                "form_params" => [
-                    "mrn"       => $patient->getActiveMrns()[0]->mrn,
-                    "site"      => $patient->getActiveMrns()[0]->site,
-                    "source"    => "ORMS",
-                    "include"   => 0,
-                    "startDate" => "1970-01-01",
-                    "endDate"   => "2099-12-31"
+                'form_params' => [
+                    'mrn'       => $patient->getActiveMrns()[0]->mrn,
+                    'site'      => $patient->getActiveMrns()[0]->site,
+                    'source'    => 'ORMS',
+                    'include'   => 0,
+                    'startDate' => '1970-01-01',
+                    'endDate'   => '2099-12-31'
                 ]
-            ])?->getBody()?->getContents() ?? "[]";
-    
-            //map the fields returned by Opal into something resembling a patient diagnosis
+            ])?->getBody()?->getContents();
+            $responseData = json_decode($response ?: '[]', true);
+
             return array_map(fn($x) => [
-                "isExternalSystem"  => 1,
-                "status"            => "Active",
-                "createdDate"       => (string) $x["CreationDate"],
-                "updatedDate"       => (string) $x["LastUpdated"],
-                "diagnosis"         => [
-                    "subcode"               => (string) $x["DiagnosisCode"],
-                    "subcodeDescription"    => (string) $x["Description_EN"]
+                'isExternalSystem'  => 1,
+                'status'            => 'Active',
+                'createdDate'       => (string) $x['CreationDate'],
+                'updatedDate'       => (string) $x['LastUpdated'],
+                'diagnosis'         => [
+                    'subcode'               => (string) $x['DiagnosisCode'],
+                    'subcodeDescription'    => (string) $x['Description_EN']
                 ]
-            ], json_decode($response, true));
+            ], $responseData);
         }
 
         return [];

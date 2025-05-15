@@ -29,7 +29,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     $scope.pageProperties = {
         refreshAllowed:             true,
         displayNetworkWarning:      false,
-        messageBackgroundColor:     "rgb(186,218,85)",
+        messageBackgroundColor:     "BRANDING_YOUR_BACKGROUND_COLOR",
         locationDisplay:            kioskLocation.replace("_","-"),
         kioskHeight:                locationIsReception ? "98%" : null,
         siteDisplay:                site

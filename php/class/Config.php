@@ -59,7 +59,7 @@ class Config
         $dotenv->required('LEGACY_OPAL_ADMIN_API_PASSWORD')->notEmpty();
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
-        $dotenv->required('DATABASE_USE_SSL')->isBoolean();
+        $dotenv->ifPresent('DATABASE_USE_SSL')->isBoolean();
 
         // Check if DATABASE_USE_SSL is truthy and require SSL_CA only if it is
         if (filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {

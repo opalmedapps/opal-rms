@@ -33,11 +33,10 @@ $appointments = array_map(function($x) {
 $appointments = array_values(array_filter($appointments,fn($x) => $x["patient"]->phoneNumber !== null));
 
 //filter all appointments where the ScheduledTime is between midnight and 2AM
-$appointments = array_values(array_filter($appointments, function($x){
-    $start = new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 00:00:00');
-    $end = new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 02:00:00');
-    return $x["scheduledDatetime"] <= $start || $x["scheduledDatetime"] > $end;
-}));
+$appointments = array_values(array_filter(
+    $appointments,
+    fn($x) => $x["scheduledDatetime"] > new DateTime($x["scheduledDatetime"]->format('Y-m-d') . ' 02:00:00')
+));
 $appointments = Encoding::utf8_encode_recursive($appointments);
 
 $patients = ArrayUtil::groupArrayByKeyRecursiveKeepKeys($appointments, "patientId");

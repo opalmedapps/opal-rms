@@ -5,7 +5,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     let hour = today.hour();
 
     //if its late at night, turn the screen black
-    $scope.currentLogo = "VirtualWaitingRoom/images/Banner_treatments.png";
+    $scope.currentLogo = "VirtualWaitingRoom/images/Banner_your_product_name.png";
 
     if(hour >= 20 || hour < 6) {
         $scope.currentLogo = "VirtualWaitingRoom/images/black.jpg";

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-<title>Opal Virtual Waiting Room Menu</title>
+<title>Virtual Waiting Room Menu</title>
 <base href="/orms/">
 
 <!-- angular app will be bootstapped inside the scripts -->
@@ -66,10 +66,12 @@
             <table border=0 class="table" style="width: 100%">
                 <tr>
                     <td align="center" valign="center"></td>
-                    <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                    <td width="15%">
+                        <div style="text-align: center; font-size: 1em; font-weight: bold;">{ENTER YOUR PRODUCT LOGO}</div>
+                    </td>
                     <td align="center" valign="center">
                         <center>
-                            <h2 align="center" style="margin-left:10%; margin-right:15%"><b>{{pageSettings.ProfileId}} - Opal Virtual Waiting Room</b><br></h2>
+                            <h2 align="center" style="margin-left:10%; margin-right:15%"><b>{{pageSettings.ProfileId}} - Virtual Waiting Room</b><br></h2>
                         </center>
                     </td>
                     <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153)"><b><u>About Opal</u></b></h2></td>
@@ -182,7 +184,7 @@
                         </span>
                         <div style="display:inline-flex;height:34px;">
                             <span ng-if="patient.PhoneNumber" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
-                            <img ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="{{opalLogo}}"></img>
+                            <span ng-if="patient.OpalPatient === 1" style="height:25px;top:18%;position:relative">{YOUR APP LOGO}</span>
                         </div>
                     </span>
 
@@ -280,7 +282,7 @@
                 Current Time: <b>{{timeNow | date:'yyyy-MM-dd hh:mm'}}</b>
             </span>
             <span>
-                Questions or Comments? Please contact opal@muhc.mcgill.ca
+                Questions or Comments? Please contact {put your email address}
             </span>
             <span style="margin-right: 10px; float: right;" ng-class="screenMessage == 'Normal' ? '' : 'status-danger'">
                 <b>Status:</b> {{screenMessage}}

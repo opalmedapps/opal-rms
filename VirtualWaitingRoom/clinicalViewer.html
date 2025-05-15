@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Opal Clinical Viewer</title>
+    <title>Clinical Viewer</title>
     <base href="/orms/">
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
@@ -207,10 +207,12 @@
             <table border=0 class="table" style="width: 100%">
                 <tr>
                     <td align="center" valign="center"></td>
-                    <td width="15%"><img src="images/Opal_RMS_logo.png" width="100%"></td>
+                    <td width="15%">
+                        <div style="text-align: center; font-size: 1em; font-weight: bold;">{ENTER YOUR PRODUCT LOGO}</div>
+                    </td>
                     <td align="center" valign="center">
                         <center>
-                            <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153)"><b>Opal Clinical Dashboard</b><br></h2>
+                            <h2 align="center" style="margin-left:10%; margin-right:15%; color: rgb(111,84,153)"><b>Clinical Dashboard</b><br></h2>
                         </center>
                     </td>
                     <td width="15%"><a href="VirtualWaitingRoom/AboutOpal.html"><h2 style="color: rgb(111,84,153)"><b><u>About Opal</u></b></h2></td>
@@ -528,7 +530,7 @@
 
                         <th style="text-align: center;">Patient Information (Name, Mrn)</th>
 
-                        <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">Opal/SMS</th>
+                        <th ng-class="(opalUsed) ? 'textStyleRed': ''" style="text-align: center;">{YOUR APP}/SMS</th>
                         <th style="text-align: center;">Wearables Data</th>
                         <th ng-class="(clinicsUsed)? 'textStyleRed': ''" style="text-align: center;">Clinic/Treatment
                         </th>
@@ -555,8 +557,7 @@
 
                         <td><span ng-if="appoint.PhoneNumber !== null" style="font-size:25px;top:8px;"
                                 class="glyphicon glyphicon-phone"></span>
-                            <img ng-if="appoint.opalPatient === 1" style="height:25px;top:18%;position:relative"
-                                ng-src="VirtualWaitingRoom/images/opal_logo.png"></img>
+                            {YOUR APP LOGO}
                         </td>
                         <td class="text-center">
                             <div ng-if="appoint.wearablesURL"><a href="" ng-click="showWearableDataCharts(appoint.unreadWearablesData, appoint.wearablesURL, appoint.opalUUID)"
@@ -612,7 +613,7 @@
 
     <br>
     <hr>
-    <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+    <center> Problems and bug reports to {put your email address}</center>
     <center> <a href="./">Main Page</a></center>
 </body>
 

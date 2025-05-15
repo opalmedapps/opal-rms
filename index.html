@@ -2,7 +2,7 @@
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <base href="/orms/">
-    <title>Opal RMS</title>
+    <title>Room Management System</title>
     <style>
         html, body {
             background-color: rgb(128,128, 128);
@@ -33,19 +33,21 @@
     <tbody>
         <tr style="font-family: Helvetica,Arial,sans-serif;">
         <td colspan="10" style="vertical-align: center; background-color: rgb(255,254,244);">
-            <center><img src="images/Opal_RMS_logo.png" alt="MUHC logo" border="0" width="40%"></center></td>
+            <div style="text-align: center; font-size: 2em; font-weight: bold; margin: 45px 0;">
+                {ENTER YOUR PRODUCT LOGO}
+            </div>
         </tr>
 
         <tr style="font-family: Helvetica,Arial,sans-serif;">
             <td colspan="10" style="vertical-align: center; background-color: rgb(111,84,153);">
-                <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;"><center>Opal Room Management System</center></span>
+                <span style="font-weight: bold; color: rgb(255,255,255); font-size:40px;"><center>Room Management System</center></span>
             </td>
         </tr>
 
         <tr style="font-family: Helvetica,Arial,sans-serif;">
         <td></td>
         <td colspan='8' style="vertical-align: center; background-color: rgb(255,254,244);text-align: right; padding-top: 10px;">
-            <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Exit ORMS</a></span><br></td>
+            <span style="color: rgb(0,0,0);font-size:20px;"><a href="#" ng-click="logOut()">Exit</a></span><br></td>
         <td></td>
         </tr>
 
@@ -59,13 +61,13 @@
                 <span style="font-weight: bold; color: rgb(0,0,0); font-size:25px;">
                     <center>
                         <ul style="list-style:none;">
-                            <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Opal Virtual Waiting Room - Clinics</a></li>
-                            <li><a href="./VirtualWaitingRoom/screenDisplay.html?location={{hub}}">Opal Virtual Waiting Room - TV Screen</a></li>
-                            <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Opal Clinical Viewer</a></li>
+                            <li><a href="./VirtualWaitingRoom/mainPageClinics.html">Virtual Waiting Room - Clinics</a></li>
+                            <li><a href="./VirtualWaitingRoom/screenDisplay.html?location={{hub}}">Virtual Waiting Room - TV Screen</a></li>
+                            <li><a href="./VirtualWaitingRoom/clinicalViewer.html">Clinical Viewer</a></li>
                             <!-- <li><a href="./VirtualWaitingRoom/index.html">Virtual Waiting Room - Profile Manager</a></li> -->
-                            <li><a href="./interface/AddOn.html">Register Patient for Opal SMS Messages<br></a></li>
-                            <li><a href="./kiosk/?location={{hubName+ ' Reception'}}&site={{site}}">Opal Patient check-in interface <br></a></li>
-                            <li><a href="./reports/indexOnc.html">Opal RMS Waiting Room Reports</a></li>
+                            <li><a href="./interface/AddOn.html">Register Patient for SMS Messages<br></a></li>
+                            <li><a href="./kiosk/?location={{hubName+ ' Reception'}}&site={{site}}">Patient check-in interface <br></a></li>
+                            <li><a href="./reports/indexOnc.html">Waiting Room Reports</a></li>
                         </ul>
                     </center>
                 </span>

@@ -5,3 +5,4 @@
 *.sh    text eol=lf
 # crontab requires LF
 crontab text eol=lf
+VirtualWaitingRoom/images/Banner_your_product_name.png filter=lfs diff=lfs merge=lfs -text

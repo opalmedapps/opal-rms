@@ -150,12 +150,10 @@
     }
 
     .textStyleRed{
-        font-size: 25px;
         color: red;
     }
 
     .textStyleGreen{
-        font-size: 25px;
         color: limegreen;
     }
 
@@ -206,7 +204,7 @@
                 <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
                 <td ng-show="showLM && liveMode ==='Live'">
 
-                    <b ng-class="(liveState==='Paused') ? 'textStyleRed' : 'textStyleGreen'">{{liveState}}</b>
+                    <b ng-class="(liveState==='Paused') ? 'textStyleRed' : 'textStyleGreen'" style="font-size: 25px">{{liveState}}</b>
 
                 </td>
                 <td ng-show="!(showLM && liveMode ==='Live')"><b></b></td>
@@ -375,16 +373,16 @@
             <thead>
             <tr>
                 <th>Patient Information (Name, ID, RAMQ)</th>
-                <th>Opal/SMS</th>
-                <th ng-if="!hideType">Clinic/Treatment</th>
+                <th ng-class="(opalUsed) ? 'textStyleRed': ''">Opal/SMS</th>
+                <th ng-class="(clinicsUsed)? 'textStyleRed': ''" >Clinic/Treatment</th>
                 <th>Code</th>
-                <th>App. Code</th>
+                <th ng-class="(codeUsed) ? 'textStyleRed': ''">App. Code</th>
                 <!--th ng-if="!sameDate">Scheduled Date</--th-->
                 <th>Scheduled Time</th>
                 <th>Checkin Time</th>
                 <th>Status</th>
                 <th>Medivisit Status</th>
-                <th>Diagnosis</th>
+                <th ng-class="(diagnosisUsed) ? 'textStyleRed': ''">Diagnosis</th>
                 <th>Call Patient</th>
                 <th>Questionnaires</th>
 
@@ -395,18 +393,18 @@
                 <td>{{appoint.fname}} {{appoint.lname}}, {{appoint.pID}}, {{appoint.ssn.num}}</td>
                 <td><span ng-if="appoint.SMSAlertNum != null" style="font-size:20px;top:25%;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalpatient == 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
-                <td ng-if="!hideType">{{appoint.appName}}</td>
+                <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
-                <td>{{appoint.appType}}</td>
+                <td ng-class="(codeUsed) ? 'textStyleRed': ''">{{appoint.appType}}</td>
                 <!--td ng-if="!sameDate">{{appoint.appDay}}</td-->
                 <td>{{appoint.appDay}}
                     {{appoint.appTime}}</td>
                 <td>{{appoint.checkin}}</td>
                 <td>{{appoint.appStatus}}</td>
                 <td>{{appoint.mediStatus}}</td>
-                <td>{{appoint.diagnosis}}</td>
-                <td><button ng-show="appoint.SMSAlertNum && zoomLink " class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
-                    <button ng-show="appoint.SMSAlertNum && zoomLink && zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
+                <td ng-class="(diagnosisUsed) ? 'textStyleRed': ''">{{appoint.diagnosis}}</td>
+                <td><button ng-show="appoint.SMSAlertNum && !zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Send Zoom</button>
+                    <button ng-show="appoint.SMSAlertNum && zoomLinkSent" class="btn btn-zoom" ng-click="sendZoomLink(appoint)">Resend Zoom</button>
                     <button ng-show="appoint.SMSAlertNum && zoomLink && zoomLinkSent" class="btn btn-zoom" ng-click="openZoomLink()">Open Zoom</button></td>
                 <td> <center><button ng-click="openQuestionnaireModal(appoint)" class="btn btn-info" style="width:80%;display:inline-block;position:relative">View<span class="alert-circle {{appoint.QStatus}}"></span></button></center></td>
 

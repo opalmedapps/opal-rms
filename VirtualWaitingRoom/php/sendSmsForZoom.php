@@ -46,6 +46,7 @@ if($language === "French") {
 }
 else {
     $message = "MUHC teleconsultation: $zoomLink. Use this link to connect with $resName.";
+
 }
 
 #send sms

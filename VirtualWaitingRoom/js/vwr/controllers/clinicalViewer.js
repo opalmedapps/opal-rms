@@ -1,6 +1,6 @@
 let app = angular.module('vwr',['checklist-model','datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngMaterial','ngCookies']);
 
-app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookies,DTOptionsBuilder,callScript,bowser)
+app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookies,$window,DTOptionsBuilder,callScript,bowser)
 {
     $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
     if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
@@ -245,6 +245,17 @@ app.controller('main', function($scope,$uibModal,$http,$filter,$interval,$cookie
         }
         $scope.showMenu = 'false';
 
+        if($scope.inputs.dtype === 'specific' && $scope.inputs.selecteddiagnosis.length >0) $scope.diagnosisUsed = true;
+        else $scope.diagnosisUsed = false;
+
+        if($scope.inputs.ctype === 'specific' && $scope.inputs.selectedcodes.length >0) $scope.codeUsed = true;
+        else $scope.codeUsed = false;
+
+        if($scope.inputs.type === 'specific' && $scope.inputs.selectedclinics.length >0) $scope.clinicsUsed = true;
+        else $scope.clinicsUsed = false;
+
+        if($scope.inputs.opal&& $scope.inputs.SMS) $scope.opalUsed = false;
+        else $scope.opalUsed = true;
 
         callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.inputs,speciality).then(function (response)
         {

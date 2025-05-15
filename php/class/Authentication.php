@@ -35,7 +35,7 @@ class Authentication
         return $response;
     }
 
-    public static function logout(string $csrftoken, string $sessionid): ResponseInterface
+    public static function logout(string $csrftoken, string $sessionid)
     {
         $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
         // call the endpoint to flush the session in opalAdmin backend
@@ -50,8 +50,6 @@ class Authentication
                 ],
             ],
         );
-
-        return $response;
     }
 
     public static function validate(string $sessionid): ResponseInterface

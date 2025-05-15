@@ -35,9 +35,7 @@ class Fetch
       
         if (!$cookie) {
             $cookie = self::loginToLegacyOpalAdmin();
-            if($cookie){
-                return $cookie;
-            } else {
+            if(!$cookie){
                 throw new Exception('Could not perform system login to the LegacyOpalAdmin');
             }
         }
@@ -85,21 +83,19 @@ class Fetch
     public static function getQuestionnairePurposes(): array
     {
         $cookie = self::getOrSetOACookie();
+        $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PURPOSE, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
 
-        if ($cookie) {
-            $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PURPOSE, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
+        $response = array_filter(json_decode($response, true), fn($x) => in_array($x['title_EN'], ['Clinical','Research']));
 
-            $response = array_filter(json_decode($response, true), fn($x) => in_array($x['title_EN'], ['Clinical','Research']));
-            return array_map(fn($x) => [
-                'purposeId'       => (int) $x['ID'],
-                'title'           => (string) $x['title_EN']
-            ], $response);
-        }
-        return [];
+        return $response ? array_map(fn($x) => [
+            'purposeId' => (int) $x['ID'], 
+            'title' => (string) $x['title_EN']
+        ], $response) : [];
+
     }
 
     /**
@@ -112,20 +108,18 @@ class Fetch
     public static function getListOfQuestionnaires(): array
     {
         $cookie = self::getOrSetOACookie();
-
-        if ($cookie) {
-            $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PUBLISHED, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
-
-            return array_map(fn($x) => [
-                'questionnaireId'  => (int) $x['ID'],
-                'name'             => (string) $x['name_EN']
-            ], json_decode($response, true));
-        }
-        return [];
+        $response = Connection::getHttpClient()?->request('GET', Connection::LEGACY_API_QUESTIONNAIRE_PUBLISHED, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
+        
+        $responseData = json_decode($response, true);
+        
+        return $responseData ? array_map(fn($x) => [
+            'questionnaireId' => (int) $x['ID'], 
+            'name'            => (string) $x['name_EN']
+        ], $responseData) : [];
     }
 
     /**
@@ -134,21 +128,17 @@ class Fetch
     public static function isOpalPatient(Patient $patient): bool
     {
         $cookie = self::getOrSetOACookie();
-        if ($cookie) {
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_EXISTS, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'form_params' => [
-                    'mrn'  => $patient->getActiveMrns()[0]->mrn,
-                    'site' => $patient->getActiveMrns()[0]->site,
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_EXISTS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'mrn'  => $patient->getActiveMrns()[0]->mrn,
+                'site' => $patient->getActiveMrns()[0]->site,
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
 
-            return json_decode($response, true)['data'] ?? false;
-        }
-
-        return false;
+        return json_decode($response, true)['data'] ?? false;
     }
 
     /**
@@ -164,28 +154,24 @@ class Fetch
     public static function getPatientsWhoCompletedQuestionnaires(array $questionnaireIds): array
     {
         $cookie = self::getOrSetOACookie();
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_QUESTIONNAIRE_PATIENT_COMPLETED, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'questionnaires' => $questionnaireIds,
+            ],
+        ])?->getBody()?->getContents() ?? '[]';
 
-        if ($cookie) {
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_QUESTIONNAIRE_PATIENT_COMPLETED, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'form_params' => [
-                    'questionnaires' => $questionnaireIds
-                ],
-            ])?->getBody()?->getContents() ?? '[]';
+        $responseData = json_decode($response, true);
 
-            $responseData = json_decode($response, true);
-           
-            return array_map(fn($x) => [
-                'mrn'             => (string) $x['mrn'],
-                'site'            => (string) $x['site'],
-                'completionDate'  => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?? throw new Exception('Invalid datetime'),
-                'lastUpdated'     => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?? throw new Exception('Invalid datetime')
-            ], $responseData);
-        }
+        return $responseData ? array_map(fn($x) => [
+            'mrn'            => (string) $x['mrn'],
+            'site'           => (string) $x['site'],
+            'completionDate' => DateTime::createFromFormat('Y-m-d H:i:s', $x['completionDate']) ?? throw new Exception('Invalid datetime'),
+            'lastUpdated'    => DateTime::createFromFormat('Y-m-d H:i:s', $x['lastUpdated']) ?? throw new Exception('Invalid datetime'),
+        ], $responseData) : [];
 
-        return [];
     }
 
     /**
@@ -202,7 +188,7 @@ class Fetch
         // Check for opal patient status
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if ($cookie && $is_opal_patient) {
+        if ($is_opal_patient) {
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_STUDY, [
                 'headers' => [
                     'Cookie' => $cookie,
@@ -245,7 +231,7 @@ class Fetch
         // Check for opal patient status
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if ($cookie && $is_opal_patient) { 
+        if ($is_opal_patient) { 
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_COMPLETED, [
                 'headers' => [
                     'Cookie' => $cookie,
@@ -285,52 +271,50 @@ class Fetch
     {
         $cookie = self::getOrSetOACookie();
 
-        if($cookie){
-            $lastCompletedQuestionnaires = [];
+        $lastCompletedQuestionnaires = [];
 
-            // Post params must be a form parameter list of mrn site pairs
-            $postParams = [];
-            foreach ($patients as $index => $p) {
-                $activeMrn = $p->getActiveMrns()[0];
-                $postParams[] = new \GuzzleHttp\Psr7\Query(
-                    $index . '[site]',
-                    $activeMrn->site
-                );
-                $postParams[] = new \GuzzleHttp\Psr7\Query(
-                    $index . '[mrn]',
-                    $activeMrn->mrn
-                );
-            }
-
-            $response = Connection::getHttpClient()?->request(
-                'POST',
-                Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED,
-                [
-                    'headers' => [
-                        'Cookie' => $cookie,
-                    ],
-                    'form_params' => $postParams,
-                ]
-            )?->getBody()?->getContents() ?? '[]';
-            $response = json_decode($response, true);
-
-            // Transform the response
-            foreach ($patients as $index => $p) {
-                $r = ($response[$index] ?? null) ?: null; // Response for an individual patient may be false if the patient has no questionnaires
-                if ($r !== null) {
-                    $r = [
-                        'questionnaireControlId' => (int) $r['questionnaireControlId'],
-                        'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?? throw new Exception('Invalid datetime'),
-                        'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?? throw new Exception('Invalid datetime')
-                    ];
-                }
-
-                $lastCompletedQuestionnaires[$p->id] = $r;
-            }
-
-            return $lastCompletedQuestionnaires;
+        // Post params must be a form parameter list of mrn site pairs
+        $postParams = [];
+        foreach ($patients as $index => $p) {
+            $activeMrn = $p->getActiveMrns()[0];
+            $postParams[] = new \GuzzleHttp\Psr7\Query(
+                $index . '[site]',
+                $activeMrn->site
+            );
+            $postParams[] = new \GuzzleHttp\Psr7\Query(
+                $index . '[mrn]',
+                $activeMrn->mrn
+            );
         }
-        return [];
+
+        $response = Connection::getHttpClient()?->request(
+            'POST',
+            Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_LAST_COMPLETED,
+            [
+                'headers' => [
+                    'Cookie' => $cookie,
+                ],
+                'form_params' => $postParams,
+            ]
+        )?->getBody()?->getContents() ?? '[]';
+        $response = json_decode($response, true);
+
+        // Transform the response
+        foreach ($patients as $index => $p) {
+            $r = ($response[$index] ?? null) ?: null; // Response for an individual patient may be false if the patient has no questionnaires
+            if ($r !== null) {
+                $r = [
+                    'questionnaireControlId' => (int) $r['questionnaireControlId'],
+                    'completionDate'         => DateTime::createFromFormat('Y-m-d H:i:s', $r['completionDate']) ?? throw new Exception('Invalid datetime'),
+                    'lastUpdated'            => DateTime::createFromFormat('Y-m-d H:i:s', $r['lastUpdated']) ?? throw new Exception('Invalid datetime')
+                ];
+            }
+
+            $lastCompletedQuestionnaires[$p->id] = $r;
+        }
+
+        return $lastCompletedQuestionnaires ?? [];
+
     }
 
     /**
@@ -352,7 +336,7 @@ class Fetch
         // Check for opal patient status
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if($cookie && $is_opal_patient){
+        if($is_opal_patient){
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_CHART_TYPE, [
                 'headers' => [
                     'Cookie' => $cookie,
@@ -404,7 +388,7 @@ class Fetch
         // Check for opal patient status
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if($cookie && $is_opal_patient){
+        if($is_opal_patient){
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_ANSWERS_NON_CHART_TYPE, [
                 'headers' => [
                     'Cookie' => $cookie,

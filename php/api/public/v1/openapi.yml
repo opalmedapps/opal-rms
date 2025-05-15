@@ -17,7 +17,7 @@ tags:
   - name: sms
     description: Endpoints related to SMS messaging support for patients
   - name: institution integration
-    description: Endpoints for integrating the Open Opal solution with an external institution
+    description: Endpoints for integrating the Open Opal solution with an institution
 
 paths:
   /appointment/insertOrUpdateAppointment:

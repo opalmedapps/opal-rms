@@ -26,8 +26,8 @@ class LocationInterface
 
             AppointmentAccess::moveAppointmentToLocation($app["appointmentId"], $room, $intendedAppointment);
 
-            //also export the appointment to other systems if the appointment originated in orms
-            if ($checkin_type !== "APP"){
+            //also export the appointment to opal if the appointment originated in orms
+            if ($checkin_type !== "APP" && $patient->opalStatus === 1){
                 Export::exportPatientCheckin($patient,$app["sourceId"], $app["sourceSystem"]);
             }
             

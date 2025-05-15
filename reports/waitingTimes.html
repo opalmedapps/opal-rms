@@ -132,7 +132,7 @@
 
             <div ng-show="showDiv" ng-repeat="(key,data) in chartData">
                 <p>Mean: {{data.mean/3600 | number: 2}} STD: {{data.std/3600| number: 2}}</p>
-                <highchart ng-show="showChart[key]" config="configs[key]"></highchart>
+                <!--TODO: display the weight graph here using configs[key]-->
             </div>
 
             <script type="text/ng-template" id="patients.htm">
@@ -172,7 +172,7 @@
         </div>
 
         <script>
-            var app = angular.module('myApp', ['ui.bootstrap', 'ngAnimate', 'highcharts-ng', 'jlareau.bowser', 'ngCookies', 'vwr.config']).config(['$qProvider', function ($qProvider) {
+            var app = angular.module('myApp', ['ui.bootstrap', 'ngAnimate', 'jlareau.bowser', 'ngCookies', 'vwr.config']).config(['$qProvider', function ($qProvider) {
                 $qProvider.errorOnUnhandledRejections(false);
             }]);
 

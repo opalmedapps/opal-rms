@@ -7,7 +7,6 @@ The Online Room Management System (ORMS) provides a clinical viewer (aka. live c
 This project has the following requirements to be available on your system:
 
 * [Docker Desktop](https://docs.docker.com/desktop/) (or Docker Engine on Linux)
-* Running [Highcharts Export Server](https://gitlab.com/opalmedapps/highcharts-export-server) container for generating weights PDF reports
 * Composer for installing `PHP` code quality dependencies that used in git hooks
 * Optional: node v20 (needed if you want to invoke `npm` commands locally)
 
@@ -41,8 +40,6 @@ This project comes with a `docker-compose.yml` file providing you with `db-orms`
 
 * `memcached` for storing the sessions in-memory
 * `crunz` for running a cron daemon
-
-> :warning: **Note:**  Weight PDF reports are generated using [Highcharts Export Server](https://gitlab.com/opalmedapps/highcharts-export-server) container. Make sure the `highcharts-server` container is up and running. If not, follow the README instructions described in the [repository]([Highcharts Export Server](https://gitlab.com/opalmedapps/highcharts-export-server)) to start the container. Also, make sure `HIGHCHARTS_URL` and `HIGHCHARTS_PORT` environment variables are set in the `.env` file.
 
 The ORMS app is built with a custom image (defined in `Dockerfile`).
 

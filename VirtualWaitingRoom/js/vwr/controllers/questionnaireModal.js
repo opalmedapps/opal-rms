@@ -176,12 +176,7 @@ function questionnaireModalController($scope,$http,$mdDialog,$filter,patient)
                 {
                     angular.forEach($scope.selectedQuestionnaire.questions,function(chart,index)
                     {
-                        chart.tooltip.formatter = function() {
-                            return '<b>Date: </b>' + Highcharts.dateFormat('%Y - %b - %e', new Date(this.x)) +'<br /> <b>' + this.series.name +': </b>'  + this.y;
-                        };
-                        chart.xAxis.labels.format = "'{value:%Y}'+<br />+{value:%b}'";
-
-                        Highcharts.chart('question'+index,chart)
+                        //TODO: Generate the Graph using the response data
                     });
                 });
             }

@@ -47,8 +47,6 @@ class Config
         $dotenv->required('ORMS_DATABASE_PORT')->isInteger();
         $dotenv->required('FIREBASE_URL')->notEmpty();
         $dotenv->required('FIREBASE_SECRET')->notEmpty();
-        $dotenv->required('HIGHCHARTS_HOST')->notEmpty();
-        $dotenv->required('HIGHCHARTS_PORT')->notEmpty();
         $dotenv->required('OIE_ENABLED')->notEmpty();
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
@@ -85,7 +83,6 @@ class Config
             legacyOpalAdminHostInternal:    $_ENV["LEGACY_OPAL_ADMIN_HOST_INTERNAL"],
             opalAdminUsername:              $_ENV["LEGACY_OPAL_ADMIN_API_USERNAME"],
             opalAdminPassword:              $_ENV["LEGACY_OPAL_ADMIN_API_PASSWORD"],
-            highchartsUrl:                  $_ENV["HIGHCHARTS_HOST"] . ':' . $_ENV['HIGHCHARTS_PORT'],
             sourceSystemSupportsCheckin:    (bool) ($_ENV["SOURCE_SYSTEM_SUPPORTS_CHECKIN"] ?? false),
             sourceSystemHost:               (string) ($_ENV["SOURCE_SYSTEM_HOST_EXTERNAL"] ?? ''),
         );
@@ -193,7 +190,6 @@ class EnvironmentConfig
         public string $legacyOpalAdminHostInternal,
         public string $opalAdminUsername,
         public string $opalAdminPassword,
-        public ?string $highchartsUrl,
         public string $sourceSystemHost,
         public bool $sourceSystemSupportsCheckin,
     ) {}

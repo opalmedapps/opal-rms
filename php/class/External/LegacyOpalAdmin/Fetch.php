@@ -424,23 +424,19 @@ class Fetch
     {
         $cookie = self::getOrSetOACookie();
 
-        if($cookie){
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DIAGNOSIS_EXISTS, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'form_params' => [
-                    'source'        => 'ORMS',
-                    'externalId'    => 'ICD-10',
-                    'code'          => $diagSubcode
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DIAGNOSIS_EXISTS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'source'        => 'ORMS',
+                'externalId'    => 'ICD-10',
+                'code'          => $diagSubcode
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
 
-            $decodedResponse = json_decode($response, true);
-            error_log(json_encode($decodedResponse)); // Convert array to JSON string before logging
-
-            return json_decode($response, true)['code'] ?? false;
-        }
+        $decodedResponse = json_decode($response, true);
+        return !empty($decodedResponse['code']);
     }
 
     /**
@@ -462,7 +458,7 @@ class Fetch
         $cookie = self::getOrSetOACookie();
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if($cookie && $is_opal_patient){
+        if($is_opal_patient){
             $response = Connection::getHttpClient()?->request("POST", Connection::LEGACY_API_GET_PATIENT_DIAGNOSIS, [
                 'headers' => [
                     'Cookie' => $cookie,

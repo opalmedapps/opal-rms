@@ -19,24 +19,21 @@ class Export
     public static function insertMasterSourceDiagnosis(string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr){
         $cookie = Fetch::getOrSetOACookie();
     
-        if($cookie){
-            // TODO: OA accepts only one description field, but we can send both EN and FR
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_DIAGNOSIS, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'form_params' => [
-                    'item' => [
-                        'source'        => 'ORMS',
-                        'externalId'    => 'ICD-10',
-                        'code'          => $diagSubcode,
-                        'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
-                        'description' => $descEn
-                    ]
+        // TODO: OA accepts only one description field, but we can send both EN and FR
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_DIAGNOSIS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'item' => [
+                    'source'        => 'ORMS',
+                    'externalId'    => 'ICD-10',
+                    'code'          => $diagSubcode,
+                    'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
+                    'description' => $descEn
                 ]
-            ])?->getBody()?->getContents() ?? '[]';
-        }
-    
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
     }
 
     /**
@@ -45,29 +42,24 @@ class Export
     public static function insertPatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status): void
     {
         $cookie = Fetch::getOrSetOACookie();
-        // status != 'Deleted'
         
-        if ($cookie) {
-            // only insert if status==WHATEVER
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_PATIENT_DIAGNOSIS, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'form_params' => [
-                    'mrn'           => $patient->getActiveMrns()[0]->mrn,
-                    'site'          => $patient->getActiveMrns()[0]->site,
-                    'source'        => 'ORMS',
-                    'rowId'         => $diagId,
-                    'externalId'    => 'ICD-10',
-                    'code'          => $diagSubcode,
-                    'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
-                    'descriptionEn' => $descEn,
-                    'descriptionFr' => $descFr,
-                    'status'        => $status
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
-            print_r(json_decode($response, true));
-        }
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_PATIENT_DIAGNOSIS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'mrn'           => $patient->getActiveMrns()[0]->mrn,
+                'site'          => $patient->getActiveMrns()[0]->site,
+                'source'        => 'ORMS',
+                'rowId'         => $diagId,
+                'externalId'    => 'ICD-10',
+                'code'          => $diagSubcode,
+                'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
+                'descriptionEn' => $descEn,
+                'descriptionFr' => $descFr,
+                'status'        => $status
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
     }
 
     /**
@@ -76,28 +68,23 @@ class Export
     public static function deletePatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status){
         $cookie = Fetch::getOrSetOACookie();
     
-        if($cookie){
-            // TODO: OA accepts only one description field, but we can send both EN and FR
-            $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DELETE_PATIENT_DIAGNOSIS, [
-                'headers' => [
-                    'Cookie' => $cookie,
-                ],
-                'json' => [
-                    'mrn'           => $patient->getActiveMrns()[0]->mrn,
-                    'site'          => $patient->getActiveMrns()[0]->site,
-                    'source'        => 'ORMS',
-                    'rowId'         => $diagId,
-                    'externalId'    => 'ICD-10',
-                    'code'          => $diagSubcode,
-                    'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
-                    'descriptionEn' => $descEn,
-                    'descriptionFr' => $descFr,
-                    'status'        => $status
-                ]
-            ])?->getBody()?->getContents() ?? '[]';
-            print_r(json_decode($response, true));
-        }
+        // TODO: OA accepts only one description field, but we can send both EN and FR
+        $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DELETE_PATIENT_DIAGNOSIS, [
+            'headers' => [
+                'Cookie' => $cookie,
+            ],
+            'form_params' => [
+                'mrn'           => $patient->getActiveMrns()[0]->mrn,
+                'site'          => $patient->getActiveMrns()[0]->site,
+                'source'        => 'ORMS',
+                'rowId'         => $diagId,
+                'externalId'    => 'ICD-10',
+                'code'          => $diagSubcode,
+                'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
+                'descriptionEn' => $descEn,
+                'descriptionFr' => $descFr,
+                'status'        => $status
+            ]
+        ])?->getBody()?->getContents() ?? '[]';
     }
-
-
 }

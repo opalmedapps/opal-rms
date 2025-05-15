@@ -18,7 +18,7 @@ $patientDiagnosisId  = (int) $params["patientDiagnosisId"];
 $diagnosisId         = (int) $params["diagnosisId"];
 $diagnosisDate       = new DateTime($params["diagnosisDate"] ?? "");
 $status              = $params["status"];
-$user                = 'AGKE6000';//$params["user"];
+$user                = $params["user"];
 
 $updatedDiag = DiagnosisInterface::updatePatientDiagnosis($patientDiagnosisId, $diagnosisId, $diagnosisDate, $status, $user);
 
@@ -42,8 +42,7 @@ if($patient !== null) {
                 ""
             );
         }
-        print_r($status);
-        if($status === 'Deleted'){
+        if (trim(strtolower($status)) === 'deleted') {
             // Separate endpoint for diagnosis deletions
             Export::deletePatientDiagnosis(
                 $patient,
@@ -55,6 +54,7 @@ if($patient !== null) {
                 $updatedDiag->status
             );
         }else{
+            error_log("Insert block reached with status: " . $status);
             // Assign patient the diagnosis
             Export::insertPatientDiagnosis(
                 $patient,

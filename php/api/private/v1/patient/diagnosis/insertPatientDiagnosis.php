@@ -18,7 +18,7 @@ $mrn            = $params["mrn"];
 $site           = $params["site"];
 $diagnosisId    = (int) $params["diagnosisId"];
 $diagnosisDate  = new DateTime($params["diagnosisDate"]);
-$user           = 'AGKE6000';// $params["user"];
+$user           = $params["user"];
 
 $newDiag = DiagnosisInterface::insertPatientDiagnosis($patientId, $mrn, $site, $diagnosisId, $diagnosisDate, $user);
 

@@ -2,7 +2,6 @@
 .*
 
 # Include the following hidden files
-!.env
 !.htaccess
 !.npmrc
 
@@ -25,8 +24,6 @@
 **/node_modules
 **/npm-debug.log
 **/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
 
 # node
 node_modules

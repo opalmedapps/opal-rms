@@ -87,7 +87,23 @@ USER www-data
 COPY --from=js-dependencies --chown=www-data:www-data /app/node_modules ./node_modules
 COPY --from=php-dependencies --chown=www-data:www-data /app/vendor ./vendor
 
-COPY --chown=www-data:www-data . .
+# Add required files and directories
+COPY --chown=www-data:www-data ./.htaccess ./
+COPY --chown=www-data:www-data ./index.html ./
+COPY --chown=www-data:www-data ./favicon.ico ./
+COPY --chown=www-data:www-data ./.npmrc ./
+
+COPY --chown=www-data:www-data ./config ./config
+COPY --chown=www-data:www-data ./images ./images
+COPY --chown=www-data:www-data ./interface ./interface
+COPY --chown=www-data:www-data ./kiosk ./kiosk
+COPY --chown=www-data:www-data ./auth ./auth
+COPY --chown=www-data:www-data ./php ./php
+COPY --chown=www-data:www-data ./reports ./reports
+COPY --chown=www-data:www-data ./VirtualWaitingRoom ./VirtualWaitingRoom
+
+COPY --chown=www-data:www-data ./docker/app ./docker/app
+
 # Set up the cron jobs
 COPY ./docker/cron/crontab /var/spool/cron/crontabs/www-data
 

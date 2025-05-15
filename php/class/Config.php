@@ -79,8 +79,11 @@ class Config
         $system = new SystemConfig(
             emails:                             explode(',', $_ENV["RECIPIENT_EMAILS"]),
             sendWeights:                        (bool) ($_ENV["SEND_WEIGHTS"] ?? false),
+            # TODO: unused, remove?
             vwrAppointmentCronEnabled:          (bool) ($_ENV["VWR_CRON_ENABLED"] ?? false),
+            # TODO: unused, remove?
             appointmentReminderCronEnabled:     (bool) ($_ENV["SMS_REMINDER_CRON_ENABLED"] ?? false),
+            # TODO: unused, remove?
             processIncomingSmsCronEnabled:      (bool) ($_ENV["SMS_INCOMING_SMS_CRON_ENABLED"] ?? false),
             newOpalAdminHostInternal:           $_ENV["NEW_OPAL_ADMIN_HOST_INTERNAL"] ?? null,
             newOpalAdminHostExternal:           $_ENV["NEW_OPAL_ADMIN_HOST_EXTERNAL"] ?? null,

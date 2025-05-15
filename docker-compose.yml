@@ -26,29 +26,5 @@ services:
       # needed if you want to manage these through the Docker image build process only
       - /var/www/orms/node_modules
       - /var/www/orms/vendor
-      # mount shared-data volume for sharing *.vwr.json files created by the cron
-      - shared-data:/var/www/orms/tmp
     ports:
       - ${ORMS_PORT}:8080
-
-  orms-cron:
-    image: opalmedapps/orms
-    env_file:
-      - .env
-    environment:
-      - PHP_MEMORY_LIMIT=512M
-      - TZ=EST5EDT
-    volumes:
-      - ./:/var/www/orms
-      # don't overwrite existing content in these directories
-      # needed if you want to manage these through the Docker image build process only
-      - /var/www/orms/node_modules
-      - /var/www/orms/vendor
-      # mount shared-data volume for sharing *.vwr.json files created by the cron
-      - shared-data:/var/www/orms/tmp
-    # cron needs to run as root
-    user: root
-    entrypoint: ['docker/cron/scripts/cron.sh']
-
-volumes:
-  shared-data:

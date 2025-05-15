@@ -93,7 +93,60 @@ composer install
 
 ### Create Required Data Records
 
-TBD
+#### Clinical Viewer and Virtual Waiting Room
+
+* Set `OpalUUID` field in the `Patient` table. The value should be copied from the `Patient.UUID` field in the `django-backend`.
+* Create a record in the `MediVisitAppointmentList` table. For example:
+
+```text
+'1','1','2023-05-31 18:09:00','2023-05-31','18:09:00','0','1','Aria','1','Open','Active','2023-05-30 00:00:00','1',NULL,NULL
+```
+
+> :warning: **Note:**  For the `ScheduledDateTime`, `ScheduledDate`, `ScheduledTime`, fields the date should be the same to the date when the `Clinical Viewer`/`Virtual Waiting Room` test is performed, and the time should be set to the later/future time of the day (e.g., an appointment cannot be in the past). For the `Status` and `MediVisitStatus` fields it should be set to `Open` and `Active` respectively.
+
+For the `Virtual Waiting Room` page, make sure that the provided Firebase settings are correct (e.g., in the browser's console, there are no Firebase errors when you  go to the `Default Profile - Virtual Waiting Room` page).
+
+To see the appointment on the `Clinical Viewer` page:
+
+* Click on `Show Menu`
+* Disable the `Questionnaire Filter`
+* Disable the `Additional Filters`
+* Click `Submit`
+
+To see the appointment on the `Virtual Waiting Room` page:
+
+* On the `Virtual Waiting Room Menu`, choose `Default Profile`
+* Include to the filter the scheduled appointments by clicking on the `Scheduled` button
+* Click on the `USER SELECTED RESOURCE(S)`, and in the modal dialog check the `Test Code` and click `OK`
+
+> :warning: **Note:**  `Virtual Waiting Room` requires `./tmp/1.vwr.json` file that is created and updated by `cron`, otherwise the page will not work. For testing purposes, in case the `cron` does not work, log in to the `orms` container and generate the file by running: `php php/cron/generateVwrAppointments.php`.
+
+#### Weight PDF reports
+
+For testing the weight PDFs locally:
+
+* In the `.env`, set `SEND_WEIGHTS=1`
+* In the `orms` database, update existing record in the `Hospital` table by setting `HospitalCode` field to `RVH`
+* In the `php/class/External/OIE/Export.php` file, add the following line before the line that makes OIE call (e.g., `Connection::getHttpClient()?->request("POST", Connection::API_MEASUREMENT_PDF, [`:
+
+```php
+$test = Generator::generatePdfString($patient);
+```
+
+* Comment the following line in the `php/class/Document/Pdf.php` file:
+
+```php
+if(file_exists("$fullFilePath.pdf")) unlink("$fullFilePath.pdf");
+```
+
+* Login to the ORMS and find session cookies
+* Run the following curl command (NOTE! you need to use your cookie values that found in the previous step)
+
+```bash
+curl 'http://127.0.0.1:8086/php/api/private/v1/patient/measurement/insertMeasurement' -X 'POST' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/ avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'Cookie: adminer_key=your-adminer_key; adminer_settings=; PHPSESSID=your-PHPSESSID; sessionid=your-sessionid; adminer_permanent=; adminer_sid=your-adminer_sid; specialityGroupId=1; specialityGroupName=Test%20Group; clinicHubId=1; clinicHubName=Test%20Hub; hospitalCode=RVH; csrftoken=your-csrftoken; ormsAuth=your-ormsAuth' -H 'Referer: http://127.0.0.1:8086/' -d "patientId=1&height=180&weight=80&bsa=50&sourceId=1&sourceSystem=BBB"
+```
+
+* Check `tmp` folder, it should contain generated weights PDF file.
 
 ### Pre-commit
 
@@ -129,7 +182,9 @@ The following extensions are required or strongly recommended:
 
 ## Production
 
-TBD
+* Set environment variables (e.g., `.env` file)
+* Provide `FIREBASE_URL` and `FIREBASE_SECRET`. For the secret, copy the `private_key_id` field from the private key JSON file that is issued during realtime database creation
+* Provide `crunz.yml` configuration settings for the cron
 
 ## Documentation
 

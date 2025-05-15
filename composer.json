@@ -14,7 +14,7 @@
         "symfony/lock": "6.0.19",
         "vlucas/phpdotenv": "5.5.0",
         "phpmailer/phpmailer": "6.8.0",
-        "crunzphp/crunz": "^3.4"
+        "crunzphp/crunz": "3.4.1"
     },
     "require-dev": {
         "ext-xml": "*",

@@ -24,7 +24,6 @@
     "ulrichsg/getopt-php",
     "league/openapi-psr7-validator",
     "cebe/php-openapi",
-    "lavary/crunz",
     "symfony/lock",
     "vlucas/phpdotenv",
     "phpmailer/phpmailer",

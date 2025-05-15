@@ -70,11 +70,11 @@ class Http
      * @return mixed[]
      * @throws Exception
      */
-    public static function parseApiInputs(): array
+    public static function parseApiInputs(string $apiVersion): array
     {
         //get from config
         $basePath = Config::getApplicationSettings()->environment->basePath;
-        $apiSpecFile = "$basePath/php/api/public/v1/openapi.yml";
+        $apiSpecFile = "$basePath/php/api/public/$apiVersion/openapi.yml";
 
         //get the specifications for the api being called
         $apiPath = str_replace([$basePath,".php"], "", $_SERVER["SCRIPT_FILENAME"] ?? "");

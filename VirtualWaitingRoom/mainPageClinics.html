@@ -1,8 +1,11 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Virtual Waiting Room Menu</title>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <title>Virtual Waiting Room Menu</title>
+        <base href="/orms/">
 
-    <script src="/node_modules/angular/angular.min.js"></script>
-    <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+        <script src="node_modules/angular/angular.min.js"></script>
+        <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
   </head>
   <body ng-app="myApp" ng-controller="main" style="color: rgb(0, 0, 0); background-color: rgb(128,128,128); font-size:18px; font-family: Helvetica,Arial,sans-serif;" link="#0000ee" vlink="#551a8b" alink="#ee0000">
@@ -15,7 +18,7 @@
     <tr style="font-family: Helvetica,Arial,sans-serif;">
     <td></td>
     <td style="vertical-align: center; background-color: rgb(255, 255, 255);">
-        <center><img height="150" src="/images/logo.png" alt="logo" border="0"></center>
+        <center><img height="150" src="images/logo.png" alt="logo" border="0"></center>
     </td>
     <td></td>
     </tr>
@@ -50,14 +53,14 @@
     <tr>
         <td style="text-align: center; vertical-align: baseline;" ng-repeat="(category,profiles) in profileList">
             <p ng-repeat="profile in profiles">
-                <a href="./virtualWaitingRoom?profile={{profile.ProfileId}}&clinicHub={{clinicHubId}}">{{profile.ProfileId}}</a>
+                <a href="VirtualWaitingRoom/virtualWaitingRoom?profile={{profile.ProfileId}}&clinicHub={{clinicHubId}}">{{profile.ProfileId}}</a>
             </p>
         </td>
     </tr>
     </table>
 
     <div style="width: 1000px; background-color: rgb(255, 255, 255);">
-        <hr><center> <a href="/">Main Page</a></center>
+        <hr><center> <a href="./">Main Page</a></center>
     </div>
 </div>
 
@@ -84,7 +87,7 @@ app.controller('main', function($scope,$location,$http,$cookies)
     //get list of profiles available
     $http({
         method: "GET",
-        url: "/php/api/private/v1/profile/getList",
+        url: "php/api/private/v1/profile/getList",
         params: {speciality: speciality}
     })
     .then( response => {

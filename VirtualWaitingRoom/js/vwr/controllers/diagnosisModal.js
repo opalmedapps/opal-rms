@@ -27,7 +27,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             return $http({
-                url: "/php/api/private/v1/patient/diagnosis/insertPatientDiagnosis",
+                url: "php/api/private/v1/patient/diagnosis/insertPatientDiagnosis",
                 method: "POST",
                 data: {
                     patientId: patient.PatientId,
@@ -49,7 +49,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
         let func = function(username)
         {
             $http({
-                url: "/php/api/private/v1/patient/diagnosis/updatePatientDiagnosis",
+                url: "php/api/private/v1/patient/diagnosis/updatePatientDiagnosis",
                 method: "POST",
                 data: {
                     patientId: patientDiagnosis.patientId,
@@ -84,7 +84,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     function getDiagnosisCodes(filter)
     {
         return $http({
-            url: "/php/api/private/v1/diagnosis/getCodes",
+            url: "php/api/private/v1/diagnosis/getCodes",
             method: "GET",
             params: {
                 filter: filter
@@ -95,7 +95,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     function loadPatientDiagnosis()
     {
         $http({
-            url: "/php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
+            url: "php/api/private/v1/patient/diagnosis/getPatientDiagnosisList",
             method: "GET",
             params: {
                 patientId: patient.PatientId
@@ -115,7 +115,7 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
     {
         let answer = $mdDialog.confirm(
         {
-            templateUrl: './js/vwr/templates/authDialog.htm',
+            templateUrl: 'VirtualWaitingRoom/js/vwr/templates/authDialog.htm',
             controller: authDialogController
         })
         .clickOutsideToClose(true);

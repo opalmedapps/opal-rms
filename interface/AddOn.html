@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>MUHC ORMS Waiting Room Management System</title>
-
+    <base href="/orms/">
     <style>
         #patients {
             border-collapse: collapse;
@@ -108,11 +108,11 @@ Click on any patient data to be brought to add-on page.
 </div>
 <hr>
 <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
-<center> <a href="../">Main Page</a></center>
+<center> <a href="./">Main Page</a></center>
 </body>
 
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
 <script>
 var app = angular.module('myApp',['ngCookies']);
@@ -139,7 +139,7 @@ app.controller('main',function($scope,$http,$window,$location)
 
     //load list of oncology resources
     $http({
-        url: "/php/api/private/v1/hospital/getSites",
+        url: "php/api/private/v1/hospital/getSites",
         method: "GET",
     }).then(function(response)
     {
@@ -151,7 +151,7 @@ app.controller('main',function($scope,$http,$window,$location)
         document.getElementById("VerifyPat").style.visibility = "visible";
 
         $http({
-            url: "/php/api/private/v1/patient/findPatient",
+            url: "php/api/private/v1/patient/findPatient",
             method: "POST",
             data: {
                 mrn: $scope.mrn,
@@ -181,7 +181,7 @@ app.controller('main',function($scope,$http,$window,$location)
     $scope.sendToSms = function(data)
     {
         //prepare the redirect url with the selected patient's parameters for prefilling
-        var landingurl = "./RegisterSMS.html?"
+        var landingurl = "interface/RegisterSMS.html?"
             +"first="+data.first
             +"&last="+data.last
             +"&mrn="+data.mrn

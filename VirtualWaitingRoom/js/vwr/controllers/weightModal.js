@@ -78,7 +78,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
         }
 
         $http({
-            url: "/php/api/private/v1/patient/measurement/insertMeasurement",
+            url: "php/api/private/v1/patient/measurement/insertMeasurement",
             method: "POST",
             data: {
                 patientId: $scope.patient.patientId,
@@ -106,7 +106,7 @@ function weightModalController ($scope,$http,$uibModalInstance,$filter,patient)
     function getHistoricalMeasurementsAsync()
     {
         return $http({
-            url: "/php/api/private/v1/patient/measurement/getHistoricalChart",
+            url: "php/api/private/v1/patient/measurement/getHistoricalChart",
             method: "GET",
             params: {
                 patientId: $scope.patient.patientId

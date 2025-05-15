@@ -75,7 +75,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //at this point, we have everything we need to get all the options the user can select
         $http({
-            url: "/php/api/private/v1/appointment/getClinics",
+            url: "php/api/private/v1/appointment/getClinics",
             method: "GET",
             params: {
                 speciality: $scope.speciality,
@@ -85,7 +85,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
             $scope.givenOptions.Resources = response.data.data.map(x => ({Name: x.description,Type: "Resource"}));
 
             $http({
-                url: "/php/api/private/v1/hospital/getRooms",
+                url: "php/api/private/v1/hospital/getRooms",
                 method: "GET",
                 params: {
                     clinicHub: $scope.clinicHub
@@ -97,7 +97,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //also get the columns that the user can select
         $http({
-            url: "/php/api/private/v1/profile/getColumns",
+            url: "php/api/private/v1/profile/getColumns",
             method: "GET"
         }).then(function (response)
         {
@@ -110,7 +110,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
 
         //also get a list of all profile Ids in the db
         $http({
-            url: "/php/api/private/v1/profile/getList",
+            url: "php/api/private/v1/profile/getList",
             method: "GET"
         }).then(function (response)
         {
@@ -150,7 +150,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         {
             //get the selected profile info
             $http({
-                url: "/php/api/private/v1/profile/getProfile",
+                url: "php/api/private/v1/profile/getProfile",
                 method: "GET",
                 params: {
                     profileId: $scope.profiles[index].ProfileId,
@@ -218,7 +218,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         let profile = $scope.selectedProfile.data;
 
         $http({
-            url: "/php/api/private/v1/profile/updateProfile",
+            url: "php/api/private/v1/profile/updateProfile",
             method: "POST",
             data: {
                 profileSer:             profile.ProfileSer,
@@ -240,7 +240,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
     $scope.deleteProfile = function()
     {
         $http({
-            url: "/php/api/private/v1/profile/deleteProfile",
+            url: "php/api/private/v1/profile/deleteProfile",
             method: "POST",
             data:{
                 profileId: $scope.selectedProfile.data.ProfileId

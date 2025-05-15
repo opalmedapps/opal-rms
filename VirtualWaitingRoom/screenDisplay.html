@@ -2,27 +2,28 @@
 <html ng-app="screen">
 
 <head>
-    <script src="/node_modules/angular/angular.min.js"></script>
-    <script src="/node_modules/checklist-model/checklist-model.js"></script>
-    <script src="/node_modules/angular-audio/app/angular.audio.js"></script>
-    <script src="/node_modules/firebase/lib/firebase-web.js"></script>
-    <script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
-    <script src="/node_modules/crypto-js/crypto-js.js"></script>
-    <script src="/node_modules/dayjs/dayjs.min.js"></script>
+    <base href="/orms/">
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/checklist-model/checklist-model.js"></script>
+    <script src="node_modules/angular-audio/app/angular.audio.js"></script>
+    <script src="node_modules/firebase/lib/firebase-web.js"></script>
+    <script src="node_modules/angularfire/dist/angularfire.min.js"></script>
+    <script src="node_modules/crypto-js/crypto-js.js"></script>
+    <script src="node_modules/dayjs/dayjs.min.js"></script>
 
     <!--CSS -->
-    <!-- <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
+    <!-- <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
     <!-- use bootstrap v3 css; the css styling can be done later -->
-    <link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
-    <link rel="stylesheet" href="./css/screenStyle.css">
+    <link rel="stylesheet" href="VirtualWaitingRoom/css/bootstrap_3.3.6.min.css">
+    <link rel="stylesheet" href="VirtualWaitingRoom/css/screenStyle.css">
 
     <!--Custom controllers -->
-    <script src="js/screens/module.js"></script>
-    <script src="js/screens/controllers/screenDisplay.js"></script>
+    <script src="VirtualWaitingRoom/js/screens/module.js"></script>
+    <script src="VirtualWaitingRoom/js/screens/controllers/screenDisplay.js"></script>
 
     <style>
         body {
-            background-image: url('images/background.jpg');
+            background-image: url('VirtualWaitingRoom/images/background.jpg');
             background-repeat: no-repeat;
             background-size: 100%;
         }
@@ -46,7 +47,7 @@
             <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
                 <div class="patient-list-inner-block">
                     <div class="patient-arrow">
-                        <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="images/left-arrow.png"></img>
+                        <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="VirtualWaitingRoom/images/left-arrow.png"></img>
                     </div>
 
                     <div class="patient-location">
@@ -55,7 +56,7 @@
                     </div>
 
                     <div class="patient-arrow">
-                        <img ng-if="rightArrowLocations.indexOf(patient.Destination.Name) !== -1"  class="right-arrow" src="images/right-arrow.png"></img>
+                        <img ng-if="rightArrowLocations.indexOf(patient.Destination.Name) !== -1"  class="right-arrow" src="VirtualWaitingRoom/images/right-arrow.png"></img>
                     </div>
                 </div>
             </div>

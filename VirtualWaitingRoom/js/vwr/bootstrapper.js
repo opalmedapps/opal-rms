@@ -15,7 +15,7 @@ angular.element(document).ready(function()
     if(urlParams.profile)
     {
         $http({
-            url: "/php/api/private/v1/profile/getProfile",
+            url: "php/api/private/v1/profile/getProfile",
             method: "GET",
             params: {
                 profileId: urlParams.profile,

@@ -3,15 +3,16 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <head>
         <title>ORMS Login Page</title>
+        <base href="/orms/">
 
-        <script src="/node_modules/angular/angular.min.js"></script>
-        <script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
-        <script src="/node_modules/angular-animate/angular-animate.min.js"></script>
-        <script src="/node_modules/angular-aria/angular-aria.min.js"></script>
-        <script src="/node_modules/angular-material/angular-material.js"></script>
+        <script src="node_modules/angular/angular.min.js"></script>
+        <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
+        <script src="node_modules/angular-animate/angular-animate.min.js"></script>
+        <script src="node_modules/angular-aria/angular-aria.min.js"></script>
+        <script src="node_modules/angular-material/angular-material.js"></script>
 
-        <link rel="stylesheet" href="/node_modules/angular-material/angular-material.min.css">
-        <link rel="stylesheet" href="/auth/custom.css">
+        <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+        <link rel="stylesheet" href="auth/custom.css">
 
         <noscript>
             <div id="nojavascript">
@@ -27,12 +28,12 @@
 
         <div class="body-login">
             <div class="pageHeader">
-                <img class="logo-animated" src="/images/opal_logo_transparent_purple.png" />
-                <div class="logo-desc"><b>ORMS</b> – Online Room Management System</div>
+                <img class="logo-animated" src="images/opal_logo_transparent_purple.png" />
+                <div class="logo-desc"><b>ORMS</b> &ndash; Online Room Management System</div>
             </div>
 
             <form class="login-form" ng-submit="authenticateUser()">
-                <div><img src="/images/logo.png" style="height:50px;" /></div>
+                <div><img src="images/logo.png" style="height:50px;" /></div>
                 <fieldset class="field-holder">
                     <input class="credentials" type="text" ng-model="username" name="username" placeholder="Hospital AD Username" autofocus required />
                     <input class="credentials" type="password" ng-model="password" placeholder="Password" required />
@@ -42,7 +43,7 @@
                     </div>
                     <div class="submit-wrapper">
                         <input type="submit" class="login-submit" title="Confirm" value="Log in" />
-                        <div class="submit-icon"><img src="/images/confirm-white.png" /></div>
+                        <div class="submit-icon"><img src="images/confirm-white.png" /></div>
                     </div>
                 </fieldset>
                 <div class="help-container">
@@ -61,7 +62,7 @@ var app = angular.module('myApp',['ngCookies','ngMaterial']);
 app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$window)
 {
     $http({
-        url: "/php/api/public/v1/hospital/getHubs",
+        url: "php/api/public/v1/hospital/getHubs",
         method: "POST",
         data: null
     })
@@ -71,7 +72,7 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
     {
         $scope.error = "";
         $http({
-                url: "/php/api/public/v1/auth/createSession",
+                url: "php/api/public/v1/auth/createSession",
                 method: "POST",
                 data: {
                     "username": $scope.username,

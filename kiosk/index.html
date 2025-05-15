@@ -2,12 +2,13 @@
 <html class="fullscreen">
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <head>
-        <link rel="stylesheet" href="/kiosk/kiosk.css">
-        <script src="/node_modules/dayjs/dayjs.min.js"></script>
-        <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-        <script src="/node_modules/angular/angular.min.js"></script>
-        <script src="/node_modules/jquery-csv/src/jquery.csv.min.js"></script>
-        <script src="/kiosk/controller.js"></script>
+        <base href="/orms/">
+        <link rel="stylesheet" href="kiosk/kiosk.css">
+        <script src="node_modules/dayjs/dayjs.min.js"></script>
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="node_modules/angular/angular.min.js"></script>
+        <script src="node_modules/jquery-csv/src/jquery.csv.min.js"></script>
+        <script src="kiosk/controller.js"></script>
 
         <title>Patient Check In</title>
     </head>
@@ -22,9 +23,9 @@
             <div class="header-div">
                 <span class="header-section-div align-center" style="width: 25%;">
                     <span style="font-size: 2.5vh;" ng-if="!pageProperties.displayNetworkWarning">{{pageProperties.siteDisplay}}</span>
-                    <img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="/images/networkWarning.png">
+                    <img class="image-container" ng-if="pageProperties.displayNetworkWarning" src="images/networkWarning.png">
                 </span>
-                <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="/images/logo.png"></span>
+                <span class="header-section-div align-center" style="width: 50%;"><img class="image-container" src="images/logo.png"></span>
                 <span class="header-section-div align-center" style="width: 25%; font-size: 2.5vh;">{{pageProperties.locationDisplay}}</span>
             </div>
 

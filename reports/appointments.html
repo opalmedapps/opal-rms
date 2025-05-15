@@ -1,423 +1,456 @@
 <html>
-<title>Appointment List Report</title>
-<body ng-app="myApp">
-<script src="/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-<script src="/node_modules/datatables.net/js/jquery.dataTables.js"></script>
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
-<script src="/node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
-<script src="/node_modules/angular-datatables/dist/angular-datatables.min.js"></script>
-<script src="/node_modules/angular-datatables/dist/plugins/buttons/angular-datatables.buttons.min.js"></script>
-<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
-<script src="/node_modules/angular-bowser/src/angular-bowser.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
 
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/angular-datatables/dist/css/angular-datatables.min.css">
-<link media="all" type="text/css" rel="stylesheet" href="/node_modules/jquery-ui-dist/jquery-ui.min.css">
+<head>
+    <title>Appointment List Report</title>
+    <base href="/orms/">
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+    <script src="node_modules/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="node_modules/angular-datatables/dist/angular-datatables.min.js"></script>
+    <script src="node_modules/angular-datatables/dist/plugins/buttons/angular-datatables.buttons.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
+    <script src="node_modules/angular-bowser/src/angular-bowser.js"></script>
+    <script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
-<style>
-    .page {margin:10px;}
-    td {
-        padding-right: 15px;
-        padding-bottom: 10px;
-    }
+    <link media="all" type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link media="all" type="text/css" rel="stylesheet"
+        href="node_modules/datatables.net-dt/css/jquery.dataTables.min.css">
+    <link media="all" type="text/css" rel="stylesheet"
+        href="node_modules/datatables.net-buttons-dt/css/buttons.dataTables.min.css">
+    <link media="all" type="text/css" rel="stylesheet"
+        href="node_modules/angular-datatables/dist/css/angular-datatables.min.css">
+    <link media="all" type="text/css" rel="stylesheet" href="node_modules/jquery-ui-dist/jquery-ui.min.css">
 
-    .tables {
-        width:100%;
-        table-layout: fixed;
-    }
-    .tables thead>tr>th {
-        padding-right: 5px;
-        vertical-align: bottom;
-        border-bottom: 2px solid #ddd;
-    }
-    .tables tbody {
-        display: table-row-group;
-        vertical-align: middle;
-    }
-    .tables tbody>tr>td {
-        line-height: 1.42857143;
-        vertical-align: middle;
-        border-top: 1px solid #ddd;
-        font-size: 15px;
-        overflow: auto;
-    }
+    <style>
+        .page {
+            margin: 10px;
+        }
 
-    .btn.btn-primary {
-        z-index: 1;
-        background-color: #9d9d9d;
-    }
+        td {
+            padding-right: 15px;
+            padding-bottom: 10px;
+        }
 
-    .btn.btn-primary:hover,
-    .btn.btn-primary.active {
-        z-index: 1;
-        background-color: #337ab7
-    }
+        .tables {
+            width: 100%;
+            table-layout: fixed;
+        }
 
-    .items,
-    .items td,
-    .items tr,
-    .items th {
-        border-collapse:collapse;
-        border:1px solid black;
-        text-align:left;
+        .tables thead>tr>th {
+            padding-right: 5px;
+            vertical-align: bottom;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tables tbody {
+            display: table-row-group;
+            vertical-align: middle;
+        }
+
+        .tables tbody>tr>td {
+            line-height: 1.42857143;
+            vertical-align: middle;
+            border-top: 1px solid #ddd;
+            font-size: 15px;
+            overflow: auto;
+        }
+
+        .btn.btn-primary {
+            z-index: 1;
+            background-color: #9d9d9d;
+        }
+
+        .btn.btn-primary:hover,
+        .btn.btn-primary.active {
+            z-index: 1;
+            background-color: #337ab7
+        }
+
+        .items,
+        .items td,
+        .items tr,
+        .items th {
+            border-collapse: collapse;
+            border: 1px solid black;
+            text-align: left;
             --box-sizing: border-box !important;
-           --table-layout:fixed;
-        overflow-wrap: break-word;
-    }
+            --table-layout: fixed;
+            overflow-wrap: break-word;
+        }
 
-    .items tr:nth-child(even){background-color:#f1f1f1;}
-    .items th {background-color:#98FB98}
+        .items tr:nth-child(even) {
+            background-color: #f1f1f1;
+        }
 
-    /*remove date and title on top of printed pages*/
-    /*@page {
-        size: auto;
-        margin-top: 0mm;
-    }*/
+        .items th {
+            background-color: #98FB98
+        }
 
-    /*repeat table headers on each page*/
-    @media print {
-        thead {display: table-header-group;}
-    }
+        /*remove date and title on top of printed pages*/
+        /*@page {
+                size: auto;
+                margin-top: 0mm;
+            }*/
 
-</style>
+        /*repeat table headers on each page*/
+        @media print {
+            thead {
+                display: table-header-group;
+            }
+        }
+    </style>
+</head>
 
-<div class="page" ng-controller="main" ng-init="runScript(true)">
-    <center><h1>{{department}}</h1></center><center><h2><u>Appointment List Report</u></h2></center>
+<body ng-app="myApp">
 
-    <table border="0" width="50%" padding="5">
-        <tr>
-        <td valign="top"><b>Description:</b></td>
-        <td>Report to find all patient appointments for the department.</td>
-        </tr>
-    </table>
-    <br>
+    <div class="page" ng-controller="main" ng-init="runScript(true)">
+        <center>
+            <h1>{{department}}</h1>
+        </center>
+        <center>
+            <h2><u>Appointment List Report</u></h2>
+        </center>
 
-    <form ng-submit="runScript()">
-        <table border="0" style="table-layout:fixed;width:80%;" padding="2" >
-            <tr bgcolor=#1D0886 fgcolor=#FFFFFF>
-            <th colspan=5 width="20%" align="left"><font color=#FFFFFF>Selection Criteria</font></th>
-            </tr>
-            <tr><td><br></td></tr>
-
+        <table border="0" width="50%" padding="5">
             <tr>
-            <td><b>From Date: </b></td>
-            <td><input type="date" ng-model="sDate" required></td>
-            <td><b>To Date: </b></td>
-            <td><input type="date" ng-model="eDate" required></td>
-            </tr>
-
-            <tr>
-            <td><b>Starting From (Scheduled Time): </b></td>
-            <td><input type="time" ng-model="sTime" required></td>
-            <td><b>Ending At: </b></td>
-            <td><input type="time" ng-model="eTime" required></td>
-            </tr>
-
-            <tr>
-            <td><b>Appointment Status: </b></td>
-            <td>
-                <div class="btn-group">
-                    <label ng-model="inputs.comp" class="btn btn-primary" ng-change="keepAppChecked('comp')" uib-btn-checkbox>Completed</label>
-                    <label ng-model="inputs.openn" class="btn btn-primary" ng-change="keepAppChecked('openn')" uib-btn-checkbox>Open</label>
-                    <label ng-model="inputs.canc" class="btn btn-primary" ng-change="keepAppChecked('canc')" uib-btn-checkbox>Cancelled</label>
-                </div>
-            </td>
-            <td><b>Checkin Status: </b></td>
-            <td>
-                <div class="btn-group">
-                    <label ng-model="inputs.arrived" class="btn btn-primary" ng-change="keepPatChecked('arrived')" uib-btn-checkbox>Checked in</label>
-                    <label ng-model="inputs.notArrived" class="btn btn-primary" ng-change="keepPatChecked('notArrived')" uib-btn-checkbox>Not Checked in</label>
-                </div></td>
-            </tr>
-
-            <tr>
-            <td><b>Source Status: </b></td>
-            <td>
-                <div class="btn-group">
-                    <label ng-model="inputs.mediAbsent" class="btn btn-primary" uib-btn-checkbox>Absent</label>
-                    <label ng-model="inputs.mediAddOn" class="btn btn-primary" uib-btn-checkbox>AddOn</label>
-                    <label ng-model="inputs.mediCancelled" class="btn btn-primary" uib-btn-checkbox>Cancelled</label>
-                    <label ng-model="inputs.mediPresent" class="btn btn-primary" uib-btn-checkbox>Present</label>
-                </div>
-            </td>
-            </tr>
-
-            <tr>
-            <td><b>Appointment Type: </b></td>
-            <td>
-                <div class="btn-group">
-                    <label ng-model="inputs.type" class="btn btn-primary" uib-btn-radio="'all'" >All</label>
-                    <label ng-model="inputs.type" class="btn btn-primary" uib-btn-radio="'specific'">Specific</label>
-                </div></td>
-            <td style="display:inline-flex;vertical-align:bottom;">
-                <select ng-show="inputs.type === 'specific'" ng-model="inputs.specificType" ng-options="val.description for val in clinics"></select></td>
-            </tr>
-
-            <tr><td><br></td></tr>
-            <tr>
-            <td></td>
-            <td align="right">
-                <td align="right">
-                    <button type="submit">Submit</button>
-                    <button type="button" ng-click='reset(1)'>Reset</button>
-                </td>
+                <td valign="top"><b>Description:</b></td>
+                <td>Report to find all patient appointments for the department.</td>
             </tr>
         </table>
-    </form>
-
-    <p>{{message}}</p>
-    <div ng-if='showDiv'>
-        <table>
-            <tr>
-                <td><b>Current Date: </b></td><td>{{today | date}}</td>
-            </tr>
-            <tr>
-                <td><b>Search Date: </b></td><td>{{sDateDisplay | date}} - {{eDateDisplay |date}}</td>
-            </tr>
-            <tr>
-                <td><b>Clinic Name: </b></td><td>{{hideType ? appName : 'All'}}</td>
-            </tr>
-        </table>
-    <!--<tr><td>Searching From: </td><td>{{sDateDisplay | date}} {{sTimeDisplay | date:"HH:mm"}}</td></tr>
-            <tr><td>Searching To: </td><td>{{eDateDisplay | date}} {{eTimeDisplay | date:"HH:mm"}}</td></tr>-->
-
         <br>
 
-        <h1>Appointment List - {{titleLabel}}</h1>
-        <table class='items' datatable="ng" dt-options="dtOptions">
-        <thead>
-            <tr>
-            <th>Last Name</th>
-            <th>First Name</th>
-            <th>Patient ID</th>
-            <th>RAMQ</th>
-            <th ng-if="!hideType">Clinic/Treatment</th>
-            <th>Code</th>
-            <th>App. Code</th>
-            <th ng-if="!sameDate">Scheduled Date</th>
-            <th>Scheduled Time</th>
-            <th>Checkin Time</th>
-            <th>Status</th>
-            <th>Medivisit Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="appoint in tableData">
-            <td>{{appoint.lname}}</td>
-            <td>{{appoint.fname}}</td>
-            <td>{{appoint.mrn +"-"+ appoint.site}}</td>
-            <td>{{appoint.ramq}}</td>
-            <td ng-if="!hideType">{{appoint.appName}}</td>
-            <td>{{appoint.appClinic}}</td>
-            <td>{{appoint.appType}}</td>
-            <td ng-if="!sameDate">{{appoint.appDay}}</td>
-            <td>{{appoint.appTime}}</td>
-            <td>{{appoint.checkInTime}}</td>
-            <td>{{appoint.appStatus}}</td>
-            <td>{{appoint.mediStatus}}</td>
-            </tr>
-        </tbody>
-        </table>
+        <form ng-submit="runScript()">
+            <table border="0" style="table-layout:fixed;width:80%;" padding="2">
+                <tr bgcolor=#1D0886 fgcolor=#FFFFFF>
+                    <th colspan=5 width="20%" align="left">
+                        <font color=#FFFFFF>Selection Criteria</font>
+                    </th>
+                </tr>
+                <tr>
+                    <td><br></td>
+                </tr>
+
+                <tr>
+                    <td><b>From Date: </b></td>
+                    <td><input type="date" ng-model="sDate" required></td>
+                    <td><b>To Date: </b></td>
+                    <td><input type="date" ng-model="eDate" required></td>
+                </tr>
+
+                <tr>
+                    <td><b>Starting From (Scheduled Time): </b></td>
+                    <td><input type="time" ng-model="sTime" required></td>
+                    <td><b>Ending At: </b></td>
+                    <td><input type="time" ng-model="eTime" required></td>
+                </tr>
+
+                <tr>
+                    <td><b>Appointment Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.comp" class="btn btn-primary" ng-change="keepAppChecked('comp')"
+                                uib-btn-checkbox>Completed</label>
+                            <label ng-model="inputs.openn" class="btn btn-primary" ng-change="keepAppChecked('openn')"
+                                uib-btn-checkbox>Open</label>
+                            <label ng-model="inputs.canc" class="btn btn-primary" ng-change="keepAppChecked('canc')"
+                                uib-btn-checkbox>Cancelled</label>
+                        </div>
+                    </td>
+                    <td><b>Checkin Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.arrived" class="btn btn-primary"
+                                ng-change="keepPatChecked('arrived')" uib-btn-checkbox>Checked in</label>
+                            <label ng-model="inputs.notArrived" class="btn btn-primary"
+                                ng-change="keepPatChecked('notArrived')" uib-btn-checkbox>Not Checked in</label>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><b>Source Status: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.mediAbsent" class="btn btn-primary" uib-btn-checkbox>Absent</label>
+                            <label ng-model="inputs.mediAddOn" class="btn btn-primary" uib-btn-checkbox>AddOn</label>
+                            <label ng-model="inputs.mediCancelled" class="btn btn-primary"
+                                uib-btn-checkbox>Cancelled</label>
+                            <label ng-model="inputs.mediPresent" class="btn btn-primary"
+                                uib-btn-checkbox>Present</label>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><b>Appointment Type: </b></td>
+                    <td>
+                        <div class="btn-group">
+                            <label ng-model="inputs.type" class="btn btn-primary" uib-btn-radio="'all'">All</label>
+                            <label ng-model="inputs.type" class="btn btn-primary"
+                                uib-btn-radio="'specific'">Specific</label>
+                        </div>
+                    </td>
+                    <td style="display:inline-flex;vertical-align:bottom;">
+                        <select ng-show="inputs.type === 'specific'" ng-model="inputs.specificType"
+                            ng-options="val.description for val in clinics"></select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><br></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="right">
+                    <td align="right">
+                        <button type="submit">Submit</button>
+                        <button type="button" ng-click='reset(1)'>Reset</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <p>{{message}}</p>
+        <div ng-if='showDiv'>
+            <table>
+                <tr>
+                    <td><b>Current Date: </b></td>
+                    <td>{{today | date}}</td>
+                </tr>
+                <tr>
+                    <td><b>Search Date: </b></td>
+                    <td>{{sDateDisplay | date}} - {{eDateDisplay |date}}</td>
+                </tr>
+                <tr>
+                    <td><b>Clinic Name: </b></td>
+                    <td>{{hideType ? appName : 'All'}}</td>
+                </tr>
+            </table>
+            <!--<tr><td>Searching From: </td><td>{{sDateDisplay | date}} {{sTimeDisplay | date:"HH:mm"}}</td></tr>
+            <tr><td>Searching To: </td><td>{{eDateDisplay | date}} {{eTimeDisplay | date:"HH:mm"}}</td></tr>-->
+
+            <br>
+
+            <h1>Appointment List - {{titleLabel}}</h1>
+            <table class='items' datatable="ng" dt-options="dtOptions">
+                <thead>
+                    <tr>
+                        <th>Last Name</th>
+                        <th>First Name</th>
+                        <th>Patient ID</th>
+                        <th>RAMQ</th>
+                        <th ng-if="!hideType">Clinic/Treatment</th>
+                        <th>Code</th>
+                        <th>App. Code</th>
+                        <th ng-if="!sameDate">Scheduled Date</th>
+                        <th>Scheduled Time</th>
+                        <th>Checkin Time</th>
+                        <th>Status</th>
+                        <th>Medivisit Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="appoint in tableData">
+                        <td>{{appoint.lname}}</td>
+                        <td>{{appoint.fname}}</td>
+                        <td>{{appoint.mrn +"-"+ appoint.site}}</td>
+                        <td>{{appoint.ramq}}</td>
+                        <td ng-if="!hideType">{{appoint.appName}}</td>
+                        <td>{{appoint.appClinic}}</td>
+                        <td>{{appoint.appType}}</td>
+                        <td ng-if="!sameDate">{{appoint.appDay}}</td>
+                        <td>{{appoint.appTime}}</td>
+                        <td>{{appoint.checkInTime}}</td>
+                        <td>{{appoint.appStatus}}</td>
+                        <td>{{appoint.mediStatus}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<script>
-var app = angular.module('myApp',['datatables','datatables.buttons','ui.bootstrap','jlareau.bowser','ngCookies']);
+    <script>
+        var app = angular.module('myApp', ['datatables', 'datatables.buttons', 'ui.bootstrap', 'jlareau.bowser', 'ngCookies']);
 
-app.controller('main', function($scope,$filter,$cookies,DTOptionsBuilder,callScript,bowser)
-{
-    $scope.chromeDetected = bowser.name == 'Chrome' ? 1:0;
-    if(!$scope.chromeDetected) {$('[type="date"]').datepicker({dateFormat: 'yy-mm-dd'});}
+        app.controller('main', function ($scope, $filter, $cookies, DTOptionsBuilder, callScript, bowser) {
+            $scope.chromeDetected = bowser.name == 'Chrome' ? 1 : 0;
+            if (!$scope.chromeDetected) { $('[type="date"]').datepicker({ dateFormat: 'yy-mm-dd' }); }
 
-    $scope.today = new Date();
+            $scope.today = new Date();
 
-    let speciality = $cookies.get("specialityGroupId");
-    $scope.department = "MUHC - "+ $cookies.get("specialityGroupName");
+            let speciality = $cookies.get("specialityGroupId");
+            $scope.department = "MUHC - " + $cookies.get("specialityGroupName");
 
-    //add datatables settings
-    $scope.dtOptions = DTOptionsBuilder.newOptions();
-    $scope.dtOptions.withOption('lengthMenu',[[25,50,100,-1],[25,50,100,'All']]);
-    $scope.addPrintButton = function()
-    {
-        $scope.dtOptions.withButtons(
-        [
-            'csvHtml5',
-            {
-                extend: 'print',
-                title: $scope.inputs.type == 'specific' ? $scope.inputs.specificType.description : 'All Appointments',
-                exportOptions: {
-                    stripHtml: false
-                },
-                customize: function (win)
+            //add datatables settings
+            $scope.dtOptions = DTOptionsBuilder.newOptions();
+            $scope.dtOptions.withOption('lengthMenu', [[25, 50, 100, -1], [25, 50, 100, 'All']]);
+            $scope.addPrintButton = function () {
+                $scope.dtOptions.withButtons(
+                    [
+                        'csvHtml5',
+                        {
+                            extend: 'print',
+                            title: $scope.inputs.type == 'specific' ? $scope.inputs.specificType.description : 'All Appointments',
+                            exportOptions: {
+                                stripHtml: false
+                            },
+                            customize: function (win) {
+                                $(win.document.body)
+                                    //.css( 'font-size', '15pt' )
+                                    .prepend(
+                                        '<table style="font-size:20px">' +
+                                        '<tr>' +
+                                        '<td><b>Current Date: </b></td><td>' + $filter('date')($scope.today) + '</td>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                        '<td><b>Search Date: </b></td><td>' + $filter('date')($scope.sDateDisplay) + ' - ' + $filter('date')($scope.eDateDisplay) + '</td>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                        '<td><b>Clinic Name: </b></td><td>' + ($scope.hideType ? $scope.appName : "All") + '</td>' +
+                                        '</tr>' +
+                                        '</table>'
+                                    );
+
+                                //$(win.document).find('table').addClass('test').css('font-size','20pt');
+                            }
+                        }
+                    ]);
+            }
+
+            $scope.convertDate = function (enteredDate) {
+                var year = enteredDate.getFullYear();
+                var month = enteredDate.getMonth() + 1 >= 10 ? enteredDate.getMonth() + 1 : "0" + (enteredDate.getMonth() + 1);
+                var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
+                var convDate = year + "-" + month + "-" + day;
+
+                return convDate;
+            }
+
+            $scope.convertTime = function (enteredTime) {
+                return ("0" + enteredTime.getHours()).slice(-2) + ":" + ("0" + enteredTime.getMinutes()).slice(-2);
+            }
+
+            //these functions will ensure that a button always stays checked so that a query doesn't return an empty list
+            $scope.keepAppChecked = function (check) { if ($scope.inputs.comp == false && $scope.inputs.openn == false && $scope.inputs.canc == false) { $scope.inputs[check] = true; } }
+
+            $scope.keepPatChecked = function (check) { if ($scope.inputs.arrived == false && $scope.inputs.notArrived == false) { $scope.inputs[check] = true; } }
+
+            $scope.reset = function (resetPressed) {
+                $scope.sDate = new Date();
+                $scope.eDate = new Date();
+
+                $scope.sTime = new Date(1970, 0, 1, 0, 0, 0);
+                $scope.eTime = new Date(1970, 0, 1, 23, 59, 0);
+
+                $scope.inputs =
                 {
-                    $(win.document.body)
-                        //.css( 'font-size', '15pt' )
-                        .prepend(
-                            '<table style="font-size:20px">'+
-                            '<tr>'+
-                                '<td><b>Current Date: </b></td><td>'+ $filter('date')($scope.today) +'</td>'+
-                            '</tr>'+
-                            '<tr>'+
-                                '<td><b>Search Date: </b></td><td>'+ $filter('date')($scope.sDateDisplay) +' - '+ $filter('date')($scope.eDateDisplay) +'</td>'+
-                            '</tr>'+
-                            '<tr>'+
-                                '<td><b>Clinic Name: </b></td><td>'+ ($scope.hideType ? $scope.appName : "All") +'</td>'+
-                            '</tr>'+
-                        '</table>'
-                        );
+                    comp: true,
+                    openn: true, //the variable is named openn instead of openn so it doesn't interfere with jQuery's open function
+                    canc: false,
+                    arrived: true,
+                    notArrived: true,
+                    mediAbsent: true,
+                    mediAddOn: true,
+                    mediCancelled: true,
+                    mediPresent: true,
+                    type: 'all',
+                    specificType: { name: '', resources: [] },
+                }
 
-                    //$(win.document).find('table').addClass('test').css('font-size','20pt');
+                if (resetPressed) {
+                    $scope.inputs.type = 'specific';
+                    $scope.inputs.specificType = $scope.clinics[0];
                 }
             }
-        ]);
-    }
 
-    $scope.convertDate = function (enteredDate)
-    {
-        var year = enteredDate.getFullYear();
-        var month = enteredDate.getMonth()+1 >= 10 ? enteredDate.getMonth()+1 : "0" + (enteredDate.getMonth()+1);
-        var day = enteredDate.getDate() >= 10 ? enteredDate.getDate() : "0" + enteredDate.getDate()
-        var convDate = year + "-" + month + "-" + day;
+            $scope.runScript = function (firstTime) {
+                if (firstTime) { $scope.reset(); }
 
-        return convDate;
-    }
+                $scope.sDateDisplay = $scope.sDate;
+                $scope.eDateDisplay = $scope.eDate;
 
-    $scope.convertTime = function (enteredTime)
-    {
-        return ("0"+enteredTime.getHours()).slice(-2) + ":" + ("0"+enteredTime.getMinutes()).slice(-2);
-    }
+                $scope.sTimeDisplay = $scope.sTime;
+                $scope.eTimeDisplay = $scope.eTime;
 
-    //these functions will ensure that a button always stays checked so that a query doesn't return an empty list
-    $scope.keepAppChecked = function (check) {if($scope.inputs.comp == false && $scope.inputs.openn == false && $scope.inputs.canc == false) {$scope.inputs[check] = true;}}
+                $scope.appName = $scope.inputs.specificType.description;
 
-    $scope.keepPatChecked = function (check) {if($scope.inputs.arrived == false && $scope.inputs.notArrived == false) {$scope.inputs[check] = true;}}
+                $scope.sameDate = false;
+                if ($scope.sDateDisplay.getTime() == $scope.eDateDisplay.getTime()) { $scope.sameDate = true; }
 
-    $scope.reset = function (resetPressed)
-    {
-        $scope.sDate = new Date();
-        $scope.eDate = new Date();
+                $scope.showDiv = false;
+                $scope.message = "Getting Data...";
 
-        $scope.sTime = new Date(1970,0,1,0,0,0);
-        $scope.eTime = new Date(1970,0,1,23,59,0);
+                if ($scope.inputs.type == 'all') {
+                    $scope.inputs.specificType = '';
+                }
 
-        $scope.inputs =
-        {
-            comp: true,
-            openn: true, //the variable is named openn instead of openn so it doesn't interfere with jQuery's open function
-            canc: false,
-            arrived: true,
-            notArrived: true,
-            mediAbsent: true,
-            mediAddOn: true,
-            mediCancelled: true,
-            mediPresent: true,
-            type: 'all',
-            specificType: {name: '',resources: []},
-        }
+                callScript.getData($scope.convertDate($scope.sDate), $scope.convertDate($scope.eDate), $scope.convertTime($scope.sTime), $scope.convertTime($scope.eTime), $scope.inputs, speciality).then(function (response) {
+                    $scope.tableData = response.tableData;
 
-        if(resetPressed)
-        {
-            $scope.inputs.type = 'specific';
-            $scope.inputs.specificType = $scope.clinics[0];
-        }
-    }
+                    if ($scope.inputs.type == 'all') { $scope.titleLabel = 'All'; }
+                    else if ($scope.inputs.type == 'specific') { $scope.titleLabel = $scope.inputs.specificType.description; }
 
-    $scope.runScript = function (firstTime)
-    {
-        if(firstTime) {$scope.reset();}
+                    $scope.message = "";
+                    $scope.hideType = 0;
+                    if ($scope.inputs.type == 'specific') { $scope.hideType = 1; }
+                    $scope.showDiv = true;
 
-        $scope.sDateDisplay = $scope.sDate;
-        $scope.eDateDisplay = $scope.eDate;
-
-        $scope.sTimeDisplay = $scope.sTime;
-        $scope.eTimeDisplay = $scope.eTime;
-
-        $scope.appName = $scope.inputs.specificType.description;
-
-        $scope.sameDate = false;
-        if($scope.sDateDisplay.getTime() == $scope.eDateDisplay.getTime()) {$scope.sameDate = true;}
-
-        $scope.showDiv = false;
-        $scope.message = "Getting Data...";
-
-        if($scope.inputs.type == 'all')
-        {
-            $scope.inputs.specificType = '';
-        }
-
-        callScript.getData($scope.convertDate($scope.sDate),$scope.convertDate($scope.eDate),$scope.convertTime($scope.sTime),$scope.convertTime($scope.eTime),$scope.inputs,speciality).then(function (response)
-        {
-            $scope.tableData = response.tableData;
-
-            if($scope.inputs.type == 'all') {$scope.titleLabel = 'All';}
-            else if($scope.inputs.type == 'specific') {$scope.titleLabel = $scope.inputs.specificType.description;}
-
-            $scope.message = "";
-            $scope.hideType = 0;
-            if($scope.inputs.type == 'specific') {$scope.hideType = 1;}
-            $scope.showDiv = true;
-
-            if(!$scope.inputs.specificType)
-            {
-                $scope.clinics = response.clinics;
-                $scope.inputs.specificType = $scope.clinics[0];
+                    if (!$scope.inputs.specificType) {
+                        $scope.clinics = response.clinics;
+                        $scope.inputs.specificType = $scope.clinics[0];
+                    }
+                    $scope.addPrintButton();
+                });
             }
-            $scope.addPrintButton();
         });
-    }
-});
 
-app.factory('callScript',function($http,$q)
-{
-    return {
-        getData: function(sDate,eDate,sTime,eTime,inputs,speciality)
-        {
-            var defer = $q.defer();
+        app.factory('callScript', function ($http, $q) {
+            return {
+                getData: function (sDate, eDate, sTime, eTime, inputs, speciality) {
+                    var defer = $q.defer();
 
-            $http({
-                url: "/php/report/appointmentQuery",
-                method: "GET",
-                params:
-                {
-                    sDate:          sDate,
-                    eDate:          eDate,
-                    sTime:          sTime,
-                    eTime:          eTime,
-                    comp:           inputs.comp ? 1 : 0,
-                    openn:          inputs.openn ? 1 : 0,
-                    canc:           inputs.canc ? 1 : 0,
-                    arrived:        inputs.arrived ? 1 : 0,
-                    notArrived:     inputs.notArrived ? 1 : 0,
-                    type:           inputs.type,
-                    specificType:   inputs.specificType.description ?? null,
-                    mediAbsent:     inputs.mediAbsent ? 1 : 0,
-                    mediAddOn:      inputs.mediAddOn ? 1 : 0,
-                    mediCancelled:  inputs.mediCancelled ? 1 : 0,
-                    mediPresent:    inputs.mediPresent ? 1 : 0,
-                    speciality:     speciality
+                    $http({
+                        url: "php/report/appointmentQuery",
+                        method: "GET",
+                        params:
+                        {
+                            sDate: sDate,
+                            eDate: eDate,
+                            sTime: sTime,
+                            eTime: eTime,
+                            comp: inputs.comp ? 1 : 0,
+                            openn: inputs.openn ? 1 : 0,
+                            canc: inputs.canc ? 1 : 0,
+                            arrived: inputs.arrived ? 1 : 0,
+                            notArrived: inputs.notArrived ? 1 : 0,
+                            type: inputs.type,
+                            specificType: inputs.specificType.description ?? null,
+                            mediAbsent: inputs.mediAbsent ? 1 : 0,
+                            mediAddOn: inputs.mediAddOn ? 1 : 0,
+                            mediCancelled: inputs.mediCancelled ? 1 : 0,
+                            mediPresent: inputs.mediPresent ? 1 : 0,
+                            speciality: speciality
+                        }
+                    }).then(function (response) {
+                        let info = {};
+                        info = response.data;
+                        defer.resolve(info);
+                    });
+
+                    return defer.promise;
                 }
-            }).then(function (response)
-            {
-                let info = {};
-                info = response.data;
-                defer.resolve(info);
-            });
+            };
+        });
+    </script>
 
-            return defer.promise;
-        }
-    };
-});
-</script>
-
-<br>
-<hr>
-<center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
+    <br>
+    <hr>
+    <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
 </body>
+
 </html>

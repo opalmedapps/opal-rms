@@ -3,57 +3,58 @@
 <head>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <title>Virtual Waiting Room</title>
+<base href="/orms/">
 
 <!-- angular app will be bootstapped inside the scripts -->
 
 <!--Angular libraries -->
-<script src="/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/checklist-model/checklist-model.js"></script>
-<script src="/node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
-<script src="/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
-<script src="/node_modules/ui-select/dist/select.min.js"></script>
-<script src="/node_modules/angular-animate/angular-animate.min.js"></script>
-<script src="/node_modules/angular-aria/angular-aria.min.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
-<script src="/node_modules/angular-material/angular-material.js"></script>
-<script src="/node_modules/ng-table/bundles/ng-table.min.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/checklist-model/checklist-model.js"></script>
+<script src="node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js"></script>
+<script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+<script src="node_modules/ui-select/dist/select.min.js"></script>
+<script src="node_modules/angular-animate/angular-animate.min.js"></script>
+<script src="node_modules/angular-aria/angular-aria.min.js"></script>
+<script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
+<script src="node_modules/angular-material/angular-material.js"></script>
+<script src="node_modules/ng-table/bundles/ng-table.min.js"></script>
 
 <!--Firebase libraries -->
-<script src="/node_modules/firebase/lib/firebase-web.js"></script>
-<script src="/node_modules/angularfire/dist/angularfire.min.js"></script>
+<script src="node_modules/firebase/lib/firebase-web.js"></script>
+<script src="node_modules/angularfire/dist/angularfire.min.js"></script>
 
 <!--Highcharts -->
-<script src="/node_modules/highcharts/highcharts.js"></script>
-<script src="/node_modules/highcharts/modules/exporting.js"></script>
-<script src="/node_modules/highcharts/modules/offline-exporting.js"></script>
-<script src="/node_modules/highcharts-ng/dist/highcharts-ng.min.js"></script>
+<script src="node_modules/highcharts/highcharts.js"></script>
+<script src="node_modules/highcharts/modules/exporting.js"></script>
+<script src="node_modules/highcharts/modules/offline-exporting.js"></script>
+<script src="node_modules/highcharts-ng/dist/highcharts-ng.min.js"></script>
 
 <!--Crytojs -->
-<script type="text/javascript" src="/node_modules/crypto-js/crypto-js.js"></script>
+<script type="text/javascript" src="node_modules/crypto-js/crypto-js.js"></script>
 
 <!--CSS -->
-<!-- <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
+<!-- <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
 <!-- use bootstrap v3 css; the css styling can be done later -->
-<link rel="stylesheet" href="./css/bootstrap_3.3.6.min.css">
-<link rel="stylesheet" href="/node_modules/ui-select/dist/select.min.css">
-<link rel="stylesheet" href="/node_modules/angular-material/angular-material.min.css">
-<link rel="stylesheet" href="/node_modules/ng-table/bundles/ng-table.min.css">
-<link rel="stylesheet" href="./css/vwrStyle.css">
+<link rel="stylesheet" href="VirtualWaitingRoom/css/bootstrap_3.3.6.min.css">
+<link rel="stylesheet" href="node_modules/ui-select/dist/select.min.css">
+<link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+<link rel="stylesheet" href="node_modules/ng-table/bundles/ng-table.min.css">
+<link rel="stylesheet" href="VirtualWaitingRoom/css/vwrStyle.css">
 
 <!--Custom controllers -->
-<script src="js/vwr/module.js"></script>
-<script src="js/vwr/controllers/virtualWaitingRoom.js"></script>
-<script src="js/vwr/bootstrapper.js"></script>
-<script src="js/vwr/controllers/callModal.js"></script>
-<script src="js/vwr/controllers/authDialog.js"></script>
-<script src="js/vwr//controllers/diagnosisModal.js"></script>
-<script src="js/vwr/controllers/formModal.js"></script>
-<script src="js/vwr/controllers/selectorModal.js"></script>
-<script src="js/vwr/controllers/questionnaireModal.js"></script>
-<script src="js/vwr/controllers/registerSMSModal.js"></script>
-<script src="js/vwr/controllers/weightModal.js"></script>
-<script src="js/vwr/services/WearableChartsService.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/module.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/virtualWaitingRoom.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/bootstrapper.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/callModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/authDialog.js"></script>
+<script src="VirtualWaitingRoom/js/vwr//controllers/diagnosisModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/formModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/selectorModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/questionnaireModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/registerSMSModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/controllers/weightModal.js"></script>
+<script src="VirtualWaitingRoom/js/vwr/services/WearableChartsService.js"></script>
 
 </head>
 
@@ -109,7 +110,7 @@
                     <md-button class="md-primary" ng-if="patientLoadingEnabled && resourceLoadingEnabled" ng-click="openLegendDialog()"><b>Show Legend</b></md-button>
                     <br>
                     <span>
-                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="./images/waiting.gif"></img>
+                        <img class="selector-gif" ng-if="!patientLoadingEnabled || !resourceLoadingEnabled" src="VirtualWaitingRoom/images/waiting.gif"></img>
                         <span ng-if="patientLoadingEnabled && resourceLoadingEnabled" class="btn-group">
                             <label ng-model="pageSettings.SelectedRowTypes.CheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.CheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Checked In</label>
                             <label ng-model="pageSettings.SelectedRowTypes.NotCheckedIn" class="btn btn-primary" ng-class="pageSettings.SelectedRowTypes.NotCheckedIn ? '' : 'btn-row-type'" uib-btn-checkbox>Scheduled</label>
@@ -251,7 +252,8 @@
                     </span>
 
                     <span ng-switch-when="WearablesData">
-                        <div ng-if="patient.wearablesURL"><a href="#" ng-click="showWearableDataCharts(patient.wearablesURL)" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div>
+                        <div ng-if="patient.wearablesURL"><a href="" ng-click="showWearableDataCharts(patient.wearablesURL)" 
+                            class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div>
                     </span>
                 </td>
             </tr>

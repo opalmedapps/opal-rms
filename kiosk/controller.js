@@ -73,7 +73,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     // load the scheduler
     let schedule = [];
     $http({
-        url: "/tmp/schedule.csv",
+        url: "tmp/schedule.csv",
         method: "GET",
     }).then(function(response) {
         schedule = $.csv.toObjects(response.data).map(x => ({
@@ -180,7 +180,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     {
         return {
             arrowImage:                 null,
-            centerImage:                "/images/animation.gif",
+            centerImage:                "images/animation.gif",
             mainMessage: {
                 english: "Check in",
                 french: "Enregistrement",
@@ -196,7 +196,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     {
         return {
             arrowImage:                 getArrowImage(location,"Reception"),
-            centerImage:                "/images/Reception_generic.png",
+            centerImage:                "images/Reception_generic.png",
             mainMessage: {
                 english: "Please go to the reception",
                 french: "Vérifier à la réception",
@@ -212,7 +212,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     {
         return {
             arrowImage:                 getArrowImage(location,"Reception"), //overwrite if not on DS1
-            centerImage:                "/images/Reception_generic.png",
+            centerImage:                "images/Reception_generic.png",
             mainMessage: {
                 english: "Please go to the reception",
                 french: "Vérifier à la réception",
@@ -228,7 +228,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     {
         return {
             arrowImage:                 null,
-            centerImage:                "/images/RV_Admissions.png",
+            centerImage:                "images/RV_Admissions.png",
             mainMessage: {
                 english: "Hospital Card Expired",
                 french: "Carte d'hôpital expirée",
@@ -247,12 +247,12 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
 
         if(appointment.name === "NS - prise de sang/blood tests pre/post tx") {
             destination = "TestCentre";
-            centerImage = "/images/TestCentre.png";
+            centerImage = "images/TestCentre.png";
         }
 
         if(appointment.sourceSystem === "Aria") {
             destination = "DS1";
-            centerImage = "/images/salle_DS1.png";
+            centerImage = "images/salle_DS1.png";
         }
 
         let scheduledMatch = schedule.filter(x => appointment.code.includes(x.code)).at(-1);
@@ -260,7 +260,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
             destination = scheduledMatch.level;
 
             if(destination === "DRC") {
-                centerImage = "/images/salle_DRC.png";
+                centerImage = "images/salle_DRC.png";
             }
         }
 
@@ -284,7 +284,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
 
         return {
             arrowImage:                 null,
-            centerImage:                "/images/Measles.png",
+            centerImage:                "images/Measles.png",
             mainMessage: {
                 english: "Please wait...",
                 french: "Veuillez patienter...",
@@ -336,7 +336,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
 
         direction = arrows?.[location]?.[destination] ?? null;
 
-        return (direction === null) ? null : `/images/arrow_${direction}.png`;
+        return (direction === null) ? null : `images/arrow_${direction}.png`;
     }
 
     function checkIfServerIsOnline()
@@ -352,7 +352,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     function getPatientInfo(ramq,mrn,site)
     {
         return $http({
-            url: "/php/api/private/v1/patient/findPatient",
+            url: "php/api/private/v1/patient/findPatient",
             method: "POST",
             data: {
                 mrn:  mrn,
@@ -380,7 +380,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     function getNextAppointment(patient,destination)
     {
         return $http({
-            url: "/php/api/private/v1/patient/checkInViaKiosk",
+            url: "php/api/private/v1/patient/checkInViaKiosk",
             method: "POST",
             data: {
                 patientId:  patient.patientId,
@@ -405,7 +405,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     function sendSmsMessage(patient,messageEN,messageFR)
     {
         $http({
-            url: "/php/api/private/v1/patient/sms/sendSms",
+            url: "php/api/private/v1/patient/sms/sendSms",
             method: "POST",
             data: {
                 patientId:  patient.patientId,
@@ -418,7 +418,7 @@ app.controller('main', async function($scope,$http,$sce,$location,$interval,$win
     function logEvent(input,destination,messageComponents)
     {
         $http({
-            url: "/php/api/private/v1/vwr/logMessageForKiosk",
+            url: "php/api/private/v1/vwr/logMessageForKiosk",
             method: "POST",
             data: {
                 input:              input,

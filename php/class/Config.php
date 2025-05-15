@@ -31,7 +31,8 @@ class Config
     public static function __init(): void
     {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
-        $dotenv->load();
+        // don't fail if the .env file is not there
+        $dotenv->safeload();
 
         // Ensure that the following environment variables are set
         $dotenv->required('BASE_PATH')->notEmpty();
@@ -39,7 +40,6 @@ class Config
         $dotenv->required('IMAGE_PATH')->notEmpty();
         $dotenv->required('IMAGE_URL')->notEmpty();
         $dotenv->required('LOG_PATH')->notEmpty();
-        $dotenv->required('ORMS_PORT')->isInteger();
         $dotenv->required('ORMS_DATABASE_USER')->notEmpty();
         $dotenv->required('ORMS_DATABASE_PASSWORD')->notEmpty();
         $dotenv->required('ORMS_DATABASE_HOST')->notEmpty();
@@ -59,6 +59,8 @@ class Config
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
+        $dotenv->required('DATABASE_USE_SSL')->isBoolean();
+        $dotenv->required('SSL_CA')->notEmpty();
 
         $_ENV = self::_parseData($_ENV);
 
@@ -95,6 +97,8 @@ class Config
             databaseName:   $_ENV["ORMS_DATABASE_NAME"],
             username:       $_ENV["ORMS_DATABASE_USER"],
             password:       $_ENV["ORMS_DATABASE_PASSWORD"],
+            usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
+            sslca:          $_ENV["SSL_CA"],
         );
 
         $logDb = new DatabaseConfig(
@@ -103,6 +107,8 @@ class Config
             databaseName:   $_ENV["LOG_DATABASE_NAME"],
             username:       $_ENV["LOG_DATABASE_USER"],
             password:       $_ENV["LOG_DATABASE_PASSWORD"],
+            usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
+            sslca:          $_ENV["SSL_CA"],
         );
 
         //create optional configs
@@ -193,7 +199,9 @@ class DatabaseConfig
         public string $port,
         public string $databaseName,
         public string $username,
-        public string $password
+        public string $password,
+        public bool $usessl,
+        public string $sslca
     ) {}
 }
 

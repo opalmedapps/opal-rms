@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>MUHC ORMS Waiting Room Management System - Register Patient for SMS Messages</title>
+    <base href="/orms/">
 </head>
 
 <body ng-app="myApp" ng-controller="main">
@@ -13,7 +14,7 @@
     </table>
     <p>
 
-    <form action="/php/api/private/v1/patient/updatePhoneNumber" method="post">
+    <form action="php/api/private/v1/patient/updatePhoneNumber" method="post">
     <input type="hidden" name="specialityGroupId" value="{{specialityGroupId}}">
     <input type="hidden" name="patientId" value="{{patientId}}">
     <table border="0" width="50%" padding="2">
@@ -55,7 +56,7 @@
 
     <br>
 
-    <form action="/php/api/private/v1/patient/unregisterPhoneNumber" method="post">
+    <form action="php/api/private/v1/patient/unregisterPhoneNumber" method="post">
     <table border="0" width="50%" padding="2">
 
     <tr bgcolor=#1D0886 fgcolor=#FFFFFF><th colspan=5 width="20%" align="left"><font color=#FFFFFF>Unregister Mobile Number</font></th></tr>
@@ -77,11 +78,11 @@
 
     <hr>
     <center> Problems and bug reports to <a href="mailto: opal@muhc.mcgill.ca">opal@muhc.mcgill.ca</a></center>
-    <center> <a href="../">Main Page</a></center>
+    <center> <a href="./">Main Page</a></center>
 </body>
 
-<script src="/node_modules/angular/angular.min.js"></script>
-<script src="/node_modules/angular-cookies/angular-cookies.min.js"></script>
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/angular-cookies/angular-cookies.min.js"></script>
 
 <script>
 var app = angular.module('myApp',['ngCookies']);

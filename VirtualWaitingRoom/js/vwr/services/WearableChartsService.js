@@ -26,7 +26,7 @@
 
                 var modalDialog = $mdDialog.confirm(
                     {
-                        templateUrl: './js/vwr/templates/wearableCharts.htm', 
+                        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/wearableCharts.htm',
                         onComplete: (scope, element, options) => element.find("img").replaceWith(response.data),
                     })
                     .ariaLabel('Wearables Data')
@@ -34,7 +34,7 @@
             } catch (e) {
                 var modalDialog = $mdDialog.confirm(
                     {
-                        templateUrl: './js/vwr/templates/wearableCharts.htm', 
+                        templateUrl: 'VirtualWaitingRoom/js/vwr/templates/wearableCharts.htm',
                         onComplete: (scope, element, options) => element.find("img").replaceWith(
                             '<br><h4 style="color:red;">Could not load the charts. Please contact the administrator.</h4>'
                         ),

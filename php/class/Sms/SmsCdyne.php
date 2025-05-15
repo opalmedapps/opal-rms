@@ -106,7 +106,7 @@ class SmsCdyne
             #long messages are received in chunks so piece together the full message
             $messages = ArrayUtil::groupArrayByKey($messages,"OutgoingMessageID");
             $messages = array_map(function($x) {
-                $msg = array_reduce($x,function($acc,$y) {
+                $msg = array_reduce($x,function(string $acc,array $y) {
                     return $acc . $y["Payload"];
                 },"");
 
@@ -116,7 +116,7 @@ class SmsCdyne
                 #also convert the received utc timestamp into the local one
                 #timezone isn't really utc; it actually has an offset
                 $timestampWithOffset = preg_replace("/[^0-9 -]/","",$x["ReceivedDate"]);
-                $timestamp = (int) (substr($timestampWithOffset,0,-5)/1000);
+                $timestamp = (int) substr($timestampWithOffset,0,-5) / 1000;
                 $tzOffset = (new DateTime("",new DateTimeZone(substr($timestampWithOffset,-5))))->getOffset();
                 $utcTime = (new DateTime("@$timestamp"))->modify("$tzOffset second");
 
@@ -144,7 +144,7 @@ class SmsCdyne
             );
         },$messages);
 
-        usort($messages,function($a,$b) {
+        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
             return $a->timeReceived <=> $b->timeReceived;
         });
 

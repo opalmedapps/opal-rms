@@ -75,6 +75,9 @@ class SmsTwilio
             return $x->direction === "inbound";
         });
 
+         /**
+         * @psalm-suppress UndefinedPropertyAssignment
+         */
         $messages = array_map(function($x) {
             #remove plus sign from phone numbers
             #also remove international code client phone number because it might have been entered into the ORMS system without it
@@ -91,7 +94,7 @@ class SmsTwilio
             );
         },$messages);
 
-        usort($messages,function($a,$b) {
+        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
             return $a->timeReceived <=> $b->timeReceived;
         });
 

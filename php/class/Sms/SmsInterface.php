@@ -55,7 +55,7 @@ class SmsInterface
             $serviceNumber = self::$availableNumbers["Twilio"][array_rand(self::$availableNumbers["Twilio"])];
         }
 
-        $provider = NULL;
+        $provider = "UNKNOWN";
         $messageId = NULL;
         $result = NULL;
 
@@ -82,14 +82,12 @@ class SmsInterface
             $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
             $result = "FAILURE : {$e->getMessage()}";
         }
-        finally
+
+        #it might be possible to generate no message id when sending an sms (cdyne) so we have to generate one
+        if($messageId === NULL)
         {
-            #it might be possible to generate no message id when sending an sms (cdyne) so we have to generate one
-            if($messageId === NULL)
-            {
-                $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
-                $result = "FAILURE : Couldn't generate a messageId";
-            }
+            $messageId = "ORMS_sms_" . (new DateTime())->getTimestamp() . "_" . rand();
+            $result = "FAILURE : Couldn't generate a messageId";
         }
 
         Logger::LogSms(
@@ -118,7 +116,7 @@ class SmsInterface
         $messages = array_merge($messages,SmsTwilio::getReceivedMessages($timestamp));
         $messages = array_merge($messages,SmsCdyne::getReceivedMessages());
 
-        usort($messages,function($a,$b) {
+        usort($messages,function(SmsReceivedMessage $a,SmsReceivedMessage $b) {
             return $a->timeReceived <=> $b->timeReceived;
         });
 

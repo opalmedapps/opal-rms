@@ -60,8 +60,11 @@ class Config
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
         $dotenv->required('DATABASE_USE_SSL')->isBoolean();
-        $dotenv->required('SSL_CA')->notEmpty();
 
+        // Check if DATABASE_USE_SSL is truthy and require SSL_CA only if it is
+        if (filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {
+            $dotenv->required('SSL_CA')->notEmpty();
+        }
         $_ENV = self::_parseData($_ENV);
 
         //create required configs
@@ -98,7 +101,7 @@ class Config
             username:       $_ENV["ORMS_DATABASE_USER"],
             password:       $_ENV["ORMS_DATABASE_PASSWORD"],
             usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
-            sslca:          $_ENV["SSL_CA"],
+            sslca:          (string) ($_ENV["SSL_CA"] ?? ''),
         );
 
         $logDb = new DatabaseConfig(
@@ -108,7 +111,7 @@ class Config
             username:       $_ENV["LOG_DATABASE_USER"],
             password:       $_ENV["LOG_DATABASE_PASSWORD"],
             usessl:         (bool) ($_ENV["DATABASE_USE_SSL"] ?? false),
-            sslca:          $_ENV["SSL_CA"],
+            sslca:          (string) ($_ENV["SSL_CA"] ?? ''),
         );
 
         //create optional configs

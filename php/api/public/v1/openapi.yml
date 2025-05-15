@@ -5,6 +5,20 @@ info:
 servers:
   - url: /php/api/public/v1
 
+tags:
+  - name: appointment
+    description: Endpoints related to appointments
+  - name: auth
+    description: Endpoints related to api authorization
+  - name: hospital
+    description: Endpoints related to wait room configuration within a hospital
+  - name: patient
+    description: Endpoints related to patient demographics, diagnoses, and hospital identifiers
+  - name: sms
+    description: Endpoints related to SMS messaging support for patients
+  - name: Institution Integration
+    description: Endpoints for integrating the Open Opal solution with an external institution
+
 paths:
   /appointment/insertOrUpdateAppointment:
     post:
@@ -12,6 +26,7 @@ paths:
       description: Imports or updates appointments from (external) source systems into ORMS
       tags:
         - appointment
+        - Institution Integration
       requestBody:
         content:
           application/json:
@@ -146,12 +161,16 @@ paths:
       description: Validate user session
       tags:
         - auth
-                    
+        - Institution Integration       
       responses:
         200:
           $ref: '#/components/responses/200'
         400:
           $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401' 
+        403:
+          $ref: '#/components/responses/403' 
         500:
           $ref: '#/components/responses/500'
 
@@ -211,6 +230,8 @@ paths:
                         type: string
         400:
           $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403' 
         406:
           $ref: '#/components/responses/400'
         500:
@@ -378,6 +399,7 @@ paths:
       description: Updates the patient's location in the hospital for all their appointments of the day
       tags:
         - patient
+        - Institution Integration
       requestBody:
         content:
           application/json:
@@ -852,6 +874,18 @@ components:
             $ref: '#/components/schemas/SuccessObject'
     400:
       description: Input error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+    401:
+      description: Authentication error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+    403:
+      description: Authorization error
       content:
         application/json:
           schema:

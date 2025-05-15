@@ -612,29 +612,6 @@ paths:
         500:
           $ref: '#/components/responses/500'
 
-  /patient/unlinkPatients:
-    post:
-      summary: Unlinks two patients
-      description: Unlinks two patients whose mrns were previously combined into one patients chart
-      tags:
-        - patient
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              minItems: 2
-              maxItems: 2
-              items:
-                $ref: '#/components/schemas/MrnObject'
-      responses:
-        200:
-          $ref: '#/components/responses/200'
-        400:
-          $ref: '#/components/responses/400'
-        500:
-          $ref: '#/components/responses/500'
-
   /patient/updatePatientDemographics:
     post:
       summary: Update patient demographic information

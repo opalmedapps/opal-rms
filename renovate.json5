@@ -6,7 +6,7 @@
     ":separateMultipleMajorReleases",
   ],
 
-  "assignees": ["anton.gladyr"],
+  "assignees": ["anton.gladyr", "yickmo"],
   "labels": ["dependencies"],
   "separateMinorPatch": true,
   "packageRules": [

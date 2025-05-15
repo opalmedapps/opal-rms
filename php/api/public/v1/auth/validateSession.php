@@ -8,6 +8,7 @@ use GuzzleHttp\Cookie\SetCookie as CookieParser;
 use Orms\Authentication;
 use Orms\Http;
 use Orms\Util\Encoding;
+use Orms\System\Logger;
 
 //script to authenticate a user trying to log into ORMS
 //creates a session on the server using memcache and returns the info needed for the front end to create a cookie that validates the user
@@ -24,55 +25,39 @@ $sessionid = "";
 if(isset($_COOKIE["sessionid"])) {
     $sessionid = $_COOKIE["sessionid"];
 }
-$csrftoken = "";
-if(isset($_COOKIE["csrftoken"])) {
-    $csrftoken = $_COOKIE["csrftoken"];
-}
-
 
 try {
     $response = Authentication::validate($sessionid);
     $content = json_decode($response->getBody()->getContents(), true);
-
+    $username = $content["username"];
+    $error = "";
     if (
         $response->getStatusCode() == 200
-        && isset($content["username"])
+        && isset($username)
     ) {
         // If authenticated and authorized, return HTTP 200 and set cookies
-        $cookie = Authentication::createUserSession($content['username']);
-        $CookieInfo = session_get_cookie_params();
-        $cookie["sessionid"]["value"] = $sessionid;
-        $cookie["sessionid"]["params"] = [
-            "path" => $CookieInfo["path"],
-            "domain" => $CookieInfo["domain"],
-            "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $CookieInfo["lifetime"]),
-            "samesite" => $CookieInfo["samesite"],
-        ];
-
-        $cookie["csrftoken"]["value"] = $csrftoken;
-        $cookie["csrftoken"]["params"] = [
-            "path" => $CookieInfo["path"],
-            "domain" => $CookieInfo["domain"],
-            "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $CookieInfo["lifetime"]),
-            "samesite" => $CookieInfo["samesite"],
-        ];
+        $cookie = Authentication::createUserSession($username);
 
         Http::generateResponseJsonAndExit(200, data: $cookie);
     }
     elseif ($response->getStatusCode() == 403) {
         // If user is unauthorized (HTTP 403) return a human-readable error message
+        $error = "You do not have permission to access ORMS. Contact the Opal systems administrator.";
         Http::generateResponseJsonAndExit(
             httpCode: 403,
-            error: "You do not have permission to access ORMS. Contact the Opal systems administrator."
+            error: $error
         );
     }
     else {
         // Return "Authentication failure" for any other errors
+        $error = "Authentication failure.";
         Http::generateResponseJsonAndExit(
             httpCode: 406,
-            error: "Authentication failure"
+            error: $error
         );
     }
+
+    Logger::logLoginEvent($username, $response->getStatusCode(), $error);
 }
 catch(Exception $e) {
     Http::generateResponseJsonAndExit(

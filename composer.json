@@ -19,7 +19,7 @@
     "require-dev": {
         "ext-xml": "*",
         "phpstan/phpstan": "1.10.16",
-        "vimeo/psalm": "4.11",
+        "vimeo/psalm": "4.30.0",
         "friendsofphp/php-cs-fixer": "3.4.0"
     }
 }

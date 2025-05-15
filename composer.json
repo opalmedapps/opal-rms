@@ -12,7 +12,7 @@
         "league/openapi-psr7-validator": "^0.15.2",
         "cebe/php-openapi": "^1.5",
         "lavary/crunz": "^3.2",
-        "symfony/lock": "^6.0",
+        "symfony/lock": "6.0.19",
         "vlucas/phpdotenv": "5.5.0",
         "phpmailer/phpmailer": "6.8.0"
     },

@@ -22,7 +22,6 @@
     "dayjs": "^1.10.6",
     "firebase": "2.2.1",
     "highcharts": "9.2.2",
-    "highcharts-export-server": "2.1.0",
     "highcharts-ng": "1.2.1",
     "jquery": "3.4.1",
     "jquery-csv": "^1.0.21",
@@ -34,7 +33,6 @@
     "ui-select": "0.19.8"
   },
   "scripts": {
-    "install": "export HIGHCHARTS_VERSION=npm HIGHCHARTS_CDN=npm ACCEPT_HIGHCHARTS_LICENSE=1 && node node_modules/highcharts-export-server/build.js"
   },
   "devDependencies": {
     "redoc-cli": "^0.10.4"

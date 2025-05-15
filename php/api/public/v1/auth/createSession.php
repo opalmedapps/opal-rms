@@ -38,6 +38,7 @@ if (
     && isset($content["key"])
     && isset($response->getHeaders()["Set-Cookie"])
 ) {
+    // If authenticated and authorized, return HTTP 200 and set cookies
     $cookie = Authentication::createUserSession($user->username);
     $cookieParser = new CookieParser();
     $cookiesArr = $response->getHeaders()["Set-Cookie"];
@@ -58,11 +59,13 @@ if (
     Http::generateResponseJsonAndExit(200, data: $cookie);
 }
 elseif ($response->getStatusCode() == 403) {
+    // If user is unauthorized (HTTP 403) return a human-readable error message
     Http::generateResponseJsonAndExit(
         httpCode: 403,
         error: "You do not have permission to access ORMS. Contact the Opal systems administrator."
     );
 }
 else {
+    // Return "Authentication failure" for any other errors
     Http::generateResponseJsonAndExit(406);
 }

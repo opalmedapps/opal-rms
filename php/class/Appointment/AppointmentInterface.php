@@ -75,7 +75,7 @@ class AppointmentInterface
         {
             SmsAppointmentInterface::insertSmsAppointment($clinicId, $appCodeId, $specialityGroupId, $system);
 
-            Mail::sendEmail(
+            Mail::sendViaSMTP(
                 "ORMS - New appointment type detected",
                 "New appointment type detected: $clinicDescription ($clinicCode) with $appointmentCode in the $specialityGroupCode speciality group from system $system."
             );

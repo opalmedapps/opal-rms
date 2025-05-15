@@ -56,7 +56,7 @@ email_errors: false
 # Global Swift Mailer settings
 mailer:
     # Possible values: smtp, mail, and sendmail
-    transport: sendmail
+    transport: smtp
     recipients:
     sender_name:
     sender_email:
@@ -64,8 +64,12 @@ mailer:
 
 # SMTP settings
 smtp:
-    host: ~
-    port: ~
-    username: ~
-    password: ~
-    encryption: ~
+    host: smtp.example.com
+    port: 587
+    username: example@muhc.mcgill.ca
+    password: AuthorizationCode
+    # encryption expects a boolean value (e.g., 1/0; true/false; on/off; yes/no)
+    # if set to TRUE, it performs TLS peer verification
+    # https://symfony.com/doc/current/mailer.html#tls-peer-verification
+    # https://github.com/crunzphp/crunz/blob/75708cd5b886ae24bf0a4fcde440cf5527d8d86b/src/Mailer.php#L74
+    encryption: 0

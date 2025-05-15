@@ -40,8 +40,8 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
             })
             .then( _ => loadPatientDiagnosis())
         }
-        func();
-        // authenticateUser(func);
+
+        authenticateUser(func);
     }
 
     $scope.deletePatientDiagnosis = function(patientDiagnosis)
@@ -62,8 +62,8 @@ function diagnosisModalController($scope,$http,$mdDialog,NgTableParams,patient)
             })
             .then( _ => loadPatientDiagnosis());
         }
-        func();
-        // authenticateUser(func);
+
+        authenticateUser(func);
     }
 
     $scope.addAnimationIfOverflowed = function(event)

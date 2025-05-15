@@ -87,22 +87,4 @@ class Export
             ]
         ]);
     }
-
-    // public static function exportPatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status): void
-    // {
-    //     Connection::getHttpClient()?->request("POST", Connection::API_PATIENT_DIAGNOSIS, [
-    //         "json" => [
-    //             "mrn"           => $patient->getActiveMrns()[0]->mrn,
-    //             "site"          => $patient->getActiveMrns()[0]->site,
-    //             "source"        => "ORMS",
-    //             "rowId"         => $diagId,
-    //             "externalId"    => "ICD-10",
-    //             "code"          => $diagSubcode,
-    //             "creationDate"  => $creationDate->format("Y-m-d H:i:s"),
-    //             "descriptionEn" => $descEn,
-    //             "descriptionFr" => $descFr,
-    //             "status"        => $status
-    //         ]
-    //     ]);
-    // }
 }

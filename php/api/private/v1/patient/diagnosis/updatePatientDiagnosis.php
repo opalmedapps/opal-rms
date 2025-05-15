@@ -54,7 +54,6 @@ if($patient !== null) {
                 $updatedDiag->status
             );
         }else{
-            error_log("Insert block reached with status: " . $status);
             // Assign patient the diagnosis
             Export::insertPatientDiagnosis(
                 $patient,

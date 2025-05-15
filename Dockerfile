@@ -11,7 +11,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # Build/install PHP dependencies
-FROM composer:2.5.4 as php-dependencies
+FROM composer:2.5.8 as php-dependencies
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-autoloader
 
 # final image
-FROM php:8.0.28-apache-bullseye
+FROM php:8.0.29-apache-bullseye
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \

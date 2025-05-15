@@ -16,12 +16,12 @@ class Authentication
 {
     public static function login(string $username, string $password): ResponseInterface
     {
-        $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
+        $loginUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
         //check if the credentials are valid in the opalAdmin backend
         $client = new Client();
         $response = $client->request(
             "POST",
-            $authUrl,
+            $loginUrl,
             [
                 "form_params" => [
                     "username"           => $username,
@@ -35,14 +35,14 @@ class Authentication
         return $response;
     }
 
-    public static function logout(string $csrftoken, string $sessionid)
+    public static function logout(string $csrftoken, string $sessionid): void
     {
-        $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
+        $logoutUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
         // call the endpoint to flush the session in opalAdmin backend
         $client = new Client();
         $client->request(
             "POST",
-            $authUrl,
+            $logoutUrl,
             [
                 'headers' => [
                     'Cookie' => 'sessionid='.$sessionid.';csrftoken='.$csrftoken,
@@ -54,13 +54,13 @@ class Authentication
 
     public static function validate(string $sessionid): ResponseInterface
     {
-        $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/validate/';
+        $validateUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/validate/';
         //check if the session id is valid in the opalAdmin backend
         $client = new Client();
         try {
             $response = $client->request(
                 "GET",
-                $authUrl,
+                $validateUrl,
                 [
                     'headers' => [
                         'Cookie' => 'sessionid='.$sessionid,

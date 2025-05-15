@@ -81,8 +81,9 @@ class Config
             newOpalAdminUrl:                    $_ENV["NEW_OPAL_ADMIN_URL"] ?? null,
             newOpalAdminToken:                  $_ENV["NEW_OPAL_ADMIN_TOKEN"] ?? null,
             emailHost:                          $_ENV["EMAIL_HOST"] ?? null,
-            emailHostUser:                      $_ENV["EMAIL_HOST_USER"] ?? null,
-            emailHostPassword:                  $_ENV["EMAIL_HOST_PASSWORD"] ?? null,
+            emailHostUser:                      $_ENV["EMAIL_USER"] ?? null,
+            emailHostPassword:                  $_ENV["EMAIL_PASSWORD"] ?? null,
+            emailSentFromAddress:               $_ENV["EMAIL_SENT_FROM_ADDRESS"] ?? null,
             emailPort:                          $_ENV["EMAIL_PORT"] ?? null,
         );
 
@@ -210,6 +211,7 @@ class SystemConfig
         public string $emailHost,
         public string $emailHostUser,
         public string $emailHostPassword,
+        public string $emailSentFromAddress,
         public string $emailPort,
     ) {}
 

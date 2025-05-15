@@ -39,7 +39,9 @@ class Mail
         $mail->Port       = Config::getApplicationSettings()->system->emailPort;         // set the SMTP port
 
         // Content
-        $mail->setFrom('opal@muhc.mcgill.ca');
+        $mail->setFrom(
+            Config::getApplicationSettings()->system->emailSentFromAddress,
+        );
         foreach(Config::getApplicationSettings()->system->emails as $email)
         {
             $mail->addAddress($email);

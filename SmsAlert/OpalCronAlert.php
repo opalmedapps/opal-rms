@@ -36,6 +36,10 @@ class OpalCronAlert
         return $message;
     }
 
+    /**
+     * @param PDO $database database connection
+     * @return bool return true if the function is working, false for error
+     */
     public function SendMail(PDO $database)
     {
         $list = $this->CheckOpalCron($database);

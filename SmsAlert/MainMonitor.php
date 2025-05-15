@@ -1,6 +1,8 @@
 <?php
-
-
+/**
+ * This script is for monitoring the cronjobs and other possible database error in Opal or Orms.
+ * It will send an email if any alert class got an error.
+ */
 //import package
 require_once __DIR__."/../VirtualWaitingRoom/php/loadConfigs.php";
 require_once __DIR__."/OrmsCronAlert.php";
@@ -23,6 +25,9 @@ $checkOpalCron = $opalCronjob ->SendMail($opalDB);
 $checkMessageLog = $messageLog ->SendMail($ormsLogDB);
 
 //Send email if there is error
-echo $checkOrmsCron
+if(!($checkOrmsCron and $checkOpalCron and $checkMessageLog)){
+    $message = "Hi there,\n\n The monitoring system got an unknown error. Please check.\n\nThanks.\n";
+    mail($email, OTHER_ERROR, $message,$header);
+}
 
 ?>

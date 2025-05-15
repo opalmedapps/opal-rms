@@ -17,10 +17,10 @@ use Orms\System\Logger;
 
 
 
-$opalAdminHost = Config::getApplicationSettings()->environment->opalAdminHost;
-$sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
-
 try {
+    $opalAdminHost = Config::getApplicationSettings()->environment->opalAdminHost;
+    $sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
+
     $response = Authentication::validate($sessionid);
     
     if (!$response || $response->getStatusCode() != 200) {

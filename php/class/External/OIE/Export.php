@@ -24,7 +24,7 @@ class Export
             "json" => [
                 "mrn"             => $mrn,
                 "site"            => $site,
-                //TODO: repalce with the pdf generation function in backend.
+                //TODO: replace with the pdf generation function in backend.
                 //"reportContent"   => Generator::generatePdfString($patient),
                 "docType"         => "ORMS Measurement",
                 "documentDate"    => (new DateTime())->format("Y-m-d H:i:s"),

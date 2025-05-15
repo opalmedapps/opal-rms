@@ -7,7 +7,7 @@ namespace Orms\Appointment;
 use Exception;
 use Orms\DataAccess\AppointmentAccess;
 use Orms\DateTime;
-use Orms\External\OIE\Export;
+use Orms\External\LegacyOpalAdmin\Export;
 use Orms\Hospital\HospitalInterface;
 use Orms\Patient\Model\Patient;
 use Orms\Sms\SmsAppointmentInterface;

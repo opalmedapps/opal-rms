@@ -55,7 +55,7 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
         }
     });
 
-    //get the data from Firebase and load it into an array called screenRows
+    //get the data from Firebase and load it into an object
     //when the data changes on Firebase this array will be automatically updated
     let firebasePatients = $firebaseArray(firebaseScreenRef);
 
@@ -65,15 +65,15 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
         $scope.patientList = decryptData(firebasePatients) //if there are any patients in the array on load, we decrypt them
 
         //watch the number of patients in the firebase list. When it changes, play a sound
-        $scope.$watch(_ => firebasePatients.length, (newValue,oldValue) => {
+        $scope.$watch(_ => $scope.patientList.length, (newValue,oldValue) => {
             //play sound if the number of patients is increased in the array
             //oldValue is initially 0, so don't play a sound on page load
-            if(newValue > oldValue && oldValue >= 2) { //we have to account for the ToBeWeighed and Metadata rows
+            if(newValue > oldValue) {
                 audio.play();
             }
         });
 
-        //every time the screenRows array is updated on Firebase we need to send the data for decryption
+        //every time the firebase object is updated on Firebase we need to send the data for decryption
         //we know an update has occured when the timestamp in the Metadata changes
         $scope.$watch(_ => firebasePatients.$getRecord("Metadata")?.LastUpdated ?? null, (newValue,oldValue) => {
             if(newValue !== oldValue) {
@@ -83,9 +83,12 @@ myApp.controller("screenDisplayController",async function($scope,$http,$firebase
     });
 
     //decrypts all patient encrypted data in the firebase array
-    function decryptData(screenRows)
+    function decryptData(patients)
     {
-        return angular.copy(screenRows).map(x => {
+        let patientsArr = patients.$getRecord("patients");
+        patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated","$id","$priority"].includes(x)).map(x => patientsArr[x]);
+
+        return angular.copy(Object.values(patientsArr)).map(x => {
             x.FirstName = CryptoJS.AES.decrypt(x.FirstName,"secret key 123").toString(CryptoJS.enc.Utf8);
             return x;
         });

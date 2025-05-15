@@ -3,12 +3,12 @@
 
     angular
         .module('vwr')
-        .service('WearableChartsService', WearableChartsService);
+        .service('WearableCharts', WearableCharts);
 
-    WearableChartsService.$inject = ['$http', '$mdDialog'];
+    WearableCharts.$inject = ['$http', '$mdDialog'];
 
     /* @ngInject */
-    function WearableChartsService($http, $mdDialog) {
+    function WearableCharts($http, $mdDialog) {
 
         return {
             showWearableDataCharts: showWearableDataCharts

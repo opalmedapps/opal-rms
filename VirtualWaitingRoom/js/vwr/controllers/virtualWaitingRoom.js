@@ -1,6 +1,6 @@
 //virtualWaitingRoom Controller
 
-myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http,$firebaseObject,$interval,$filter,$mdDialog,$window,ProfileSettings,WearableChartsService)
+myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http,$firebaseObject,$interval,$filter,$mdDialog,$window,ProfileSettings,WearableCharts)
 {
     //=========================================================================
     // General useful stuff
@@ -763,7 +763,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
     //=========================================================================
     $scope.showWearableDataCharts = async function(wearablesURL)
     {
-        WearableChartsService.showWearableDataCharts(wearablesURL);
+        WearableCharts.showWearableDataCharts(wearablesURL);
     }
 
     //-------------------------------------

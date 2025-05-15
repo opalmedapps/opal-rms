@@ -41,6 +41,7 @@ class Mail
         // Content
         $mail->setFrom(
             Config::getApplicationSettings()->system->emailSentFromAddress,
+            'ORMS',
         );
         foreach(Config::getApplicationSettings()->system->emails as $email)
         {

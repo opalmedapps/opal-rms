@@ -15,7 +15,7 @@ FROM composer:2.5.4 as php-dependencies
 
 WORKDIR /app
 
-COPY composer.json ./
+COPY composer.json composer.lock ./
 
 RUN composer install --no-dev --no-scripts --ignore-platform-reqs --optimize-autoloader
 

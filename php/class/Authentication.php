@@ -29,12 +29,9 @@ class Authentication
                 "http_errors" => false,
             ],
         );
-
-        $requestResult = json_decode($response->getBody()->getContents(),true);
-        $statusCode = (int) ($requestResult["statusCode"] ?? 1); //if the return status is 0, then the user's credentials are valid
-        $error = $requestResult["error"] ?? null;
-        $displayName = $requestResult["displayName"] ?? null;
-        Logger::logLoginEvent($username,$displayName,$statusCode,$error);
+        $statusCode = $response->getStatusCode(); 
+        $error = ($statusCode != 200) ? "Authentication failure" : "";
+        Logger::logLoginEvent($username,$username,$statusCode,$error);
 
         return $response;
     }

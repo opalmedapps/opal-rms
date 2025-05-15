@@ -67,5 +67,8 @@ elseif ($response->getStatusCode() == 403) {
 }
 else {
     // Return "Authentication failure" for any other errors
-    Http::generateResponseJsonAndExit(406);
+    Http::generateResponseJsonAndExit(
+        httpCode: 406,
+        error: "Authentication failure"
+    );
 }

@@ -57,59 +57,71 @@
 </html>
 
 <script>
-var app = angular.module('myApp',['ngCookies','ngMaterial']);
+var app = angular.module('myApp', ['ngCookies', 'ngMaterial']);
 
-app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$window)
+app.controller('main', function($scope, $http, $mdDialog, $cookies, $location, $window)
 {
-    $http({
-        url: "php/api/public/v1/hospital/getHubs",
-        method: "POST",
-        data: null
-    })
-    .then( x => {$scope.specialityGroups = x.data.data;})
+    // TODO: check if Django's session cookies exist (e.g., sessionid and csrftoken)
+    //       AND ORMS session cookies (e,g., ormsAuth) does not exist (to avoid unnecessary /validate calls).
+    //
+    // If the condition is True:
+    //     - make a "php/api/public/v1/auth/validateSession" call to the Django backend;
+    //     - if Django's session is valid, create a session in the ORMS backend;
+    //     - show area selection modal pop-up dialog (e.g., $scope.showSpecialitySelection = true);
+    // Otherwise user should see login page (e.g., normal logging in workflow).
 
-    $http({
-        url: "php/api/public/v1/auth/validateSession",
-        method: "GET"
-    })
-    .then(v => processAuthentication(v.data.data))
-    .catch(err => {
-        $error = err?.data?.error ? err.data.error : "Authentication failed";
-        console.log($error);
-    });
-
-    $scope.authenticateUser = function()
+    $scope.authenticateUser = async function()
     {
         $scope.error = "";
-        $http({
-                url: "php/api/public/v1/auth/createSession",
-                method: "POST",
-                data: {
-                    "username": $scope.username,
-                    "password": $scope.password
-                }
-        })
-        .then(r => processAuthentication(r.data.data))
-        .catch(err => {
-                $scope.error = err?.data?.error ? err.data.error : "Authentication failed";
-                $scope.password = "";
-        });
+
+        try {
+            const response = await $http({
+                    url: "php/api/public/v1/auth/createSession",
+                    method: "POST",
+                    data: {
+                        "username": $scope.username,
+                        "password": $scope.password
+                    }
+            });
+
+            processAuthentication(response.data.data);
+        } catch (error) {
+            $scope.error = error?.data?.error ? error.data.error : "Authentication failed";
+            $scope.password = "";
+        };
     };
 
-    function processAuthentication(authData)
+    async function processAuthentication(authData)
     {
         $scope.showSpecialitySelection = true;
 
-        let answer = $mdDialog.confirm(
+        // Fetch all available areas
+        const specialityGroups = await fetchSpecialityGroups();
+
+        // Show a modal pop-up dialog with the all available areas
+        let area = await showAreaModalDialog(specialityTemplate, specialityGroups);
+
+        // If chosen speciality group (a.k.a. area) has more than one TV hubs (e.g., several floors or levels)
+        // show the second modal pop-up dialog with the hubs.
+        let hub;
+        if (area.length !== 1) hub = await showAreaModalDialog(hubTemplate, area);
+        else hub = area[0];
+
+        createCookiesAndRedirect(authData, hub);
+    }
+
+    async function showAreaModalDialog(template, dialogOptions)
+    {
+        let areaModalDialog = $mdDialog.confirm(
         {
             escapeToClose: false,
-            template: specialityTemplate,
+            template: template,
             locals: {
-                specialityGroups: $scope.specialityGroups
+                dialogOptions: dialogOptions,
             },
-            controller: function($scope,specialityGroups)
+            controller: function($scope, dialogOptions)
             {
-                $scope.specialityGroups = specialityGroups;
+                $scope.dialogOptions = dialogOptions;
                 $scope.complete = function(option)
                 {
                     $mdDialog.hide(option);
@@ -119,42 +131,11 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
         .ariaLabel('Area Dialog')
         .hasBackdrop(false);
 
-        $mdDialog.show(answer).then(function(result)
-        {
-            if(result.length !== 1)
-            {
-                let answer = $mdDialog.confirm(
-                {
-                    escapeToClose: false,
-                    template: hubTemplate,
-                    locals: {
-                        hubs: result
-                    },
-                    controller: function($scope,hubs)
-                    {
-                        $scope.hubs = hubs;
-                        $scope.complete = function(option)
-                        {
-                            $mdDialog.hide(option);
-                        }
-                    }
-                })
-                .ariaLabel('Area Dialog')
-                .hasBackdrop(false);
-
-                $mdDialog.show(answer).then(function(resultHub)
-                {
-                    createCookiesAndRedirect(authData,resultHub);
-                });
-            }
-            else
-            {
-                createCookiesAndRedirect(authData,result[0]);
-            }
-        });
+        const result = await $mdDialog.show(areaModalDialog);
+        return result;
     }
 
-    function createCookiesAndRedirect(authData,hubData)
+    function createCookiesAndRedirect(authData, hubData)
     {
         $cookies.put("specialityGroupId",hubData["specialityGroupId"],{path: "/"});
         $cookies.put("specialityGroupName",hubData["specialityGroupName"],{path: "/"});
@@ -166,6 +147,23 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
         $cookies.put(authData["name"],authData["key"],{path: "/"});
         $window.location.href = $location.absUrl();
     }
+
+    // Get a list of clinical areas (a.k.a. hubs) by making a call to the ORMS backend
+    async function fetchSpecialityGroups()
+    {
+        try {
+            const response = await $http({
+                url: "php/api/public/v1/hospital/getHubs",
+                method: "POST",
+                data: null
+            });
+
+            return response.data.data;
+        } catch (error) {
+            console.error('An error occurred while fetching speciality groups: ', error);
+            return [];
+        }
+    }
 });
 
 var specialityTemplate = `
@@ -173,7 +171,7 @@ var specialityTemplate = `
         <h2 class="md-title ng-binding">Connect to a Clinical Area</h2>
         <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
             <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="(key,spec) in specialityGroups" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{key}}</md-button>
+                <md-button ng-repeat="(key,spec) in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(spec)">{{key}}</md-button>
             </span>
         </div>
     </md-dialog-content>
@@ -184,7 +182,7 @@ var hubTemplate = `
         <h2 class="md-title ng-binding">Select a TV Hub</h2>
         <div ng-if="::!dialog.mdHtmlContent" class="md-dialog-content-body ng-scope">
             <span style="display:flex;justify-content:center;">
-                <md-button ng-repeat="hub in hubs" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.clinicHubName}}</md-button>
+                <md-button ng-repeat="hub in dialogOptions" md-no-ink="" class="md-raised md-primary" ng-click="complete(hub)">{{hub.clinicHubName}}</md-button>
             </span>
         </div>
     </md-dialog-content>

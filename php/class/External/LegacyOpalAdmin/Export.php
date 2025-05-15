@@ -19,7 +19,6 @@ class Export
     public static function insertMasterSourceDiagnosis(string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr){
         $cookie = Fetch::getOrSetOACookie();
     
-        // TODO: OA accepts only one description field, but we can send both EN and FR
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_DIAGNOSIS, [
             'headers' => [
                 'Cookie' => $cookie,
@@ -34,7 +33,6 @@ class Export
                 ]
             ]
         ])?->getBody()?->getContents();
-        // TODO: Process response code
     }
 
     /**
@@ -61,7 +59,6 @@ class Export
                 'status'        => $status
             ]
         ])?->getBody()?->getContents();
-        // TODO: Process response code
     }
 
     /**
@@ -70,7 +67,6 @@ class Export
     public static function deletePatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status){
         $cookie = Fetch::getOrSetOACookie();
     
-        // TODO: OA accepts only one description field, but we can send both EN and FR
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DELETE_PATIENT_DIAGNOSIS, [
                 'headers' => [
                     'Cookie' => $cookie,
@@ -90,7 +86,5 @@ class Export
             ]
         );
         $responseCode = $response->getStatusCode();
-        // $responseData = json_decode($response?->getBody()?->getContents() ?: '[]', true)['data'] ?? false;
-        // TODO: Process response code
     }
 }

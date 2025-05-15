@@ -18,7 +18,7 @@
     },
     "require-dev": {
         "ext-xml": "*",
-        "phpstan/phpstan": "^1.1",
+        "phpstan/phpstan": "^1.10",
         "vimeo/psalm": "4.11",
         "friendsofphp/php-cs-fixer": "^3.2"
     }

@@ -3,7 +3,7 @@ info:
   title: ORMS Public Api
   version: 0.2.0
 servers:
-  - url: https://serverUrl/php/api/public/v1
+  - url: /php/api/public/v1
 
 paths:
   /appointment/insertOrUpdateAppointment:

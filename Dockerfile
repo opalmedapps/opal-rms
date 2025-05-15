@@ -105,5 +105,7 @@ COPY --chown=www-data:www-data ./docker/app ./docker/app
 
 # Set up the cron jobs
 COPY ./docker/cron/crontab /var/spool/cron/crontabs/www-data
+COPY ./docker/cron/scripts/run-crunz-tasks.sh ./docker/cron/scripts/run-crunz-tasks.sh
+RUN mkdir ./tmp
 
 EXPOSE 8080

@@ -51,6 +51,7 @@ class PDFExportService
 
             curl_exec($ch);
         } catch (Exception $e){
+            error_log((string) $e);
             return;
         }
     }

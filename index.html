@@ -103,12 +103,6 @@ app.controller('main', function($scope, $http, $cookies, $location, $mdDialog, $
 
     $scope.rmsLogo    = CONFIG.BRANDING_RMS_LOGO_PATH;
     
-    function test(){
-        console.log("test");
-        var ormslogo = document.getElementById('logo');
-        ormslogo.innerHTML = '<img ng-src="{{rmsLogo}}" alt="MUHC logo" border="0" width="40%">';
-    }
-    
     // show the "speciality" (sic!) selection if any of the cookies is missing
     if (!$scope.speciality || !$scope.hub || !$scope.hubName || !$scope.site) {
         showSpecialitySelection();

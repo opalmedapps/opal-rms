@@ -125,7 +125,6 @@ class ClinicResources
                     WHERE
                         CR.ResourceCode = MV.Resource
                         AND CR.ResourceName = MV.ResourceDescription
-                        AND CR.SourceSystem = MV.AppointSys
                 )
             WHERE
                 MV.ClinicResourcesSerNum = 0

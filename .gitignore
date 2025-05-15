@@ -18,3 +18,6 @@ php-error.log
 
 # macOS
 .DS_Store
+
+# ignore IDE files
+.idea/

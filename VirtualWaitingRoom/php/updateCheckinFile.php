@@ -55,8 +55,6 @@ $sqlWRM = "
         Patient.FirstName,
         Patient.PatientSerNum AS PatientId,
         Patient.PatientId AS Mrn,
-        Patient.PatientId AS PatientIdRVH,
-        Patient.PatientId_MGH AS PatientIdMGH,
         Patient.OpalPatient,
         Patient.SMSAlertNum,
         CASE WHEN Patient.LanguagePreference IS NOT NULL THEN Patient.LanguagePreference ELSE 'French' END AS LanguagePreference,

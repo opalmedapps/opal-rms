@@ -678,8 +678,8 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                     var occupyingPatient = response.data[0];
 
                     if(
-                        (occupyingPatient.PatientIdRVH != "Nobody" && occupyingPatient.PatientIdRVH != patient.PatientIdRVH)
-                        || (occupyingPatient.PatientIdMGH != "Nobody" && occupyingPatient.PatientIdMGH != patient.PatientIdMGH)
+                        occupyingPatient.PatientId != "Nobody"
+                        && occupyingPatient.PatientId != patient.PatientId
                     )
                     {
                         $scope.logMessage("force_remove_exam_only","General","Function call on Patient "+ occupyingPatient.PatientId +" and location BACK TO WAITING ROOM");
@@ -689,7 +689,7 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                         //for each appointment the occupying patient has, find it in the checkin list and remove it from FB
                         angular.forEach($scope.checkins,function (matchingPatient)
                         {
-                            if(matchingPatient.PatientIdRVH == occupyingPatient.PatientIdRVH && matchingPatient.PatientIdMGH == occupyingPatient.PatientIdMGH)
+                            if(matchingPatient.PatientId == occupyingPatient.PatientId)
                             {
                                 $scope.logMessage("force_remove_FB_exam_only","General","Function call on Patient "+ matchingPatient.PatientId +" with appointment serial "+ matchingPatient.ScheduledActivitySer + matchingPatient.CheckinSystem);
 
@@ -730,16 +730,16 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
                 //loop through the list of patients that were chosen to be checkout out
                 angular.forEach(occupyingIds,function (id)
                 {
-                    if(id.PatientIdRVH != patient.PatientIdRVH && id.PatientIdMGH != patient.PatientIdMGH)
+                    if(id.PatientId != patient.PatientId)
                     {
                         $scope.logMessage("force_remove","General","Function call on Patient "+ id.PatientId +" and location BACK TO WAITING ROOM");
 
-                        $scope.sendToLocation({PatientIdRVH: id.PatientIdRVH,PatientIdMGH: id.PatientIdMGH},"BACK TO WAITING ROOM",false);
+                        $scope.sendToLocation({PatientId: id.PatientId},"BACK TO WAITING ROOM",false);
 
                         //for each appointment the occupying patient has, find it in the checkin list and remove it from FB
                         angular.forEach($scope.checkins,function (matchingPatient)
                         {
-                            if(matchingPatient.PatientIdRVH == id.PatientIdRVH && matchingPatient.PatientIdMGH == id.PatientIdMGH)
+                            if(matchingPatient.PatientId === id.PatientId)
                             {
                                 $scope.logMessage("force_remove_FB","General","Function call on Patient "+ matchingPatient.PatientId +" with appointment serial "+ matchingPatient.ScheduledActivitySer + matchingPatient.CheckinSystem);
 

@@ -163,7 +163,7 @@ if(file_exists("$fullFilePath.pdf")) unlink("$fullFilePath.pdf");
 * Run the following curl command (NOTE! you need to use your cookie values that found in the previous step)
 
 ```bash
-curl 'http://127.0.0.1:8086/php/api/private/v1/patient/measurement/insertMeasurement' -X 'POST' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/ avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'Cookie: adminer_key=your-adminer_key; adminer_settings=; PHPSESSID=your-PHPSESSID; sessionid=your-sessionid; adminer_permanent=; adminer_sid=your-adminer_sid; specialityGroupId=1; specialityGroupName=Test%20Group; clinicHubId=1; clinicHubName=Test%20Hub; hospitalCode=RVH; csrftoken=your-csrftoken; ormsAuth=your-ormsAuth' -H 'Referer: http://127.0.0.1:8086/' -d "patientId=1&height=180&weight=80&bsa=50&sourceId=1&sourceSystem=BBB"
+curl 'http://127.0.0.1:8086/php/api/private/v1/patient/measurement/insertMeasurement' -X 'POST' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/ avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'Cookie: adminer_key=your-adminer_key; adminer_settings=; PHPSESSID=your-PHPSESSID; sessionid=your-sessionid; adminer_permanent=; adminer_sid=your-adminer_sid; specialityGroupId=1; specialityGroupName=Test%20Group; clinicHubId=1; clinicHubName=Test%20Hub; hospitalCode=RVH; csrftoken=your-csrftoken' -H 'Referer: http://127.0.0.1:8086/' -d "patientId=1&height=180&weight=80&bsa=50&sourceId=1&sourceSystem=BBB"
 ```
 
 * Check `tmp` folder, it should contain generated weights PDF file.

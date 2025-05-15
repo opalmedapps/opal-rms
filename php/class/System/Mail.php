@@ -8,6 +8,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
 // Even if you're not using exceptions, you do still need to load the Exception class as it is used internally.
+// https://github.com/PHPMailer/PHPMailer#installation--loading
 use PHPMailer\PHPMailer\Exception;
 
 use Orms\Config;
@@ -31,8 +32,8 @@ class Mail
         $mail->CharSet    = PHPMailer::CHARSET_UTF8;
 
         $mail->Host       = Config::getApplicationSettings()->system->emailHost;  // SMTP server
-        $mail->SMTPDebug  = 0;      // enables SMTP debug information (for testing)
-        $mail->SMTPAuth   = true;   // enable SMTP authentication
+        $mail->SMTPDebug  = SMTP::DEBUG_OFF;      // enables SMTP debug information (for testing)
+        $mail->SMTPAuth   = true;                 // enable SMTP authentication
         $mail->Username   = Config::getApplicationSettings()->system->emailHostUser;     // SMTP account username
         $mail->Password   = Config::getApplicationSettings()->system->emailHostPassword; // SMTP account password
         $mail->Port       = Config::getApplicationSettings()->system->emailPort;         // set the SMTP port

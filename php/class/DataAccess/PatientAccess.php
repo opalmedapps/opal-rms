@@ -452,7 +452,7 @@ class PatientAccess
                 ":number"       => $insuranceNumber,
                 ":insuranceId"  => $insuranceId,
                 ":expiration"   => $expirationDate->format("Y-m-d H:i:s"),
-                ":active"       => $active
+                ":active"       => (int) $active
             ]);
         }
         elseif((bool) $insuranceActive !== $active || (new DateTime($insuranceActiveExpiration))->getTimestamp() !== $expirationDate->getTimestamp())

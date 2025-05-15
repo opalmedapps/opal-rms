@@ -6,6 +6,7 @@ require_once __DIR__."/../../../../../../vendor/autoload.php";
 
 use Orms\Http;
 use Orms\Patient\PatientInterface;
+use Orms\External\PDFExportService;
 
 $params = Http::getRequestContents();
 
@@ -23,5 +24,12 @@ if($patient === null) {
 }
 
 PatientInterface::insertQuestionnaireReview($patient,$user);
+
+// call the endpoint that generates a questionnaire PDF report and submits it to the OIE
+if(!empty($patient->mrns)) {
+    $mrn = $patient->mrns[0]->mrn ?? '';
+    $site = $patient->mrns[0]->site ?? '';
+    PDFExportService::triggerQuestionnaireReportGeneration(mrn: $mrn, site: $site);
+}
 
 Http::generateResponseJsonAndExit(200);

@@ -40,7 +40,7 @@ class Config
             firebaseUrl:                    $parsedData["path"]["FIREBASE_URL"],
             firebaseSecret:                 $parsedData["path"]["FIREBASE_SECRET"],
             completedQuestionnairePath:     $parsedData["path"]["BASE_PATH"]."/tmp/completedQuestionnaires.json",
-            highchartsUrl:                  $parsedData["path"]["HIGHCHARTS_URL"] ?? null
+            highchartsUrl:                  $parsedData["path"]["HIGHCHARTS_URL"] ?? null,
         );
 
         $system = new SystemConfig(
@@ -49,6 +49,8 @@ class Config
             vwrAppointmentCronEnabled:          (bool) ($parsedData["system"]["VWR_CRON_ENABLED"] ?? false),
             appointmentReminderCronEnabled:     (bool) ($parsedData["system"]["SMS_REMINDER_CRON_ENABLED"] ?? false),
             processIncomingSmsCronEnabled:      (bool) ($parsedData["system"]["INCOMING_SMS_CRON_ENABLED"] ?? false),
+            newOpalAdminUrl:                    $parsedData["opal"]["NEW_OPAL_ADMIN_URL"] ?? null,
+            newOpalAdminToken:                  $parsedData["opal"]["NEW_OPAL_ADMIN_TOKEN"] ?? null,
         );
 
         $ormsDb = new DatabaseConfig(
@@ -169,7 +171,9 @@ class SystemConfig
         public bool $sendWeights,
         public bool $vwrAppointmentCronEnabled,
         public bool $appointmentReminderCronEnabled,
-        public bool $processIncomingSmsCronEnabled
+        public bool $processIncomingSmsCronEnabled,
+        public string $newOpalAdminUrl,
+        public string $newOpalAdminToken
     ) {}
 }
 

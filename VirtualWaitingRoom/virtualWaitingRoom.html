@@ -114,10 +114,8 @@
                     </span>
 
                     <span ng-switch-when="CellPhoneNumber" ng-switch="patient.RowType">
-                        <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" >{{patient.SMSAlertNum}}</button>
-                        <span ng-switch-when="CheckedIn|NotCheckedIn" ng-switch-when-separator="|">
-                            <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
-                        </span>
+                        <button ng-if="patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button">{{patient.SMSAlertNum}}</button>
+                        <button ng-if="!patient.SMSAlertNum" ng-click="openSMSRegistrationModal(patient)" class="btn btn-info turquoise-button" ng-style="isZoomAppointment(patient.AppointmentName) ? {'border':'4px dashed red'} : {}">Register For SMS</button>
                     </span>
 
                     <span ng-switch-when="ClinicName">{{patient.ResourceName}}</span>

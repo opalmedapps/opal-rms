@@ -62,7 +62,7 @@ class Config
         $dotenv->ifPresent('DATABASE_USE_SSL')->isBoolean();
 
         // Check if DATABASE_USE_SSL is truthy and require SSL_CA only if it is
-        if (filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {
+        if (array_key_exists('DATABASE_USE_SSL', $_ENV) && filter_var($_ENV['DATABASE_USE_SSL'], FILTER_VALIDATE_BOOLEAN)) {
             $dotenv->required('SSL_CA')->notEmpty();
         }
         $_ENV = self::_parseData($_ENV);

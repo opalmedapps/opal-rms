@@ -271,16 +271,17 @@ In addition to appending a `!` after the type/scope in the commit message header
 Setup cronjobs:
 
 * cp config/crunz.yml.template config/crunz.yml
-* in config/crunz/yml, set the error file location, mailer settings, and timezone (important, else the cron won't work)
+* in config/crunz.yml, set the error file location, mailer settings, and timezone (important, else the cron won't work)
+* Set `VWR_CRON_ENABLED`, `SMS_REMINDER_CRON_ENABLED`, `SMS_INCOMING_SMS_CRON_ENABLED` to `1`
 
 ## Open Issues
 
-The following notes were added by Victor and have been slightly edited for readability.
-
-### Remaining Containerization Issues
-
-* A mailserver hasn't been set up/emailing hasn't been tested.
-* The cron service won't run if a previous run hasn't terminated. Unfortunately, the ORMS cron is designed to never terminate. The cron service has to be restarted when changing the config.conf settings in order for the changes to have an effect.
+* Test the mailing setup in the DEV/QA servers, make sure the mailing service works properly
+* Test the cron container in the DEV/QA environments
+* Update the PHP and dependencies versions
+* Add CI/CD setup (`gitlab-ci.yml`)
+* Add renovate bot
+* Redesign `Dockerfile` and `docker-compose.yml` so the `orms-cron` container does not include unnecessary things 
 * git hooks currently do not work since everything is done in the container and a multi-stage Dockerfile is used
 
 ## Profile system notes

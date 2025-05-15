@@ -57,8 +57,7 @@ services:
       - ${ORMS_PORT}:8080
   orms-cron:
     #container_name: orms-cron
-    build: .
-    image: opalmedapps/orms-cron
+    image: opalmedapps/orms
     environment:
       - PHP_MEMORY_LIMIT=512M
       - TZ=EST5EDT

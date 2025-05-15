@@ -68,13 +68,13 @@ COPY ./docker/app/hardwareIpList.list /etc/apache2/
 WORKDIR /var/www/orms
 
 # Set up the cron jobs
-COPY ./scripts/cron/* /etc/cron.d/
+COPY ./docker/cron/crontab /etc/cron.d/crontab
 
 # Add new cron jobs to the cron tab
 RUN crontab /etc/cron.d/crontab
 
 # Copy the entry point bash script
-COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+COPY ./docker/cron/scripts/cron.sh /docker-entrypoint.sh
 
 # Parent needs to be owned by www-data to satisfy npm
 RUN chown -R www-data:www-data /var/www/ \

@@ -17,7 +17,18 @@ use Orms\Util\Encoding;
 //also check up to 5 minutes before the last run to get any messages that may have been missed
 
 //use start of today if there is no last run time
-$lastRun = Logger::getLastSmsProcessorRunTime() ?? (new DateTime())->modify("midnight");
+try {
+    $lastRun = Logger::getLastSmsProcessorRunTime() ?? (new DateTime())->modify("midnight");
+} catch (\Throwable $th) {
+    // A temporary failure in DNS lookup to the DB server can cause lots of messages in a short amount of time
+    // since this script is executed every x seconds.
+    if (str_contains($th->getMessage(), "Temporary failure in name resolution")) {
+        // ignore this error
+        return;
+    }
+
+    throw $th;
+}
 $currentRun = new DateTime();
 
 Logger::setLastSmsProcessorRunTime($currentRun);

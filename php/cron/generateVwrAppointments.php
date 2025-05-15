@@ -26,7 +26,18 @@ $lastCompletedQuestionnaires = array_map(function($x) {
 },$lastCompletedQuestionnaires);
 
 //generate a list of today's appointments
-$appointments = ReportAccess::getCurrentDaysAppointments();
+try {
+    $appointments = ReportAccess::getCurrentDaysAppointments();
+} catch (\Throwable $th) {
+    // A temporary failure in DNS lookup to the DB server can cause lots of messages in a short amount of time
+    // since this script is executed every x seconds.
+    if (str_contains($th->getMessage(), "Temporary failure in name resolution")) {
+        // ignore this error
+        return;
+    }
+
+    throw $th;
+}
 
 $appointments = array_map(function($x) use ($lastCompletedQuestionnaires) {
     //sex is represented with the first letter only

@@ -5,7 +5,10 @@ services:
       - TZ=EST5EDT
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - PHP_ENV=development
     image: opalmedapps/orms
     # TODO: set time zone
     # See: https://dev.to/kakisoft/dockerphp-what-is-the-most-prioritized-timezone-setting-4bk6

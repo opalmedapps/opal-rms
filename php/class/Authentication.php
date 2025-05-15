@@ -16,7 +16,7 @@ class Authentication
     public static function login(string $username, string $password): ResponseInterface
     {
         $authUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/orms/login/';
-        //check if the credentials are valid in the AD
+        //check if the credentials are valid in the opalAdmin backend
         $client = new Client();
         $response = $client->request(
             "POST",
@@ -29,9 +29,7 @@ class Authentication
                 "http_errors" => false,
             ],
         );
-        $statusCode = $response->getStatusCode(); 
-        $error = ($statusCode != 200 && isset($content["key"]) && isset($response->getHeaders()["Set-Cookie"]))? "Authentication failure" : "";
-        Logger::logLoginEvent($username,$username,$statusCode,$error);
+        //TODO: log the result of the calling API via the logLoginEvent function in Logger.
 
         return $response;
     }

@@ -58,7 +58,7 @@ class Config
         $dotenv->required('SEND_WEIGHTS')->notEmpty();
         $dotenv->required('VWR_CRON_ENABLED')->notEmpty();
         $dotenv->required('RECIPIENT_EMAILS')->notEmpty();
-        $dotenv->required('USE_SSL')->notEmpty();
+        $dotenv->required('DATABASE_USE_SSL')->isInteger();
         $dotenv->required('SSL_CA')->notEmpty();
 
         $_ENV = self::_parseData($_ENV);
@@ -95,8 +95,8 @@ class Config
             databaseName:   $_ENV["ORMS_DATABASE_NAME"],
             username:       $_ENV["ORMS_DATABASE_USER"],
             password:       $_ENV["ORMS_DATABASE_PASSWORD"],
-            usessl:         $_ENV["USE_SSL"],
-            sslca:          $_ENV['SSL_CA'],
+            usessl:         $_ENV["DATABASE_USE_SSL"],
+            sslca:          $_ENV["SSL_CA"],
         );
 
         $logDb = new DatabaseConfig(
@@ -105,8 +105,8 @@ class Config
             databaseName:   $_ENV["LOG_DATABASE_NAME"],
             username:       $_ENV["LOG_DATABASE_USER"],
             password:       $_ENV["LOG_DATABASE_PASSWORD"],
-            usessl:         $_ENV["USE_SSL"],
-            sslca:          $_ENV['SSL_CA'],
+            usessl:         $_ENV["DATABASE_USE_SSL"],
+            sslca:          $_ENV["SSL_CA"],
         );
 
         //create optional configs
@@ -198,7 +198,7 @@ class DatabaseConfig
         public string $databaseName,
         public string $username,
         public string $password,
-        public string $usessl,
+        public int $usessl,
         public string $sslca
     ) {}
 }

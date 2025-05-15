@@ -25,14 +25,14 @@ FROM php:8.0.28-apache-bullseye
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         # For the cronjobs
-        busybox-static=1:1.30.1-6+b3 \
+        busybox-static \
         # For the web server
-        libmemcached-dev=1.0.18-4.2 \
-        apache2-dev=2.4.56-1~deb11u2 \
+        libmemcached-dev \
+        apache2-dev \
         # Install latexmk
-        latexmk=1:4.70b-0.2 \
+        latexmk \
         # Install texlive-latex-extra that contains missing xcolor and lastpage packages
-        texlive-latex-extra=2020.20210202-3 \
+        texlive-latex-extra \
     # cleaning up unused files
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/* \

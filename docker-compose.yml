@@ -71,7 +71,7 @@ services:
       - shared-data:/var/www/orms/tmp
     # cron needs to run as root
     user: root
-    entrypoint: ['/docker-entrypoint.sh']
+    entrypoint: ['docker/cron/scripts/cron.sh']
 
 volumes:
   shared-data:

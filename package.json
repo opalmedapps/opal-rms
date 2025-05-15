@@ -13,7 +13,7 @@
     "angular-audio": "1.7.3",
     "angular-bowser": "0.0.4",
     "angular-cookies": "npm:@xlts.dev/angular-cookies@1.9.3",
-    "angular-datatables": "0.6.4",
+    "angular-datatables": "13.1.0",
     "angular-drag-and-drop-lists": "2.1.0",
     "angular-material": "1.2.5",
     "angular-messages": "npm:@xlts.dev/angular-messages@1.9.3",

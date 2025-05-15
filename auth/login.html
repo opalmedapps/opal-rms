@@ -68,6 +68,16 @@ app.controller('main', function($scope,$http,$mdDialog,$cookies,$location,$windo
     })
     .then( x => {$scope.specialityGroups = x.data.data;})
 
+    $http({
+        url: "php/api/public/v1/auth/validateSession",
+        method: "GET"
+    })
+    .then(v => processAuthentication(v.data.data))
+    .catch(err => {
+        $error = err?.data?.error ? err.data.error : "Authentication failed";
+        console.log($error);
+    });
+
     $scope.authenticateUser = function()
     {
         $scope.error = "";

@@ -26,15 +26,15 @@ class Export
                     'Cookie' => $cookie,
                 ],
                 'form_params' => [
-                    'source'        => 'ORMS',
-                    'externalId'    => 'ICD-10',
-                    'code'          => $diagSubcode,
-                    'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
-                    'description' => $descEn
-                ],
-                'debug' => true
+                    'item' => [
+                        'source'        => 'ORMS',
+                        'externalId'    => 'ICD-10',
+                        'code'          => $diagSubcode,
+                        'creationDate'  => $creationDate->format('Y-m-d H:i:s'),
+                        'description' => $descEn
+                    ]
+                ]
             ])?->getBody()?->getContents() ?? '[]';
-            print_r(json_decode($response, true));
         }
     
     }

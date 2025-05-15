@@ -33,8 +33,8 @@ if($patient !== null) {
     if($is_opal_patient){
 
         // Ensure the code to be assigned exists in the Opal MasterSource list
-        $is_diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($updatedDiag->diagnosis->subcode);
-        if(!$is_diagnosis_exists){
+        $diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($updatedDiag->diagnosis->subcode);
+        if(!$diagnosis_exists){
             Export::insertMasterSourceDiagnosis(
                 $updatedDiag->diagnosis->subcode,
                 $updatedDiag->createdDate,
@@ -42,7 +42,7 @@ if($patient !== null) {
                 ""
             );
         }
-
+        print_r($status);
         if($status === 'Deleted'){
             // Separate endpoint for diagnosis deletions
             Export::deletePatientDiagnosis(

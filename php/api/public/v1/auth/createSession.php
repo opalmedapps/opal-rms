@@ -36,23 +36,26 @@ $content = json_decode($response->getBody()->getContents(), true);
 if ($response->getStatusCode() == 200 && isset($content["key"])) {
     $cookie = Authentication::createUserSession($user->username);
 
-    // Iterate through all the "Set-Cookie" response headers and add them to the cookies.
-    foreach ($response->getHeaders() as $name => $values) {
-        # Skip if the header is not "Set-Cookie"
-        if ($name != 'Set-Cookie') continue;
-
-        if (in_array('csrftoken', $values)) {
-            $cookieParser = new CookieParser();
-            $setCookie = $cookieParser->fromString($name . ': ' . implode('; ', $values));
-            $cookie['csrftoken'] = $setCookie->getValue();
-        }
-
-        if (in_array('sessionid', $values)) {
-            $cookieParser = new CookieParser();
-            $setCookie = $cookieParser->fromString($name . ': ' . implode('; ', $values));
-            $cookie['sessionid'] = $setCookie->getValue();
-        }
-    }
+    $setCookieHeader = $response->getHeaders()["Set-Cookie"];
+    $cookieParser = new CookieParser();
+    $csrftoken = $cookieParser->fromString($setCookieHeader[0])->toArray();
+    $sessionid = $cookieParser->fromString($setCookieHeader[1])->toArray();
+    $cookie["csrftoken"]["value"] = $csrftoken["Value"];
+    $cookie["csrftoken"]["params"] = [
+        "path" => $csrftoken["Path"],
+        "domain" => $csrftoken["Domain"],
+        "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $csrftoken["Expires"]),
+        // "secure" => $csrftoken["HttpOnly"],
+        "samesite" => $csrftoken["SameSite"],
+    ];
+    $cookie['sessionid']['value'] = $sessionid['Value'];
+    $cookie['sessionid']['params'] = [
+        "path" => $sessionid["Path"],
+        "domain" => $sessionid["Domain"],
+        "expires" => date("Wdy, DD Mon YYYY HH:MM:SS GMT", $sessionid["Expires"]),
+        // "secure" => $sessionid["HttpOnly"],
+        "samesite" => $sessionid["SameSite"],
+    ];
 
     Http::generateResponseJsonAndExit(200, data: $cookie);
 }

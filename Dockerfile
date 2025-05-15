@@ -1,6 +1,6 @@
 # Build/install JS dependencies
 # Pin platform since PhantomJS binary is not available for linux/arm64 architecture
-FROM node:20.10.0-alpine3.18 as js-dependencies
+FROM node:20.11.1-alpine3.19 as js-dependencies
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # Build/install PHP dependencies
-FROM composer:2.6.5 as php-dependencies
+FROM composer:2.7.1 as php-dependencies
 
 WORKDIR /app
 

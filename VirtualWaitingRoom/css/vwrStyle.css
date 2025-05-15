@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) 2020 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /*needed to get uibModal to appear in bootstrap v4 */
 .fade.in {
     opacity: 1;
@@ -30,8 +36,9 @@
 }
 
 .selector-gif {
-    margin-left:70px;
-    width:50px;
+    font-size:300%;
+    width:60px;
+    height: 60px;
 }
 
 .selector-color-IntermediateVenue {

@@ -1,6 +1,7 @@
 
 #ignore config files
 config/
+!config/*.template
 .env
 
 #ignore cert files

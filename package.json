@@ -7,7 +7,7 @@
   },
   "private": true,
   "dependencies": {
-    "angular": "npm:@xlts.dev/angular@1.9.0",
+    "angular": "npm:@xlts.dev/angular@1.9.1",
     "angular-animate": "npm:@xlts.dev/angular-animate@1.9.1",
     "angular-aria": "npm:@xlts.dev/angular-aria@1.9.1",
     "angular-audio": "1.7.3",

@@ -26,9 +26,9 @@ if($patient === null) {
 PatientInterface::insertQuestionnaireReview($patient,$user);
 
 // call the endpoint that generates a questionnaire PDF report and submits it to the OIE
-if(array_key_exists(0, $patient->mrns)) {
-    $mrn = $patient->mrns[0]->mrn;
-    $site = $patient->mrns[0]->site;
+if(!empty($patient->mrns)) {
+    $mrn = $patient->mrns[0]->mrn ?? '';
+    $site = $patient->mrns[0]->site ?? '';
     PDFExportService::triggerQuestionnaireReportGeneration(mrn: $mrn, site: $site);
 }
 

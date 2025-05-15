@@ -91,9 +91,11 @@ or
 composer install
 ```
 
-### Create Required Data Records
+### Create Required Data Records For Testing
 
 #### Clinical Viewer and Virtual Waiting Room
+
+For testing `Clinical Viewer` and `Virtual Waiting Room` locally:
 
 * Set `OpalUUID` field in the `Patient` table. The value should be copied from the `Patient.UUID` field in the `django-backend`.
 * Create a record in the `MediVisitAppointmentList` table. For example:
@@ -102,7 +104,7 @@ composer install
 '1','1','2023-05-31 18:09:00','2023-05-31','18:09:00','0','1','Aria','1','Open','Active','2023-05-30 00:00:00','1',NULL,NULL
 ```
 
-> :warning: **Note:**  For the `ScheduledDateTime`, `ScheduledDate`, `ScheduledTime`, fields the date should be the same to the date when the `Clinical Viewer`/`Virtual Waiting Room` test is performed, and the time should be set to the later/future time of the day (e.g., an appointment cannot be in the past). For the `Status` and `MediVisitStatus` fields it should be set to `Open` and `Active` respectively.
+> :warning: **Note:**  For the `ScheduledDateTime`, `ScheduledDate`, `ScheduledTime` fields, the date should be the same as the date when the `Clinical Viewer`/`Virtual Waiting Room` test is performed, and the time should be set to the later/future time of the day (e.g., an appointment cannot be in the past). For the `Status` and `MediVisitStatus` fields it should be set to `Open` and `Active` respectively.
 
 For the `Virtual Waiting Room` page, make sure that the provided Firebase settings are correct (e.g., in the browser's console, there are no Firebase errors when you  go to the `Default Profile - Virtual Waiting Room` page).
 

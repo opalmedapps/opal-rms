@@ -9,7 +9,7 @@ use Orms\Config;
 use Orms\Sms;
 
 // Extract the command line parameters
-$opts = getopt(null,["PatientId:","message_FR:","message_EN:"]);
+$opts = getopt("",["PatientId:","message_FR:","message_EN:"]);
 
 $PatientId		= $opts["PatientId"] ?? '';
 $message_FR		= $opts["message_FR"] ?? '';

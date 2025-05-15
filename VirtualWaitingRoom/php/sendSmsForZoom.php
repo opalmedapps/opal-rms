@@ -50,7 +50,7 @@ else {
 }
 
 #send sms
-Sms::sendSms($SMSAlertNum,$message);
+Sms::sendSms($smsAlertNum,$message);
 
 echo "message should have been sent...";
 

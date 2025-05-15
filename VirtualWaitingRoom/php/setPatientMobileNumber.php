@@ -83,36 +83,10 @@ ob_flush();
 flush();
 
 #change the sms message depending on the language preference and clinic
-$messageList = getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 $message = $messageList[$speciality]["GENERAL"]["REGISTRATION"][$languagePreference]["Message"];
 
 #send sms
 Sms::sendSms($smsAlertNum,$message);
-
-#functions
-
-function getPossibleSmsMessages(): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
-        SELECT
-            Speciality
-            ,Type
-            ,Event
-            ,Language
-            ,Message
-        FROM
-            SmsMessage
-        ORDER BY
-            Speciality,Type,Event,Language
-    ");
-    $query->execute();
-
-    $messages = $query->fetchAll();
-    $messages = ArrayUtil::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
-    $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
-
-    return utf8_encode_recursive($messages);
-}
 
 ?>

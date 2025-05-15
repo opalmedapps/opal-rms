@@ -41,8 +41,8 @@ function createSmsLogTable()
     $dbh->query("
         CREATE TABLE `SmsLog` (
             `SmsLogSer` INT(11) NOT NULL AUTO_INCREMENT,
-            `SmsTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-            `ProcessedTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+            `SmsTimestamp` DATETIME NOT NULL,
+            `ProcessedTimestamp` DATETIME NOT NULL DEFAULT current_timestamp(),
             `Result` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
             `Action` ENUM('SENT','RECEIVED') NOT NULL COLLATE 'latin1_swedish_ci',
             `Service` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',

@@ -40,12 +40,10 @@ class Sms
             ]);
 
             $messageId = $sentSms->sid;
-            $dateSent = $sentSms->dateSent;
             $result = "SUCCESS";
         }
         catch(\Exception $e) {
             $messageId = NULL;
-            $dateSent = new DateTime();
             $result = "FAILURE";
         }
 
@@ -56,7 +54,7 @@ class Sms
             "Twilio",
             "SENT",
             $message,
-            $dateSent,
+            new DateTime(),
             $result
         );
 
@@ -82,17 +80,6 @@ class Sms
             });
 
             $messages = array_map(function($x) {
-                Logger::LogSms(
-                    $x->from,
-                    $x->to,
-                    $x->sid,
-                    "Twilio",
-                    "RECEIVED",
-                    $x->body,
-                    $x->dateSent->setTimezone((new DateTime)->getTimezone()),
-                    "SUCCESS"
-                );
-
                 return new SmsReceivedMessage(
                     $x->sid,
                     $x->body,
@@ -105,6 +92,19 @@ class Sms
             usort($messages,function($a,$b) {
                 return $a->timeReceived <=> $b->timeReceived;
             });
+
+            foreach($messages as $x) {
+                Logger::LogSms(
+                    $x->fromNumber,
+                    $x->toNumber,
+                    $x->messageId,
+                    "Twilio",
+                    "RECEIVED",
+                    $x->body,
+                    $x->timeReceived,
+                    "SUCCESS"
+                );
+            }
         }
         catch(\Exception $e) {
             $messages = [];

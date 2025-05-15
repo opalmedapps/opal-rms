@@ -82,7 +82,7 @@ echo "Record updated successfully<br>";
 //====================================================================================
 // Confirmation Message Creation
 //====================================================================================
-$messageList = getPossibleSmsMessages();
+$messageList = Sms::getPossibleSmsMessages();
 
 $message = $messageList[$Speciality]["GENERAL"]["REGISTRATION"][$LanguagePreference]["Message"] ?? NULL;
 
@@ -96,31 +96,5 @@ if($message === NULL) {
 Sms::sendSms($SMSAlertNum,$message);
 
 echo "Message should have been sent...";
-
-#functions
-
-function getPossibleSmsMessages(): array
-{
-    $dbh = Config::getDatabaseConnection("ORMS");
-    $query = $dbh->prepare("
-        SELECT
-            Speciality
-            ,Type
-            ,Event
-            ,Language
-            ,Message
-        FROM
-            SmsMessage
-        ORDER BY
-            Speciality,Type,Event,Language
-    ");
-    $query->execute();
-
-    $messages = $query->fetchAll();
-    $messages = ArrayUtil::groupArrayByKeyRecursive($messages,"Speciality","Type","Event","Language");
-    $messages = ArrayUtil::convertSingleElementArraysRecursive($messages);
-
-    return utf8_encode_recursive($messages);
-}
 
 ?>

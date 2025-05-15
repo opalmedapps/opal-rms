@@ -42,7 +42,7 @@ class Logger
             )
         ");
         $query->execute([
-            ":timestamp"   => $timestamp->getTimestamp(),
+            ":timestamp"   => $timestamp->format("Y-m-d H:i:s"),
             ":result"      => $result,
             ":action"      => $action,
             ":service"     => $service,

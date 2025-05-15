@@ -18,6 +18,10 @@ class SmsReceivedMessage
                          string $toNumber,
                          DateTime $timeReceived)
     {
+        #remove international code and plus sign
+        $fromNumber = preg_replace("/^\+1/","",$fromNumber);
+        $toNumber = preg_replace("/^\+1/","",$toNumber);
+
         $this->messageId    = $messageId;
         $this->body         = $body;
         $this->fromNumber   = $fromNumber;

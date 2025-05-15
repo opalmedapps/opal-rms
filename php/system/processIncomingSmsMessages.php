@@ -172,7 +172,7 @@ function getAppointmentList(string $pSer): array
     return utf8_encode_recursive($query->fetchAll());
 }
 
-function logMessageData(string $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
+function logMessageData(DateTime $timestamp,string $phoneNumber,?string $patientSer,string $message,?string $returnMessage,string $result): void
 {
     $dbh = Config::getDatabaseConnection("ORMS");
     $query = $dbh->prepare("
@@ -180,7 +180,7 @@ function logMessageData(string $timestamp,string $phoneNumber,?string $patientSe
         VALUES(:rec,:num,:pSer,:msg,:rmsg,:res)
     ");
     $query->execute([
-        ":rec" => $timestamp,
+        ":rec" => $timestamp->format("Y:m:d H:i:s"),
         ":num" => $phoneNumber,
         ":pSer" => $patientSer,
         ":msg" => $message,
@@ -242,7 +242,7 @@ function setLastRun(DateTime $timestamp): void
         WHERE
             System = 'ORMS'
     ");
-    $query->execute($timestamp->format("Y-m-d H:i:s"));
+    $query->execute([$timestamp->format("Y-m-d H:i:s")]);
 }
 
 ?>

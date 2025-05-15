@@ -52,4 +52,6 @@ UNKNOWN_COMMAND_MESSAGE_FR      =
 
 [opal]
 NEW_OPAL_ADMIN_URL              = 'http://127.0.0.1:8000'
-NEW_OPAL_ADMIN_TOKEN            = 'Please follow: https://gitlab.com/opalmedapps/backend/-/blob/main/docs/authentication.md'
+# Create NEW token that is generated only for the ORMS (e.g., do not use the existing ones)
+# Please follow the steps described in the docs: https://gitlab.com/opalmedapps/backend/-/blob/main/docs/authentication.md
+NEW_OPAL_ADMIN_TOKEN            =

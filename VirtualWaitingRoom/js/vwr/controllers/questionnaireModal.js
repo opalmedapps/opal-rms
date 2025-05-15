@@ -136,14 +136,18 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 					//The slider questions were not being displayed in charts because
 					//charts doesnt like strings, and we have to have 0  & 10 be strings for some reason, so I'm manually removing them here.
 					//I think this goes without saying, but this requires a more long term solution in the future...
+				
+					//outer for loop iterates over each chart
 					angular.forEach($scope.selectedQuestionnaire.questions.qData, function(val, key)
-					{
-					if(typeof val.series[0].data[0][1] === 'string' || val.series[0].data[0][1] instanceof String){
-						val.series[0].data[0][1] = parseInt(val.series[0].data[0][1].split(" ",1)[0]);
-					} 
+					{	//inner loop iterates over each data point within a given chart
+						angular.forEach(val.series[0].data, function(innerVal, key){
+							if(typeof innerVal[1] === 'string' || innerVal[1] instanceof String){
+								innerVal[1] = parseInt(innerVal[1].split(" ",1)[0]);
+							}	
+						});
 					});
 					$scope.selectedQuestionnaireIsChart = true;
-
+					//console.log($scope.selectedQuestionnaire.questions);
 					//$scope.$apply();
 
 					$scope.$$postDigest(function()
@@ -176,6 +180,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 						lastDateAnswered: $scope.selectedQuestionnaire.CompletionDate,
 						qData: response.data,
 					}
+					console.log($scope.selectedQuestionnaire.questions.qData);
 
 					$scope.selectedQuestionnaireIsNonChart = true;
 			});

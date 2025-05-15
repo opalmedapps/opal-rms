@@ -35,23 +35,37 @@ if($patient !== null) {
         // Ensure the code to be assigned exists in the Opal MasterSource list
         $diagnosis_exists = Fetch::getMasterSourceDiagnosisExists($newDiag->diagnosis->subcode);
         if(!$diagnosis_exists){
-            Export::insertMasterSourceDiagnosis(
-                $newDiag->diagnosis->subcode,
-                $newDiag->createdDate,
-                $newDiag->diagnosis->subcodeDescription,
-                ""
-            );
+            try{
+                $response = Export::insertMasterSourceDiagnosis(
+                    $newDiag->diagnosis->subcode,
+                    $newDiag->createdDate,
+                    $newDiag->diagnosis->subcodeDescription,
+                    ""
+                );
+            }catch(\Exception $e) {
+                Http::generateResponseJsonAndExit(
+                    httpCode: $response->getStatusCode(),
+                    error: $e->getMessage(),
+                );
+            }
         }
 
         // Assign patient the diagnosis
-        Export::insertPatientDiagnosis(
-            $patient,
-            $newDiag->id,
-            $newDiag->diagnosis->subcode,
-            $newDiag->createdDate,
-            $newDiag->diagnosis->subcodeDescription,
-            "",
-            $newDiag->status
-        );
+        try{
+            $response = Export::insertPatientDiagnosis(
+                $patient,
+                $newDiag->id,
+                $newDiag->diagnosis->subcode,
+                $newDiag->createdDate,
+                $newDiag->diagnosis->subcodeDescription,
+                "",
+                $newDiag->status
+            );
+        }catch(\Exception $e) {
+            Http::generateResponseJsonAndExit(
+                httpCode: $response->getStatusCode(),
+                error: $e->getMessage(),
+            );
+        }
     }
 }

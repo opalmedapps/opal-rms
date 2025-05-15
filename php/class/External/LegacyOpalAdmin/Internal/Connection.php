@@ -31,7 +31,6 @@ class Connection
     public static function getHttpClient(): ?Client
     {
         $config = Config::getApplicationSettings()->environment;
-        if($config === null) return null;
 
         return new Client([
             'base_uri'      => $config->legacyOpalAdminHostInternal,

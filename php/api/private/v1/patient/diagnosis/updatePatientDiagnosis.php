@@ -33,26 +33,40 @@ if($patient !== null) {
     if($is_opal_patient){
         if (trim(strtolower($status)) === 'deleted') {
             // Separate endpoint for diagnosis deletions
-            Export::deletePatientDiagnosis(
-                $patient,
-                $updatedDiag->id,
-                $updatedDiag->diagnosis->subcode,
-                $updatedDiag->createdDate,
-                $updatedDiag->diagnosis->subcodeDescription,
-                "",
-                $updatedDiag->status
-            );
+            try{
+                $response = Export::deletePatientDiagnosis(
+                    $patient,
+                    $updatedDiag->id,
+                    $updatedDiag->diagnosis->subcode,
+                    $updatedDiag->createdDate,
+                    $updatedDiag->diagnosis->subcodeDescription,
+                    "",
+                    $updatedDiag->status
+                );
+            }catch(\Exception $e) {
+                Http::generateResponseJsonAndExit(
+                    httpCode: $response->getStatusCode(),
+                    error: $e->getMessage(),
+                );
+            }
         }else{
             // Assign patient the diagnosis
-            Export::insertPatientDiagnosis(
-                $patient,
-                $updatedDiag->id,
-                $updatedDiag->diagnosis->subcode,
-                $updatedDiag->createdDate,
-                $updatedDiag->diagnosis->subcodeDescription,
-                "",
-                $updatedDiag->status
-            ); 
+            try{
+                $response = Export::insertPatientDiagnosis(
+                    $patient,
+                    $updatedDiag->id,
+                    $updatedDiag->diagnosis->subcode,
+                    $updatedDiag->createdDate,
+                    $updatedDiag->diagnosis->subcodeDescription,
+                    "",
+                    $updatedDiag->status
+                ); 
+            }catch(\Exception $e) {
+                Http::generateResponseJsonAndExit(
+                    httpCode: $response->getStatusCode(),
+                    error: $e->getMessage(),
+                );
+            }
         }
     } 
 }

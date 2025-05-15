@@ -22,4 +22,5 @@
 #
 #
 # Run the Crunz tasks (e.g., loading current day's appointments, processing SMS messages, etc.) every minute.
+# The Crunz binary should be executed from the ./config directory so it uses the configurations set in the crunz.yml
 * * * * * www-data /var/www/orms/scripts/cron/run-crunz-tasks.sh

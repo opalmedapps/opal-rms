@@ -41,7 +41,6 @@ class Config
             firebaseSecret:                 $parsedData["path"]["FIREBASE_SECRET"],
             completedQuestionnairePath:     $parsedData["path"]["BASE_PATH"]."/tmp/completedQuestionnaires.json",
             highchartsUrl:                  $parsedData["path"]["HIGHCHARTS_URL"] ?? null,
-            newOpalAdminUrl:                $parsedData["path"]["NEW_OPAL_ADMIN_URL"] ?? null,
         );
 
         $system = new SystemConfig(
@@ -50,8 +49,8 @@ class Config
             vwrAppointmentCronEnabled:          (bool) ($parsedData["system"]["VWR_CRON_ENABLED"] ?? false),
             appointmentReminderCronEnabled:     (bool) ($parsedData["system"]["SMS_REMINDER_CRON_ENABLED"] ?? false),
             processIncomingSmsCronEnabled:      (bool) ($parsedData["system"]["INCOMING_SMS_CRON_ENABLED"] ?? false),
-            newOpalAdminUsername:               $parsedData["system"]["NEW_OPAL_ADMIN_USERNAME"] ?? null,
-            newOpalAdminPassword:               $parsedData["system"]["NEW_OPAL_ADMIN_PASSWORD"] ?? null,
+            newOpalAdminUrl:                    $parsedData["opal"]["NEW_OPAL_ADMIN_URL"] ?? null,
+            newOpalAdminToken:                  $parsedData["opal"]["NEW_OPAL_ADMIN_TOKEN"] ?? null,
         );
 
         $ormsDb = new DatabaseConfig(

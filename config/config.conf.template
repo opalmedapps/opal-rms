@@ -13,16 +13,12 @@ FIREBASE_SECRET                 =
 
 HIGHCHARTS_URL                  =
 
-NEW_OPAL_ADMIN_URL              = 'http://127.0.0.1:8000'
-
 [system]
 SEND_WEIGHTS                    =
 VWR_CRON_ENABLED                =
 SMS_REMINDER_CRON_ENABLED       =
 INCOMING_SMS_CRON_ENABLED       =
 EMAIL[]                         =
-NEW_OPAL_ADMIN_USERNAME         = 'admin'
-NEW_OPAL_ADMIN_PASSWORD         = '123456'
 
 [database]
 ORMS_HOST                       =
@@ -53,3 +49,7 @@ FAILED_CHECK_IN_MESSAGE_EN      =
 FAILED_CHECK_IN_MESSAGE_FR      =
 UNKNOWN_COMMAND_MESSAGE_EN      =
 UNKNOWN_COMMAND_MESSAGE_FR      =
+
+[opal]
+NEW_OPAL_ADMIN_URL              = 'http://127.0.0.1:8000'
+NEW_OPAL_ADMIN_TOKEN            = 'Please follow: https://gitlab.com/opalmedapps/backend/-/blob/main/docs/authentication.md'

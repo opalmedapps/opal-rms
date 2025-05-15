@@ -27,7 +27,7 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
 		echo "Failed to connect to MySQL";
 		die;
 	}
-	
+
 	$sql = "CALL getQuestionNameAndAnswerByID('$wsPatientID',$wsQuestionnaireSerNum,'$wsrptID','$dsCrossDatabase','$qstID')";
 
 	//fetch table rows from mysql db
@@ -59,11 +59,10 @@ function GetQuestionnaireData($wsPatientID,$wsrptID,$wsQuestionnaireSerNum,$qstI
 		$output[] = [$row['DateTimeAnswered'] .'000', $row['Answer']];
 
 	}
-	//console_log( $output );
+
 	// return the output
 	return $output;
 
 }
-
 
 ?>

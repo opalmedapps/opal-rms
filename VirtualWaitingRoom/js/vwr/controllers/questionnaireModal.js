@@ -115,7 +115,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 	$scope.displayChart = function(que)
 	{
 		$scope.selectedQuestionnaire = que;
-		//console.log($scope.selectedQuestionnaire);
+
 		$scope.selectedQuestionnaireIsChart = false;
 		$scope.selectedQuestionnaireIsNonChart = false;
 
@@ -143,7 +143,7 @@ function questionnaireModalController($scope,$uibModalInstance,$http,$mdDialog,$
 					} 
 					});
 					$scope.selectedQuestionnaireIsChart = true;
-						
+
 					//$scope.$apply();
 
 					$scope.$$postDigest(function()

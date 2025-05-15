@@ -214,6 +214,17 @@ TBD
 
 TBD
 
+### Running scripts
+
+There are several scripts that are run periodically in production.
+These scripts are located in the directory `php/cron`/.
+
+To test functionality that require these scripts, execute them manually as follows:
+
+```shell
+docker compose exec app php php/cron/<nameOfScript>.php
+```
+
 ## Contributing
 
 ### Commit Message Format
@@ -283,21 +294,16 @@ In addition to appending a `!` after the type/scope in the commit message header
 ## Environment-specific configuration
 
 * put ssl certs in certs/ as server.crt and server.key
-
-Setup cronjobs:
-
-* cp config/crunz.yml.template config/crunz.yml
-* in config/crunz.yml, set the error file location, mailer settings, and timezone (important, else the cron won't work)
-* Set `VWR_CRON_ENABLED`, `SMS_REMINDER_CRON_ENABLED`, `SMS_INCOMING_SMS_CRON_ENABLED` to `1`
+* ensure that the scripts in the `php/cron/` directory are executed periodically via a cronjob or similar
+  * `endOfDayCheckout.php`: once per day at 23:30
+  * `generateAppointmentReminders.php`: once per day at 18:00 (or whenever you want appointment reminders to be sent the day before)
+  * `generateVwrAppointments.php`: every 3 seconds
+  * `processIncomingSmsMessages.php`: every 5 seconds
 
 ## Open Issues
 
 * Test the mailing setup in the DEV/QA servers, make sure the mailing service works properly
-* Test the cron container in the DEV/QA environments
-* Update the PHP and dependencies versions
 * Add CI/CD setup (`gitlab-ci.yml`)
-* Add renovate bot
-* Redesign `Dockerfile` and `docker-compose.yml` so the `orms-cron` container does not include unnecessary things 
 * git hooks currently do not work since everything is done in the container and a multi-stage Dockerfile is used
 
 ## Profile system notes

@@ -74,7 +74,7 @@ if($LanguagePreference == "English")
 }
 else
 {
-    $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger au $to_FR $room_FR pour votre rendez-vous. Votre équipe vou verra sous peu.";
+    $message = "CUSM - Centre du cancer des cèdres: veuillez vous diriger $to_FR $room_FR pour votre rendez-vous. Votre équipe vou verra sous peu.";
 }
 
 //====================================================================================

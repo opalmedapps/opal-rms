@@ -62,6 +62,7 @@
 <script src="js/vwr//controllers/diagnosisModal.js"></script>
 <script src="./js/vwr/controllers/questionnaireModal.js"></script>
 <script src="./js/vwr/controllers/selectorModal.js"></script>
+<script src="js/vwr/services/WearableChartsService.js"></script>
 <script src="/node_modules/checklist-model/checklist-model.js"></script>
 
 <style>
@@ -443,7 +444,7 @@
                 <td><span ng-if="appoint.PhoneNumber !== null" style="font-size:25px;top:8px;" class="glyphicon glyphicon-phone"></span>
                     <img ng-if="appoint.opalPatient === 1" style="height:25px;top:18%;position:relative" ng-src="images/opal_logo.png"></img> </td>
                 <td class="text-center">
-                    <div ng-if="appoint.wearablesURL"><a href="{{appoint.wearablesURL}}" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div></td>
+                    <div ng-if="appoint.wearablesURL"><a href="#" ng-click="showWearableDataCharts(appoint.wearablesURL)" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div></td>
                 <td ng-class="(clinicsUsed) ? 'textStyleRed': ''" >{{appoint.appName}}</td>
                 <td>{{appoint.appClinic}}</td>
                 <td ng-class="(codeUsed) ? 'textStyleRed': ''">{{appoint.appType}}</td>

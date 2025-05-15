@@ -214,11 +214,6 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         },function() {});
     }
 
-    $scope.showWearableDataCharts = async function(wearablesURL)
-    {
-        WearableChartsService.showWearableDataCharts(wearablesURL);
-    }
-
     //=========================================================================
     // Function to call the patient - message to screen and SMS
     //=========================================================================
@@ -763,6 +758,14 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
         });
     }
 
+    //=========================================================================
+    // Open the wearable charts modal dialog
+    //=========================================================================
+    $scope.showWearableDataCharts = async function(wearablesURL)
+    {
+        WearableChartsService.showWearableDataCharts(wearablesURL);
+    }
+
     //-------------------------------------
     // zoom button functionality
     //-------------------------------------
@@ -832,5 +835,4 @@ myApp.controller("virtualWaitingRoomController",function ($scope,$uibModal,$http
 
         return cssClass;
     }
-
 });

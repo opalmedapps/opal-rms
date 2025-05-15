@@ -7,6 +7,7 @@ namespace Orms;
 use Exception;
 use GuzzleHttp\Client;
 use Memcached;
+use Orms\System\Logger;
 use Orms\Config;
 use Psr\Http\Message\ResponseInterface;
 
@@ -28,6 +29,13 @@ class Authentication
                 "http_errors" => false,
             ],
         );
+
+        $requestResult = json_decode($response->getBody()->getContents(),true);
+        $statusCode = (int) ($requestResult["statusCode"] ?? 1); //if the return status is 0, then the user's credentials are valid
+        $error = $requestResult["error"] ?? null;
+        $displayName = $requestResult["displayName"] ?? null;
+        Logger::logLoginEvent($username,$displayName,$statusCode,$error);
+
         return $response;
     }
 

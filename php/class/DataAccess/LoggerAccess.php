@@ -171,4 +171,30 @@ class LoggerAccess
             ":message"      => $message,
         ]);
     }
+
+    public static function logLoginEvent(string $userName, ?string $displayName, int $status, ?string $error)
+    {
+        Database::getLogsConnection()->prepare("
+            INSERT INTO LoginLog(
+                UserName,
+                DisplayName,
+                Status,
+                Error,
+                LoginIPAddress
+            )
+            VALUES(
+                :userName,
+                :displayName,
+                :status,
+                :error,
+                :loginIP
+            )
+        ")->execute([
+            ":userName"    => $userName,
+            ":displayName" => $displayName,
+            ":status"      => $status,
+            ":error"       => $error,
+            ":loginIP"     => empty($_SERVER["REMOTE_ADDR"]) ? gethostname() : $_SERVER["REMOTE_ADDR"]
+        ]);
+    }
 }

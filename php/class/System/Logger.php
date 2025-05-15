@@ -67,4 +67,9 @@ class Logger
     {
         LoggerAccess::logKioskEvent($kioskInput,$location,$destination,$centerImage,$direction,$message);
     }
+
+    public static function logLoginEvent(string $userName, ?string $displayName, int $status, ?string $error): void
+    {
+        LoggerAccess::logLoginEvent($userName,$displayName,$status,$error);
+    }
 }

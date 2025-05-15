@@ -32,6 +32,7 @@
                             element.find("h2").remove();
                         }
                     })
+                    .ariaLabel('Smart Devices Data')
                     .clickOutsideToClose(true);
             } catch (e) {
                 var modalDialog = $mdDialog.confirm(
@@ -41,6 +42,7 @@
                             '<br><h4 style="color:red;">Could not load the charts. Please contact the administrator.</h4>'
                         ),
                     })
+                    .ariaLabel('Smart Devices Data')
                     .clickOutsideToClose(true);
             }
 

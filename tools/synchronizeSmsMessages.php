@@ -14,11 +14,65 @@ use Orms\Util\Csv;
 #get csv file name from command line arguments and load it
 $csvFile = (getopt("",["file:"]))["file"] ?: "";
 
-if($fileHandle === FALSE) exit("Error opening file");
+$combinations = Csv::loadCsvFromFile($csvFile);
 
-$combinations = Csv::processCsvFile($fileHandle);
+$dbh = Config::getDatabaseConnection("ORMS");
+$dbh->beginTransaction();
 
+#update the db
+$queryUpdateComb = $dbh->prepare("
+    UPDATE SmsAppointment SA
+    INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = SA.ClinicResourcesSerNum
+    INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = SA.AppointmentCodeId
+    SET
+        SA.Type = :type,
+        SA.Active = :act
+    WHERE
+        CR.ResourceCode = :rCode
+        AND CR.ResourceName = :rName
+        AND AC.AppointmentCode = :aCode
+        AND SA.Speciality = :spec
+        AND SA.SourceSystem = :sys
+");
 
+foreach($combinations as $c){
+    $queryUpdateComb->execute([
+        ":type"     => $c["Type"],
+        ":act"      => $c["Active"],
+        ":rCode"    => $c["ResourceCode"],
+        ":rName"    => $c["ResourceName"],
+        ":aCode"    => $c["AppointmentCode"],
+        ":spec"     => $c["Speciality"],
+        ":sys"      => $c["SourceSystem"],
+    ]);
+}
+
+$dbh->commit();
+
+#generate a new csv, updated csv file
+$queryGetComb = $dbh->prepare("
+    SELECT
+        CR.ResourceCode
+        ,CR.ResourceName
+        ,AC.AppointmentCode
+        ,SA.Speciality
+        ,SA.SourceSystem
+        ,SA.Type
+        ,SA.Active
+    FROM
+        SmsAppointment SA
+        INNER JOIN ClinicResources CR ON CR.ClinicResourcesSerNum = SA.ClinicResourcesSerNum
+        INNER JOIN AppointmentCode AC ON AC.AppointmentCodeId = SA.AppointmentCodeId
+");
+$queryGetComb->execute();
+
+$newCombs = $queryGetComb->fetchAll();
+
+$newFile = preg_replace("/\.csv/","_new.csv",$csvFile);
+
+$return = Csv::writeCsvFromData($newFile,$newCombs);
+
+echo "$return\n";
 
 
 ?>

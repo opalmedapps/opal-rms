@@ -27,7 +27,7 @@ if($modDate !== $today)
     }
 }
 
-$appointments = Csv::processCsvFile($csvFile);
+$appointments = Csv::loadCsvFromFile($csvFile);
 
 if($appointments === []) exit("Error opening file");
 

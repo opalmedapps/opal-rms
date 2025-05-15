@@ -248,6 +248,10 @@
                             <button ng-switch-when="Already Taken" ng-click="openWeightModal(patient)" class="btn btn-warning" ng-class="patient.WeightDate === 'Today' ? 'green-button' : 'weight-indicator'">H: {{patient.Height}} cm, W: {{patient.Weight}} kg<br>BSA: {{patient.BSA}} m<sup>2</sup></button>
                         </span>
                     </span>
+
+                    <span ng-switch-when="WearablesData">
+                        <div ng-if="patient.wearablesURL"><a href="{{patient.wearablesURL}}" class="glyphicon glyphicon-heart" style="color: #ff6251; font-size: 30px;"></a></div>
+                    </span>
                 </td>
             </tr>
         </table>

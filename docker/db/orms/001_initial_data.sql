@@ -43,26 +43,28 @@ INSERT INTO `ProfileColumnDefinition` (`ProfileColumnDefinitionSer`, `ColumnName
 INSERT INTO `ProfileColumnDefinition` (`ProfileColumnDefinitionSer`, `ColumnName`, `DisplayName`, `Glyphicon`, `Description`, `LastUpdated`) VALUES (15, 'WeighPatient', 'Weigh Patient', 'glyphicon-hand-down', 'Enables a patient\'s height, weight and BSA to be measured', '2022-05-11 01:49:22');
 INSERT INTO `ProfileColumnDefinition` (`ProfileColumnDefinitionSer`, `ColumnName`, `DisplayName`, `Glyphicon`, `Description`, `LastUpdated`) VALUES (16, 'SendForWeight', 'Send For Weight', 'glyphicon-hand-down', 'Similar to the WeightPatient column, except is allows any patient to be sent for weight', '2022-05-11 01:49:23');
 INSERT INTO `ProfileColumnDefinition` (`ProfileColumnDefinitionSer`, `ColumnName`, `DisplayName`, `Glyphicon`, `Description`, `LastUpdated`) VALUES (17, 'Diagnosis', 'Diagnosis', 'glyphicon-tint', 'Patient Diagnosis', '2022-05-11 01:49:25');
+INSERT INTO `ProfileColumnDefinition` (`ProfileColumnDefinitionSer`, `ColumnName`, `DisplayName`, `Glyphicon`, `Description`, `LastUpdated`) VALUES (18, 'WearablesData', 'Wearables Data', 'glyphicon-stats', 'Patient wearables data', '2023-05-04 08:30:00');
 
 INSERT INTO `Profile` (`ProfileSer`, `ProfileId`, `Category`, `SpecialityGroupId`, `LastUpdated`) VALUES (1, 'Default Profile', 'Physician', 1, '2022-05-11 11:07:17');
 
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (1, 1, 5, 10, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (2, 1, 4, 8, 1, '2022-05-11 11:07:17');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (1, 1, 5, 11, 1, '2023-05-04 08:30:00');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (2, 1, 4, 9, 1, '2023-05-04 08:30:00');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (3, 1, 11, -1, 0, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (4, 1, 9, 11, 1, '2022-05-11 11:07:17');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (4, 1, 9, 12, 1, '2023-05-04 08:30:00');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (5, 1, 14, 2, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (6, 1, 6, 9, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (7, 1, 12, 13, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (8, 1, 3, 7, 1, '2022-05-11 11:07:17');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (6, 1, 6, 10, 1, '2023-05-04 08:30:00');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (7, 1, 12, 14, 1, '2023-05-04 08:30:00');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (8, 1, 3, 8, 1, '2023-05-04 08:30:00');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (9, 1, 17, 3, 1, '2022-05-11 11:07:17');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (10, 1, 1, 1, 1, '2022-05-11 11:07:17');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (11, 1, 13, 4, 1, '2022-05-11 11:07:17');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (12, 1, 8, -1, 0, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (13, 1, 2, 6, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (14, 1, 16, 5, 1, '2022-05-11 11:07:17');
-INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (15, 1, 10, 12, 1, '2022-05-11 11:07:17');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (13, 1, 2, 7, 1, '2023-05-04 08:30:00');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (14, 1, 16, 6, 1, '2023-05-04 08:30:00');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (15, 1, 10, 13, 1, '2023-05-04 08:30:00');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (16, 1, 7, -1, 0, '2022-05-11 11:07:17');
 INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (17, 1, 15, -1, 0, '2022-05-11 11:07:17');
+INSERT INTO `ProfileColumns` (`ProfileColumnSer`, `ProfileSer`, `ProfileColumnDefinitionSer`, `Position`, `Active`, `LastUpdated`) VALUES (18, 1, 18, 5, 1, '2023-05-04 08:30:00');
 
 INSERT INTO `SmsMessage` (`SmsMessageId`, `SpecialityGroupId`, `Type`, `Event`, `Language`, `Message`, `LastUpdated`) VALUES (1, NULL, 'GENERAL', 'FAILED_CHECK_IN', 'English', 'Failed check in', '2022-05-11 01:54:08');
 INSERT INTO `SmsMessage` (`SmsMessageId`, `SpecialityGroupId`, `Type`, `Event`, `Language`, `Message`, `LastUpdated`) VALUES (2, NULL, 'GENERAL', 'FAILED_CHECK_IN', 'French', 'Erreur d\'enregistrement', '2022-05-11 01:54:40');

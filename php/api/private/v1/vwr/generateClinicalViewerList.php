@@ -152,6 +152,14 @@ if($afilter === false)
             && ($qfilter === true || $offbutton === "OFF" || $andbutton === "Or" || $recentlyAnswered === true)
             && ($qType === "all" || $answeredQuestionnaire === true)
         ) {
+            // Create an URL to the patient's wearables data if opalUUID is not empty. NULL otherwise.
+            $wearablesURL = NULL;
+            if (!empty($app["opalUUID"])) {
+                $wearablesURL = Config::getApplicationSettings()->system->newOpalAdminUrl
+                    . '/health-data/'
+                    . $app["opalUUID"]
+                    . '/quantity-samples/';
+            }
             $listOfAppointments[] = [
                 "fname"         => $app["fname"],
                 "lname"         => $app["lname"],
@@ -168,6 +176,7 @@ if($afilter === false)
                 "mediStatus"    => $app["mediStatus"],
                 "QStatus"       => $app["questionnaireStatus"],
                 "opalPatient"   => (int) $app["opalEnabled"],
+                "wearablesURL"  => $wearablesURL,
                 "age"           => date_diff($app["dateOfBirth"],new DateTime())->format("%y"),
                 "sex"           => mb_substr($app["sex"], 0, 1),
                 "PhoneNumber"   => $app["phoneNumber"],

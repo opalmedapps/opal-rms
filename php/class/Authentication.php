@@ -37,29 +37,6 @@ class Authentication
 
     public static function logout(): void
     {
-        // if (isset($_COOKIE["sessionid"]) && isset($_COOKIE["csrftoken"])) {
-        //     // If csrftoken and sessionid cookies are not empty, logout from the Django backend.
-        //     $logoutUrl = Config::getApplicationSettings()->system->newOpalAdminHostInternal . '/api/auth/logout/';
-
-        //     // Call the endpoint to flush the session in opalAdmin backend.
-        //     $client = new Client();
-        //     $response = $client->request(
-        //         method: "POST",
-        //         uri: $logoutUrl,
-        //         options: [
-        //             'headers' => [
-        //                 'cookie' => 'sessionid=' . $_COOKIE["sessionid"] . ';csrftoken=' . $_COOKIE["csrftoken"],
-        //                 'x-csrftoken' => $_COOKIE["csrftoken"],
-        //             ],
-        //             // disable throwing exceptions on an HTTP protocol errors
-        //             "http_errors" => false,
-        //         ],
-        //     );
-        //     if (!$response || $response->getStatusCode() != 200) {
-        //         // TODO: log unsuccessful logout
-        //     }
-        // }
-
         // Remove sessionid cookie
         if (isset($_COOKIE['ormsAuth'])) {
             $memcache = new Memcached(); // connect to memcached on localhost port 11211
@@ -69,18 +46,6 @@ class Authentication
             unset($_COOKIE['ormsAuth']);
             setcookie(name: 'ormsAuth', value: '', expires_or_options: -1, path: '/');
         }
-
-        // Remove csrftoken cookie
-        // if (isset($_COOKIE['csrftoken'])) {
-            // unset($_COOKIE['csrftoken']);
-            // setcookie(name: 'csrftoken', value: '', expires_or_options: -1, path: '/');
-        // }
-
-        // Remove legacy opal admin session id
-        // if (isset($_COOKIE['PHPSESSID'])) {
-        //     unset($_COOKIE['PHPSESSID']);
-        //     setcookie(name: 'PHPSESSID', value: '', expires_or_options: -1, path: '/');
-        // }
     }
 
     public static function validate(string $sessionid): ResponseInterface

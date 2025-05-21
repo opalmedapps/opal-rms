@@ -31,10 +31,6 @@ myApp.controller("screenDisplayController", async function(
     // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
     $scope.tickerText = "Do you need a family doctor? Register online on gamf.gouv.qc.ca. If you need help, a volunteer can assist you at the Cedars CanSupport Resource Centre room, DRC-1329… / Besoin d’un médecin de famille ? Inscrivez-vous en ligne au gamf.gouv.qc.ca. Si vous avez besoin d’aide, un bénévole pourra vous aider au Centre de ressources CanSupport des Cèdres, salle DRC-1329…";
 
-    if(today.format("dddd") === "Tuesday" && hour >= 12 && hour < 13) {
-        $scope.tickerText = "Are you enjoying the music today? Please donate to the HEALING NOTES Fund at cedars.ca. Thank you! / Aimez-vous la musique aujourd’hui? Faites un don: Fonds NOTES DE RÉCONFORT au cedars.ca. Merci!";
-    }
-
     //define specific rooms that should display with a left arrow on the screen
     //this is to guide the patient to the right area
     $scope.leftArrowLocations = ["RADIATION TREATMENT ROOM 1","RADIATION TREATMENT ROOM 2","RADIATION TREATMENT ROOM 3","RADIATION TREATMENT ROOM 4","RADIATION TREATMENT ROOM 5","RADIATION TREATMENT ROOM 6","CyberKnife"];
@@ -49,17 +45,11 @@ myApp.controller("screenDisplayController", async function(
 
     //connect to Firebase
     let firebaseSettings = await getFirebaseSettings();
-    let firebaseScreenRef = new Firebase(firebaseSettings.FirebaseUrl + urlParams.location + "/" + today.format("MM-DD-YYYY"));
-
-    firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, error => {
-        if(error !== null) {
-            console.log("Authentication Failed!", error);
-        }
-    });
+    var firebaseScreenRef = firebase.initializeApp(firebaseSettings.FirebaseConfig);
 
     //get the data from Firebase and load it into an object
     //when the data changes on Firebase this array will be automatically updated
-    let firebasePatients = $firebaseArray(firebaseScreenRef);
+    var firebasePatients = $firebaseArray(firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch+ "/" + today));
 
     $scope.patientList = []; //copy of the firebase array; used to prevent encrypted names from showing up while decrypting
 

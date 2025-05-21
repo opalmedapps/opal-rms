@@ -126,11 +126,8 @@ myApp.controller("virtualWaitingRoomController",function (
     var firebaseScreenRef = '';
     var connectToFirebase = function()
     {
-        var FirebaseUrl = $scope.pageSettings.FirebaseUrl + $scope.pageSettings.ClinicHubId + "/" + today;
-
-        firebaseScreenRef = new Firebase(FirebaseUrl); // firebase connection
-
-        firebaseScreenRef.authWithCustomToken($scope.pageSettings.FirebaseSecret,()=>{});
+        firebaseScreenRef = firebase.initializeApp($scope.pageSettings.FirebaseConfig);
+        firebaseScreenRef = firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch+ "/" + today)
 
         $scope.screenRows = $firebaseObject(firebaseScreenRef);
 

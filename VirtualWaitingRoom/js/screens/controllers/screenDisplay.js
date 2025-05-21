@@ -49,7 +49,7 @@ myApp.controller("screenDisplayController", async function(
 
     //get the data from Firebase and load it into an object
     //when the data changes on Firebase this array will be automatically updated
-    var firebasePatients = $firebaseArray(firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch+ "/" + today));
+    var firebasePatients = $firebaseArray(firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch + $urlParams.location + "/" + today.format("MM-DD-YYYY")));
 
     $scope.patientList = []; //copy of the firebase array; used to prevent encrypted names from showing up while decrypting
 

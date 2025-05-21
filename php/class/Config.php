@@ -75,6 +75,7 @@ class Config
         }
         $_ENV = self::_parseData($_ENV);
 
+        //get the firebase configuration
         $firebaseConfig = json_decode(file_get_contents(__DIR__."/../..".$_ENV["FIREBASE_CONFIG_PATH"]));
 
         //create required configs

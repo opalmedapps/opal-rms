@@ -127,7 +127,7 @@ myApp.controller("virtualWaitingRoomController",function (
     var connectToFirebase = function()
     {
         firebaseScreenRef = firebase.initializeApp($scope.pageSettings.FirebaseConfig);
-        firebaseScreenRef = firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch+ "/" + today)
+        firebaseScreenRef = firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch + $scope.pageSettings.ClinicHubId + "/" + today)
 
         $scope.screenRows = $firebaseObject(firebaseScreenRef);
 

@@ -49,8 +49,8 @@ class Config
         $dotenv->required('ORMS_DATABASE_HOST')->notEmpty();
         $dotenv->required('ORMS_DATABASE_NAME')->notEmpty();
         $dotenv->required('ORMS_DATABASE_PORT')->isInteger();
-        $dotenv->required('FIREBASE_URL')->notEmpty();
-        $dotenv->required('FIREBASE_SECRET')->notEmpty();
+        $dotenv->required('FIREBASE_CONFIG_PATH')->notEmpty();
+        $dotenv->required('FIREBASE_BRANCH')->notEmpty();
         $dotenv->required('OIE_ENABLED')->notEmpty();
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();

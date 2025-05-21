@@ -212,7 +212,7 @@ The following extensions are required or strongly recommended:
 ## Production
 
 * Set environment variables (e.g., `.env` file)
-* Provide `FIREBASE_URL` and `FIREBASE_SECRET`. For the secret, copy the `private_key_id` field from the private key JSON file that is issued during realtime database creation
+* Provide `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH`. For the secret, copy the `private_key_id` field from the private key JSON file that is issued during realtime database creation
 * Provide `crunz.yml` configuration settings for the cron
 
 ## Documentation

@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         </table>
 
         <center style="padding-top:8px;">
-            <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="atient.newEntry ? 'bg-danger': 'bg-info'">
+            <div class="patient-list" ng-repeat="patient in patientList | orderBy: '-Timestamp' | filter: {'PatientStatus': 'Called'} | timeFilter" ng-class="patient.newEntry ? 'bg-danger': 'bg-info'">
                 <div class="patient-list-inner-block">
                     <div class="patient-arrow">
                         <img ng-if="leftArrowLocations.indexOf(patient.Destination.Name) !== -1" class="left-arrow" src="VirtualWaitingRoom/images/left-arrow.png"></img>

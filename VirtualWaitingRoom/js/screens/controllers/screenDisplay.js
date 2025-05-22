@@ -82,6 +82,7 @@ myApp.controller("screenDisplayController", async function(
     //decrypts all patient encrypted data in the firebase array
     function decryptData(patients)
     {
+        if(!patients.patients) return [];
         let patientsArr = patients.patients;
         patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated"].includes(x)).map(x => patientsArr[x]);
 

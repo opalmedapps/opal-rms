@@ -45,7 +45,7 @@ class LocationInterface
             if ($checkinType !== "APP" && $app["sourceSystem"] === "Aria" && $config->sourceSystemSupportsCheckin){
                 SourceSystemExport::exportPatientLocation($app["sourceId"], $room);
             }
-            
+
         }
     }
 

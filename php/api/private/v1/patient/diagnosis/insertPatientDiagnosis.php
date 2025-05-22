@@ -33,7 +33,7 @@ $patient = PatientInterface::getPatientById($patientId);
 
 if($patient !== null) {
     $is_opal_patient = Fetch::isOpalPatient($patient);
-    
+
     if($is_opal_patient){
 
         // Ensure the code to be assigned exists in the Opal MasterSource list

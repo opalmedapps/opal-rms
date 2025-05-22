@@ -4,7 +4,7 @@
 
 (function() {
     'use strict';
-  
+
     angular
       .module('vwr.config', [])
       .constant('CONFIG', {
@@ -15,5 +15,5 @@
         BRANDING_SCREEN_DISPLAY_BANNER_PATH: 'VirtualWaitingRoom/images/Banner_treatments.png',
         BRANDING_SUPPORT_EMAIL_ADDRESS: 'info@opalmedapps.com'
       });
-  
+
   })();

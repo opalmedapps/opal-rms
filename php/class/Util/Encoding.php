@@ -15,7 +15,7 @@ class Encoding
      * Also works on array of arrays or other nested structures.
      *
      */
-    public static function utf8_encode_recursive(mixed $data): mixed 
+    public static function utf8_encode_recursive(mixed $data): mixed
     {
         if (is_string($data)) {
             // Check if the string is already UTF-8 to avoid double encoding characters
@@ -24,7 +24,7 @@ class Encoding
                 return mb_convert_encoding($data, 'UTF-8', 'ISO-8859-1');
             }
             return $data; // Return as is if it's already UTF-8
-        } 
+        }
         elseif (is_array($data)) {
             return array_map(fn($x) => self::utf8_encode_recursive($x), $data);
         }
@@ -37,7 +37,7 @@ class Encoding
      * Also works on array of arrays or other nested structures.
      *
      */
-    public static function utf8_decode_recursive(mixed $data): mixed 
+    public static function utf8_decode_recursive(mixed $data): mixed
     {
         if (is_string($data)) {
             // Check if the string is already ISO-8859-1
@@ -46,11 +46,11 @@ class Encoding
                 return mb_convert_encoding($data, 'ISO-8859-1', 'UTF-8');
             }
             return $data; // Return as is if it's already ISO-8859-1
-        } 
+        }
         elseif (is_array($data)) {
             return array_map(fn($x) => self::utf8_decode_recursive($x), $data);
         }
-        
+
         return $data;
     }
 }

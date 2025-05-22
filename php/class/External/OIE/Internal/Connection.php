@@ -13,7 +13,7 @@ use GuzzleHttp\Client;
 use Orms\Config;
 
 class Connection
-{   
+{
     # These are the last 2 endpoints which currently go to the OIE
 
     # Used when a patient checks in via kiosk, OIE forwards call to {serverAriaIE}/patient/hasPhoto and returns a boolean response

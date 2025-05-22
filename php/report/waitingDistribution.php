@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 //---------------------------------------------------------------------------------------------------------------
-// This script create a distribution of patient wait times in the specified date range for each doctor and clinic in the phpmyadmin WaitRoomManagment database.
+// This script create a distribution of patient wait times in the specified date range for each doctor and clinic in the phpmyadmin WaitRoomManagement database.
 //---------------------------------------------------------------------------------------------------------------
 
 require __DIR__ ."/../../vendor/autoload.php";
@@ -184,6 +184,6 @@ function sd_square(float $x, float $mean): float
 function sd(array $array): ?float
 {
     if(count($array) <= 1) return null;
-    // square root of sum of squares devided by N-1
+    // square root of sum of squares divided by N-1
     return sqrt(array_sum(array_map("sd_square", $array, array_fill(0, count($array), (array_sum($array) / count($array))))) / (count($array)-1));
 }

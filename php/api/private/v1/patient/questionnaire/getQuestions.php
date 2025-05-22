@@ -49,7 +49,7 @@ if((int) $visualization === 1)
 
     $data["lastDateAnswered"] = $lastDateAnswered;
 
-    //convert all unix timestamps to millseconds for graph display
+    //convert all unix timestamps to milliseconds for graph display
     $questions = array_map(function($x) {
         $x["answers"] = array_map(function($y) {
             $y["dateTimeAnswered"] = $y["dateTimeAnswered"] *1000;

@@ -25,8 +25,8 @@ class Mail
     */
     public static function sendViaSMTP(string $subject, string $message): void
     {
-        $recepients = Config::getApplicationSettings()->system->emails;
-        if(!$recepients) return;
+        $recipients = Config::getApplicationSettings()->system->emails;
+        if(!$recipients) return;
 
         //Create an instance; passing `true` (e.g., PHPMailer(true)) enables exceptions
         $mail = new PHPMailer();
@@ -62,15 +62,15 @@ class Mail
     // See: https://exploitbox.io/paper/Pwning-PHP-Mail-Function-For-Fun-And-RCE.html
     public static function sendEmail(string $subject, string $message): void
     {
-        $recepients = implode(",", Config::getApplicationSettings()->system->emails);
-        if($recepients === "") return;
+        $recipients = implode(",", Config::getApplicationSettings()->system->emails);
+        if($recipients === "") return;
 
         $headers = [
             "From" => Config::getApplicationSettings()->system->emailSentFromAddress
         ];
 
         /** @psalm-suppress UnusedFunctionCall */
-        mail($recepients, $subject, $message, $headers);
+        mail($recipients, $subject, $message, $headers);
     }
 
 }

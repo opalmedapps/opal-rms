@@ -42,7 +42,7 @@ class Patient
     {
         $mrns = array_values(array_filter($this->mrns, fn($x) => $x->active === true));
 
-        //sort the mrns to guarentee that they're always in the same order
+        //sort the mrns to guarantee that they're always in the same order
         usort($mrns, fn($a, $b) => [$a->mrn,$a->site] <=> [$b->mrn,$b->site]);
 
         return $mrns;

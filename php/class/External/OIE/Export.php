@@ -20,7 +20,7 @@ class Export
     {
         if(Config::getApplicationSettings()->system->sendWeights !== true) return;
 
-        //measurement document only suported by the RVH site for now
+        //measurement document only supported by the RVH site for now
         $mrn = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->mrn ?? throw new \Exception("No RVH mrn");
         $site = array_values(array_filter($patient->getActiveMrns(), fn($x) => $x->site === "RVH"))[0]->site ?? throw new \Exception("No RVH mrn");
 

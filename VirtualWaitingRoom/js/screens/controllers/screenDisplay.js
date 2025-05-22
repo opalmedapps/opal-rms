@@ -71,7 +71,7 @@ myApp.controller("screenDisplayController", async function(
         });
 
         //every time the firebase object is updated on Firebase we need to send the data for decryption
-        //we know an update has occured when the timestamp in the Metadata changes
+        //we know an update has occurred when the timestamp in the Metadata changes
         $scope.$watch(_ => firebasePatients.Metadata?.LastUpdated ?? null, (newValue,oldValue) => {
             if(newValue !== oldValue) {
                 $scope.patientList = decryptData(firebasePatients);

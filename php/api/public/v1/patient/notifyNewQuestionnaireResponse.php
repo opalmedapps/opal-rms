@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-//api that is called when a paitent has answered a questionnaire in Opal, letting ORMS know to to regenerate the list of answered questionanires for the day
+//api that is called when a patient has answered a questionnaire in Opal, letting ORMS know to to regenerate the list of answered questionnaires for the day
 
 require_once __DIR__."/../../../../../vendor/autoload.php";
 

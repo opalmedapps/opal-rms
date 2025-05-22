@@ -57,7 +57,7 @@ function profileEditorController($scope,$http,$filter,CrossCtrlFuncs)
         $scope.possibleColumns.possible = $filter('orderBy')($scope.possibleColumns.possible,'+ColumnName');
     }
 
-    //toogle if we show the description for a column
+    //toggle if we show the description for a column
     $scope.toggleColumnDescription = function(col)
     {
         if(col === $scope.possibleColumns.focusedColumn) {$scope.possibleColumns.focusedColumn = {};}

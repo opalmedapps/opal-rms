@@ -4,7 +4,7 @@
 
 //screen controller
 myApp.controller("screenDisplayController", async function(
-    $scope, $http, $firebaseArray, $interval, $location, $window, ngAudio, CONFIG
+    $scope, $http, $interval, $location, $window, ngAudio, CONFIG
 ){
     let today = dayjs();
     let hour = today.hour();
@@ -34,7 +34,6 @@ myApp.controller("screenDisplayController", async function(
     if(today.format("dddd") === "Tuesday" && hour >= 12 && hour < 13) {
         $scope.tickerText = "Are you enjoying the music today? Please donate to the HEALING NOTES Fund at cedars.ca. Thank you! / Aimez-vous la musique aujourd’hui? Faites un don: Fonds NOTES DE RÉCONFORT au cedars.ca. Merci!";
     }
-
     //define specific rooms that should display with a left arrow on the screen
     //this is to guide the patient to the right area
     $scope.leftArrowLocations = ["RADIATION TREATMENT ROOM 1","RADIATION TREATMENT ROOM 2","RADIATION TREATMENT ROOM 3","RADIATION TREATMENT ROOM 4","RADIATION TREATMENT ROOM 5","RADIATION TREATMENT ROOM 6","CyberKnife"];
@@ -49,21 +48,17 @@ myApp.controller("screenDisplayController", async function(
 
     //connect to Firebase
     let firebaseSettings = await getFirebaseSettings();
-    let firebaseScreenRef = new Firebase(firebaseSettings.FirebaseUrl + urlParams.location + "/" + today.format("MM-DD-YYYY"));
-
-    firebaseScreenRef.authWithCustomToken(firebaseSettings.FirebaseSecret, error => {
-        if(error !== null) {
-            console.log("Authentication Failed!", error);
-        }
-    });
+    var firebaseScreenRef = firebase.initializeApp(firebaseSettings.FirebaseConfig);
 
     //get the data from Firebase and load it into an object
     //when the data changes on Firebase this array will be automatically updated
-    let firebasePatients = $firebaseArray(firebaseScreenRef);
-
+    firebaseScreenRef = firebaseScreenRef.database().ref(firebaseSettings.FirebaseBranch + '/' + urlParams.location + "/" + today.format("MM-DD-YYYY"));
     $scope.patientList = []; //copy of the firebase array; used to prevent encrypted names from showing up while decrypting
+    var firebasePatients = [];
 
-    firebasePatients.$loaded().then(_ => { //wait until the array has been loaded from firebase
+    //wait until the array has been loaded from firebase
+    firebaseScreenRef.once('value').then((snapshot) => { 
+        firebasePatients = snapshot.val();
         $scope.patientList = decryptData(firebasePatients) //if there are any patients in the array on load, we decrypt them
 
         //watch the number of patients in the firebase list. When it changes, play a sound
@@ -77,7 +72,7 @@ myApp.controller("screenDisplayController", async function(
 
         //every time the firebase object is updated on Firebase we need to send the data for decryption
         //we know an update has occured when the timestamp in the Metadata changes
-        $scope.$watch(_ => firebasePatients.$getRecord("Metadata")?.LastUpdated ?? null, (newValue,oldValue) => {
+        $scope.$watch(_ => firebasePatients.Metadata?.LastUpdated ?? null, (newValue,oldValue) => {
             if(newValue !== oldValue) {
                 $scope.patientList = decryptData(firebasePatients);
             }
@@ -87,8 +82,9 @@ myApp.controller("screenDisplayController", async function(
     //decrypts all patient encrypted data in the firebase array
     function decryptData(patients)
     {
-        let patientsArr = patients.$getRecord("patients");
-        patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated","$id","$priority"].includes(x)).map(x => patientsArr[x]);
+        if(!patients.patients) return [];
+        let patientsArr = patients.patients;
+        patientsArr = Object.keys(patientsArr).filter(x => !["LastUpdated"].includes(x)).map(x => patientsArr[x]);
 
         //filter checked out patients due to appointment completions
         patientsArr = patientsArr.filter(x => x.PatientStatus !== "CheckedOut");

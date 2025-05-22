@@ -14,6 +14,6 @@ use Orms\Config;
 $configs = Config::getApplicationSettings()->environment;
 
 echo json_encode([
-    "FirebaseUrl"       => $configs->firebaseUrl,
-    "FirebaseSecret"    => $configs->firebaseSecret
+    "FirebaseConfig"       => $configs->firebaseConfig,
+    "FirebaseBranch"       => $configs->firebaseBranch
 ]);

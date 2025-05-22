@@ -212,7 +212,7 @@ The following extensions are required or strongly recommended:
 ## Production
 
 * Set environment variables (e.g., `.env` file)
-* Provide `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH`. page. The firebase configuration file needs to be present in `FIREBASE_CONFIG_PATH`. In the firebase configuration file, `apiKey`, `authDomain`, `databaseURL` and `projectId` must be defined.
+* Provide `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH`. The firebase configuration file needs to be present in `FIREBASE_CONFIG_PATH`. In the firebase configuration file, `apiKey`, `authDomain`, `databaseURL` and `projectId` must be defined.
 * Provide `crunz.yml` configuration settings for the cron
 
 ## Documentation

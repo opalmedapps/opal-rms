@@ -44,15 +44,15 @@ class Fetch
                 }
             }
         }
-    
+
         $success = $memcached->addServer($host, $port);
         if (!$success) {
             error_log('Failed to add server: ' . $memcached->getResultMessage());
         }
-    
+
         return $success;
     }
-    
+
     /**
      * Get or set a LegacyOA cookie for system api calls
      */
@@ -98,7 +98,7 @@ class Fetch
                 $memcached->set('legacy_oa_cookie', $set_cookie, 1440);
             }
         }
-        
+
         return $set_cookie;
     }
 
@@ -121,7 +121,7 @@ class Fetch
         $response = array_filter(json_decode($response, true), fn($x) => in_array($x['title_EN'], ['Clinical','Research']));
 
         return $response ? array_map(fn($x) => [
-            'purposeId' => (int) $x['ID'], 
+            'purposeId' => (int) $x['ID'],
             'title' => (string) $x['title_EN']
         ], $response) : [];
 
@@ -145,7 +145,7 @@ class Fetch
 
         $responseData = json_decode($response, true) ?? [];
         return array_map(fn($x) => [
-            'questionnaireId' => (int) $x['ID'], 
+            'questionnaireId' => (int) $x['ID'],
             'name'            => (string) $x['name_EN']
         ], $responseData);
     }
@@ -229,7 +229,7 @@ class Fetch
             return array_map(fn($x) => [
                 'studyId'         => (int) $x['studyId'],
                 'title'           => (string) $x['title_EN']
-            ], json_decode($response, true));    
+            ], json_decode($response, true));
         }
         return [];
     }
@@ -258,7 +258,7 @@ class Fetch
         // Check for opal patient status
         $is_opal_patient = self::isOpalPatient($patient);
 
-        if ($is_opal_patient) { 
+        if ($is_opal_patient) {
             $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_PATIENT_QUESTIONNAIRE_COMPLETED, [
                 'headers' => [
                     'Cookie' => $cookie,
@@ -510,5 +510,5 @@ class Fetch
 
         return [];
     }
-    
+
 }

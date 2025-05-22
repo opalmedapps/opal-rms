@@ -42,6 +42,13 @@ jobs:
         run: |
           npm --version
           npm ci
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - uses: mschoettle/pre-commit-action@v4.2.3
 
   run-reuse-workflow:
     uses: opalmedapps/.github/.github/workflows/reuse.yaml@main

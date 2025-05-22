@@ -57,7 +57,7 @@ myApp.controller("screenDisplayController", async function(
     var firebasePatients = [];
 
     //wait until the array has been loaded from firebase
-    firebaseScreenRef.once('value').then((snapshot) => { 
+    firebaseScreenRef.once('value').then((snapshot) => {
         firebasePatients = snapshot.val();
         $scope.patientList = decryptData(firebasePatients) //if there are any patients in the array on load, we decrypt them
 

@@ -87,6 +87,6 @@ class Authentication
         // Store value for the key in memcache daemon
         if (!$memcache->set($sessionid, $value)) {
             throw new Exception("Failed to store session in memcached. Error code: " . $memcache->getResultCode());
-        } 
+        }
     }
 }

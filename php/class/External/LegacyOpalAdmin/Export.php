@@ -22,7 +22,7 @@ class Export
      */
     public static function insertMasterSourceDiagnosis(string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr){
         $cookie = Fetch::getOrSetOACookie();
-    
+
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_DIAGNOSIS, [
             'headers' => [
                 'Cookie' => $cookie,
@@ -45,7 +45,7 @@ class Export
     public static function insertPatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status): void
     {
         $cookie = Fetch::getOrSetOACookie();
-        
+
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_INSERT_PATIENT_DIAGNOSIS, [
             'headers' => [
                 'Cookie' => $cookie,
@@ -70,7 +70,7 @@ class Export
      */
     public static function deletePatientDiagnosis(Patient $patient, int $diagId, string $diagSubcode, \DateTime $creationDate, string $descEn, string $descFr, string $status){
         $cookie = Fetch::getOrSetOACookie();
-    
+
         $response = Connection::getHttpClient()?->request('POST', Connection::LEGACY_API_DELETE_PATIENT_DIAGNOSIS, [
                 'headers' => [
                     'Cookie' => $cookie,

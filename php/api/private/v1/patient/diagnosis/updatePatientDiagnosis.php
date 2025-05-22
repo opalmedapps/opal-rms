@@ -33,7 +33,7 @@ $patient = PatientInterface::getPatientById($patientId);
 
 if($patient !== null) {
     $is_opal_patient = Fetch::isOpalPatient($patient);
-    
+
     if($is_opal_patient){
         if (trim(strtolower($status)) === 'deleted') {
             // Separate endpoint for diagnosis deletions
@@ -64,7 +64,7 @@ if($patient !== null) {
                     $updatedDiag->diagnosis->subcodeDescription,
                     "",
                     $updatedDiag->status
-                ); 
+                );
             }catch(\Exception $e) {
                 Http::generateResponseJsonAndExit(
                     httpCode: $response->getStatusCode(),
@@ -72,6 +72,5 @@ if($patient !== null) {
                 );
             }
         }
-    } 
+    }
 }
-

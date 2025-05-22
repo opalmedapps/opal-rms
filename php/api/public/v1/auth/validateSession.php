@@ -26,7 +26,7 @@ try {
     $sessionid = isset($_COOKIE["sessionid"]) ? $_COOKIE["sessionid"] : "";
 
     $response = Authentication::validate($sessionid);
-    
+
     if (!$response || $response->getStatusCode() != 200) {
         $error = $response->getBody()->getContents();
         Logger::logLoginEvent(
@@ -35,7 +35,7 @@ try {
             $response->getStatusCode(),
             $error
         );
-        
+
         // convert 403: Authentication credentials were not provided into 401 to distinguish between not authenticated and not authorized
         if ($response->getStatusCode() == 403 && json_decode($error, true)["detail"] == "Authentication credentials were not provided.") {
             Http::generateResponseJsonAndExit(
@@ -50,13 +50,13 @@ try {
             );
         }
     }
-    
+
     // If the user has a valid session in the backend, establish the ORMS session
     $content = json_decode($response->getBody()->getContents(), true);
     $username = $content["username"];
     $first_name = $content["first_name"] ?? '';
     $last_name = $content["last_name"] ?? '';
-    
+
     Authentication::createUserSession($username, $sessionid);
     Logger::logLoginEvent(
         $username,
@@ -64,7 +64,7 @@ try {
         $response->getStatusCode(),
         null,
     );
-    
+
     setcookie(
         name: "ormsAuth",
         value: $sessionid,

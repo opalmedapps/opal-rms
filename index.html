@@ -14,8 +14,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             background-color: rgb(128,128, 128);
         }
         body {
-            color: rgb(0, 0, 0); 
-            font-family: Helvetica,Arial,sans-serif; 
+            color: rgb(0, 0, 0);
+            font-family: Helvetica,Arial,sans-serif;
             margin: 0,
         }
         ul li {padding-bottom: 25px;}
@@ -102,7 +102,7 @@ app.controller('main', function($scope, $http, $cookies, $location, $mdDialog, $
     $scope.site       = $cookies.get("hospitalCode");
 
     $scope.rmsLogo    = CONFIG.BRANDING_RMS_LOGO_PATH;
-    
+
     // show the "speciality" (sic!) selection if any of the cookies is missing
     if (!$scope.speciality || !$scope.hub || !$scope.hubName || !$scope.site) {
         showSpecialitySelection();
@@ -195,7 +195,7 @@ app.controller('main', function($scope, $http, $cookies, $location, $mdDialog, $
             $cookies.remove("clinicHubId", {path: "/"});
             $cookies.remove("clinicHubName", {path: "/"});
             $cookies.remove("hospitalCode", {path: "/"});
-    
+
             $window.location.href = `${response.data.data}/#!/home`;
         } catch (error) {
             console.error(`An error occurred during logging out: ${error?.data?.error}`);

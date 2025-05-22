@@ -165,16 +165,16 @@ paths:
       description: Validate user session
       tags:
         - auth
-        - institution integration    
+        - institution integration
       responses:
         200:
           $ref: '#/components/responses/200'
         400:
           $ref: '#/components/responses/400'
         401:
-          $ref: '#/components/responses/401' 
+          $ref: '#/components/responses/401'
         403:
-          $ref: '#/components/responses/403' 
+          $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
 
@@ -184,7 +184,7 @@ paths:
       description: Remove user session
       tags:
         - auth
-                    
+
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -235,7 +235,7 @@ paths:
         400:
           $ref: '#/components/responses/400'
         403:
-          $ref: '#/components/responses/403' 
+          $ref: '#/components/responses/403'
         406:
           $ref: '#/components/responses/400'
         500:

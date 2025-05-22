@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # ORMS
 
-The Online Room Management System (ORMS) provides a clinical viewer (aka. live clinician dashboard), a virtual waiting room and separate frontends for kiosks and TV screens.
+The Opal Room Management System (ORMS) provides a clinical viewer (aka. live clinician dashboard), a virtual waiting room and separate frontends for kiosks and TV screens.
 
 ## Requirements
 

@@ -1,9 +1,9 @@
 {
-  "name": "opal-orms",
+  "name": "opal-rms",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/opalmedapps/ORMS.git"
+    "url": "https://github.com/opalmedapps/opal-rms.git"
   },
   "private": true,
   "dependencies": {

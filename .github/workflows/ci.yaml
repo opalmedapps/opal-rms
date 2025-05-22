@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: Copyright (C) 2025 Opal Health Informatics Group at the Research Institute of the McGill University Health Centre <john.kildea@mcgill.ca>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || '' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      # Add .npmrc for NES token
+      - name: Create .npmrc
+        env:
+          NPMRC_FILE: ${{ secrets.NPMRC_FILE }}
+        run: echo "$NPMRC_FILE" > .npmrc
+      # Use setup-node's built-in functionality for caching and restoring npm dependencies
+      # See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows
+      - uses: actions/setup-node@v4.4.0
+        with:
+          # renovate: datasource=node-version dependency=node
+          node-version: 22.15.0
+          cache: 'npm'
+      - name: Install dependencies
+        run: |
+          npm --version
+          npm ci
+
+  run-reuse-workflow:
+    uses: opalmedapps/.github/.github/workflows/reuse.yaml@main

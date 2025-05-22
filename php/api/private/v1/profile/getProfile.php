@@ -59,8 +59,8 @@ $profileDetails = [
     "Locations"            => array_values(array_filter($options,fn($x) => $x["Type"] === "ExamRoom" || $x["Type"] === "IntermediateVenue")),
     "ColumnsDisplayed"     => $columns,
     "sortOrder"            => in_array($profile["category"],["PAB","Treatment Machine","Physician"]) ? ["ScheduledStartTime_hh","ScheduledStartTime_mm"] : "LastName", //set the load order of the appointments on the vwr page depending the category
-    "FirebaseUrl"          => $configs->environment->firebaseUrl,
-    "FirebaseSecret"       => $configs->environment->firebaseSecret,
+    "FirebaseConfig"       => $configs->environment->firebaseConfig,
+    "FirebaseBranch"       => $configs->environment->firebaseBranch,
     "CheckInFile"          => "tmp/$profile[specialityGroupId].vwr.json"
 ];
 

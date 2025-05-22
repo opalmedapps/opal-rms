@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-var myApp = angular.module('screen', ['firebase', 'ngAudio', 'vwr.config']);
+var myApp = angular.module('screen', ['ngAudio', 'vwr.config']);
 
 myApp.config(["$locationProvider","$qProvider",function($locationProvider,$qProvider) {
     $locationProvider.html5Mode({

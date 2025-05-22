@@ -49,8 +49,8 @@ class Config
         $dotenv->required('ORMS_DATABASE_HOST')->notEmpty();
         $dotenv->required('ORMS_DATABASE_NAME')->notEmpty();
         $dotenv->required('ORMS_DATABASE_PORT')->isInteger();
-        $dotenv->required('FIREBASE_URL')->notEmpty();
-        $dotenv->required('FIREBASE_SECRET')->notEmpty();
+        $dotenv->required('FIREBASE_CONFIG_PATH')->notEmpty();
+        $dotenv->required('FIREBASE_BRANCH')->notEmpty();
         $dotenv->required('OIE_ENABLED')->notEmpty();
         $dotenv->required('SMS_ENABLED')->notEmpty();
         $dotenv->required('NEW_OPAL_ADMIN_HOST_INTERNAL')->notEmpty();
@@ -75,13 +75,16 @@ class Config
         }
         $_ENV = self::_parseData($_ENV);
 
+        //get the firebase configuration
+        $firebaseConfig = json_decode(file_get_contents(__DIR__."/../..".$_ENV["FIREBASE_CONFIG_PATH"]));
+
         //create required configs
         $environment = new EnvironmentConfig(
             basePath:                       $_ENV["BASE_PATH"],
             baseUrl:                        $_ENV["BASE_URL"],
             imagePath:                      $_ENV["IMAGE_PATH"],
-            firebaseUrl:                    $_ENV["FIREBASE_URL"],
-            firebaseSecret:                 $_ENV["FIREBASE_SECRET"],
+            firebaseConfig:                 $firebaseConfig,
+            firebaseBranch:                 $_ENV["FIREBASE_BRANCH"],
             completedQuestionnairePath:     $_ENV["BASE_PATH"]."/tmp/completedQuestionnaires.json",
             legacyOpalAdminHostExternal:    $_ENV["LEGACY_OPAL_ADMIN_HOST_EXTERNAL"],
             legacyOpalAdminHostInternal:    $_ENV["LEGACY_OPAL_ADMIN_HOST_INTERNAL"],
@@ -187,8 +190,8 @@ class EnvironmentConfig
         public string $basePath,
         public string $baseUrl,
         public string $imagePath,
-        public string $firebaseUrl,
-        public string $firebaseSecret,
+        public object $firebaseConfig,
+        public string $firebaseBranch,
         public string $completedQuestionnairePath,
         public string $legacyOpalAdminHostExternal,
         public string $legacyOpalAdminHostInternal,

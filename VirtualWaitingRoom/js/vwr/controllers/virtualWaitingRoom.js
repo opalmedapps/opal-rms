@@ -5,7 +5,7 @@
 //virtualWaitingRoom Controller
 
 myApp.controller("virtualWaitingRoomController",function (
-    $scope, $uibModal, $http, $firebaseObject, $interval, $filter, $mdDialog, $window, ProfileSettings, WearableCharts, CONFIG
+    $scope, $uibModal, $http, $interval, $filter, $mdDialog, $window, ProfileSettings, WearableCharts, CONFIG
 ){
     //=========================================================================
     // General useful stuff
@@ -126,43 +126,40 @@ myApp.controller("virtualWaitingRoomController",function (
     var firebaseScreenRef = '';
     var connectToFirebase = function()
     {
-        var FirebaseUrl = $scope.pageSettings.FirebaseUrl + $scope.pageSettings.ClinicHubId + "/" + today;
-
-        firebaseScreenRef = new Firebase(FirebaseUrl); // firebase connection
-
-        firebaseScreenRef.authWithCustomToken($scope.pageSettings.FirebaseSecret,()=>{});
-
-        $scope.screenRows = $firebaseObject(firebaseScreenRef);
+        firebaseScreenRef = firebase.initializeApp($scope.pageSettings.FirebaseConfig);
+        firebaseScreenRef = firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch + '/' + $scope.pageSettings.ClinicHubId + "/" + today)
 
         //once we have the firebase array, we load the rest of the page
-        $scope.screenRows.$loaded().then(function()
+        firebaseScreenRef.once('value').then((snapshot) =>
         {
             //create an array in firebase that contains a list of patients who have to be weighed (if it doesn't already exist)
             //also remove the previous day's array
+            $scope.screenRows = snapshot.val();
             if(
-                ($scope.screenRows.hasOwnProperty("ToBeWeighed") && $scope.screenRows["ToBeWeighed"].CreatedOn != today) || !$scope.screenRows.hasOwnProperty("ToBeWeighed")
+                (!$scope.screenRows) || ($scope.screenRows.hasOwnProperty("ToBeWeighed") && $scope.screenRows["ToBeWeighed"].CreatedOn != today)
+                || !$scope.screenRows.hasOwnProperty("ToBeWeighed")
             )
             {
                 firebaseScreenRef.child("ToBeWeighed").set({CreatedOn: today});
             }
 
             if(
-                ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today)
+                (!$scope.screenRows) || ($scope.screenRows.hasOwnProperty("zoomLinkSent") && $scope.screenRows["zoomLinkSent"].CreatedOn != today)
                 || !$scope.screenRows.hasOwnProperty("zoomLinkSent")
             ) {
                 firebaseScreenRef.child("zoomLinkSent").set({CreatedOn: today});
             }
 
             //Prepare a simple object to hold metadata - for now just the timestamp of the most recent call
-            if(!$scope.screenRows.hasOwnProperty("Metadata"))
+            if((!$scope.screenRows) || (!$scope.screenRows.hasOwnProperty("Metadata")))
             {
-                firebaseScreenRef.child("Metadata").set({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+                firebaseScreenRef.child("Metadata").set({LastUpdated: firebase.database.ServerValue.TIMESTAMP});
             }
 
             //Prepare an object to hold patient objects
-            if(!$scope.screenRows.hasOwnProperty("patients"))
+            if((!$scope.screenRows) || (!$scope.screenRows.hasOwnProperty("patients")))
             {
-                firebaseScreenRef.child("patients").set({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+                firebaseScreenRef.child("patients").set({LastUpdated: firebase.database.ServerValue.TIMESTAMP});
             }
 
             //get the list of all resources/locations available from WRM
@@ -301,13 +298,13 @@ myApp.controller("virtualWaitingRoomController",function (
                 Resource: patient.ResourceName,
                 AppointmentId: patient.AppointmentId,
                 ScheduledActivitySystem: patient.CheckinSystem,
-                Timestamp: Firebase.ServerValue.TIMESTAMP
+                Timestamp: firebase.database.ServerValue.TIMESTAMP
             });
 
             $scope.logMessage("call_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in firebase "+ $scope.pageSettings.ClinicHubId +" at destination "+ destination.ScreenDisplayName +" with status 'Called'");
 
             // Update the timestamp in the firebase array
-            firebaseScreenRef.child("Metadata").update({LastUpdated: Firebase.ServerValue.TIMESTAMP});
+            firebaseScreenRef.child("Metadata").update({LastUpdated: firebase.database.ServerValue.TIMESTAMP});
         }
 
         if(sendSMS) {
@@ -364,7 +361,7 @@ myApp.controller("virtualWaitingRoomController",function (
         $scope.logMessage("remove_FB","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" removed from firebase "+ $scope.pageSettings.ClinicHubId);
 
         // Update the metadata timestamp
-        firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
+        firebaseScreenRef.child("Metadata").update({ LastUpdated: firebase.database.ServerValue.TIMESTAMP});
     }
 
     //=========================================================================
@@ -419,13 +416,14 @@ myApp.controller("virtualWaitingRoomController",function (
             $scope.logMessage("compl_mv","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" inserted in db at location BACK TO WAITING ROOM and patient status on firebase "+ $scope.pageSettings.ClinicHubId +" changed to CheckedOut");
 
             // Update the metadata timestamp
-            firebaseScreenRef.child("Metadata").update({ LastUpdated: Firebase.ServerValue.TIMESTAMP});
+            firebaseScreenRef.child("Metadata").update({ LastUpdated: firebase.database.ServerValue.TIMESTAMP});
         });
     }
 
     //function that checks an appointment name and determines whether the patient has to be weighed
-    $scope.screenRows.$loaded().then(function()
+    firebaseScreenRef.once('value').then((snapshot) =>
     {
+        $scope.screenRows = snapshot.val();
         $scope.patientWeightRequired = function (patient)
         {
             if($scope.patientLoadingEnabled)

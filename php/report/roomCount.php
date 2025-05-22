@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 //---------------------------------------------------------------------------------------------------------------
-// This script finds all the locations patients visited during the specified time range for the appointments in the specified time range and in the phpmyadmin WaitRoomManagment database.
+// This script finds all the locations patients visited during the specified time range for the appointments in the specified time range and in the phpmyadmin WaitRoomManagement database.
 //---------------------------------------------------------------------------------------------------------------
 
 // bugs:

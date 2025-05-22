@@ -62,7 +62,7 @@ class SmsTwilio implements SmsClassInterface
                 * EnvironmentException: TCP connection reset by peer
                 * EnvironmentException: Operation timed out after 60001 milliseconds with 0 out of 0 bytes
                 * EnvironmentException: Could not resolve host: api.twilio.com: Unknown error
-            In any case, returing an empty array and letting the code continue is fine because the cron (the only thing that calls this function), will simply run again in a few seconds
+            In any case, returning an empty array and letting the code continue is fine because the cron (the only thing that calls this function), will simply run again in a few seconds
             */
             catch(EnvironmentException) {
                 $incomingMessages = [];

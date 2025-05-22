@@ -466,7 +466,7 @@ paths:
   /patient/getDiagnoses:
     post:
       summary: Retrieve a patient's diagnoses
-      description: Gets all diagnoses in a patient's profile in a format usefult for the Opal Interface Engine
+      description: Gets all diagnoses in a patient's profile in a format useful for the Opal Interface Engine
       tags:
         - patient
       requestBody:
@@ -619,7 +619,7 @@ paths:
   /patient/updatePatientDemographics:
     post:
       summary: Update patient demographic information
-      description: Update a patient's record in ORMS with demograhic information from a hospital source system
+      description: Update a patient's record in ORMS with demographic information from a hospital source system
       tags:
         - patient
       requestBody:

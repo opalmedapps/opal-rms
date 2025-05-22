@@ -16,7 +16,7 @@ use Orms\Patient\Model\Patient;
 class Fetch
 {
     /**
-     *  Checks in the Aria system wether a patient has a photo. A null value indicates that the patient is not an Aria patient
+     *  Checks in the Aria system whether a patient has a photo. A null value indicates that the patient is not an Aria patient
      */
     public static function checkAriaPhotoForPatient(Patient $patient): ?bool
     {

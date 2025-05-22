@@ -27,8 +27,8 @@ class PatientAccess
     {
         $dbh = Database::getOrmsConnection();
 
-        $inNestedTransation = $dbh->inTransaction();
-        $inNestedTransation ?: $dbh->beginTransaction();
+        $inNestedTransaction = $dbh->inTransaction();
+        $inNestedTransaction ?: $dbh->beginTransaction();
 
         try
         {
@@ -91,11 +91,11 @@ class PatientAccess
 
         }
         catch(Exception $e) {
-            $inNestedTransation ?: $dbh->rollBack();
+            $inNestedTransaction ?: $dbh->rollBack();
             throw $e;
         }
 
-        $inNestedTransation ?: $dbh->commit();
+        $inNestedTransaction ?: $dbh->commit();
     }
 
     public static function deserializePatient(int $patientId): ?Patient
@@ -587,7 +587,7 @@ class PatientAccess
      */
     public static function deserializePatientMeasurements(Patient $patient): array
     {
-        //gets the lastest measurement taken during each date to take into account the fact that a patient in be reweighed (in case of an error, etc)
+        //gets the last measurement taken during each date to take into account the fact that a patient in be reweighed (in case of an error, etc)
         $query = Database::getOrmsConnection()->prepare("
             SELECT
                 PM.PatientMeasurementSer,

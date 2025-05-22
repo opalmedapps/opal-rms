@@ -35,7 +35,7 @@ if($patient->phoneNumber === null) {
     Http::generateResponseJsonAndExit(400, error: "Patient has no phone number");
 }
 
-//create the message in the patient's prefered language
+//create the message in the patient's preferred language
 if($patient->languagePreference === "French") {
     $message = "Teleconsultation CUSM: $zoomLink. Clickez sur le lien pour connecter avec $resName";
 }

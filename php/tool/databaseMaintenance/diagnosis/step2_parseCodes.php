@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-//convert ICD-10 data to a more convient format
+//convert ICD-10 data to a more convenient format
 require_once __DIR__ ."/../../../../vendor/autoload.php";
 
 $data = json_decode(file_get_contents(__DIR__."/data/raw_codes.json") ?: "", true);

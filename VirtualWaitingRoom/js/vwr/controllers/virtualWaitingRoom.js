@@ -47,7 +47,7 @@ myApp.controller("virtualWaitingRoomController",function (
     $scope.resourceLoadingEnabled = 0; //indicates if its safe to open the selector modal (ie we retrieved the resources from the db)
     //=========================================================================
     // Get list of checked-in patients - use $interval to request the
-    // list regularly (specified in miliseconds)
+    // list regularly (specified in milliseconds)
     //=========================================================================
 
 
@@ -365,7 +365,7 @@ myApp.controller("virtualWaitingRoomController",function (
     }
 
     //=========================================================================
-    // Function to send a patient to a specifed area
+    // Function to send a patient to a specified area
     //=========================================================================
     $scope.sendToLocation = function (patient,sendLocation,removeFromFB)
     {

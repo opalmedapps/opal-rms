@@ -17,7 +17,7 @@ function callModalController($scope,$http,$uibModalInstance,$filter,selectedLoca
 
     $scope.occupyingIds = []; //contains a list of patient ids for patients who must be checked out of the exam room they're in
 
-    //seperate exam rooms and other rooms since only exam rooms have an occupation limit
+    //separate exam rooms and other rooms since only exam rooms have an occupation limit
     let examRooms = $filter('filter')(selectedLocations,{Type: "ExamRoom"});
     let venueRooms = $filter('filter')(selectedLocations,{Type: "!ExamRoom"});
 

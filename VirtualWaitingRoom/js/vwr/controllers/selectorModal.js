@@ -37,7 +37,7 @@ function selectorModalController ($scope,$uibModalInstance,$filter,inputs)
     }
 
     //function to check/uncheck all visible options
-    $scope.handleVisibles = function()
+    $scope.handleVisibleOptions = function()
     {
         var visibleOptions = $filter('filter')($scope.passedData.givenOptions,{Name: $scope.selectionFilter});
 
@@ -58,7 +58,7 @@ function selectorModalController ($scope,$uibModalInstance,$filter,inputs)
         }
     }
 
-    //create a watcher to monitor the if all visble options have been selected
+    //create a watcher to monitor the if all visible options have been selected
     $scope.$watch(function()
     {
         //we need to see if all visible options are contained in our selected options array

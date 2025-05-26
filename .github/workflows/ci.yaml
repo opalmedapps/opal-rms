@@ -52,3 +52,11 @@ jobs:
 
   run-reuse-workflow:
     uses: opalmedapps/.github/.github/workflows/reuse.yaml@main
+
+  build-image:
+    needs:
+      - lint
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build.yaml

@@ -5,6 +5,9 @@ name: build
 
 on:
   workflow_call:
+    secrets:
+      NPMRC_FILE:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-build-${{ github.event.pull_request.number || '' }}

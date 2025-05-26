@@ -60,3 +60,5 @@ jobs:
       contents: read
       packages: write
     uses: ./.github/workflows/build.yaml
+    secrets:
+      NPMRC_FILE: ${{ secrets.NPMRC_FILE }}

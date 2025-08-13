@@ -30,15 +30,11 @@ These configuration parameters are read by `docker compose` and by `php/class/Co
 
 If your database is being run with secure transport required (SSL/TLS traffic encryption), also update the values for the SSL environment variables: `DATABASE_USE_SSL=1` and `SSL_CA=/var/www/orms/certs/ca.pem` after copying the `ca.pem` file into the certs directory of ORMs. Detailed instructions on how to generate SSL certificates can be found either in the [documentation repository](https://gitlab.com/opalmedapps/docs/-/blob/main/docs/guides/self_signed_certificates.md) or in the [db-docker README](https://gitlab.com/opalmedapps/db-docker).
 
-### Add the `.npmrc` file
+### Add the `.npmrc` file (Optional)
 
 This project uses [AngularJS](https://angularjs.org/) which reached end of life in January 2022.
-This project uses a long-term support version of AngularJS provided by [HeroDevs](https://www.herodevs.com/support/nes-angularjs).
+A long-term support version of AngularJS can be used instead, provided by [HeroDevs](https://www.herodevs.com/support/nes-angularjs).
 If you have an `npm` token to retrieve this version from their registry, place the `.npmrc` file containing the credentials in the root directory.
-
-You can also use the [last available version](https://www.npmjs.com/package/angular) of AngularJS (version 1.8.3).
-To do so, change the value for the `angular` dependency to `angular@1.8.3` in `package.json`.
-Also change all other auxiliary angular dependencies accessed through `neverendingsupport` to their latest default versions, as provided by npm.
 
 ### Docker
 

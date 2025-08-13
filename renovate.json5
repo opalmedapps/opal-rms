@@ -21,8 +21,6 @@
   "ignorePresets": ["workarounds:nodeDockerVersioning"],
   // https://docs.renovatebot.com/getting-started/private-packages/#automatically-authenticate-for-npm-package-stored-in-private-github-npm-repository
   // The token for the registry it configured via hostRules in the Renovate developer dashboard for the whole organization
-  // uncomment the line below if you have an npm token
-  // "npmrc": "@neverendingsupport:registry=https://registry.nes.herodevs.com/npm/pkg/",
   // Only rebase existing MRs when the branch is conflicted
   // This avoids getting spammed by updates to existing MRs
   // We need to rebase branches to fast-forward merge anyway

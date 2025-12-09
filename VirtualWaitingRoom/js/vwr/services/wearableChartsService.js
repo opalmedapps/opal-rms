@@ -33,7 +33,7 @@
                     {
                         templateUrl: 'VirtualWaitingRoom/js/vwr/templates/wearableCharts.htm',
                         onComplete: async function (scope, element, options) {
-                            element.find("img").replaceWith(response.data);
+                            element.find(".spinner-border").replaceWith(response.data);
                             element.find("h2").remove();
 
                             // Find backend host's address from the wearables URL.

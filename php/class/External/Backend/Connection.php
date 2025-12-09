@@ -21,6 +21,7 @@ class Connection
         'MEDIVISIT' => 2,
         'ERDV' => 5,
         'ORMS' => 6,
+        'OPENEMR' => 4,
     ];
 
     public static function getHttpClient(): ?Client

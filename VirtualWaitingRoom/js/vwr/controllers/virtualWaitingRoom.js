@@ -132,7 +132,7 @@ myApp.controller("virtualWaitingRoomController",function (
         firebaseScreenRef = firebaseScreenRef.database().ref($scope.pageSettings.FirebaseBranch + '/' + $scope.pageSettings.ClinicHubId + "/" + today)
 
         //once we have the firebase array, we load the rest of the page
-        firebaseScreenRef.once('value').then((snapshot) =>
+        firebaseScreenRef.once('value', (snapshot) =>
         {
             //create an array in firebase that contains a list of patients who have to be weighed (if it doesn't already exist)
             //also remove the previous day's array
@@ -423,7 +423,7 @@ myApp.controller("virtualWaitingRoomController",function (
     }
 
     //function that checks an appointment name and determines whether the patient has to be weighed
-    firebaseScreenRef.once('value').then((snapshot) =>
+    firebaseScreenRef.on('value', (snapshot) =>
     {
         $scope.screenRows = snapshot.val();
         $scope.patientWeightRequired = function (patient)

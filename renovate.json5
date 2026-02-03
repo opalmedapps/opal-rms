@@ -14,20 +14,19 @@
     ":separatePatchReleases",
     "github>mschoettle/renovate-presets//presets/docker-alpine.json5",
     // Regex manager for GitHub Actions
-    "github>mschoettle/renovate-presets//presets/actions-dependency-version.json5"
+    "github>mschoettle/renovate-presets//presets/actions-dependency-version.json5",
+    "github>mschoettle/renovate-presets//presets/pre-commit-hooks.json5",
   ],
   // Extra rules for node images. See: https://github.com/renovatebot/renovate/discussions/29501
   // Ensure that node docker versioning doesn't interfere with the custom managers.
   "ignorePresets": ["workarounds:nodeDockerVersioning"],
-  // https://docs.renovatebot.com/getting-started/private-packages/#automatically-authenticate-for-npm-package-stored-in-private-github-npm-repository
-  // The token for the registry it configured via hostRules in the Renovate developer dashboard for the whole organization
   // Only rebase existing MRs when the branch is conflicted
   // This avoids getting spammed by updates to existing MRs
   // We need to rebase branches to fast-forward merge anyway
   //
   // https://docs.renovatebot.com/configuration-options/#rebasewhen
   "rebaseWhen": "conflicted",
-  "assignees": ["Douzeyu"],
+  // "assignees": ["Douzeyu"],
   "labels": ["dependencies"],
   "ignoreDeps": [
     "symfony/lock",

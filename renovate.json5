@@ -14,6 +14,8 @@
     // ":separateMultipleMajorReleases",
     // https://docs.renovatebot.com/presets-default/#separatepatchreleases
     // ":separatePatchReleases",
+    // https://docs.renovatebot.com/presets-helpers/#helperspingithubactiondigeststosemver
+    "helpers:pinGitHubActionDigestsToSemver",
     "github>mschoettle/renovate-presets//presets/docker-alpine.json5",
     // Regex manager for GitHub Actions
     "github>mschoettle/renovate-presets//presets/actions-dependency-version.json5",

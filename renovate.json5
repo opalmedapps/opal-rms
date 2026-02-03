@@ -55,8 +55,7 @@
     },
     // Group auxiliary angular-related updates
     {
-      "matchPackagePatterns": ["^angular", "ng-table"],
-      "excludePackagePatterns": ["^@neverendingsupport/"],
+      "matchPackageNames": ["/^angular/", "/ng-table/", "!/^@neverendingsupport//"],
       "groupName": "auxiliary angular packages"
     },
     // Group AngularJS Never-Ending Support updates (from HeroDevs)

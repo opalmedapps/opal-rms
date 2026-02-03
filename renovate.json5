@@ -60,7 +60,7 @@
     },
     // Group AngularJS Never-Ending Support updates (from HeroDevs)
     {
-      "matchSourceUrlPrefixes": ["https://github.com/xlts-dev/"],
+      "matchSourceUrls": ["https://github.com/xlts-dev/{/,}**"],
       "groupName": "angularjs NES packages"
     },
   ],

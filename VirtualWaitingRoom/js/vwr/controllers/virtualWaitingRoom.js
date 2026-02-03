@@ -349,7 +349,7 @@ myApp.controller("virtualWaitingRoomController",function (
 
         $scope.callPatient(patient,destination,sendSMS,false);
 
-        $scope.logMessage("call_again","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" was called again at location "+ destination);
+        $scope.logMessage("call_again","General","Patient "+ patient.PatientId +" with appointment serial "+ patient.AppointmentId + patient.CheckinSystem +" was called again at location "+ destination.Name);
     }
 
     //=========================================================================

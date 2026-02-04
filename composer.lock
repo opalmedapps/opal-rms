@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "663f2dd3b1a19641634c4e7bd599e773",
+    "content-hash": "755b99e82c03eec0c69e1a173d29f01a",
     "packages": [
         {
             "name": "cebe/php-openapi",
@@ -2075,16 +2075,16 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "8.6.1",
+            "version": "8.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php",
-                "reference": "de0b95f62942758e849a4337f23426e84e36cfe4"
+                "reference": "84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/de0b95f62942758e849a4337f23426e84e36cfe4",
-                "reference": "de0b95f62942758e849a4337f23426e84e36cfe4",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c",
+                "reference": "84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c",
                 "shasum": ""
             },
             "require": {
@@ -2121,7 +2121,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2025-05-13T09:51:13+00:00"
+            "time": "2026-01-07T09:28:54+00:00"
         },
         {
             "name": "ulrichsg/getopt-php",

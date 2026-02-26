@@ -34,8 +34,8 @@ If your database is being run with secure transport required (SSL/TLS traffic en
 
 The Virtual Waiting Room uses the Firebase Realtime Database.
 
-To configure it, you need to define `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH` .
-You can copy the sample `firebase-config.json` file and provide the values to `apiKey`, `databaseURL`, and `projectId` of your Firebase project.
+To configure it, you need to define `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH` in `.env`.
+You should also copy the sample `firebase-config.json` file and provide the values to `apiKey`, `databaseURL`, and `projectId` of your Firebase project.
 
 ```shell
 cp config/firebase-config.json.sample config/firebase-config.json

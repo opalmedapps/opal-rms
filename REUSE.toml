@@ -123,6 +123,7 @@ SPDX-License-Identifier = "MIT"
 path = [
     "composer.lock",
     "package-lock.json",
+    "config/firebase-config.json.sample"
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "NONE"

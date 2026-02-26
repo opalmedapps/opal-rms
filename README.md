@@ -24,11 +24,22 @@ After cloning this repo, follow the below steps to get started.
 
 All configuration is stored within the `.env` file to follow the [12factor app methodology](https://12factor.net/config) on storing config in the environment. This means that any setting that depends on the environment the app is run in should be exposed via the `.env`.
 
-Copy the `.env.sample` to `.env` and adjust the values as necessary. You need to set `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH` for the `Virtual Waiting Room` page. The firebase configuration file needs to be present in `FIREBASE_CONFIG_PATH`. In the firebase configuration file, `apiKey`, `authDomain`, `databaseURL` and `projectId` must be defined.
+Copy the `.env.sample` to `.env` and adjust the values as necessary.
 
 These configuration parameters are read by `docker compose` and by `php/class/Config.php` (via [`phpdotenv`](https://github.com/vlucas/phpdotenv)).
 
-If your database is being run with secure transport required (SSL/TLS traffic encryption), also update the values for the SSL environment variables: `DATABASE_USE_SSL=1` and `SSL_CA=/var/www/orms/certs/ca.pem` after copying the `ca.pem` file into the certs directory of ORMs. Detailed instructions on how to generate SSL certificates can be found either in the [documentation repository](https://gitlab.com/opalmedapps/docs/-/blob/main/docs/guides/self_signed_certificates.md) or in the [db-docker README](https://gitlab.com/opalmedapps/db-docker).
+If your database is being run with secure transport required (SSL/TLS traffic encryption), also update the values for the SSL environment variables: `DATABASE_USE_SSL=1` and `SSL_CA=/var/www/orms/certs/ca.pem` after copying the `ca.pem` file into the certs directory of ORMs. Detailed instructions on how to generate SSL certificates can be found either in the [documentation repository](https://docs.opalmedapps.com/development/guides/self_signed_certificates/) or in the [db-management README](https://github.com/opalmedapps/opal-db-management).
+
+### Firebase Configuration
+
+The Virtual Waiting Room uses the Firebase Realtime Database.
+
+To configure it, you need to define `FIREBASE_CONFIG_PATH` and `FIREBASE_BRANCH` in `.env`.
+You should also copy the sample `firebase-config.json` file and provide the values to `apiKey`, `databaseURL`, and `projectId` of your Firebase project.
+
+```shell
+cp config/firebase-config.json.sample config/firebase-config.json
+```
 
 ### Add the `.npmrc` file (Optional)
 
@@ -274,7 +285,7 @@ Must be one of the following:
 
 * **build**: Changes that affect the build system or external dependencies (i.e., pip, Docker)
 * **chore**: Other changes that don't modify source or test files (e.g., a grunt task)
-* **ci**: Changes to our CI configuration files and scripts (i.e., GitLab CI)
+* **ci**: Changes to our CI configuration files and scripts
 * **docs**: Documentation only changes
 * **feat**: A new feature
 * **fix**: A bug fix
@@ -308,7 +319,6 @@ In addition to appending a `!` after the type/scope in the commit message header
 ## Open Issues
 
 * Test the mailing setup in the DEV/QA servers, make sure the mailing service works properly
-* Add CI/CD setup (`gitlab-ci.yml`)
 * git hooks currently do not work since everything is done in the container and a multi-stage Dockerfile is used
 
 ## Profile system notes

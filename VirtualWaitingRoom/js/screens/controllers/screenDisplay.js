@@ -28,7 +28,6 @@ myApp.controller("screenDisplayController", async function(
         }
     },5*60*1000);
 
-    // $scope.tickerText = "Notifications par texto pour vos RDV maintenant disponibles! Abonnez-vous à la réception... / Appointment SMS notifications are now available! You can register at the reception...";
     $scope.tickerText = "Do you need a family doctor? Register online on gamf.gouv.qc.ca. If you need help, a volunteer can assist you at the Cedars CanSupport Resource Centre room, DRC-1329… / Besoin d’un médecin de famille ? Inscrivez-vous en ligne au gamf.gouv.qc.ca. Si vous avez besoin d’aide, un bénévole pourra vous aider au Centre de ressources CanSupport des Cèdres, salle DRC-1329…";
 
     if(today.format("dddd") === "Tuesday" && hour >= 12 && hour < 13) {

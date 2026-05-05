@@ -86,22 +86,7 @@ For installing `composer` dependencies, the same concept is used as for the `npm
 
 In order for linting, type checking, unit testing etc., to be available in your IDE and `githooks`, we recommend to install the dependencies inside working/root directory. Although the `Docker` container automatically installs all the required dependencies, they cannot be seen by the IDE for the code quality tools and `githooks`.
 
-To quickly install the `composer` in the current directory, run the following script in your terminal:
-
-```shell
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php -r "if (hash_file('sha384', 'composer-setup.php') === 'baf1608c33254d00611ac1705c1d9958c817a1a33bce370c0595974b342601bd80b92a3f46067da89e3b06bff421f182') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-php composer-setup.php
-php -r "unlink('composer-setup.php');"
-```
-
-After running the installer, you can run this to move `composer.phar` to a directory that is in your path, so you can access it globally.
-
-```bash
-mv composer.phar /usr/local/bin/composer
-```
-
-For more details look [here](https://getcomposer.org/download/) and [here](https://getcomposer.org/doc/00-intro.md#globally).
+For more details on how to install `composer` look [here](https://getcomposer.org/download/) and [here](https://getcomposer.org/doc/00-intro.md#globally).
 
 After installing `composer`, run one of the following commands for installing `PHP` dependencies:
 

@@ -6,7 +6,7 @@
     },
     "require": {
         "twilio/sdk": "8.11.3",
-        "guzzlehttp/guzzle": "7.10.0",
+        "guzzlehttp/guzzle": "7.15.2",
         "ulrichsg/getopt-php": "4.0.4",
         "league/openapi-psr7-validator": "0.22",
         "cebe/php-openapi": "1.7.0",
